@@ -1,36 +1,95 @@
 {% extends "base.html" %}
 {% load static %}
-
+{% load crispy_forms_tags %}
 {% block title %}User: {{ object.username }}{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container-fluid">
+    <h2 class="m-y-2">Profile</h2>
+    <div class="row m-y-2">
+      <div class="col-lg-4 pull-lg-8 text-xs-center">
+          <img src="{% if object.avatar %} {{ object.avatar.url }} {% else %} https://gravatar.com/avatar/32cd3b759677f3dad63033536e05672b?s=400&d=robohash&r=x {% endif %}" class="m-x-auto img-fluid img-circle" alt="avatar">
 
-  <div class="row">
-    <div class="col-sm-12">
+          <table class="table table-striped">
+            <tbody>
+              <tr>
+                <th scope="row">Creation date</th>
+                <td>{{ object.date_joined }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Last connexion</th>
+                <td>{{ object.last_login }}</td>
+              </tr>
+            </tbody>
+          </table>
+      </div>
+        <div class="col-lg-8 push-lg-4">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a href="" data-target="#profile" data-toggle="tab" class="nav-link active">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a href="" data-target="#analyse" data-toggle="tab" class="nav-link disabled">Studies</a>
+                </li>
+                <li class="nav-item">
+                    <a href="" data-target="#project" data-toggle="tab" class="nav-link disabled">Jobs</a>
+                </li>
+            </ul>
+            <div class="tab-content p-b-3" style="margin-top:20px;">
+                <div class="tab-pane active" id="profile">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <form>
+                          <div class="form-group">
+                            <label for="exampleInputUser">User name</label>
+                            <input type="text" class="form-control" id="exampleInputUser" aria-describedby="UserHelp" placeholder="" value="{{ object.username }}" disabled>
+                            <small id="UserHelp" class="form-text text-muted">Can't be modified</small>
+                          </div>
+                          <div class="form-group">
+                            <label for="exampleInputmail">Email</label>
+                            <input type="text" class="form-control" id="exampleInputmail" aria-describedby="MailHelp" placeholder="" value="{{ object.email }}" disabled>
+                          </div>
+                          <div class="form-group">
+                            <label for="exampleInputFirst">First name</label>
+                            <input type="text" class="form-control" id="exampleInputFirst" aria-describedby="FirstHelp" placeholder="Enter email" value="{{ object.name }}" disabled>
+                          </div>
+                          <div class="form-group">
+                            <label for="exampleInputLast">Last name</label>
+                            <input type="text" class="form-control" id="exampleInputLast" aria-describedby="LastHelp" placeholder="Click on modify to change your last name" value="{{ object.last_name }}" disabled>
+                          </div>
+                          <div class="form-group">
+                            <label for="exampleInputCompagny">Institut</label>
+                            <input type="text" class="form-control" id="exampleInputCompagny" placeholder="Click on modify to change your compagny" value="{{ object.institut }}" disabled>
+                          </div>
+                        </form>
+                        {% if object == request.user %}
+                        <!-- Action buttons -->
+                        <div class="row">
 
-      <h2>{{ object.username }}</h2>
-      {% if object.name %}
-        <p>{{ object.name }}</p>
-      {% endif %}
+                          <div class="col-sm-12">
+                            <a class="btn btn-outline-info" href="{% url 'users:update' %}" role="button">Edit info</a>
+                            <a class="btn btn-outline-info" href="{% url 'account_email' %}" role="button">E-Mail</a>
+                            <!-- Your Stuff: Custom user template urls -->
+                          </div>
+
+                        </div>
+                        <!-- End Action buttons -->
+                        {% endif %}
+                      </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="analyse">
+                    
+                </div>
+                <div class="tab-pane" id="project">
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-
-{% if object == request.user %}
-<!-- Action buttons -->
-<div class="row">
-
-  <div class="col-sm-12">
-    <a class="btn btn-primary" href="{% url 'users:update' %}" role="button">My Info</a>
-    <a class="btn btn-primary" href="{% url 'account_email' %}" role="button">E-Mail</a>
-    <!-- Your Stuff: Custom user template urls -->
-  </div>
-
 </div>
-<!-- End Action buttons -->
-{% endif %}
-
-
+<hr>
 </div>
+
+
 {% endblock content %}
 
