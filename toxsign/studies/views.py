@@ -5,27 +5,24 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views import generic
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
-from toxsign.projects.models import Project
 from toxsign.studies.models import Study
 
 User = get_user_model()
 
 class IndexView(generic.ListView):
-    template_name = 'projects/index.html'
-    context_object_name = 'project_list'
+    template_name = 'studies/index.html'
+    context_object_name = 'study_list'
 
     def get_queryset(self):
         """
         Return the last five published questions (not including those set to be
         published in the future).
         """
-        return Project.objects.filter(
+        return Studies.objects.filter(
             created_at__lte=timezone.now()
         ).order_by('created_at')
 
-def DetailView(request, prjid):
-    project_object = Project.objects.get(prj_id=prjid)
-    project = get_object_or_404(Project, pk=project_object.id)
-    studies = project.study_of.all()
-    print(studies)
-    return render(request, 'projects/details.html', {'project': project,'studies':studies})
+def DetailView(request, stdid):
+    study_object = Studies.objects.get(std_id=stdid)
+    study = get_object_or_404(Studies, pk=study_object.id)
+    return render(request, 'studies/details.html', {'study': study})

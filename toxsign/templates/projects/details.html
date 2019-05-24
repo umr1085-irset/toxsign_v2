@@ -3,7 +3,44 @@
 
 {% block content %}
     <div class="container-fluid">
-      <h3>{{ project.prj_id }} - {{project.name}}</h3>
+      <div class="row">
+        <div class="col-md-3 ">
+          <div class="list-group ">
+              <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action active">Project</a>
+              <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Studies ({{ studies|length }})</a>
+              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Signatures</a>
+            </div> 
+        </div>
+        <div class="col-md-9">
+            <div class="tab-content card">
+              <div class="tab-pane active text-style card-body" id="tab1">
+                <h2>{{ project.prj_id }} - {{ project.name }}</h2>
+                    <p>
+                      {{ project.description }}
+                    </p>
+                    <hr>
+              </div>
+              <div class="tab-pane text-style card-body" id="tab2">
+                {% for study in studies %}
+                  <h2>{{ study.std_id }} - {{ study.name }} <small> {{ study.study_type }}</small></h2>
+                  <p>{{ study.experimental_design }}</p>
+                    <hr>
+                  {% endfor %}
+              </div>
+              <div class="tab-pane text-style card-body" id="tab3">
+                <h2>Stet clita </h2>
+                <p>Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Duis autem vel eum 
+                  iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla 
+                  facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit 
+                  augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet,</p>
+                  <hr>
+                  <div class="col-xs-6 col-md-3">
+                    <img src="http://placehold.it/150x150" class="img-rounded pull-right">
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
     </div>
     
 {% endblock %}

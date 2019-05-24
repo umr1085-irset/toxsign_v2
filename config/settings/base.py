@@ -71,6 +71,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "toxsign.users.apps.UsersAppConfig",
     "toxsign.projects.apps.ProjectsAppConfig",
+    "toxsign.studies.apps.StudiesAppConfig",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

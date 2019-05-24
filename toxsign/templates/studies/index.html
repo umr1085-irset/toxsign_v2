@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block content %}
+    <div class="container-fluid">
+        {% for project in project_list %}
+            <h3><a href="{% url 'projects:detail' project.prj_id %}">{{ project.prj_id }}</a> - {{project.name}}</h3>
+            <small><b>Author:</b>{{ project.created_by }} - {{ project.created_at }}</small>
+            <p><b>Description : </b>{{project.description}}</p>
+            <hr>
+        {% endfor %}
+    </div>
+
+{% endblock %}
