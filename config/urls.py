@@ -4,11 +4,23 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic import TemplateView
 from django.views import defaults as default_views
+from . import views
 
 urlpatterns = [
-    path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
+    path("", views.HomeView, name="home"),
+    path("ajax_calls/search/", views.autocompleteModel, name="search"),
+    path("search_results/<str:query>", views.search, name="results"),
     path(
         "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
+    ),
+    path(
+        "tutorial/", TemplateView.as_view(template_name="pages/tutorial.html"), name="tutorial"
+    ),
+    path(
+        "statistics/", TemplateView.as_view(template_name="pages/statistics.html"), name="statistics"
+    ),
+    path(
+        "download/", TemplateView.as_view(template_name="pages/download.html"), name="download"
     ),
     path(
         "help/", TemplateView.as_view(template_name="pages/help.html"), name="help"
@@ -19,6 +31,10 @@ urlpatterns = [
     path("users/", include("toxsign.users.urls", namespace="users")),
     path("projects/", include("toxsign.projects.urls", namespace="projects")),
     path("studies/", include("toxsign.studies.urls", namespace="studies")),
+    path("assays/", include("toxsign.assays.urls", namespace="assays")),
+    path("ontologies/", include("toxsign.ontologies.urls", namespace="ontologies")),
+    path("tools/", include("toxsign.tools.urls", namespace="tools")),
+    path("jobs/", include("toxsign.jobs.urls", namespace="jobs")),
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

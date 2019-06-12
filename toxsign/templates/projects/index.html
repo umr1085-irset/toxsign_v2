@@ -3,12 +3,86 @@
 
 {% block content %}
     <div class="container-fluid">
-        {% for project in project_list %}
-            <h3><a href="{% url 'projects:detail' project.prj_id %}">{{ project.prj_id }}</a> - {{project.name}}</h3>
-            <small><b>Author:</b>{{ project.created_by }} - {{ project.created_at }}</small>
-            <p><b>Description : </b>{{project.description}}</p>
-            <hr>
-        {% endfor %}
+        <div class="row">
+        <div class="col-md-3 ">
+          <div class="list-group ">
+              <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action active">Projects ({{ project_number }})</a>
+              <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Studies ({{ study_number }})</a>
+              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Signatures</a>
+            </div> 
+        </div>
+        <div class="col-md-9">
+            <div class="tab-content card">
+              <div class="tab-pane active text-style card-body" id="tab1">
+                {% for project in project_list %}
+                    <h3><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a> - {{project.name}}</h3>
+                    <small><b>Author:</b>{{ project.created_by }} - {{ project.created_at }}</small>
+                    <p><b>Description : </b>{{project.description}}</p>
+                    <hr>
+                {% endfor %}
+                {% if project_list %}
+                <nav aria-label="Page navigation example">
+                  <ul class="pagination">
+                    {% if project_list.has_previous %}
+                      <li class="page-item"><a class="page-link" href="?projects={{ project_list.previous_page_number }}">&laquo;</a></li>
+                    {% else %}
+                      <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
+                    {% endif %}
+                    {% for i in project_list.paginator.page_range %}
+                      {% if project_list.number == i %}
+                        <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
+                      {% else %}
+                        <li class="page-item"><a class="page-link" href="?projects={{ i }}">{{ i }}</a></li>
+                      {% endif %}
+                    {% endfor %}
+                    {% if project_list.has_next %}
+                      <li class="page-item"><a class="page-link" href="?projects={{ project_list.next_page_number }}">&raquo;</a></li>
+                    {% else %}
+                      <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
+                    {% endif %}
+                  </ul>
+              </nav>
+              {% endif %}
+              </div>
+              <div class="tab-pane text-style card-body" id="tab2">
+                {% for study in study_list %}
+                      <h3><a href="{% url 'studies:detail' study.tsx_id %}">{{ study.tsx_id }}</a> - {{study.name}}</h3>
+                      <small><b>Author:</b>{{ study.created_by }} - {{ study.created_at }}</small>
+                      <p><b>Description : </b>{{study.description}}</p>
+                      <hr>
+                  {% endfor %}
+                  {% if study_list %}
+                  <nav aria-label="Page navigation example">
+                    <ul class="pagination">
+                      {% if study_list.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?studies={{ study_list.previous_page_number }}">&laquo;</a></li>
+                      {% else %}
+                        <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
+                      {% endif %}
+                      {% for i in study_list.paginator.page_range %}
+                        {% if study_list.number == i %}
+                          <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
+                        {% else %}
+                          <li class="page-item"><a class="page-link" href="?studies={{ i }}">{{ i }}</a></li>
+                        {% endif %}
+                      {% endfor %}
+                      {% if study_list.has_next %}
+                        <li class="page-item"><a class="page-link" href="?studies={{ study_list.next_page_number }}">&raquo;</a></li>
+                      {% else %}
+                        <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
+                      {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+                  
+              </div>
+              <div class="tab-pane text-style card-body" id="tab3">
+                
+              </div>
+            </div>
+        </div>
+      </div>
+        
     </div>
 
 {% endblock %}

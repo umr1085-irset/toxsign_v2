@@ -14,7 +14,7 @@ class Project(models.Model):
         ('PUBLIC', 'Public'),
     )
     name = models.CharField(max_length=200)
-    prj_id = models.CharField(max_length=200)
+    tsx_id = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_created_by')
     updated_at = models.DateTimeField(auto_now=True, null=True, verbose_name=("user"))

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% load account socialaccount %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+{% if statuss %}
+    <ul class="statuss">
+        {% for status in statuss %}
+            <li>
+                <p>{{status}}</p>
+            </li>
+        {% endfor %}    
+    </ul>
+{% else %}
+    <p>No status found.</p>
+{% endif %}
+{% endblock %}

@@ -29,10 +29,10 @@
                     <a href="" data-target="#profile" data-toggle="tab" class="nav-link active">Profile</a>
                 </li>
                 <li class="nav-item">
-                    <a href="" data-target="#analyse" data-toggle="tab" class="nav-link disabled">Studies</a>
+                    <a href="" data-target="#project" data-toggle="tab" class="nav-link">My projects</a>
                 </li>
                 <li class="nav-item">
-                    <a href="" data-target="#project" data-toggle="tab" class="nav-link disabled">Jobs</a>
+                    <a href="" data-target="#studies" data-toggle="tab" class="nav-link disabled">Jobs</a>
                 </li>
             </ul>
             <div class="tab-content p-b-3" style="margin-top:20px;">
@@ -78,10 +78,38 @@
                       </div>
                     </div>
                 </div>
-                <div class="tab-pane" id="analyse">
+                <div class="tab-pane" id="project">
+                  <div class="table-responsive-xl">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">Name</th>
+                          <th scope="col">Creation date</th>
+                          <th scope="col">Status</th>
+                          <th scope="col">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for project in project_list %}
+                          <tr>
+                            <th>{{ project.tsx_id }}</th>
+                            <td>{{ project.name }}</td>
+                            <td>{{ project.created_at }}</td>
+                            <td>{{ project.status }}</td>
+                            <td>
+                              <a role="button" href="{% url 'projects:project_edit' project.id %}" class="btn btn-outline-success"><i class="far fa-edit"></i> Edit</a>
+                              <a role="button" href="#" class="btn btn-outline-info"><i class="far fa-share-square"></i> Share</a>
+                              <a role="button" href="#" class="btn btn-outline-danger"><i class="far fa-trash-alt"></i> Delete</a>
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
                     
                 </div>
-                <div class="tab-pane" id="project">
+                <div class="tab-pane" id="studies">
                 </div>
             </div>
         </div>

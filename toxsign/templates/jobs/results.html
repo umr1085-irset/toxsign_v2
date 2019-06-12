@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+    <div class="container">
+        <h1>{{ job.id }} - {{ job.title }}</h1>
+        <hr>
+        <table class="table" style="text-align:center">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Extension</th>
+                    <th>View</th>
+                    <th scope="col">Download</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in file_list%}
+                    <tr>
+                        <th scope="row" class="align-middle">{{ forloop.counter }}</th>
+                        <td class="align-middle">{{ file.name }}</td>
+                        <td class="align-middle">{{ file.ext }}</td>
+                        {% if file.ext == ".pdf" %}
+                            <td class="align-middle"><embed src="{% url 'jobs:results_download' pk=job.id file_name=file.file%}" width="500" height="375" type="application/pdf"></td>
+                        {% elif file.ext == ".matrix" or file.ext == ".list" or file.ext == ".info" %}
+                            <td class="align-middle"> {{ file.table | safe }}</td>
+                        {% else %}
+                            <td></td>
+                        {% endif %}
+                        <td class="align-middle"><a class="btn btn-outline-success" href="{% url 'jobs:results_download' pk=job.id file_name=file.file%}" target="_blank">Download</a></td>
+                    </tr>
+                {% endfor%}
+            </tbody>
+        </table>
+
+    </div>
+{% endblock %}

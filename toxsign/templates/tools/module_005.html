@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+
+{% block content %}
+  <div class="container-fluid">
+    <h1>Transcriptomics Affymetrix RMA</h1>
+    <hr>
+    <div class="row">
+        <div class="col-md-12">
+            {% if table_content_data %}
+                <h4>Gene expression matrix</h4>
+                {{ table_content | safe}}
+                <hr>
+            {% endif %}
+        </div>
+        <div class="col-md-12">
+            {% if table_content_info %}
+                <h4>Sample description</h4>
+                {{ table_content | safe}}
+                <hr>
+            {% endif %}
+        </div>
+        <div class="col-md-12">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="job_name">Job name</label>
+                    <input id="job_name" type="text" class="form-control" name="job_name">
+                </div>
+                <div class="form-group">
+                    <label for="sample_info">Sample info</label>
+                    <input id="sample_info" type="file" class="form-control-file" name="sample_info">
+                </div>
+                <div class="form-group">
+                    <label for="data_files">Data files</label>
+                    <input id="data_files" type="file" class="form-control-file" name="data_files" multiple>
+                </div>
+                <div class="form-group">
+                    <label for="probetype">Probe type</label>
+                    <select id="probetype" name="probetype">
+                        <option selected="selected" disabled>Select probe type:</option>
+                        <option value="entrezg">Entrez gene</option>
+                        <option value="ensg">Ensembl gene</option>
+                        <option value="refseq">Refseq</option>
+                        <option value="enst">Enst</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary mb-2">Upload</button>
+            </form>
+        </div>
+    </div>
+  </div>
+    
+{% endblock %}

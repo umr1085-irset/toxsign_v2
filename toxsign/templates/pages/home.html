@@ -1,13 +1,16 @@
 {% extends "base.html" %}
 {% load static i18n %}
+{% load account socialaccount %}
+{% load crispy_forms_tags %}
 {% block content %}
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
     <!-- Page Content -->
     <div class="container-fluid">
 
         <!-- Heading Row -->
         <div class="row align-items-center my-5">
         <div class="col-lg-7">
-            <img class="img-fluid rounded mb-4 mb-lg-0" src="" alt="">
+            <img class="img-fluid rounded mb-4 mb-lg-0" src="http://placehold.it/900x400" alt="">
         </div>
         <!-- /.col-lg-8 -->
         <div class="col-lg-5">
@@ -23,33 +26,13 @@
         <!-- /.row -->
 
         <!-- Call to Action Well -->
-        <div class="row justify-content-center">
-
-           
-                <div class="col-md-4" style="text-align: center;">
-                <i class="fa fa-list fa-5x" aria-hidden="true" ></i>
-                <h2>Get started</h2>
-                </div>
-   
-
-
-                <div class="col-md-4" style="text-align: center;">
-                <i class="fa fa-magic fa-5x" aria-hidden="true"></i>
-                <h2>How to use it?</h2>
-                </div>
-
-
-   
-                <div class="col-md-4" style="text-align: center;">
-                <i class="fa fa-users fa-5x" aria-hidden="true"></i>
-                <h2>Get involved</h2>
-                </div>
-
-        </div>
-
         <div class="card text-white bg-secondary my-5 py-4 text-center">
         <div class="card-body">
-            <p class="text-white m-0">TOXsIgN beta server v.0.1.0</p>
+            <form class="form-inline" id="search" method="GET" action='{% url "search" %}'>
+                    {% csrf_token %}
+                    <input type='text' class="form-control col-md-10" name='q' placeholder="Enter Search Keyword" value='{{ request.GET.q }}' id='intry'>
+                    <button type="submit" class="btn btn-primary col-md-2">Search</button>
+            </form>
         </div>
         </div>
 
@@ -103,5 +86,18 @@
         <!-- /.row -->
 
     </div>
+    <script>
+         /*$(document).ready(function(){ 
+            $("#txtSearch").autocomplete({
+                source: "/ajax_calls/search/",
+                minLength: 2,
+                open: function(){
+                    setTimeout(function () {
+                        $('.ui-autocomplete').css('z-index', 99);
+                    }, 0);
+                }
+              });
+        });*/
+    </script>
     <!-- /.container -->
 {% endblock %}

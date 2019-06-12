@@ -1,5 +1,5 @@
 from django.urls import path
-from toxsign.projects import views
+from toxsign.studies import views
 
 app_name = "studies"
 urlpatterns = [

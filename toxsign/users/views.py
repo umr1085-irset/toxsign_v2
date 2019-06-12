@@ -3,6 +3,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 
+from toxsign.projects.models import Project
+
 User = get_user_model()
 
 
@@ -11,7 +13,10 @@ class UserDetailView(LoginRequiredMixin, DetailView):
     model = User
     slug_field = "username"
     slug_url_kwarg = "username"
-
+    def get_context_data(self, **kwargs):
+        context = super(UserDetailView, self).get_context_data(**kwargs)
+        context['project_list'] = Project.objects.filter(created_by__exact=self.request.user.id)
+        return context
 
 user_detail_view = UserDetailView.as_view()
 

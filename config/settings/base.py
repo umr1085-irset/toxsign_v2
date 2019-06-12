@@ -72,6 +72,11 @@ LOCAL_APPS = [
     "toxsign.users.apps.UsersAppConfig",
     "toxsign.projects.apps.ProjectsAppConfig",
     "toxsign.studies.apps.StudiesAppConfig",
+    "toxsign.assays.apps.AssaysAppConfig",
+    "toxsign.ontologies.apps.OntologiesAppConfig",
+    "toxsign.jobs.apps.JobsAppConfig",
+    "toxsign.tools.apps.ToolsAppConfig",
+    "toxsign.signatures.apps.SignaturesAppConfig",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
