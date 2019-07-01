@@ -5,11 +5,84 @@
 
 {% block content %}
     <div class="container-fluid">
+        <h2>{{ edit.tsx_id }} - {{ edit.name }}</h2>
         <form method="post">
             {% csrf_token %}
             {{ form|crispy }}
-            <button type="submit" class="btn btn-primary">Sign in</button>
+           
+            <div class="row">
+                <div class="col-md-3 ">
+                <div class="list-group ">
+                    <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action active">Studies ({{ edit.study_of.all|length }})</a>
+                    <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Assays</a>
+                    <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Signatures</a>
+                    </div> 
+                </div>
+                <div class="col-md-9">
+                    <div class="tab-content card">
+                    <div class="tab-pane active text-style card-body" id="tab1">
+                        <div class="table-responsive-xl">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr style="text-align:center;">
+                                    <th scope="col">#</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Creation date</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for study in edit.study_of.all %}
+                                    <tr>
+                                    <th>{{ study.tsx_id }}</th>
+                                    <td>{{ study.name }}</td>
+                                    <td>{{ study.created_at }}</td>
+                                    <td>
+                                        <button onclick="openModalStudy('{{ study.id }}')"  class="btn btn-outline-success"><i class="far fa-edit"></i> Edit</button>
+                                        <a role="button" href="#" class="btn btn-outline-danger"><i class="far fa-trash-alt"></i> Delete</a>
+                                    </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <a role="button" href="#" class="btn btn-outline-info float-right" style="margin-top:10px;"><i class="fas fa-external-link-alt"></i> New</a>
+                    </div>
+                    <div class="tab-pane text-style card-body" id="tab2">
+                        {% for study in studies %}
+                        <h2>{{ study.tsx_id }} - {{ study.name }} <small> {{ study.study_type }}</small></h2>
+                        <p>{{ study.experimental_design }}</p>
+                            <hr>
+                        {% endfor %}
+                    </div>
+                    <div class="tab-pane text-style card-body" id="tab3">
+                        <h2>Stet clita </h2>
+                        <p>Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Duis autem vel eum 
+                        iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla 
+                        facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit 
+                        augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet,</p>
+                        <hr>
+                        <div class="col-xs-6 col-md-3">
+                            <img src="http://placehold.it/150x150" class="img-rounded pull-right">
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-outline-primary">Save</button>
         </form>
     </div>
+    <script type="text/javascript">
+ 
+            function openModalStudy(stud_id){
+                console.log(stud_id)
+                $(".create-book").modalForm({
+                    formURL: "{% url 'studies:study_edit' 1 %}"
+                });
+            }
+            
+
+    </script>
     
 {% endblock %}

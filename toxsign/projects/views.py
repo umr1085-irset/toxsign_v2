@@ -14,7 +14,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 def IndexView(request):
-    Model_one = Project.objects.all()
+    Model_one = Project.objects.all().order_by('id')
     project_number = len(Model_one)
     paginator = Paginator(Model_one, 5)
     page = request.GET.get('projects')
@@ -50,11 +50,11 @@ class EditView(LoginRequiredMixin, UpdateView):
 
     model = Project
     template_name = 'projects/project_edit.html'
-    fields = '__all__'
+    fields = ["name", "description"]
+    context_object_name = 'edit'
 
     def get_success_url(self):
         return reverse("users:detail", kwargs={"username": self.request.user.username})
 
     def get_object(self, queryset=None):
-
         return Project.objects.get(pk=self.kwargs['pk'])
