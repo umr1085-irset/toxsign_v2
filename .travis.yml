@@ -7,9 +7,13 @@ before_install:
   - sudo apt-get install -qq firefox automake libtool libreadline6 libreadline6-dev libreadline-dev
   - sudo apt-get install -qq libsqlite3-dev libxml2 libxml2-dev libssl-dev libbz2-dev wget curl llvm
 language: python
+services:
+  - docker
 python:
   - "3.6"
 install:
   - pip install -r requirements/local.txt
+  - docker-compose -f local.yml up -d 
+  - sleep 60
 script:
-  - "pytest"
+  - docker-compose -f local.yml run -e DATABASE_URL django pytest
