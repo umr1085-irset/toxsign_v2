@@ -12,7 +12,7 @@ class Project(models.Model):
         ('PENDING', 'Pending'),
         ('PUBLIC', 'Public'),
     )
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, unique=True)
     tsx_id = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_created_by')
@@ -27,4 +27,4 @@ class Project(models.Model):
     def save(self, *args, **kwargs):
         super(Project, self).save(*args, **kwargs)
         self.tsx_id = "TSP" + str(self.id)
-        super(Project, self).save(*args, **kwargs)
+        super(Project, self).save()
