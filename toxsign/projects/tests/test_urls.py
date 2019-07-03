@@ -22,7 +22,7 @@ def test_details():
 def test_update():
     project = ProjectFactory.create()
     assert (
-        reverse("projects:project_edit", kwargs={"pk": project.project.id})
+        reverse("projects:project_edit", kwargs={"pk": project.id})
         == f"/projects/project_edit/{project.id}/"
     )
     assert resolve(f"/projects/project_edit/{project.id}/").view_name == "projects:project_edit"
