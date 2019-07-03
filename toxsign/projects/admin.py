@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from toxsign.projects.models import Project
 class ProjectAdmin(admin.ModelAdmin):
     fieldsets = [
-        (None,               {'fields': ['name', 'tsx_id', 'created_by', 'status', 'description']}),
+        (None,               {'fields': ['name', 'created_by', 'status', 'description']}),
     ]
     list_display = ['name', 'created_at', 'updated_at']
     search_fields = ['name']
