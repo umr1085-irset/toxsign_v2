@@ -17,3 +17,15 @@ def test_list():
     assert len(projects) == 1
     new_project = projects[0]
     assert new_project.name == project.name
+
+def test_details():
+    project = ProjectFactory.create()
+    assert (
+        reverse("projects:detail", kwargs={"prjid": project.tsx_id})
+        == f"/projects/{project.tsx_id}/"
+    )
+    assert resolve(f"/projects/{project.tsx_id}/").view_name == "projects:detail"
+    client = Client()
+    response = client.get(reverse("projects:detail", kwargs={"prjid": project.tsx_id}))
+    response_project = projects = response.context['project']
+    assert project == response_project
