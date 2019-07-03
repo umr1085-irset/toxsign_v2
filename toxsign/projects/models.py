@@ -6,7 +6,6 @@ from django.contrib.auth.models import  User, Group
 from django.conf import settings
 
 
-
 class Project(models.Model):
     AVAILABLE_STATUS = (
         ('PRIVATE', 'Private'),
@@ -23,3 +22,9 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
+
+    # Override save method to auto increment tsx_id
+    def save(self, *args, **kwargs):
+        super(Project, self).save(*args, **kwargs)
+        self.tsx_id = "TSP" + str(self.id)
+        super(Project, self).save(*args, **kwargs)
