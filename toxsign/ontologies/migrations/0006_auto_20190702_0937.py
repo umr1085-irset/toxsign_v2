@@ -63,6 +63,10 @@ def import_data(apps, schema_editor):
                 print("Malformed(?) IDs")
                 for mal in skipped:
                     print(mal)
+        else:
+            print("The file {} was not found. Ignoring migration".format(os.getenv("ONTOLOGY_DATA_FILE")))
+    else:
+        print("No ONTOLOGY_DATA_FILE variable set. Skipping migration")
 
 def insert_data(model, row, treated_ontologies):
     try:
