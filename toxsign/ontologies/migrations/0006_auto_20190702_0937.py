@@ -8,9 +8,10 @@ import time
 
 def import_data(apps, schema_editor):
     if os.getenv("ONTOLOGY_DATA_FILE"):
-        if os.path.isfile(os.getenv("ONTOLOGY_DATA_FILE")):
+        # Cleanup
+        file = os.getenv("ONTOLOGY_DATA_FILE").replace('"','').replace("'",'')
+        if os.path.isfile(file):
             Biological = apps.get_model('ontologies', 'Biological')
-            file = os.getenv("ONTOLOGY_DATA_FILE")
             completed = False
             obsoletes = []
             start = time.time()
