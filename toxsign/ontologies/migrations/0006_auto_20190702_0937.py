@@ -16,11 +16,8 @@ def import_data(apps, schema_editor):
             obsoletes = []
             start = time.time()
             treated_ontologies = {}
-            loop = 1
             while not completed:
-                print("Loop :" + str(loop))
                 skipped = []
-                loop +=1
                 total = 0
                 added = 0
                 with open(file, 'r') as line:
@@ -30,18 +27,15 @@ def import_data(apps, schema_editor):
                         # Weird case: ancestors but no parents -> Skip and log
                         if row[5] and not row[4]:
                             if row[0] not in obsoletes:
-                                print("Skiping obsolete :" + row[0])
                                 obsoletes.append(row[0])
                                 added +=1
                         # If not parent and not treated, insert row
                         elif row[0] not in treated_ontologies and not row[4]:
-                            print("Add " + row[2])
                             id = insert_data(Biological, row, treated_ontologies)
                             treated_ontologies[row[0]] = id
                             added += 1
                         # If parent & parent was treated
                         elif row[0] not in treated_ontologies and parents_treated(row, treated_ontologies):
-                            print("Add " + row[2])
                             id = insert_data(Biological, row, treated_ontologies)
                             treated_ontologies[row[0]] = id
                             added += 1
