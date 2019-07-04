@@ -6,7 +6,7 @@ from toxsign.users.tests.factories import UserFactory
 class StudyFactory(DjangoModelFactory):
 
     name = Faker("name")
-    tsx_id = Faker("name")
+    tsx_id = Faker("first_name")
     created_by = SubFactory(UserFactory)
     status = "PRIVATE"
     description = Faker("text")
