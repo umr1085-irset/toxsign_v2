@@ -23,6 +23,9 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('projects:detail', args=(self.tsx_id))
+
     # Override save method to auto increment tsx_id
     def save(self, *args, **kwargs):
         super(Project, self).save(*args, **kwargs)

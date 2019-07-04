@@ -44,7 +44,7 @@ def DetailView(request, prjid):
     project = get_object_or_404(Project, pk=project_object.id)
     studies = project.study_of.all()
     print(studies)
-    return render(request, 'projects/details.html', {'project': project,'st udies':studies})
+    return render(request, 'projects/details.html', {'project': project,'studies':studies})
 
 class EditView(LoginRequiredMixin, UpdateView):
 
@@ -52,9 +52,6 @@ class EditView(LoginRequiredMixin, UpdateView):
     template_name = 'projects/project_edit.html'
     fields = ["name", "description"]
     context_object_name = 'edit'
-
-    def get_success_url(self):
-        return reverse("project:details", kwargs={"prjid": edit.tsx_id})
 
     def get_object(self, queryset=None):
         return Project.objects.get(pk=self.kwargs['pk'])
