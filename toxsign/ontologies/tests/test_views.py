@@ -15,16 +15,5 @@ class TestProjectListView:
         projects = response.context['onto_list']
         assert len(projects) == 2497
 
-class TestProjectDetailView:
-
-    def test_details_view_anonymous(self, client):
-        ontology = BiologicalFactory.create(as_parent=None, as_ancestor=None)
-        response = client.get(reverse("projects:detail", kwargs={"prjid": project.tsx_id}))
-        response_project = projects = response.context['project']
-        assert project == response_project
-
-    def test_details_view_user(self, client):
-        ontology = BiologicalFactory.create(as_parent=None, as_ancestor=None)
-        response = client.get(reverse("projects:detail", kwargs={"prjid": project.tsx_id}))
-        response_project = projects = response.context['project']
-        assert project == response_project
+#class TestProjectDetailView:
+# TBA when the view for this is actually functionnal
