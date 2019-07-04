@@ -12,7 +12,7 @@ pytestmark = pytest.mark.django_db
 
 class TestProjectListView:
 
-    def test_list_view(client):
+    def test_list_view(self, client):
         project = ProjectFactory.create()
         client = Client()
         response = client.get(reverse('projects:index'))
@@ -23,7 +23,7 @@ class TestProjectListView:
 
 class TestProjectDetailView:
 
-    def test_details_view(client):
+    def test_details_view(self, client):
         project = ProjectFactory.create()
         response = client.get(reverse("projects:detail", kwargs={"prjid": project.tsx_id}))
         response_project = projects = response.context['project']
@@ -31,7 +31,7 @@ class TestProjectDetailView:
 
 class TestProjectUpdateView:
 
-    def test_update_anonymous(client):
+    def test_update_anonymous(self, client):
         project = ProjectFactory.create()
         new_description = project.description + '_new'
         body = {'name': project.name, 'description': new_description}
@@ -41,7 +41,7 @@ class TestProjectUpdateView:
         project.refresh_from_db()
         assert project.description != new_description
 
-    def test_update_logged(client, django_user_model):
+    def test_update_logged(self, client, django_user_model):
         # Need to be logged for this one
         user = django_user_model.objects.create_user(username='random', password='user')
         client.login(username='random', password='user')
