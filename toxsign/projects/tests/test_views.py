@@ -14,7 +14,6 @@ class TestProjectListView:
 
     def test_list_view(self, client):
         project = ProjectFactory.create()
-        client = Client()
         response = client.get(reverse('projects:index'))
         projects = response.context['project_list']
         assert len(projects) == 1
