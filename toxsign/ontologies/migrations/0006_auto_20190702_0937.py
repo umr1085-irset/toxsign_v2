@@ -6,62 +6,81 @@ import csv
 import os
 import time
 
+ontology_models = {
+    'biological': 'Biological',
+    'cellline': 'CellLine',
+    'cell': 'Cell',
+    'chemical': 'Chemical',
+    'disease': 'Disease',
+    'experiment': 'Experiment',
+    'specie': 'Species',
+    'tissue': 'Tissue'
+}
+
 def import_data(apps, schema_editor):
-    if os.getenv("ONTOLOGY_DATA_FILE"):
-        # Cleanup
-        file = os.getenv("ONTOLOGY_DATA_FILE").replace('"','').replace("'",'')
-        if os.path.isfile(file):
-            Biological = apps.get_model('ontologies', 'Biological')
-            completed = False
-            obsoletes = []
-            start = time.time()
-            treated_ontologies = {}
-            while not completed:
-                skipped = []
-                total = 0
-                added = 0
-                with open(file, 'r') as line:
-                    tsv = csv.reader(line, delimiter='\t')
-                    for row in tsv:
-                        total += 1
-                        # Weird case: ancestors but no parents -> Skip and log
-                        if row[5] and not row[4]:
-                            if row[0] not in obsoletes:
-                                obsoletes.append(row[0])
-                                added +=1
-                        # If not parent and not treated, insert row
-                        elif row[0] not in treated_ontologies and not row[4]:
-                            id = insert_data(Biological, row, treated_ontologies)
-                            treated_ontologies[row[0]] = id
-                            added += 1
-                        # If parent & parent was treated
-                        elif row[0] not in treated_ontologies and parents_treated(row, treated_ontologies):
-                            id = insert_data(Biological, row, treated_ontologies)
-                            treated_ontologies[row[0]] = id
-                            added += 1
-                        elif row[0] not in treated_ontologies:
-                            skipped.append(row[0])
-                    if added == 0:
-                        # Nothing was added. Perhaps some issue in the file. Break
-                        print("Breaking because nothing was added")
-                        completed = True
-                    # If we treated everything, break out
-                    if len(treated_ontologies) == total:
-                        completed = True
-            stop = time.time()
-            print("{} rows inserted in {}s. {} skipped (obsoletes). {} skipped (malformed?)".format(len(treated_ontologies), stop-start, len(obsoletes), len(skipped)))
-            if obsoletes:
-                print("Obsoletes IDs")
-                for obs in obsoletes:
-                    print(obs)
-            if skipped:
-                print("Malformed(?) IDs")
-                for mal in skipped:
-                    print(mal)
+    if os.getenv("ONTOLOGY_DATA_FOLDER"):
+        dir = os.getenv("ONTOLOGY_DATA_FOLDER").replace('"','').replace("'",'')
+        if os.path.isdir(dir) and os.listdir(dir):
+            for file in os.scandir(dir):
+                filename = file.name.split(".")[0]
+                if file.is_file() and filename in ontology_models:
+                    print("Importing file {} in model {}".format(file.name, ontology_models[filename]))
+                    model = apps.get_model('ontologies', ontology_models[filename])
+                    load_data(model, file.path)
+                else:
+                    print("Ignoring {} : either not a file, or not a recognized model name.".format(file.name))
         else:
-            print("The file {} was not found. Ignoring migration".format(os.getenv("ONTOLOGY_DATA_FILE")))
+            print("The folder {} was not found, or is empty. Skipping migration".format(os.getenv("ONTOLOGY_DATA_FOLDER")))
     else:
-        print("No ONTOLOGY_DATA_FILE variable set. Skipping migration")
+        print("No ONTOLOGY_DATA_FOLDER variable set. Skipping migration")
+
+def load_data(model, data_file):
+    completed = False
+    obsoletes = []
+    start = time.time()
+    treated_ontologies = {}
+    while not completed:
+        skipped = []
+        total = 0
+        added = 0
+        with open(data_file, 'r') as line:
+            tsv = csv.reader(line, delimiter='\t')
+            for row in tsv:
+                total += 1
+                # Weird case: ancestors but no parents -> Skip and log
+                if row[5] and not row[4]:
+                    if row[0] not in obsoletes:
+                        obsoletes.append(row[0])
+                        added +=1
+                # If not parent and not treated, insert row
+                elif row[0] not in treated_ontologies and not row[4]:
+                    id = insert_data(model, row, treated_ontologies)
+                    treated_ontologies[row[0]] = id
+                    added += 1
+                # If parent & parent was treated
+                elif row[0] not in treated_ontologies and parents_treated(row, treated_ontologies):
+                    id = insert_data(model, row, treated_ontologies)
+                    treated_ontologies[row[0]] = id
+                    added += 1
+                elif row[0] not in treated_ontologies:
+                    skipped.append(row[0])
+            if added == 0:
+                # Nothing was added. Perhaps some issue in the file. Break
+                print("Breaking because nothing was added")
+                completed = True
+            # If we treated everything, break out
+            if len(treated_ontologies) == total:
+                completed = True
+    stop = time.time()
+    print("{} rows inserted in {}s. {} skipped (obsoletes). {} skipped (malformed?)".format(len(treated_ontologies), stop-start, len(obsoletes), len(skipped)))
+    if obsoletes:
+        print("Obsoletes IDs")
+        for obs in obsoletes:
+            print(obs)
+    if skipped:
+        print("Malformed(?) IDs")
+        for mal in skipped:
+            print(mal)
 
 def insert_data(model, row, treated_ontologies):
     try:
@@ -75,7 +94,7 @@ def insert_data(model, row, treated_ontologies):
         return object.id
     except Exception as e:
         raise Exception(" ".join(row))
-        
+
 def parents_treated(row, treated_ontologies):
     if row[4]:
         parents = row[4].split("|")
@@ -94,5 +113,3 @@ class Migration(migrations.Migration):
     operations = [
 	migrations.RunPython(import_data),
     ]
-
-

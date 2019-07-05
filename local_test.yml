@@ -19,7 +19,7 @@ services:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
     environment:
-        - ONTOLOGY_DATA_FILE="/app/testing_data/test_data.tab"
+        - ONTOLOGY_DATA_FOLDER="/app/testing_data/"
     ports:
       - "8000:8000"
     command: /start
