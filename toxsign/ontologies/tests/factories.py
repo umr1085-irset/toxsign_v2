@@ -12,6 +12,30 @@ class BiologicalFactory(OntologyFactory):
     class Meta:
         model = Biological
 
+class CellLineFactory(OntologyFactory):
+    class Meta:
+        model = CellLine
+
+class Cell(OntologyFactory):
+    class Meta:
+        model = Cell
+
+class ChemicalFactory(OntologyFactory):
+    class Meta:
+        model = Chemical
+
 class DiseaseFactory(OntologyFactory):
     class Meta:
         model = Disease
+
+class ExperimentFactory(OntologyFactory):
+    class Meta:
+        model = Experiment
+
+class SpeciesFactory(OntologyFactory):
+    class Meta:
+        model = Species
+
+class TissueFactory(OntologyFactory):
+    class Meta:
+        model = Tissue
