@@ -20,10 +20,10 @@ ontology_models = {
 def import_data(apps, schema_editor):
     if os.getenv("ONTOLOGY_DATA_FOLDER"):
         dir = os.getenv("ONTOLOGY_DATA_FOLDER").replace('"','').replace("'",'')
-        if os.path.isdir(dir) and os.listdir(directory):
-            for file in os.scandir(directory):
+        if os.path.isdir(dir) and os.listdir(dir):
+            for file in os.scandir(dir):
                 filename = file.name.split(".")[0]
-                if file.isfile() and filename in ontology_models:
+                if file.is_file() and filename in ontology_models:
                     print("Importing file {} in model {}".format(file.name, ontology_models[filename]))
                     model = apps.get_model('ontologies', ontology_models[filename])
                     load_data(model, file.path)
