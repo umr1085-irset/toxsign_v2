@@ -26,7 +26,7 @@ def import_data(apps, schema_editor):
                 if file.isfile() and filename in ontology_models:
                     print("Importing file {} in model {}".format(file.name, ontology_models[filename]))
                     model = apps.get_model('ontologies', ontology_models[filename])
-                    import_data(model, file.path)
+                    load_data(model, file.path)
                 else:
                     print("Ignoring {} : either not a file, or not a recognized model name.".format(file.name))
         else:
@@ -34,7 +34,7 @@ def import_data(apps, schema_editor):
     else:
         print("No ONTOLOGY_DATA_FOLDER variable set. Skipping migration")
 
-def import_data(model, data_file):
+def load_data(model, data_file):
     completed = False
     obsoletes = []
     start = time.time()
