@@ -34,7 +34,7 @@ def import_data(apps, schema_editor):
     else:
         print("No ONTOLOGY_DATA_FOLDER variable set. Skipping migration")
 
-def import_data(model, file):
+def import_data(model, data_file):
     completed = False
     obsoletes = []
     start = time.time()
@@ -43,7 +43,7 @@ def import_data(model, file):
         skipped = []
         total = 0
         added = 0
-        with open(file, 'r') as line:
+        with open(data_file, 'r') as line:
             tsv = csv.reader(line, delimiter='\t')
             for row in tsv:
                 total += 1
