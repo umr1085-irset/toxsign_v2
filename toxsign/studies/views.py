@@ -11,13 +11,13 @@ from toxsign.studies.models import Study
 User = get_user_model()
 
 class IndexView(generic.ListView):
-    template_name = 'ontologies/index.html'
-    context_object_name = 'onto_list'
+    template_name = 'studies/index.html'
+    context_object_name = 'studies_list'
 
 
 class DetailView(LoginRequiredMixin, DetailView):
-    template_name = 'ontologies/detail.html'
-    context_object_name = 'onto_list'
+    template_name = 'studies/detail.html'
+    context_object_name = 'study'
 
 class EditView(LoginRequiredMixin, UpdateView):
 
