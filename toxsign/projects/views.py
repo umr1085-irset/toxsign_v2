@@ -53,8 +53,5 @@ class EditView(LoginRequiredMixin, UpdateView):
     fields = ["name", "description"]
     context_object_name = 'edit'
 
-    def get_success_url(self):
-        return reverse("users:detail", kwargs={"username": self.request.user.username})
-
     def get_object(self, queryset=None):
         return Project.objects.get(pk=self.kwargs['pk'])
