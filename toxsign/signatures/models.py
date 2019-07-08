@@ -100,6 +100,14 @@ class Signature(models.Model):
     additional_file_path = models.CharField(max_length=500)
     gene_id = models.CharField(max_length=50, choices=GENE_ID, default="ENTREZ")
 
-
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('signatures:detail', kwargs={"sigid": self.tsx_id})
+
+    # Override save method to auto increment tsx_id
+    def save(self, *args, **kwargs):
+        super(Signature, self).save(*args, **kwargs)
+        self.tsx_id = "TSS" + str(self.id)
+        super(Signature, self).save()

@@ -73,6 +73,15 @@ class Assay(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('assays:detail', kwargs={"assid": self.tsx_id})
+
+    # Override save method to auto increment tsx_id
+    def save(self, *args, **kwargs):
+        super(Assay, self).save(*args, **kwargs)
+        self.tsx_id = "TSA" + str(self.id)
+        super(Assay, self).save()
+
 class Factor(models.Model):
     CHEMICAL_TYPE = (
         ('CHEMICAL', 'Chemical'),
@@ -112,3 +121,12 @@ class Factor(models.Model):
     exposure_frequencie = models.CharField(max_length=200)
     additional_info = models.TextField("Additional information")
     assay = models.ForeignKey(Assay, blank=True, null=True, on_delete=models.CASCADE, related_name='factor_of')
+
+    def __str__(self):
+        return self.name
+
+    # Override save method to auto increment tsx_id
+    def save(self, *args, **kwargs):
+        super(Factor, self).save(*args, **kwargs)
+        self.tsx_id = "TSF" + str(self.id)
+        super(Factor, self).save()
