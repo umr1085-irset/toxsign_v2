@@ -32,6 +32,7 @@ urlpatterns = [
     path("projects/", include("toxsign.projects.urls", namespace="projects")),
     path("studies/", include("toxsign.studies.urls", namespace="studies")),
     path("assays/", include("toxsign.assays.urls", namespace="assays")),
+    path("signatures/", include("toxsign.signatures.urls", namespace="signatures")),
     path("tools/", include("toxsign.tools.urls", namespace="tools")),
     path("jobs/", include("toxsign.jobs.urls", namespace="jobs")),
     path("accounts/", include("allauth.urls")),

@@ -1,9 +1,10 @@
 from factory import DjangoModelFactory, Faker, SubFactory
-from toxsign.signature.models import Signature
+from toxsign.signatures.models import Signature
 from toxsign.projects.tests.factories import ProjectFactory
 from toxsign.users.tests.factories import UserFactory
 from toxsign.assays.tests.factories import FactorFactory
 from toxsign.ontologies.tests.factories import *
+
 
 class SignatureFactory(DjangoModelFactory):
 
@@ -24,20 +25,20 @@ class SignatureFactory(DjangoModelFactory):
     cell = SubFactory(CellFactory)
     cell_line = SubFactory(CellLineFactory)
     chemical = SubFactory(ChemicalFactory)
-    chemical_slug = Faker("text", Length=100)
+    chemical_slug = Faker("text", max_nb_chars=100)
     disease = SubFactory(DiseaseFactory)
     technology = SubFactory(ExperimentFactory)
-    technology_slug = Faker("text", Length=100)
+    technology_slug = Faker("text", max_nb_chars=100)
     platform = Faker("text")
-    control_sample_number = Faker.pyfloat()
-    treated_sample_number = Faker.pyfloat()
-    pvalue = Faker.pyfloat()
-    cutoff = Faker.pyfloat()
+    control_sample_number = Faker("pyfloat")
+    treated_sample_number = Faker("pyfloat")
+    pvalue = Faker("pyfloat")
+    cutoff = Faker("pyfloat")
     statistical_processing = Faker("text")
-    up_gene_file_path = Faker("text", Length=400)
-    down_gene_file_path = Faker("text", Length=400)
-    interrogated_gene_file_path = Faker("text", Length=400)
-    additional_file_path = Faker("text", Length=400)
+    up_gene_file_path = Faker("text", max_nb_chars=400)
+    down_gene_file_path = Faker("text", max_nb_chars=400)
+    interrogated_gene_file_path = Faker("text", max_nb_chars=400)
+    additional_file_path = Faker("text", max_nb_chars=400)
     gene_id = "ENTREZ"
 
     class Meta:
