@@ -18,7 +18,6 @@ class AssayFactory(DjangoModelFactory):
     sex_type = 'BOTH'
     exp_type = 'OTHER'
     prj_subClass = SubFactory(ProjectFactory)
-    results = Faker("text")
     std_subClass = SubFactory(StudyFactory)
     organism = SubFactory(SpeciesFactory)
     tissue = SubFactory(TissueFactory)
@@ -44,7 +43,7 @@ class FactorFactory(DjangoModelFactory):
     additional_info = Faker("text")
     prj_subClass = SubFactory(ProjectFactory)
     std_subClass = SubFactory(StudyFactory)
-    ass_subClass = SubFactory('toxsign.assay.tests.factories.AssayFactory')
+    ass_subClass = SubFactory('toxsign.assays.tests.factories.AssayFactory')
     # No status?
     class Meta:
         model = Factor
