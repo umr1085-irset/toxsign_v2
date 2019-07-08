@@ -12,7 +12,6 @@ class AssayFactory(DjangoModelFactory):
     created_by = SubFactory(UserFactory)
     status = "PRIVATE"
     additional_info = Faker("text")
-    description = Faker("text")
     experimental_design = Faker("text")
     dev_stage = 'PREPUBERTAL'
     generation = 'F0'
