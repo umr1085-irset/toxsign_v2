@@ -32,6 +32,9 @@ class Study(models.Model):
     results = models.TextField("Results")
     subClass = models.ForeignKey(Project, blank=True, null=True, on_delete=models.CASCADE, related_name='study_of')
 
+    def get_absolute_url(self):
+            return reverse('studies:detail', kwargs={"prjid": self.tsx_id})
+
     def __str__(self):
         return self.name
     

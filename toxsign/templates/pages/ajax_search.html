@@ -1,18 +1,47 @@
 {% extends "base.html" %}
 {% load static i18n %}
 {% load account socialaccount %}
-{% load crispy_forms_tags %}
+{% load static i18n %}
 
 {% block content %}
-{% if statuss %}
-    <ul class="statuss">
-        {% for status in statuss %}
-            <li>
-                <p>{{status}}</p>
-            </li>
-        {% endfor %}    
-    </ul>
-{% else %}
-    <p>No status found.</p>
-{% endif %}
+    <div class="container-fluid">
+        <div class="row">
+        <div class="col-md-3 ">
+          <div class="list-group ">
+              <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action active">Projects ({{ statuss.projects_number }})</a>
+              <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Studies ({{ statuss.studies_number }})</a>
+              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Signatures ({{ statuss.signatures_number }})</a>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="tab-content card">
+              <div class="tab-pane active text-style card-body" id="tab1">
+                {% for project in statuss.projects %}
+                    <h3><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a> - {{project.name}}</h3>
+                    <small><b>Author:</b>{{ project.created_by }} - {{ project.created_at }}</small>
+                    <p><b>Description : </b>{{project.description}}</p>
+                    <hr>
+                {% endfor %}
+              </div>
+              <div class="tab-pane text-style card-body" id="tab2">
+                {% for study in statuss.studies %}
+                      <h3><a href="{% url 'studies:detail' study.tsx_id %}">{{ study.tsx_id }}</a> - {{study.name}}</h3>
+                      <small><b>Author:</b>{{ study.created_by }} - {{ study.created_at }}</small>
+                      <p><b>Description : </b>{{study.description}}</p>
+                      <hr>
+                  {% endfor %}
+              </div>
+              <div class="tab-pane text-style card-body" id="tab3">
+                {% for signature in statuss.signatures %}
+                    <h3><a href="{% url 'signature:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{signature.name}}</h3>
+                    <small><b>Author:</b>{{ signature.created_by }} - {{ signature.created_at }}</small>
+                    <hr>
+                {% endfor %}
+              </div>
+            </div>
+        </div>
+      </div>
+
+    </div>
+
 {% endblock %}

@@ -16,7 +16,7 @@ class CellLineFactory(OntologyFactory):
     class Meta:
         model = CellLine
 
-class Cell(OntologyFactory):
+class CellFactory(OntologyFactory):
     class Meta:
         model = Cell
 

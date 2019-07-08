@@ -11,13 +11,14 @@ from toxsign.studies.models import Study
 User = get_user_model()
 
 class IndexView(generic.ListView):
-    template_name = 'ontologies/index.html'
-    context_object_name = 'onto_list'
-
+    template_name = 'studies/index.html'
+    context_object_name = 'studies_list'
+    model = Study
 
 class DetailView(LoginRequiredMixin, DetailView):
-    template_name = 'ontologies/detail.html'
-    context_object_name = 'onto_list'
+    template_name = 'studies/details.html'
+    context_object_name = 'study'
+    model = Study
 
 class EditView(LoginRequiredMixin, UpdateView):
 
@@ -25,9 +26,6 @@ class EditView(LoginRequiredMixin, UpdateView):
     template_name = 'studies/study_edit.html'
     fields = ["name", "description"]
     context_object_name = 'edit'
-
-    def get_success_url(self):
-        return reverse("users:detail", kwargs={"username": self.request.user.username})
 
     def get_object(self, queryset=None):
         return Study.objects.get(pk=self.kwargs['pk'])
