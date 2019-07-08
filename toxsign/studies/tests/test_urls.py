@@ -14,7 +14,7 @@ def test_list():
 def test_details():
     study = StudyFactory.create()
     assert (
-        reverse("studies:detail", kwargs={"str:prjid": study.tsx_id})
+        reverse("studies:detail", kwargs={"str:stdid": study.tsx_id})
         == f"/studies/{study.tsx_id}/"
     )
     assert resolve(f"/studies/{study.tsx_id}/").view_name == "studies:detail"

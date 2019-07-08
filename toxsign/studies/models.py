@@ -36,9 +36,9 @@ class Study(models.Model):
             return reverse('studies:detail', kwargs={"stdid": self.tsx_id})
 
     def save(self, *args, **kwargs):
-        super(Project, self).save(*args, **kwargs)
+        super(Study, self).save(*args, **kwargs)
         self.tsx_id = "TSE" + str(self.id)
-        super(Project, self).save()
+        super(Study, self).save()
 
     def __str__(self):
         return self.name
