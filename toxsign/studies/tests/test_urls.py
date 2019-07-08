@@ -14,10 +14,10 @@ def test_list():
 def test_details():
     study = StudyFactory.create()
     assert (
-        reverse("studies:detail", kwargs={"pk": study.id})
-        == f"/studies/{study.id}/"
+        reverse("studies:detail", kwargs={"str:prjid": study.tsx_id})
+        == f"/studies/{study.tsx_id}/"
     )
-    assert resolve(f"/studies/{study.id}/").view_name == "studies:detail"
+    assert resolve(f"/studies/{study.tsx_id}/").view_name == "studies:detail"
 
 def test_update():
     study = StudyFactory.create()
