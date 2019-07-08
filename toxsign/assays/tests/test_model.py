@@ -1,6 +1,6 @@
 import pytest
 
-from toxsign.assay.tests.factories import *
+from toxsign.assays.tests.factories import *
 
 pytestmark = pytest.mark.django_db
 
