@@ -62,7 +62,7 @@ def index(request):
         studies = paginator.page(paginator.num_pages)
 
     assays = Assay.objects.all()
-    study_number = len(assays)
+    assay_number = len(assays)
     paginator = Paginator(assays, 6)
     page = request.GET.get('assays')
     try:
@@ -73,7 +73,7 @@ def index(request):
         assays = paginator.page(paginator.num_pages)
 
     signatures = Signature.objects.all()
-    study_number = len(signatures)
+    signature_number = len(signatures)
     paginator = Paginator(signatures, 6)
     page = request.GET.get('signatures')
     try:
@@ -92,9 +92,9 @@ def index(request):
         'study_number': study_number,
         'assay_number': assay_number,
         'signature_number': signature_number
-    },
+    }
     
-    return render(request, 'projects/index.html', context)
+    return render(request, 'pages/index.html', context)
 
 
 def search(request,query):
