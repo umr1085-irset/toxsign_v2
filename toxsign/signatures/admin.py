@@ -6,7 +6,6 @@ from toxsign.signatures.models import Signature
 class SignatureAdmin(admin.ModelAdmin):
     fieldsets = [
         (None,               {'fields': ['name', 
-        'tsx_id', 
         'created_by',
         'status',
         'signature_type',
@@ -16,14 +15,11 @@ class SignatureAdmin(admin.ModelAdmin):
         'generation',
         'sex_type',
         'exp_type',
-        'prj_subClass',
-        'std_subClass',
-        'ass_subClass',
-        'ftc_subClass',
+        'factor',
         'organism',
         'tissue',
         'cell',
-        'cell_ligne',
+        'cell_line',
         'chemical',
         'chemical_slug',
         'disease',
@@ -42,6 +38,7 @@ class SignatureAdmin(admin.ModelAdmin):
         'gene_id',
     ]}),
     ]
+    autocomplete_fields = ['disease']
     list_display = ['name', 'created_at', 'updated_at']
     search_fields = ['name']
 
