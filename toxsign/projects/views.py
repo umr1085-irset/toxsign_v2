@@ -17,8 +17,15 @@ def DetailView(request, prjid):
     project_object = Project.objects.get(tsx_id=prjid)
     project = get_object_or_404(Project, pk=project_object.id)
     studies = project.study_of.all()
-    print(studies)
-    return render(request, 'projects/details.html', {'project': project,'studies':studies})
+    assays = []
+    for study in studies:
+        assays = assays + [assay for assay in study.assay_of.all()]
+    signatures = []
+    for assay in assays:
+        for factor in assay.factor_of.all():
+            signatures = signatures + [factor for factor in factor.signature_of_of.all()]
+
+    return render(request, 'projects/details.html', {'project': project,'studies': studies, 'assays': assays, 'signatures': signatures})
 
 class EditView(LoginRequiredMixin, UpdateView):
 

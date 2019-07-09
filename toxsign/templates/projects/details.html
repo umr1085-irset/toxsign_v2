@@ -8,7 +8,8 @@
           <div class="list-group ">
               <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action active">Project</a>
               <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Studies ({{ studies|length }})</a>
-              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Signatures</a>
+              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Assays ({{ assays|length }})</a>
+              <a href="#tab4" data-toggle="tab" class="list-group-item list-group-item-action">Signatures ({{ signatures|length }})</a>
             </div> 
         </div>
         <div class="col-md-9">
@@ -28,15 +29,17 @@
                   {% endfor %}
               </div>
               <div class="tab-pane text-style card-body" id="tab3">
-                <h2>Stet clita </h2>
-                <p>Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Duis autem vel eum 
-                  iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla 
-                  facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit 
-                  augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet,</p>
+                {% for assay in assays %}
+                  <h2>{{ assay.tsx_id }} - {{ assay.name }}</h2>
                   <hr>
-                  <div class="col-xs-6 col-md-3">
-                    <img src="http://placehold.it/150x150" class="img-rounded pull-right">
-                </div>
+                {% endfor %}              
+              </div>
+              <div class="tab-pane text-style card-body" id="tab4">
+                {% for signature in signatures %}
+                  <h2>{{ signature.tsx_id }} - {{ signature.name }}</h2>
+                  <hr>
+                {% endfor %}
+              
               </div>
             </div>
         </div>
