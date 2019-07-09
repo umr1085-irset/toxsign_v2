@@ -3,6 +3,15 @@ Base settings to build other settings files upon.
 """
 
 import environ
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
+
+# Sentry Issues streaming
+sentry_sdk.init(
+    dsn="https://598847464e3a4ba7b664f14ccf1eb060@sentry.io/1495971",
+    integrations=[DjangoIntegration()]
+)
 
 ROOT_DIR = (
     environ.Path(__file__) - 3
