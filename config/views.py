@@ -7,12 +7,17 @@ from django.views import generic
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 from django.http import HttpResponse
 from django.db.models import Q
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 
 import json
 
+from toxsign.assays.models import Assay
 from toxsign.projects.models import Project
-from toxsign.studies.models import Study
 from toxsign.signatures.models import Signature
+from toxsign.studies.models import Study
+
+
 
 def HomeView(request):
         context = {}
@@ -32,6 +37,65 @@ def autocompleteModel(request):
         'signatures': results_signatures
     }
     return render(request, 'pages/ajax_search.html', {'statuss': results})
+
+def index(request):
+    projects = Project.objects.all().order_by('id')
+    project_number = len(projects)
+    paginator = Paginator(projects, 5)
+    page = request.GET.get('projects')
+    try:
+        Model_one = paginator.page(page)
+    except PageNotAnInteger:
+        Model_one = paginator.page(1)
+    except EmptyPage:
+        Model_one = paginator.page(paginator.num_pages)
+
+    studies = Study.objects.all()
+    study_number = len(studies)
+    paginator = Paginator(studies, 6)
+    page = request.GET.get('studies')
+    try:
+        studies = paginator.page(page)
+    except PageNotAnInteger:
+        studies = paginator.page(1)
+    except EmptyPage:
+        studies = paginator.page(paginator.num_pages)
+
+    assays = Assay.objects.all()
+    study_number = len(assays)
+    paginator = Paginator(assays, 6)
+    page = request.GET.get('assays')
+    try:
+        assays = paginator.page(page)
+    except PageNotAnInteger:
+        assays = paginator.page(1)
+    except EmptyPage:
+        assays = paginator.page(paginator.num_pages)
+
+    signatures = Signature.objects.all()
+    study_number = len(signatures)
+    paginator = Paginator(signatures, 6)
+    page = request.GET.get('signatures')
+    try:
+        signatures = paginator.page(page)
+    except PageNotAnInteger:
+        signatures = paginator.page(1)
+    except EmptyPage:
+        signatures = paginator.page(paginator.num_pages)
+
+    context = {
+        'project_list': projects,
+        'study_list': studies,
+        'assay_list': assays,
+        'signature_list': signatures,
+        'project_number':project_number,
+        'study_number': study_number,
+        'assay_number': assay_number,
+        'signature_number': signature_number
+    },
+    
+    return render(request, 'projects/index.html', context)
+
 
 def search(request,query):
     print(query)

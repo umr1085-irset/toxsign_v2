@@ -7,9 +7,6 @@ from toxsign.projects.tests.factories import ProjectFactory
 
 pytestmark = pytest.mark.django_db
 
-def test_list():
-    assert reverse("projects:index") == "/projects/"
-    assert resolve("/projects/").view_name == "projects:index"
 
 def test_details():
     project = ProjectFactory.create()
