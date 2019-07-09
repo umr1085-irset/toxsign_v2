@@ -7,7 +7,6 @@ class AssayAdmin(admin.ModelAdmin):
     fieldsets = [
         (None,               {'fields': [
             'name', 
-            'tsx_id',
             'created_by', 
             'status', 
             'additional_info', 
@@ -16,12 +15,11 @@ class AssayAdmin(admin.ModelAdmin):
             'generation', 
             'sex_type', 
             'exp_type', 
-            'prj_subClass', 
-            'std_subClass', 
+            'study', 
             'organism', 
             'tissue', 
             'cell', 
-            'cell_ligne'
+            'cell_line'
         ]}),
     ]
     list_display = ['name', 'created_at', 'updated_at']
@@ -31,7 +29,6 @@ class FactorAdmin(admin.ModelAdmin):
     fieldsets = [
         (None,               {'fields': [
             'name', 
-            'tsx_id',
             'created_by', 
             'chemical', 
             'chemical_slug', 
@@ -42,7 +39,8 @@ class FactorAdmin(admin.ModelAdmin):
             'dose_unit', 
             'exposure_time', 
             'exposure_frequencie', 
-            'additional_info', 
+            'additional_info',
+            'assay' 
         ]}),
     ]
     list_display = ['name', 'created_at', 'updated_at']

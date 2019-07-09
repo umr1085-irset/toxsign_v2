@@ -10,6 +10,7 @@ urlpatterns = [
     path("", views.HomeView, name="home"),
     path("ajax_calls/search/", views.autocompleteModel, name="search"),
     path("search_results/<str:query>", views.search, name="results"),
+    path("index/", views.index, name="index"),
     path(
         "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
     ),

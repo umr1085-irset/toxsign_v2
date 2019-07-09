@@ -13,38 +13,19 @@ from toxsign.studies.models import Study
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
-def IndexView(request):
-    Model_one = Project.objects.all().order_by('id')
-    project_number = len(Model_one)
-    paginator = Paginator(Model_one, 5)
-    page = request.GET.get('projects')
-    try:
-        Model_one = paginator.page(page)
-    except PageNotAnInteger:
-        Model_one = paginator.page(1)
-    except EmptyPage:
-        Model_one = paginator.page(paginator.num_pages)
-
-    Model_two = Study.objects.all()
-    study_number = len(Model_two)
-    paginator = Paginator(Model_two, 6)
-    page = request.GET.get('studies')
-    try:
-        Model_two = paginator.page(page)
-    except PageNotAnInteger:
-        Model_two = paginator.page(1)
-    except EmptyPage:
-        Model_two = paginator.page(paginator.num_pages)
-
-    context = {'project_list': Model_one, 'study_list': Model_two, 'project_number':project_number, 'study_number':study_number}
-    return render(request, 'projects/index.html', context)
-
 def DetailView(request, prjid):
     project_object = Project.objects.get(tsx_id=prjid)
     project = get_object_or_404(Project, pk=project_object.id)
     studies = project.study_of.all()
-    print(studies)
-    return render(request, 'projects/details.html', {'project': project,'studies':studies})
+    assays = []
+    for study in studies:
+        assays = assays + [assay for assay in study.assay_of.all()]
+    signatures = []
+    for assay in assays:
+        for factor in assay.factor_of.all():
+            signatures = signatures + [factor for factor in factor.signature_of_of.all()]
+
+    return render(request, 'projects/details.html', {'project': project,'studies': studies, 'assays': assays, 'signatures': signatures})
 
 class EditView(LoginRequiredMixin, UpdateView):
 

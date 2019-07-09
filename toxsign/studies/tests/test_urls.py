@@ -7,10 +7,6 @@ from toxsign.studies.tests.factories import StudyFactory
 
 pytestmark = pytest.mark.django_db
 
-def test_list():
-    assert reverse("studies:index") == "/studies/"
-    assert resolve("/studies/").view_name == "studies:index"
-
 def test_details():
     study = StudyFactory.create()
     assert (

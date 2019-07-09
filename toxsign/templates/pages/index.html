@@ -8,8 +8,9 @@
           <div class="list-group ">
               <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action active">Projects ({{ project_number }})</a>
               <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Studies ({{ study_number }})</a>
-              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Signatures</a>
-            </div> 
+              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Assays ({{ assay_number }})</a>
+              <a href="#tab4" data-toggle="tab" class="list-group-item list-group-item-action">Signatures ({{ signature_number }})</a>
+            </div>
         </div>
         <div class="col-md-9">
             <div class="tab-content card">
@@ -74,15 +75,72 @@
                     </ul>
                 </nav>
                 {% endif %}
-                  
+
               </div>
               <div class="tab-pane text-style card-body" id="tab3">
-                
+                {% for assay in assay_list %}
+                      <h3><a href="{% url 'assays:detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{assay.name}}</h3>
+                      <small><b>Author:</b>{{ assay.created_by }} - {{ assay.created_at }}</small>
+                      <hr>
+                  {% endfor %}
+                  {% if assay_list %}
+                  <nav aria-label="Page navigation example">
+                    <ul class="pagination">
+                      {% if assay_list.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?assays={{ assay_list.previous_page_number }}">&laquo;</a></li>
+                      {% else %}
+                        <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
+                      {% endif %}
+                      {% for i in assay_list.paginator.page_range %}
+                        {% if assay_list.number == i %}
+                          <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
+                        {% else %}
+                          <li class="page-item"><a class="page-link" href="?assays={{ i }}">{{ i }}</a></li>
+                        {% endif %}
+                      {% endfor %}
+                      {% if assay_list.has_next %}
+                        <li class="page-item"><a class="page-link" href="?assays={{ assay_list.next_page_number }}">&raquo;</a></li>
+                      {% else %}
+                        <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
+                      {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+              </div>
+              <div class="tab-pane text-style card-body" id="tab4">
+                {% for signature in signature_list %}
+                      <h3><a href="{% url 'signatures:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{signature.name}}</h3>
+                      <small><b>Author:</b>{{ signature.created_by }} - {{ signature.created_at }}</small>
+                      <hr>
+                  {% endfor %}
+                  {% if signature_list %}
+                  <nav aria-label="Page navigation example">
+                    <ul class="pagination">
+                      {% if signature_list.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?signatures={{ signature_list.previous_page_number }}">&laquo;</a></li>
+                      {% else %}
+                        <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
+                      {% endif %}
+                      {% for i in signature_list.paginator.page_range %}
+                        {% if signature_list.number == i %}
+                          <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
+                        {% else %}
+                          <li class="page-item"><a class="page-link" href="?signatures={{ i }}">{{ i }}</a></li>
+                        {% endif %}
+                      {% endfor %}
+                      {% if signature_list.has_next %}
+                        <li class="page-item"><a class="page-link" href="?signatures={{ signature_list.next_page_number }}">&raquo;</a></li>
+                      {% else %}
+                        <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
+                      {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
               </div>
             </div>
         </div>
       </div>
-        
+
     </div>
 
 {% endblock %}

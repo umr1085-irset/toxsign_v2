@@ -10,15 +10,6 @@ from toxsign.projects.views import EditView
 
 pytestmark = pytest.mark.django_db
 
-class TestProjectListView:
-
-    def test_list_view(self, client):
-        project = ProjectFactory.create()
-        response = client.get(reverse('projects:index'))
-        projects = response.context['project_list']
-        assert len(projects) == 1
-        new_project = projects[0]
-        assert new_project.name == project.name
 
 class TestProjectDetailView:
 

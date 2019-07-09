@@ -7,10 +7,6 @@ from toxsign.signatures.tests.factories import SignatureFactory
 
 pytestmark = pytest.mark.django_db
 
-def test_list():
-    assert reverse("signatures:index") == "/signatures/"
-    assert resolve("/signatures/").view_name == "signatures:index"
-
 def test_details():
     signature = SignatureFactory.create()
     assert (
