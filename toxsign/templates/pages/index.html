@@ -48,7 +48,7 @@
               <div class="tab-pane text-style card-body" id="tab2">
                 {% for study in study_list %}
                       <h3><a href="{% url 'studies:detail' study.tsx_id %}">{{ study.tsx_id }}</a> - {{study.name}}</h3>
-                      <small><b>Author : </b>{{ study.created_by }} - {{ study.created_at }}</small>
+                      <small><b>Owner : </b>{{ study.created_by }} - {{ study.created_at }}</small>
                       <p><b>Description : </b>{{study.description}}</p>
                       <p><b>Experimental design : </b>{{study.experimental_design}}</p>
                       <p><b>Type : </b>{{study.study_type lower | capfirst}}</p>
@@ -82,7 +82,7 @@
               <div class="tab-pane text-style card-body" id="tab3">
                 {% for assay in assay_list %}
                       <h3><a href="{% url 'assays:detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{assay.name}}</h3>
-                      <small><b>Author : </b>{{ assay.created_by }} - {{ assay.created_at }}</small>
+                      <small><b>Owner : </b>{{ assay.created_by }} - {{ assay.created_at }}</small>
                       <p><b>Organism : </b>{{study.organism}}</p>
                       <hr>
                   {% endfor %}
@@ -113,10 +113,9 @@
               <div class="tab-pane text-style card-body" id="tab4">
                 {% for signature in signature_list %}
                       <h3><a href="{% url 'signatures:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{signature.name}}</h3>
-                      <small><b>Author:</b>{{ signature.created_by }} - {{ signature.created_at }}</small>
+                      <small><b>Owner:</b>{{ signature.created_by }} - {{ signature.created_at }}</small>
                       <p><b>Type : </b>{{signature.organism}}</p>
                       <p><b>Organism : </b>{{signature.signature_type | lower | capfirst}}</p>
-
                       <hr>
                   {% endfor %}
                   {% if signature_list %}
