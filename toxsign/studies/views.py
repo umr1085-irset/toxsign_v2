@@ -6,9 +6,6 @@ from django.views import generic
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 from django.contrib.auth.decorators import login_required
 
-from toxsign.assays.models import Assay
-from toxsign.projects.models import Project
-from toxsign.signatures.models import Signature
 from toxsign.studies.models import Study
 
 
