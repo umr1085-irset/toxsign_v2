@@ -17,4 +17,4 @@ def DetailView(request, sigid):
     assay = signature.factor.assay
     study = assay.study
     project = study.project
-    return render(request, 'assays/details.html', {'project': project,'study': study, 'assay': assay, 'signature': signature})
+    return render(request, 'signatures/details.html', {'project': project,'study': study, 'assay': assay, 'signature': signature})

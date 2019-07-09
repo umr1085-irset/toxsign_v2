@@ -23,7 +23,7 @@
                 <small> {{ study.study_type | lower | capfirst}}</small>
                 <p>{{ study.experimental_design }}</p>
               </div>
-              <div class="tab-pane active text-style card-body" id="tab3">
+              <div class="tab-pane text-style card-body" id="tab3">
                 <h2><a href="{% url 'assays:detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{ assay.name }}</h2>
                 <hr>
               </div>

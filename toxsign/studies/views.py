@@ -7,14 +7,14 @@ from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 from django.contrib.auth.decorators import login_required
 
 from toxsign.studies.models import Study
-
+from toxsign.signatures.models import Signature
 
 @login_required
 def DetailView(request, stdid):
 
     study = get_object_or_404(Study, tsx_id=stdid)
     project = study.project
-    assays = Assay.objects.filter(study=study)
+    assays = study.assay_of.all()
     signatures = Signature.objects.filter(factor__assay__study=study)
     return render(request, 'studies/details.html', {'project': project,'study': study, 'assays': assays, 'signatures': signatures})
 
