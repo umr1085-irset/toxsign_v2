@@ -9,9 +9,9 @@ from django.shortcuts import redirect
 
 from toxsign.assays.models import Assay
 from toxsign.projects.models import Project
-from toxsign.studies.models import Study
 from toxsign.signatures.models import Signature
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from toxsign.studies.models import Study
+
 
 
 def DetailView(request, prjid):
