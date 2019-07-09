@@ -7,7 +7,6 @@ class SignatureAdmin(admin.ModelAdmin):
     fieldsets = [
         (None,               {'fields': ['name', 
         'created_by',
-        'status',
         'signature_type',
         'phenotype_description',
         'experimental_design',
