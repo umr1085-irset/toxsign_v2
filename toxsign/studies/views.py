@@ -10,11 +10,6 @@ from toxsign.studies.models import Study
 
 User = get_user_model()
 
-class IndexView(ListView):
-    template_name = 'studies/index.html'
-    context_object_name = 'studies_list'
-    model = Study
-
 class DetailView(LoginRequiredMixin, DetailView):
     template_name = 'studies/details.html'
     model = Study

@@ -7,10 +7,6 @@ from toxsign.assays.tests.factories import AssayFactory
 
 pytestmark = pytest.mark.django_db
 
-def test_list():
-    assert reverse("assays:index") == "/assays/"
-    assert resolve("/assays/").view_name == "assays:index"
-
 def test_details():
     assay = AssayFactory.create()
     assert (
