@@ -1,22 +1,23 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views import generic
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
+from django.contrib.auth.decorators import login_required
 
 from toxsign.studies.models import Study
+from toxsign.signatures.models import Signature
 
-User = get_user_model()
+@login_required
+def DetailView(request, stdid):
 
-class DetailView(LoginRequiredMixin, DetailView):
-    template_name = 'studies/details.html'
-    model = Study
-    context_object_name = 'study'
+    study = get_object_or_404(Study, tsx_id=stdid)
+    project = study.project
+    assays = study.assay_of.all()
+    signatures = Signature.objects.filter(factor__assay__study=study)
+    return render(request, 'studies/details.html', {'project': project,'study': study, 'assays': assays, 'signatures': signatures})
 
-    def get_object(self, queryset=None):
-            return Study.objects.get(tsx_id=self.kwargs['stdid'])
 
 class EditView(LoginRequiredMixin, UpdateView):
 

@@ -39,16 +39,16 @@ def autocompleteModel(request):
     return render(request, 'pages/ajax_search.html', {'statuss': results})
 
 def index(request):
-    projects = Project.objects.all().order_by('id')
+    projects = Project.objects.all()
     project_number = len(projects)
     paginator = Paginator(projects, 5)
     page = request.GET.get('projects')
     try:
-        Model_one = paginator.page(page)
+        projects = paginator.page(page)
     except PageNotAnInteger:
-        Model_one = paginator.page(1)
+        projects = paginator.page(1)
     except EmptyPage:
-        Model_one = paginator.page(paginator.num_pages)
+        projects = paginator.page(paginator.num_pages)
 
     studies = Study.objects.all()
     study_number = len(studies)

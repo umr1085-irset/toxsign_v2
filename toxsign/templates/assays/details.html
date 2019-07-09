@@ -3,7 +3,42 @@
 
 {% block content %}
     <div class="container-fluid">
-      <h1>Detail Assays</h1>
+      <div class="row">
+        <div class="col-md-3 ">
+          <div class="list-group ">
+              <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action">Project</a>
+              <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Study</a>
+              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action active">Assay</a>
+              <a href="#tab4" data-toggle="tab" class="list-group-item list-group-item-action">Signatures ({{ signatures|length }})</a>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="tab-content card">
+              <div class="tab-pane text-style card-body" id="tab1">
+                <h2><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a> - {{ project.name }}</h2>
+                <p>{{ project.description }}</p>
+              </div>
+              <div class="tab-pane text-style card-body" id="tab2">
+                <h2><a href="{% url 'studies:detail' study.tsx_id %}">{{ study.tsx_id }}</a> - {{ study.name }}</h2>
+                <small> {{ study.study_type | lower | capfirst}}</small>
+                <p>{{ study.experimental_design }}</p>
+              </div>
+              <div class="tab-pane active text-style card-body" id="tab3">
+                <h2>{{ assay.tsx_id }} - {{ assay.name }}</h2>
+                {% for factor in factors %}
+                  <p> {{factor.tsx_id}}</p>
+                {% endfor %}
+                <hr>
+              </div>
+              <div class="tab-pane text-style card-body" id="tab4">
+                {% for signature in signatures %}
+                  <h2><a href="{% url 'signatures:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{ signature.name }}</h2>
+                  <hr>
+                {% endfor %}
+              </div>
+            </div>
+        </div>
+      </div>
     </div>
-    
+
 {% endblock %}

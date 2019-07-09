@@ -5,13 +5,18 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views import generic
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
-from toxsign.assays.models import Assay, Factor
+from django.contrib.auth.decorators import login_required
+
+from toxsign.assays.models import Assay
+from toxsign.signatures.models import Signature
 
 
-class DetailView(LoginRequiredMixin, DetailView):
-    template_name = 'assays/details.html'
-    model = Assay
-    context_object_name = 'assay'
+@login_required
+def DetailView(request, assid):
 
-    def get_object(self, queryset=None):
-            return Assay.objects.get(tsx_id=self.kwargs['assid'])
+    assay = get_object_or_404(Assay, tsx_id=assid)
+    study = assay.study
+    project = study.project
+    factors = assay.factor_of.all()
+    signatures = Signature.objects.filter(factor__assay=assay)
+    return render(request, 'assays/details.html', {'project': project,'study': study, 'assay': assay, 'factors': factors,'signatures': signatures})
