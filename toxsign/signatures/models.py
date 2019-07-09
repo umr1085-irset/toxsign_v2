@@ -78,14 +78,11 @@ class Signature(models.Model):
     generation = models.CharField(max_length=10, choices=GENERATION, default="F0")
     sex_type = models.CharField(max_length=10, choices=SEX_TYPE, default="MALE")
     exp_type = models.CharField(max_length=10, choices=EXPERIMENTAL_TYPE, default="NA")
-    prj_subClass = models.ForeignKey(Project, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_of_of')
-    std_subClass = models.ForeignKey(Study, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_of_of')
-    ass_subClass = models.ForeignKey(Assay, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_of_of')
-    ftc_subClass = models.ForeignKey(Factor, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_of_of')
+    factor = models.ForeignKey(Factor, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_of_of')
     organism = models.ForeignKey(Species, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_used_in')
     tissue = models.ForeignKey(Tissue, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_used_in')
     cell = models.ForeignKey(Cell, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_used_in')
-    cell_ligne = models.ForeignKey(CellLine, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_used_in')
+    cell_line = models.ForeignKey(CellLine, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_used_in')
     chemical = models.ForeignKey(Chemical, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_used_in')
     chemical_slug = models.CharField(max_length=200)
     disease = models.ForeignKey(Disease, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_used_in')
@@ -103,7 +100,14 @@ class Signature(models.Model):
     additional_file_path = models.CharField(max_length=500)
     gene_id = models.CharField(max_length=50, choices=GENE_ID, default="ENTREZ")
 
-
     def __str__(self):
         return self.name
-    
+
+    def get_absolute_url(self):
+        return reverse('signatures:detail', kwargs={"sigid": self.tsx_id})
+
+    # Override save method to auto increment tsx_id
+    def save(self, *args, **kwargs):
+        super(Signature, self).save(*args, **kwargs)
+        self.tsx_id = "TSS" + str(self.id)
+        super(Signature, self).save()

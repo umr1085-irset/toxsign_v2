@@ -64,16 +64,24 @@ class Assay(models.Model):
     generation = models.CharField(max_length=10, choices=GENERATION, default="F0")
     sex_type = models.CharField(max_length=10, choices=SEX_TYPE, default="MALE")
     exp_type = models.CharField(max_length=10, choices=EXPERIMENTAL_TYPE, default="NA")
-    prj_subClass = models.ForeignKey(Project, blank=True, null=True, on_delete=models.CASCADE, related_name='assay_of')
-    std_subClass = models.ForeignKey(Study, blank=True, null=True, on_delete=models.CASCADE, related_name='assay_of')
+    study = models.ForeignKey(Study, blank=True, null=True, on_delete=models.CASCADE, related_name='assay_of')
     organism = models.ForeignKey(Species, blank=True, null=True, on_delete=models.CASCADE, related_name='assay_used_in')
     tissue = models.ForeignKey(Tissue, blank=True, null=True, on_delete=models.CASCADE, related_name='assay_used_in')
     cell = models.ForeignKey(Cell, blank=True, null=True, on_delete=models.CASCADE, related_name='assay_used_in')
-    cell_ligne = models.ForeignKey(CellLine, blank=True, null=True, on_delete=models.CASCADE, related_name='assay_used_in')
+    cell_line = models.ForeignKey(CellLine, blank=True, null=True, on_delete=models.CASCADE, related_name='assay_used_in')
 
     def __str__(self):
         return self.name
-    
+
+    def get_absolute_url(self):
+        return reverse('assays:detail', kwargs={"assid": self.tsx_id})
+
+    # Override save method to auto increment tsx_id
+    def save(self, *args, **kwargs):
+        super(Assay, self).save(*args, **kwargs)
+        self.tsx_id = "TSA" + str(self.id)
+        super(Assay, self).save()
+
 class Factor(models.Model):
     CHEMICAL_TYPE = (
         ('CHEMICAL', 'Chemical'),
@@ -112,6 +120,13 @@ class Factor(models.Model):
     exposure_time = models.FloatField(null=True, blank=True, default=None)
     exposure_frequencie = models.CharField(max_length=200)
     additional_info = models.TextField("Additional information")
-    prj_subClass = models.ForeignKey(Project, blank=True, null=True, on_delete=models.CASCADE, related_name='factor_of')
-    std_subClass = models.ForeignKey(Study, blank=True, null=True, on_delete=models.CASCADE, related_name='factor_of')
-    ass_subClass = models.ForeignKey(Assay, blank=True, null=True, on_delete=models.CASCADE, related_name='factor_of')
+    assay = models.ForeignKey(Assay, blank=True, null=True, on_delete=models.CASCADE, related_name='factor_of')
+
+    def __str__(self):
+        return self.name
+
+    # Override save method to auto increment tsx_id
+    def save(self, *args, **kwargs):
+        super(Factor, self).save(*args, **kwargs)
+        self.tsx_id = "TSF" + str(self.id)
+        super(Factor, self).save()

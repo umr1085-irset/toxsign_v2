@@ -10,15 +10,18 @@ from toxsign.studies.models import Study
 
 User = get_user_model()
 
-class IndexView(generic.ListView):
+class IndexView(ListView):
     template_name = 'studies/index.html'
     context_object_name = 'studies_list'
     model = Study
 
 class DetailView(LoginRequiredMixin, DetailView):
     template_name = 'studies/details.html'
-    context_object_name = 'study'
     model = Study
+    context_object_name = 'study'
+
+    def get_object(self, queryset=None):
+            return Study.objects.get(tsx_id=self.kwargs['stdid'])
 
 class EditView(LoginRequiredMixin, UpdateView):
 

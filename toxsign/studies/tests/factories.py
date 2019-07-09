@@ -13,7 +13,7 @@ class StudyFactory(DjangoModelFactory):
     experimental_design = Faker("text")
     study_type = 'INTERVENTIONAL'
     results = Faker("text")
-    subClass = SubFactory(ProjectFactory)
+    project = SubFactory(ProjectFactory)
 
     class Meta:
         model = Study

@@ -30,11 +30,15 @@ class Study(models.Model):
     experimental_design = models.TextField("Experimental design")
     study_type = models.CharField(max_length=50, choices=STUDY_TYPE, default="INTERVENTIONAL")
     results = models.TextField("Results")
-    subClass = models.ForeignKey(Project, blank=True, null=True, on_delete=models.CASCADE, related_name='study_of')
+    project = models.ForeignKey(Project, blank=True, null=True, on_delete=models.CASCADE, related_name='study_of')
 
     def get_absolute_url(self):
-            return reverse('studies:detail', kwargs={"prjid": self.tsx_id})
+            return reverse('studies:detail', kwargs={"stdid": self.tsx_id})
+
+    def save(self, *args, **kwargs):
+        super(Study, self).save(*args, **kwargs)
+        self.tsx_id = "TSE" + str(self.id)
+        super(Study, self).save()
 
     def __str__(self):
         return self.name
-    
