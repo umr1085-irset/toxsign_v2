@@ -51,7 +51,7 @@
                       <small><b>Owner : </b>{{ study.created_by }} - {{ study.created_at }}</small>
                       <p><b>Description : </b>{{study.description}}</p>
                       <p><b>Experimental design : </b>{{study.experimental_design}}</p>
-                      <p><b>Type : </b>{{study.study_type lower | capfirst}}</p>
+                      <p><b>Type : </b>{{study.study_type | lower | capfirst}}</p>
                       <hr>
                   {% endfor %}
                   {% if study_list %}

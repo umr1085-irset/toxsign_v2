@@ -23,7 +23,7 @@
               </div>
               <div class="tab-pane text-style card-body" id="tab2">
                 {% for study in studies %}
-                  <h2><a href="{% url 'assays:detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{ study.name }}</h2>
+                  <h2><a href="{% url 'studies:detail' study.tsx_id %}">{{ study.tsx_id }}</a> - {{ study.name }}</h2>
                   <small> {{ study.study_type | lower | capfirst}}</small>
                   <p>{{ study.experimental_design }}</p>
                     <hr>
