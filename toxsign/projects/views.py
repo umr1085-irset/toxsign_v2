@@ -37,4 +37,6 @@ class CreateView(LoginRequiredMixin, CreateView):
     model = Project
     template_name = 'projects/project_create.html'
     fields = ("name", "status", "description")
-    success_url = "/projects/" + self.tsx_id
+
+    def get_object(self, queryset=None):
+        return Project.objects.get(tsx_id=self.kwargs['prjid'])
