@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views import generic
-from django.views.generic import DetailView, ListView, RedirectView, UpdateView
+from django.views.generic import CreateView, DetailView, ListView, RedirectView, UpdateView
 from django.contrib.auth.decorators import login_required
 
 from toxsign.assays.models import Factor
