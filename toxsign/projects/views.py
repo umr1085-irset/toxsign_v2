@@ -35,7 +35,7 @@ class EditView(LoginRequiredMixin, UpdateView):
 
 class CreateView(LoginRequiredMixin, CreateView):
     model = Project
-    template_name = 'projects/project_create.html'
+    template_name = 'pages/entity_create.html'
     form_class = ProjectCreateForm
 
     # Autofill the user

@@ -24,6 +24,10 @@
                 <p>{{ study.experimental_design }}</p>
               </div>
               <div class="tab-pane active text-style card-body" id="tab3">
+                <a class="btn btn-large btn-info" href="{% url 'assays:factor_create' assay.tsx_id %}">
+                  <i class="fa fa-plus-circle"></i> Add factor
+                </a>
+                <br>
                 <h2>{{ assay.tsx_id }} - {{ assay.name }}</h2>
                 {% for factor in factors %}
                   <p> {{factor.tsx_id}}</p>

@@ -34,7 +34,7 @@ class EditView(LoginRequiredMixin, UpdateView):
 
 class CreateView(LoginRequiredMixin, CreateView):
     model = Study
-    template_name = 'studies/study_create.html'
+    template_name = 'pages/entity_create.html'
     form_class = StudyCreateForm
 
     # Autofill the user and project

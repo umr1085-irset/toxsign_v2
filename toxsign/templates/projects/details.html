@@ -23,6 +23,7 @@
                 <a class="btn btn-large btn-info" href="{% url 'studies:study_create' project.tsx_id %}">
                   <i class="fa fa-plus-circle"></i> Add study
                 </a>
+                <br>
                 {% for study in studies %}
                   <h2><a href="{% url 'studies:detail' study.tsx_id %}">{{ study.tsx_id }}</a> - {{ study.name }}</h2>
                   <small> {{ study.study_type | lower | capfirst}}</small>
