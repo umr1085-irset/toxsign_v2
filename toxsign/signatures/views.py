@@ -7,7 +7,7 @@ from django.views import generic
 from django.views.generic import CreateView, DetailView, ListView, RedirectView, UpdateView
 from django.contrib.auth.decorators import login_required
 
-from toxsign.assays.models import Factor
+from toxsign.assays.models import Assay
 from toxsign.signatures.models import Signature
 from toxsign.signatures.forms import SignatureCreateForm
 
@@ -24,13 +24,12 @@ def DetailView(request, sigid):
 class CreateView(LoginRequiredMixin, CreateView):
     model = Signature
     template_name = 'pages/entity_create.html'
-    form_class = SignatureCreateForm
+    assay = Assay.objects.get(tsx_id=self.kwargs['assid'])
+    # Need safegards (access? exists?)
+    form_class = SignatureCreateForm(assay)
 
     # Autofill the user
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.created_by = self.request.user
-        factor = Factor.objects.get(tsx_id=self.kwargs['facid'])
-        # Need safegards (access? exists?)
-        self.object.factor = factor
         return super(CreateView, self).form_valid(form)
