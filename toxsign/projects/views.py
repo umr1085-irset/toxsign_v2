@@ -36,7 +36,12 @@ class EditView(LoginRequiredMixin, UpdateView):
 class CreateView(LoginRequiredMixin, CreateView):
     model = Project
     template_name = 'projects/project_create.html'
-    fields = ("name", "status", "description")
+    form_class = ProjectCreateForm
+
+    def get_form_kwargs(self, *args, **kwargs):
+        kwargs = super(CreateView, self).get_form_kwargs(*args, **kwargs)
+        kwargs['user'] = self.request.user
+        return kwargs
 
     def get_object(self, queryset=None):
         return Project.objects.get(tsx_id=self.kwargs['prjid'])
