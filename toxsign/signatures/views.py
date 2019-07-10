@@ -23,10 +23,14 @@ def DetailView(request, sigid):
 
 class CreateView(LoginRequiredMixin, CreateView):
     model = Signature
+    form_class = SignatureCreateForm
     template_name = 'pages/entity_create.html'
-    assay = Assay.objects.get(tsx_id=self.kwargs['assid'])
-    # Need safegards (access? exists?)
-    form_class = SignatureCreateForm(assay)
+
+    # We need to get the assay id to restrict the factors (since we don't pass a factor id to the form directly)
+    def get_form_kwargs(self):
+        kwargs = super(CreateView, self).get_form_kwargs()
+        kwargs.update({'assid': self.kwargs.get('assid')})
+        return kwargs
 
     # Autofill the user
     def form_valid(self, form):
