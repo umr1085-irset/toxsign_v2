@@ -17,7 +17,7 @@
               <div class="tab-pane active text-style card-body" id="tab1">
                 {% for project in project_list %}
                     <h3><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a> - {{project.name}}</h3>
-                    <small><b>Author : </b>{{ project.created_by }} - {{ project.created_at }}</small>
+                    <small><b>Owner : </b>{{ project.created_by }} - {{ project.created_at }}</small>
                     <p><b>Description : </b>{{project.description}}</p>
                     <hr>
                 {% endfor %}
