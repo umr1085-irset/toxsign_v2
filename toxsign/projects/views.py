@@ -9,7 +9,7 @@ from django.shortcuts import redirect
 
 from toxsign.assays.models import Assay
 from toxsign.projects.models import Project
-from toxsign.projects.forms import ProjectForm
+from toxsign.projects.forms import ProjectCreateForm
 from toxsign.signatures.models import Signature
 from toxsign.studies.models import Study
 
@@ -38,10 +38,11 @@ class CreateView(LoginRequiredMixin, CreateView):
     template_name = 'projects/project_create.html'
     form_class = ProjectCreateForm
 
-    def get_form_kwargs(self, *args, **kwargs):
-        kwargs = super(CreateView, self).get_form_kwargs(*args, **kwargs)
-        kwargs['user'] = self.request.user
-        return kwargs
+    # Autofill the user
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.created_by = self.request.user
+        return super(CreateView, self).form_valid(form)
 
     def get_object(self, queryset=None):
         return Project.objects.get(tsx_id=self.kwargs['prjid'])
