@@ -43,6 +43,3 @@ class CreateView(LoginRequiredMixin, CreateView):
         self.object = form.save(commit=False)
         self.object.created_by = self.request.user
         return super(CreateView, self).form_valid(form)
-
-    def get_object(self, queryset=None):
-        return Project.objects.get(tsx_id=self.kwargs['prjid'])

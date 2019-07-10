@@ -34,6 +34,3 @@ class CreateView(LoginRequiredMixin, CreateView):
         # Need safegards (access? exists?)
         self.object.factor = factor
         return super(CreateView, self).form_valid(form)
-
-    def get_object(self, queryset=None):
-        return Signature.objects.get(tsx_id=self.kwargs['sigid'])

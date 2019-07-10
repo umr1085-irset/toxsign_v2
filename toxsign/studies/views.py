@@ -45,6 +45,3 @@ class CreateView(LoginRequiredMixin, CreateView):
         # Need safegards (access? exists?)
         self.object.project = project
         return super(CreateView, self).form_valid(form)
-
-    def get_object(self, queryset=None):
-        return Project.objects.get(tsx_id=self.kwargs['stdid'])

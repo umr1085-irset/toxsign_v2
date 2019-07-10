@@ -39,9 +39,6 @@ class AssayCreateView(LoginRequiredMixin, CreateView):
         self.object.study = study
         return super(CreateView, self).form_valid(form)
 
-    def get_object(self, queryset=None):
-        return Assay.objects.get(tsx_id=self.kwargs['assid'])
-
 class FactorCreateView(LoginRequiredMixin, CreateView):
     model = Factor
     template_name = 'pages/entity_create.html'
@@ -55,6 +52,3 @@ class FactorCreateView(LoginRequiredMixin, CreateView):
         # Need safegards (access? exists?)
         self.object.assay = assay
         return super(CreateView, self).form_valid(form)
-
-    def get_object(self, queryset=None):
-        return Assay.objects.get(tsx_id=self.kwargs['assid'])

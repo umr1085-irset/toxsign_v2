@@ -119,6 +119,10 @@ class Factor(models.Model):
     def __str__(self):
         return self.name
 
+    # Redirect to assay page
+    def get_absolute_url(self):
+        return reverse('assays:detail', kwargs={"assid": self.assay.tsx_id})
+
     # Override save method to auto increment tsx_id
     def save(self, *args, **kwargs):
         super(Factor, self).save(*args, **kwargs)
