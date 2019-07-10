@@ -6,6 +6,7 @@ from django.views import generic
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 from django.contrib.auth.decorators import login_required
 
+from toxsign.projects.models import Project
 from toxsign.studies.models import Study
 from toxsign.signatures.models import Signature
 
@@ -28,3 +29,20 @@ class EditView(LoginRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         return Study.objects.get(pk=self.kwargs['pk'])
+
+class CreateView(LoginRequiredMixin, CreateView):
+    model = Project
+    template_name = 'projects/project_create.html'
+    form_class = ProjectCreateForm
+
+    # Autofill the user and project
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.created_by = self.request.user
+        project = Project.get(tsx_id=self.kwargs['prjid'])
+        # Need safegards (access? exists?)
+        self.object.project = project
+        return super(CreateView, self).form_valid(form)
+
+    def get_object(self, queryset=None):
+        return Project.objects.get(tsx_id=self.kwargs['stdid'])

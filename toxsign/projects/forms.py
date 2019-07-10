@@ -16,4 +16,3 @@ class ProjectCreateForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.form_method = 'POST'
         self.helper.add_input(Submit('save', 'Save'))
-#        self.helper.layout = Layout(FormActions(Submit('BlahBlah', 'BlahBlah', css_class='btn-primary')))
