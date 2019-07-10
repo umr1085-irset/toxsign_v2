@@ -20,7 +20,7 @@
                 <hr>
               </div>
               <div class="tab-pane text-style card-body" id="tab2">
-                <a class="btn btn-large btn-info" href="{% url 'studies:create' project.tsx_id %}">
+                <a class="btn btn-large btn-info" href="{% url 'studies:study_create' project.tsx_id %}">
                   <i class="fa fa-plus-circle"></i> Add study
                 </a>
                 {% for study in studies %}
