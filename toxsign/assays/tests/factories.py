@@ -10,7 +10,6 @@ class AssayFactory(DjangoModelFactory):
     name = Faker("name")
     tsx_id = Faker("first_name")
     created_by = SubFactory(UserFactory)
-    status = "PRIVATE"
     additional_info = Faker("text")
     experimental_design = Faker("text")
     dev_stage = 'PREPUBERTAL'

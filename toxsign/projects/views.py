@@ -4,11 +4,12 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views import generic
-from django.views.generic import DetailView, ListView, RedirectView, UpdateView
+from django.views.generic import DetailView, ListView, RedirectView, UpdateView, CreateView
 from django.shortcuts import redirect
 
 from toxsign.assays.models import Assay
 from toxsign.projects.models import Project
+from toxsign.projects.forms import ProjectCreateForm
 from toxsign.signatures.models import Signature
 from toxsign.studies.models import Study
 
@@ -31,3 +32,14 @@ class EditView(LoginRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         return Project.objects.get(pk=self.kwargs['pk'])
+
+class CreateView(LoginRequiredMixin, CreateView):
+    model = Project
+    template_name = 'pages/entity_create.html'
+    form_class = ProjectCreateForm
+
+    # Autofill the user
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.created_by = self.request.user
+        return super(CreateView, self).form_valid(form)

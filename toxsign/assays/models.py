@@ -12,11 +12,6 @@ from toxsign.ontologies.models import Biological, Cell, CellLine, Chemical, Dise
 
 
 class Assay(models.Model):
-    AVAILABLE_STATUS = (
-        ('PRIVATE', 'Private'),
-        ('PENDING', 'Pending'),
-        ('PUBLIC', 'Public'),
-    )
     DEVELOPPMENTAL_STAGE = (
         ("FETAL", 'Fetal'),
         ("EMBRYONIC", "Embryonic"),
@@ -57,7 +52,6 @@ class Assay(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_created_by')
     updated_at = models.DateTimeField(auto_now=True, null=True, verbose_name=("user"))
-    status = models.CharField(max_length=20, choices=AVAILABLE_STATUS, default="PRIVATE")
     additional_info = models.TextField("Additional information")
     experimental_design = models.TextField("Experimental design")
     dev_stage = models.CharField(max_length=50, choices=DEVELOPPMENTAL_STAGE, default="NA")
@@ -124,6 +118,10 @@ class Factor(models.Model):
 
     def __str__(self):
         return self.name
+
+    # Redirect to assay page
+    def get_absolute_url(self):
+        return reverse('assays:detail', kwargs={"assid": self.assay.tsx_id})
 
     # Override save method to auto increment tsx_id
     def save(self, *args, **kwargs):

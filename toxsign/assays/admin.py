@@ -8,7 +8,6 @@ class AssayAdmin(admin.ModelAdmin):
         (None,               {'fields': [
             'name', 
             'created_by', 
-            'status', 
             'additional_info', 
             'experimental_design', 
             'dev_stage',

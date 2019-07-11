@@ -14,11 +14,6 @@ from toxsign.ontologies.models import Biological, Cell, CellLine, Chemical, Dise
 
 
 class Signature(models.Model):
-    AVAILABLE_STATUS = (
-        ('PRIVATE', 'Private'),
-        ('PENDING', 'Pending'),
-        ('PUBLIC', 'Public'),
-    )
     DEVELOPPMENTAL_STAGE = (
         ("FETAL", 'Fetal'),
         ("EMBRYONIC", "Embryonic"),
@@ -70,7 +65,6 @@ class Signature(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_created_by')
     updated_at = models.DateTimeField(auto_now=True, null=True, verbose_name=("user"))
-    status = models.CharField(max_length=20, choices=AVAILABLE_STATUS, default="PRIVATE")
     signature_type = models.CharField(max_length=20, choices=SIGNATURE_TYPE, default="GENOMICS")
     phenotype_description = models.TextField("Phenotype description")
     experimental_design = models.TextField("Experimental design")

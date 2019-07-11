@@ -11,7 +11,6 @@ class SignatureFactory(DjangoModelFactory):
     name = Faker("name")
     tsx_id = Faker("first_name")
     created_by = SubFactory(UserFactory)
-    status = "PRIVATE"
     signature_type = "GENOMICS"
     phenotype_description = Faker("text")
     experimental_design = Faker("text")

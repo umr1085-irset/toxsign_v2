@@ -4,10 +4,12 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views import generic
-from django.views.generic import DetailView, ListView, RedirectView, UpdateView
+from django.views.generic import CreateView, DetailView, ListView, RedirectView, UpdateView
 from django.contrib.auth.decorators import login_required
 
+from toxsign.assays.models import Assay
 from toxsign.signatures.models import Signature
+from toxsign.signatures.forms import SignatureCreateForm
 
 
 @login_required
@@ -18,3 +20,20 @@ def DetailView(request, sigid):
     study = assay.study
     project = study.project
     return render(request, 'signatures/details.html', {'project': project,'study': study, 'assay': assay, 'signature': signature})
+
+class CreateView(LoginRequiredMixin, CreateView):
+    model = Signature
+    form_class = SignatureCreateForm
+    template_name = 'pages/entity_create.html'
+
+    # We need to get the assay id to restrict the factors (since we don't pass a factor id to the form directly)
+    def get_form_kwargs(self):
+        kwargs = super(CreateView, self).get_form_kwargs()
+        kwargs.update({'assid': self.kwargs.get('assid')})
+        return kwargs
+
+    # Autofill the user
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.created_by = self.request.user
+        return super(CreateView, self).form_valid(form)

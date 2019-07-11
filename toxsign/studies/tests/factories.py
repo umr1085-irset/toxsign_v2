@@ -8,7 +8,6 @@ class StudyFactory(DjangoModelFactory):
     name = Faker("name")
     tsx_id = Faker("first_name")
     created_by = SubFactory(UserFactory)
-    status = "PRIVATE"
     description = Faker("text")
     experimental_design = Faker("text")
     study_type = 'INTERVENTIONAL'
