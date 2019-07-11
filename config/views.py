@@ -5,17 +5,18 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views import generic
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 import json
 
-from toxsign.assays.models import Assay
+from toxsign.assays.models import Assay, Factor
 from toxsign.projects.models import Project
 from toxsign.signatures.models import Signature
 from toxsign.studies.models import Study
+
 
 
 
@@ -37,6 +38,32 @@ def autocompleteModel(request):
         'signatures': results_signatures
     }
     return render(request, 'pages/ajax_search.html', {'statuss': results})
+
+def graph_data(request):
+    # Need to check permissions for entities
+
+    query = request.GET.get('q')
+    project = Project.objects.get(tsx_id=query)
+    studies = project.study_of.all()
+
+    response = {
+        'name': project.name,
+    }
+
+    study_list = []
+    for study in studies:
+        assay_list = []
+        for assay in study.assay_of.all():
+            factor_list = []
+            for factor in assay.factor_of.all():
+                signature_list = []
+                for signature in factor.signature_of_of.all():
+                    signature_list.append(signature.name)
+                factor_list.append({'name': factor.name, 'children': signature_list})
+            assay_list.append('name': assay.name, 'children': factor_list)
+        study_list.append('name': study.name, 'children': assay_list)
+    response['children'] = study_list
+    return JsonResponse(response, safe=False)
 
 def index(request):
     projects = Project.objects.all()
@@ -93,7 +120,7 @@ def index(request):
         'assay_number': assay_number,
         'signature_number': signature_number
     }
-    
+
     return render(request, 'pages/index.html', context)
 
 
