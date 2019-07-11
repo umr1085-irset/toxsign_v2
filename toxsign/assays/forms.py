@@ -9,22 +9,22 @@ from toxsign.ontologies.models import Cell, CellLine, Chemical, Species, Tissue
 
 class AssayCreateForm(forms.ModelForm):
 
-        cell_line = forms.ModelChoiceField(
+    cell_line = forms.ModelChoiceField(
                     queryset=CellLine.objects.all(),
                     widget=autocomplete.ModelSelect2(url='/ontologies/cellline-autocomplete')
-                  )
-        cell = forms.ModelChoiceField(
-                    queryset=Cell.objects.all(),
-                    widget=autocomplete.ModelSelect2(url='/ontologies/cell-autocomplete')
-                  )
-        organism = forms.ModelChoiceField(
+                    )
+    cell = forms.ModelChoiceField(
+                queryset=Cell.objects.all(),
+                widget=autocomplete.ModelSelect2(url='/ontologies/cell-autocomplete')
+                )
+    organism = forms.ModelChoiceField(
                     queryset=Species.objects.all(),
                     widget=autocomplete.ModelSelect2(url='/ontologies/species-autocomplete')
-                  )
-        tissue = forms.ModelChoiceField(
-                    queryset=Tissue.objects.all(),
-                    widget=autocomplete.ModelSelect2(url='/ontologies/tissue-autocomplete')
-                 )
+                    )
+    tissue = forms.ModelChoiceField(
+                queryset=Tissue.objects.all(),
+                widget=autocomplete.ModelSelect2(url='/ontologies/tissue-autocomplete')
+                )
 
     class Meta:
         model = Assay
@@ -39,9 +39,9 @@ class AssayCreateForm(forms.ModelForm):
 class FactorCreateForm(forms.ModelForm):
 
     chemical = forms.ModelChoiceField(
-                queryset=Chemical.objects.all(),
-                widget=autocomplete.ModelSelect2(url='/ontologies/chemical-autocomplete')
-              )
+                    queryset=Chemical.objects.all(),
+                    widget=autocomplete.ModelSelect2(url='/ontologies/chemical-autocomplete')
+                    )
 
     class Meta:
         model = Factor
