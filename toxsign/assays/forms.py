@@ -24,6 +24,7 @@ class AssayCreateForm(forms.ModelForm):
         tissue = forms.ModelChoiceField(
                     queryset=Tissue.objects.all(),
                     widget=autocomplete.ModelSelect2(url='/ontologies/tissue-autocomplete')
+                 )
 
     class Meta:
         model = Assay
