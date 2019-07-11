@@ -8,7 +8,7 @@ class OntologyAutocomplete(autocomplete.Select2QuerySetView):
         self.model = model
 
     def get_queryset(self):
-        if not self.request.user.is_authenticated():
+        if not self.request.user.is_authenticated:
                     return self.model.objects.none()
         qs = self.model.objects.all()
         if self.q:
@@ -22,6 +22,10 @@ class BiologicalAutocomplete(OntologyAutocomplete):
 class CellLineAutocomplete(OntologyAutocomplete):
     def __init__(self):
         super(CellLineAutocomplete, self).__init__(CellLine)
+
+class CellAutocomplete(OntologyAutocomplete):
+     def __init__(self):
+         super(CellAutocomplete, self).__init__(Cell)
 
 class ChemicalAutocomplete(OntologyAutocomplete):
     def __init__(self):
