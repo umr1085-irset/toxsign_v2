@@ -58,10 +58,10 @@ def graph_data(request):
             for factor in assay.factor_of.all():
                 signature_list = []
                 for signature in factor.signature_of_of.all():
-                    signature_list.append(signature.name)
+                    signature_list.append({'name': signature.name})
                 factor_list.append({'name': factor.name, 'children': signature_list})
-            assay_list.append('name': assay.name, 'children': factor_list)
-        study_list.append('name': study.name, 'children': assay_list)
+            assay_list.append({'name': assay.name, 'children': factor_list})
+        study_list.append({'name': study.name, 'children': assay_list})
     response['children'] = study_list
     return JsonResponse(response, safe=False)
 
