@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+
+
+{% block content %}
+    <div class="container-fluid">
+      <script src="http://d3js.org/d3.v3.js"></script>
+      <script>
+        d3.json("{% url "graph" %}?q=TSP1", function(error, data) {});
+        var clusterLayout = d3.cluster().size([400, 200])
+        var root = d3.hierarchy(data)
+        clusterLayout(root)
+      </script>
+    </div>
+
+{% endblock %}

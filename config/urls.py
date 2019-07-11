@@ -29,6 +29,9 @@ urlpatterns = [
     path(
         "graphs/", views.graph_data, name="graph"
     ),
+    path(
+        "test/",  TemplateView.as_view(template_name="pages/test.html"), name="test"
+    ),
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
