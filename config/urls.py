@@ -37,6 +37,7 @@ urlpatterns = [
     path("tools/", include("toxsign.tools.urls", namespace="tools")),
     path("jobs/", include("toxsign.jobs.urls", namespace="jobs")),
     path("accounts/", include("allauth.urls")),
+    path("ontologies/", include("toxsign.ontologies.urls", namespace="ontologies")),
     # Your stuff: custom urls includes go here
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
