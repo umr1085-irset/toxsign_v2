@@ -1,6 +1,14 @@
 // Set the dimensions and margins of the diagram
 function drawGraph(treeData){
 
+  var textcolored = {
+    project: "red",
+    study: "blue",
+    assay: "green",
+    factor: "yellow",
+    signature: "gray"
+  }
+
   var margin = {
 					top : 0,
 					right : 0,
@@ -34,7 +42,6 @@ function drawGraph(treeData){
   var i = 0,
       duration = 750,
       root;
-  console.log(treeData);
 
   // declares a tree layout and assigns the size
   var treemap = d3.tree().size([height, width]);
@@ -90,7 +97,9 @@ function drawGraph(treeData){
       .attr('width', rectNode.width)
       .attr('height', rectNode.height)
       .attr('class', 'node-rect')
-      .attr('fill', 'red')
+      .attr('fill', function(d){
+        return textcolored[d.value.type];
+      })
 
     // Add labels for the nodes
     nodeEnter.append('foreignObject')
