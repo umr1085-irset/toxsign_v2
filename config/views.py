@@ -55,13 +55,11 @@ def graph_data(request):
     for study in studies:
         assay_list = []
         for assay in study.assay_of.all():
-            factor_list = []
+            signature_list = []
             for factor in assay.factor_of.all():
-                signature_list = []
                 for signature in factor.signature_of_of.all():
                     signature_list.append({'name': signature.name, 'type': 'signature'})
-                factor_list.append({'name': factor.name, 'children': signature_list, 'type': 'factor'})
-            assay_list.append({'name': assay.name, 'children': factor_list, 'type': 'assay'})
+            assay_list.append({'name': assay.name, 'children': signature_list, 'type': 'assay'})
         study_list.append({'name': study.name, 'children': assay_list, 'type': 'study'})
     response['children'] = study_list
     return JsonResponse(response, safe=False)
