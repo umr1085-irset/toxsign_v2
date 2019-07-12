@@ -98,7 +98,7 @@ function drawGraph(treeData){
       .attr('height', rectNode.height)
       .attr('class', 'node-rect')
       .attr('fill', function(d){
-        return textcolored[d.value.type];
+        return textcolored[d.data.type];
       })
 
     // Add labels for the nodes
