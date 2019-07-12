@@ -17,6 +17,12 @@ function drawGraph(treeData){
 				 },
 		// Height and width are redefined later in function of the size of the tree
 		// (after that the data are loaded)
+
+  var maxDepth = 0;
+  var maxTreeWidth = breadthFirstTraversal(treemap.nodes(treeData), function(currentLevel) {
+    maxDepth++;
+  });
+
 	width = 800 - margin.right - margin.left,
 	height = 400 - margin.top - margin.bottom;
 
