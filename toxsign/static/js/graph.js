@@ -1,9 +1,18 @@
 // Set the dimensions and margins of the diagram
 function drawGraph(treeData){
 
-  var margin = {top: 20, right: 90, bottom: 30, left: 90},
-      width = 960 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom;
+  var margin = {
+					top : 0,
+					right : 0,
+					bottom : 100,
+					left : 0
+				 },
+		// Height and width are redefined later in function of the size of the tree
+		// (after that the data are loaded)
+	width = 800 - margin.right - margin.left,
+	height = 400 - margin.top - margin.bottom;
+
+	var rectNode = { width : 120, height : 45, textMargin : 5 };
 
   var colorScale = d3.scaleLinear()
       .domain([0, 1])
@@ -18,7 +27,7 @@ function drawGraph(treeData){
   var svg = d3.select("#graph").append("svg")
       .attr("width", width + margin.right + margin.left)
       .attr("height", height + margin.top + margin.bottom)
-    .append("g")
+      .append("g")
       .attr("transform", "translate("
             + margin.left + "," + margin.top + ")");
 
@@ -74,25 +83,33 @@ function drawGraph(treeData){
       .on('click', click);
 
     // Add Circle for the nodes
-    nodeEnter.append('circle')
-        .attr('class', 'node')
-        .attr('r', 1e-6)
-        .style("fill", function(d) {
-            return d._children ? "lightsteelblue" : "#fff";
-        })
-        .style("stroke", function(d){return colorScale(d.data.female/(d.data.female + d.data.male))});
+    nodeEnter.append('rect')
+      .attr('rx', 6)
+      .attr('ry', 6)
+      .attr('width', rectNode.width)
+      .attr('height', rectNode.height)
+      .attr('class', 'node-rect')
+      .attr('fill', 'red')
 
     // Add labels for the nodes
-    nodeEnter.append('text')
-        .attr("dy", ".35em")
-        .attr("x", function(d) {
-            return d.children || d._children ? -13 : 13;
-        })
-        .attr("text-anchor", function(d) {
-            return d.children || d._children ? "end" : "start";
-        })
-        .text(function(d) { return d.data.name; })
-        .style("fill", function(d){return colorScale(d.data.female/(d.data.value))});
+    nodeEnter.append('foreignObject')
+		  .attr('x', rectNode.textMargin)
+		  .attr('y', rectNode.textMargin)
+		  .attr('width', function() {
+		      return (rectNode.width - rectNode.textMargin * 2) < 0 ? 0
+					     : (rectNode.width - rectNode.textMargin * 2)
+	     })
+		   .attr('height', function() {
+			    return (rectNode.height - rectNode.textMargin * 2) < 0 ? 0
+						   : (rectNode.height - rectNode.textMargin * 2)
+				})
+		   .append('xhtml').html(function(d) {
+			    return '<div style="width: '
+					     + (rectNode.width - rectNode.textMargin * 2) + 'px; height: '
+							 + (rectNode.height - rectNode.textMargin * 2) + 'px;" class="node-text wordwrap">'
+							 + '<b>' + d.data.name + '</b><br><br>'
+							 + '</div>';
+       })
 
     // UPDATE
     var nodeUpdate = nodeEnter.merge(node);
@@ -105,13 +122,10 @@ function drawGraph(treeData){
        });
 
     // Update the node attributes and style
-    nodeUpdate.select('circle.node')
-      .attr('r', 10)
-      .style("fill", function(d) {
-          return d._children ? "lightsteelblue" : "#fff";
-      })
-      .attr('cursor', 'pointer');
+    nodeUpdate.select('rect')
+      .attr('class', function(d) { return d._children ? 'node-rect-closed' : 'node-rect'; });
 
+    nodeUpdate.select('text').style('fill-opacity', 1);
 
     // Remove any exiting nodes
     var nodeExit = node.exit().transition()
@@ -120,14 +134,7 @@ function drawGraph(treeData){
             return "translate(" + source.y + "," + source.x + ")";
         })
         .remove();
-
-    // On exit reduce the node circles size to 0
-    nodeExit.select('circle')
-      .attr('r', 1e-6);
-
-    // On exit reduce the opacity of text labels
-    nodeExit.select('text')
-      .style('fill-opacity', 1e-6);
+    nodeExit.select('text').style('fill-opacity', 1e-6);
 
     // ****************** links section ***************************
 
@@ -136,7 +143,7 @@ function drawGraph(treeData){
         .data(links, function(d) { return d.id; })
         .style('stroke-width', function(d){
           return widthScale(d.data.value)
-        });
+    });
 
     // Enter any new links at the parent's previous position.
     var linkEnter = link.enter().insert('path', "g")
@@ -175,17 +182,47 @@ function drawGraph(treeData){
       d.y0 = d.y;
     });
 
-    // Creates a curved (diagonal) path from parent to the child nodes
-    function diagonal(s, d) {
-
-      path = `M ${s.y} ${s.x}
-              C ${(s.y + d.y) / 2} ${s.x},
-                ${(s.y + d.y) / 2} ${d.x},
-                ${d.y} ${d.x}`
-
-      return path
+    function zoomAndDrag() {
+	    //var scale = d3.event.scale,
+	     var scale = 1,
+	     translation = d3.event.translate,
+	     tbound = -height * scale,
+	     bbound = height * scale,
+	     lbound = (-width + margin.right) * scale,
+	     rbound = (width - margin.left) * scale;
+	    // limit translation to thresholds
+	     translation = [
+	        Math.max(Math.min(translation[0], rbound), lbound),
+	        Math.max(Math.min(translation[1], bbound), tbound)
+	     ];
+	     d3.select('.drawarea')
+	      .attr('transform', 'translate(' + translation + ')' +
+	      ' scale(' + scale + ')');
     }
 
+    // Creates a curved (diagonal) path from parent to the child nodes
+    function diagonal(s, d) {
+		    var p0 = {
+			       x : s.x + rectNode.height / 2,
+			       y : (s.y + rectNode.width)
+		    },
+        p3 = {
+			       x : d.x + rectNode.height / 2,
+			       y : d.y  - 12 // -12, so the end arrows are just before the rect node
+		    },
+        m = (p0.y + p3.y) / 2,
+        p = [ p0, {
+			       x : p0.x,
+			       y : m
+		    }, {
+			       x : p3.x,
+			       y : m
+		    }, p3 ];
+		    p = p.map(function(d) {
+			       return [ d.y, d.x ];
+		    });
+		    return 'M' + p[0] + 'C' + p[1] + ' ' + p[2] + ' ' + p[3];
+    };
     // Toggle children on click.
     function click(d) {
       if (d.children) {
@@ -197,4 +234,44 @@ function drawGraph(treeData){
         }
       update(d);
     }
+  function breadthFirstTraversal(tree, func){
+  	  var max = 0;
+  	  if (tree && tree.length > 0){
+  		    var currentDepth = tree[0].depth;
+  		    var fifo = [];
+  		    var currentLevel = [];
+
+  		    fifo.push(tree[0]);
+  		    while (fifo.length > 0) {
+  			    var node = fifo.shift();
+  			    if (node.depth > currentDepth) {
+  				    func(currentLevel);
+  				    currentDepth++;
+  				    max = Math.max(max, currentLevel.length);
+  				    currentLevel = [];
+  			    }
+  			    currentLevel.push(node);
+  			    if (node.children) {
+  				    for (var j = 0; j < node.children.length; j++) {
+  					    fifo.push(node.children[j]);
+  				    }
+  			    }
+  	  	  }
+  		    func(currentLevel);
+  		    return Math.max(max, currentLevel.length);
+  	  }
+  	  return 0;
+    }
+	// x = ordoninates and y = abscissas
+	function collision(siblings) {
+	  var minPadding = 5;
+	  if (siblings) {
+		  for (var i = 0; i < siblings.length - 1; i++)
+		  {
+			  if (siblings[i + 1].x - (siblings[i].x + rectNode.height) < minPadding)
+				  siblings[i + 1].x = siblings[i].x + rectNode.height + minPadding;
+		  }
+	  }
+  }
+}
 }
