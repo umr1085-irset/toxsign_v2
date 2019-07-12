@@ -2,11 +2,11 @@
 function drawGraph(treeData){
 
   var textcolored = {
-    project: "red",
-    study: "blue",
-    assay: "green",
-    factor: "yellow",
-    signature: "gray"
+    project: "#337ab7",
+    study: "#5cb85c",
+    assay: "#f0ad4e",
+    factor: "#4ab1eb",
+    signature: "#9467bd"
   }
 
   var margin = {
@@ -17,16 +17,24 @@ function drawGraph(treeData){
 				 },
 		// Height and width are redefined later in function of the size of the tree
 		// (after that the data are loaded)
+	height = 800 - margin.right - margin.left,
+	width = 400 - margin.top - margin.bottom;
 
-  var maxDepth = 0;
-  var maxTreeWidth = breadthFirstTraversal(treemap.nodes(treeData), function(currentLevel) {
-    maxDepth++;
+  var rectNode = { width : 120, height : 45, textMargin : 5 };
+  var tooltip = { width : 150, height : 40, textMargin : 5 };
+  var treemap = d3.tree().size([height, width]);
+  var root = d3.hierarchy(treeData, function(d) { return d.children; });
+  var treeData = treemap(root);
+  var maxTreeWidth = 0;
+  var maxDepth = breadthFirstTraversal(treeData.descendants(), function(currentLevel) {
+    maxTreeWidth++;
+    currentLevel.forEach(function(node) {
+        node.color = textcolored[node.data.type];
+    });
   });
 
-	width = 800 - margin.right - margin.left,
-	height = 400 - margin.top - margin.bottom;
-
-	var rectNode = { width : 120, height : 45, textMargin : 5 };
+  width = maxTreeWidth * (rectNode.width + 20) + tooltip.width + 20 - margin.right - margin.left;
+  heigth = maxDepth * (rectNode.height * 1.5) + tooltip.height / 2 - margin.top - margin.bottom;
 
   var colorScale = d3.scaleLinear()
       .domain([0, 1])
@@ -54,7 +62,7 @@ function drawGraph(treeData){
 
   // Assigns parent, children, height, depth
   root = d3.hierarchy(treeData, function(d) { return d.children; });
-  root.x0 = height / 2;
+  root.x0 = width / 2;
   root.y0 = 0;
 
   // Collapse after the second level
@@ -92,7 +100,7 @@ function drawGraph(treeData){
     var nodeEnter = node.enter().append('g')
         .attr('class', 'node')
         .attr("transform", function(d) {
-          return "translate(" + source.y0 + "," + source.x0 + ")";
+          return "translate(" + source.x0 + "," + source.y0 + ")";
       })
       .on('click', click);
 
@@ -104,7 +112,7 @@ function drawGraph(treeData){
       .attr('height', rectNode.height)
       .attr('class', 'node-rect')
       .attr('fill', function(d){
-        return textcolored[d.data.type];
+        return d.data.color;
       })
 
     // Add labels for the nodes
@@ -123,7 +131,7 @@ function drawGraph(treeData){
 			    return '<div style="width: '
 					     + (rectNode.width - rectNode.textMargin * 2) + 'px; height: '
 							 + (rectNode.height - rectNode.textMargin * 2) + 'px;" class="node-text wordwrap">'
-							 + '<b>' + d.data.name + '</b><br><br>'
+							 + '<b>' + d.data.data.name + '</b><br><br>'
 							 + '</div>';
        })
 
@@ -134,7 +142,7 @@ function drawGraph(treeData){
     nodeUpdate.transition()
       .duration(duration)
       .attr("transform", function(d) {
-          return "translate(" + d.y + "," + d.x + ")";
+          return "translate(" + d.x + "," + d.y + ")";
        });
 
     // Update the node attributes and style
@@ -147,7 +155,7 @@ function drawGraph(treeData){
     var nodeExit = node.exit().transition()
         .duration(duration)
         .attr("transform", function(d) {
-            return "translate(" + source.y + "," + source.x + ")";
+            return "translate(" + source.x + "," + source.y + ")";
         })
         .remove();
     nodeExit.select('text').style('fill-opacity', 1e-6);
@@ -218,27 +226,29 @@ function drawGraph(treeData){
 
     // Creates a curved (diagonal) path from parent to the child nodes
     function diagonal(s, d) {
-		    var p0 = {
-			       x : s.x + rectNode.height / 2,
-			       y : (s.y + rectNode.width)
-		    },
+            var p0 = {
+                   x : s.x + rectNode.width/2,
+                   y : s.y
+            },
         p3 = {
-			       x : d.x + rectNode.height / 2,
-			       y : d.y  - 12 // -12, so the end arrows are just before the rect node
-		    },
+                   x : d.x + rectNode.width/2,
+                   y : d.y + rectNode.height // -12, so the end arrows are just before the rect node
+            },
         m = (p0.y + p3.y) / 2,
         p = [ p0, {
-			       x : p0.x,
-			       y : m
-		    }, {
-			       x : p3.x,
-			       y : m
-		    }, p3 ];
-		    p = p.map(function(d) {
-			       return [ d.y, d.x ];
-		    });
-		    return 'M' + p[0] + 'C' + p[1] + ' ' + p[2] + ' ' + p[3];
+                   x : p0.x,
+                   y : m
+            }, {
+                   x : p3.x,
+                   y : m
+            }, p3 ];
+            p = p.map(function(d) {
+                   return [ d.x, d.y ];
+            });
+            return 'M' + p[0] + 'C' + p[1] + ' ' + p[2] + ' ' + p[3];
     };
+
+
     // Toggle children on click.
     function click(d) {
       if (d.children) {
@@ -249,15 +259,27 @@ function drawGraph(treeData){
           d._children = null;
         }
       update(d);
-    }
-  function breadthFirstTraversal(tree, func){
+    };
+	// x = ordoninates and y = abscissas
+	function collision(siblings) {
+	  var minPadding = 5;
+	  if (siblings) {
+		  for (var i = 0; i < siblings.length - 1; i++)
+		  {
+			  if (siblings[i + 1].x - (siblings[i].x + rectNode.height) < minPadding)
+				  siblings[i + 1].x = siblings[i].x + rectNode.height + minPadding;
+		  }
+	  }
+  }
+}
+    function breadthFirstTraversal(tree, func){
   	  var max = 0;
   	  if (tree && tree.length > 0){
   		    var currentDepth = tree[0].depth;
   		    var fifo = [];
   		    var currentLevel = [];
 
-  		    fifo.push(tree[0]);
+ 		    fifo.push(tree[0]);
   		    while (fifo.length > 0) {
   			    var node = fifo.shift();
   			    if (node.depth > currentDepth) {
@@ -278,16 +300,5 @@ function drawGraph(treeData){
   	  }
   	  return 0;
     }
-	// x = ordoninates and y = abscissas
-	function collision(siblings) {
-	  var minPadding = 5;
-	  if (siblings) {
-		  for (var i = 0; i < siblings.length - 1; i++)
-		  {
-			  if (siblings[i + 1].x - (siblings[i].x + rectNode.height) < minPadding)
-				  siblings[i + 1].x = siblings[i].x + rectNode.height + minPadding;
-		  }
-	  }
-  }
-}
+
 }
