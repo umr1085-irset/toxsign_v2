@@ -9,8 +9,7 @@
       <script src="{% static 'js/graph.js' %}"></script>
 
       <div class="container">
-        <div class="graph"></div>
-        <ct-visualization id="tree-container"></ct-visualization>
+        <div id="graph"></div>
         <script>
             d3.json("{% url 'graph' %}?q=TSP1").then( function(json){
                 drawGraph(json);

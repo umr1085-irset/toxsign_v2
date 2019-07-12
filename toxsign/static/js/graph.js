@@ -34,6 +34,7 @@ function drawGraph(treeData){
   var i = 0,
       duration = 750,
       root;
+  console.log(treeData);
 
   // declares a tree layout and assigns the size
   var treemap = d3.tree().size([height, width]);
