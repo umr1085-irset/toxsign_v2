@@ -20,8 +20,8 @@ function drawGraph(treeData){
 	height = 800 - margin.right - margin.left,
 	width = 400 - margin.top - margin.bottom;
 
-  var rectNode = { width : 120, height : 45, textMargin : 5 };
-  var tooltip = { width : 150, height : 40, textMargin : 5 };
+  var rectNode = { width : 140, height : 60, textMargin : 10 };
+  var tooltip = { width : 150, height : 60, textMargin : 10 };
   var treemap = d3.tree().size([height, width]);
   var root = d3.hierarchy(treeData, function(d) { return d.children; });
   var treeData = treemap(root);
@@ -51,8 +51,6 @@ function drawGraph(treeData){
       .attr("height", height + margin.top + margin.bottom)
       .attr('class', 'svgContainer')
       .append("g")
-      .call(d3.zoom()
-        .on('zoom', zoomAndDrag))
       .attr("transform", "translate("
             + margin.left + "," + margin.top + ")");
 
@@ -78,12 +76,8 @@ function drawGraph(treeData){
 
   nodeGroup = svg.append('g')
     .attr('id', 'nodes');
-  linkGroup = svg.append('g')
-    .attr('id', 'links');
-  linkGroupToolTip = svg.append('g')
-	  .attr('id', 'linksTooltips');
-	nodeGroupTooltip = svg.append('g')
-	  .attr('id', 'nodesTooltips');
+  nodeGroupTooltip = svg.append('g')
+    .attr('id', 'nodesTooltips');
 
   // Collapse after the second level
   root.children.forEach(collapse);
@@ -122,7 +116,10 @@ function drawGraph(treeData){
         .data(nodes, function(d) {return d.id || (d.id = ++i); });
 
     // Enter any new modes at the parent's previous position.
+/*
     var nodeEnter = node.enter().append('g')
+*/
+    var nodeEnter = node.enter().insert('g', 'g.node')
         .attr('class', 'node')
         .attr("transform", function(d) {
           return "translate(" + source.x0 + "," + source.y0 + ")";
@@ -130,11 +127,10 @@ function drawGraph(treeData){
       .on('click', click);
 
     var nodeEnterTooltip = nodeTooltip.enter().append('g')
-  			.attr('transform', function(d) {
-  				  return 'translate(' + source.x0 + ',' + source.y0 + ')'; });
+  		.attr('transform', function(d) {
+          return 'translate(' + d.x + ',' + d.y + ')'; });
 
-
-    // Add Circle for the nodes
+    // Add rect for the nodes
     nodeEnter.append('rect')
       .attr('rx', 6)
       .attr('ry', 6)
@@ -160,62 +156,50 @@ function drawGraph(treeData){
 		   .append('xhtml').html(function(d) {
 			    return '<div style="width: '
 					     + (rectNode.width - rectNode.textMargin * 2) + 'px; height: '
-							 + (rectNode.height - rectNode.textMargin * 2) + 'px;" class="node-text wordwrap">'
-							 + '<b>' + d.data.data.name + '</b><br><br>'
-							 + '</div>';
+					     + (rectNode.height - rectNode.textMargin * 2) + 'px;" class="node-text wordwrap">'
+						 + '<b>' + d.data.data.name + '</b><br><br>'
+					     + '</div>';
        })
        .on('mouseover', function(d) {
 			    $('#nodeInfoID' + d.id).css('visibility', 'visible');
 			    $('#nodeInfoTextID' + d.id).css('visibility', 'visible');
-		   })
-		   .on('mouseout', function(d) {
+	   })
+	   .on('mouseout', function(d) {
 			    $('#nodeInfoID' + d.id).css('visibility', 'hidden');
 			    $('#nodeInfoTextID' + d.id).css('visibility', 'hidden');
-		   });
+       });
 
     nodeEnterTooltip.append("rect")
  		  .attr('id', function(d) { return 'nodeInfoID' + d.id; })
-     	.attr('x', rectNode.width / 2)
+     	  .attr('x', rectNode.width / 2)
  		  .attr('y', rectNode.height / 2)
  		  .attr('width', tooltip.width)
  		  .attr('height', tooltip.height)
-     	.attr('class', 'tooltip-box')
-     	.style('fill-opacity', 0.8)
- 		  .on('mouseover', function(d) {
- 			  $('#nodeInfoID' + d.id).css('visibility', 'visible');
- 			  $('#nodeInfoTextID' + d.id).css('visibility', 'visible');
- 			  removeMouseEvents();
- 		  })
- 		  .on('mouseout', function(d) {
- 			  $('#nodeInfoID' + d.id).css('visibility', 'hidden');
- 			  $('#nodeInfoTextID' + d.id).css('visibility', 'hidden');
- 			  reactivateMouseEvents();
- 		  });
+     	  .attr('class', 'tooltip-box')
+     	  .style('fill-opacity', 0.8);
 
- 		nodeEnterTooltip.append("text")
+ 	nodeEnterTooltip.append("text")
  		  .attr('id', function(d) { return 'nodeInfoTextID' + d.id; })
-     	.attr('x', rectNode.width / 2 + tooltip.textMargin)
+     	  .attr('x', rectNode.width / 2 + tooltip.textMargin)
  		  .attr('y', rectNode.height / 2 + tooltip.textMargin * 2)
  		  .attr('width', tooltip.width)
  		  .attr('height', tooltip.height)
  		  .attr('class', 'tooltip-text')
  		  .style('fill', 'white')
  		  .append("tspan")
- 	    .text(function(d) {return 'Name: ' + d.data.data.name;})
- 	    .append("tspan")
- 	    .attr('x', rectNode.width / 2 + tooltip.textMargin)
- 	    .attr('dy', '1.5em')
- 	    .text(function(d) {return 'Info: ' + d.data.data.name;});
+ 	      .text(function(d) {return 'Name: ' + d.data.data.name;})
+ 	      .append("tspan")
+ 	      .attr('x', rectNode.width / 2 + tooltip.textMargin)
+ 	      .attr('dy', '1.5em')
+ 	      .text(function(d) {return 'Info: ' + d.data.data.name;});
 
     // UPDATE
     var nodeUpdate = nodeEnter.merge(node);
 
     // Transition to the proper position for the node
-    nodeUpdate.transition()
-      .duration(duration)
-      .attr("transform", function(d) {
-          return "translate(" + d.x + "," + d.y + ")";
-       });
+    nodeUpdate.transition().duration(duration)
+      .attr("transform", function(d) {return "translate(" + d.x + "," + d.y + ")";});
+
     nodeTooltip.transition().duration(duration)
    	  .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
 
@@ -226,15 +210,13 @@ function drawGraph(treeData){
     nodeUpdate.select('text').style('fill-opacity', 1);
 
     // Remove any exiting nodes
-    var nodeExit = node.exit().transition()
-        .duration(duration)
-        .attr("transform", function(d) {
-            return "translate(" + source.x + "," + source.y + ")";
-        })
+    var nodeExit = node.exit().transition().duration(duration)
+        .attr("transform", function(d) {return "translate(" + source.x + "," + source.y + ")";})
         .remove();
+
     nodeTooltip.exit().transition().duration(duration)
         .attr('transform', function(d) { return 'translate(' + source.x + ',' + source.y + ')'; })
-    		.remove();
+        .remove();
 
     nodeExit.select('text').style('fill-opacity', 1e-6);
 
@@ -361,21 +343,21 @@ function drawGraph(treeData){
   	  return 0;
     }
     function zoomAndDrag() {
+        var transform = d3.event.transform;
 	    //var scale = d3.event.scale,
-	     var scale = 1,
-	     translation = d3.event.translate,
+	     var scale = transform["k"],
 	     tbound = -height * scale,
 	     bbound = height * scale,
 	     lbound = (-width + margin.right) * scale,
 	     rbound = (width - margin.left) * scale;
 	    // limit translation to thresholds
-	     translation = [
-	        Math.max(Math.min(translation[0], rbound), lbound),
-	        Math.max(Math.min(translation[1], bbound), tbound)
-	     ];
-	     d3.select('.drawarea')
-	      .attr('transform', 'translate(' + translation + ')' +
-	      ' scale(' + scale + ')');
+         transform = {
+           k: scale,
+           x: Math.max(Math.min(transform["x"], rbound), lbound),
+           y:Math.max(Math.min(transform["y"], bbound), tbound)
+         };
+	     d3.select('#graph')
+	      .attr('transform', transform);
     }
 
     function getMouseWheelEvent() {
@@ -391,16 +373,16 @@ function drawGraph(treeData){
     			mouseWheelName = 'DOMMouseScroll.zoom';
     			return d3.select('#graph').select('svg').on('DOMMouseScroll.zoom');
     		}
-	  }
+	}
 
-      function removeMouseEvents() {
+    function removeMouseEvents() {
         // Drag and zoom behaviors are temporarily disabled, so tooltip text can be selected
-         mousedown = d3.select('#graph').select('svg').on('mousedown.zoom');
-         d3.select('#graph').select('svg').on("mousedown.zoom", null);
-      }
+       mousedown = d3.select('#graph').select('svg').on('mousedown.zoom');
+       d3.select('#graph').select('svg').on("mousedown.zoom", null);
+    }
 
-      function reactivateMouseEvents() {
-        // Reactivate the drag and zoom behaviors
-        d3.select('#graph').select('svg').on('mousedown.zoom', mousedown);
-      }
+    function reactivateMouseEvents() {
+      // Reactivate the drag and zoom behaviors
+      d3.select('#graph').select('svg').on('mousedown.zoom', mousedown);
+    }
 }

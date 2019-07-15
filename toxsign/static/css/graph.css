@@ -1,9 +1,7 @@
 /*
  * Styles of the components of the tree
  */
-#tree-container {
-	position: absolute;
-	left: 0px;
+#graph {
 	width: 100%;
 }
 
@@ -60,7 +58,7 @@
 }
 
 .node-text {
-	font: 7px sans-serif;
+	font: 10px sans-serif;
 	color: white;
 }
 
@@ -71,7 +69,7 @@
 
 .tooltip-text {
 	visibility: hidden;
-	font: 7px sans-serif;
+	font: 10px sans-serif;
 	color: white;
 	display: block;
  	padding: 5px;
