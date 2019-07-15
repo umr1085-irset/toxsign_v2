@@ -51,7 +51,7 @@ function drawGraph(treeData){
       .attr("height", height + margin.top + margin.bottom)
       .attr('class', 'svgContainer')
       .append("g")
-      .call(d3.behavior.zoom()
+      .call(d3.zoom()
         .on('zoom', zoomAndDrag))
       .attr("transform", "translate("
             + margin.left + "," + margin.top + ")");
