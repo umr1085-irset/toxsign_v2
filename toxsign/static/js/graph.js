@@ -58,11 +58,11 @@ function drawGraph(treeData){
 
   var i = 0,
       duration = 750,
-      root;
-      mousedown; // Use to save temporarily 'mousedown.zoom' value
-	    mouseWheel,
-		  mouseWheelName,
-		  isKeydownZoom = false;
+      root,
+      mousedown, // Use to save temporarily 'mousedown.zoom' value
+	  mouseWheel,
+	  mouseWheelName,
+      isKeydownZoom = false;
 
   getMouseWheelEvent();
   d3.select('#graph').select('svg').on(mouseWheelName, null);
@@ -110,7 +110,7 @@ function drawGraph(treeData){
     // Normalize for fixed-depth.
     breadthFirstTraversal(nodes, collision);
 
-    nodes.forEach(function(d){ d.y = d.depth (rectNode.height * 1.5)});
+    nodes.forEach(function(d){ d.y = d.depth * (rectNode.height * 1.5)});
 
     // ****************** Nodes section ***************************
 
@@ -129,7 +129,7 @@ function drawGraph(treeData){
       })
       .on('click', click);
 
-    var nodeEnterTooltip = nodesTooltip.enter().append('g')
+    var nodeEnterTooltip = nodeTooltip.enter().append('g')
   			.attr('transform', function(d) {
   				  return 'translate(' + source.y0 + ',' + source.x0 + ')'; });
 
@@ -216,7 +216,7 @@ function drawGraph(treeData){
       .attr("transform", function(d) {
           return "translate(" + d.x + "," + d.y + ")";
        });
-    nodesTooltip.transition().duration(duration)
+    nodeTooltip.transition().duration(duration)
    	  .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
 
     // Update the node attributes and style
@@ -389,4 +389,14 @@ function drawGraph(treeData){
     		}
 	  }
 
+      function removeMouseEvents() {
+        // Drag and zoom behaviors are temporarily disabled, so tooltip text can be selected
+         mousedown = d3.select('#graph').select('svg').on('mousedown.zoom');
+         d3.select('#graph').select('svg').on("mousedown.zoom", null);
+      }
+    
+      function reactivateMouseEvents() {
+        // Reactivate the drag and zoom behaviors
+        d3.select('#graph').select('svg').on('mousedown.zoom', mousedown);
+      }
 }
