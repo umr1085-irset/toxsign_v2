@@ -56,12 +56,17 @@ function drawGraph(treeData){
       .attr("transform", "translate("
             + margin.left + "," + margin.top + ")");
 
-  d3.select('#graph').select('svg').on(mouseWheelName, null);
-  d3.select('#graph').select('svg').on('dblclick.zoom', null);
-
   var i = 0,
       duration = 750,
       root;
+      mousedown; // Use to save temporarily 'mousedown.zoom' value
+	    mouseWheel,
+		  mouseWheelName,
+		  isKeydownZoom = false;
+
+  getMouseWheelEvent();
+  d3.select('#graph').select('svg').on(mouseWheelName, null);
+  d3.select('#graph').select('svg').on('dblclick.zoom', null);
 
   // declares a tree layout and assigns the size
   var treemap = d3.tree().size([height, width]);
@@ -368,5 +373,20 @@ function drawGraph(treeData){
 	      .attr('transform', 'translate(' + translation + ')' +
 	      ' scale(' + scale + ')');
     }
+
+    function getMouseWheelEvent() {
+    		if (d3.select('#graph').select('svg').on('wheel.zoom')){
+    			mouseWheelName = 'wheel.zoom';
+    			return d3.select('#graph').select('svg').on('wheel.zoom');
+    		}
+    		if (d3.select('#graph').select('svg').on('mousewheel.zoom') != null){
+    			mouseWheelName = 'mousewheel.zoom';
+    			return d3.select('#graph').select('svg').on('mousewheel.zoom');
+    		}
+    		if (d3.select('#graph').select('svg').on('DOMMouseScroll.zoom')){
+    			mouseWheelName = 'DOMMouseScroll.zoom';
+    			return d3.select('#graph').select('svg').on('DOMMouseScroll.zoom');
+    		}
+	  }
 
 }
