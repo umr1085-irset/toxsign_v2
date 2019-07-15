@@ -48,8 +48,12 @@ def graph_data(request):
 
     response = {
         'name': project.name,
-        'type': 'project'
+        'type': 'project',
+        'tsx_id': project.tsx_id
     }
+    sign_count = 0
+    study_count = 0
+    assay_count = 0
 
     study_list = []
     for study in studies:
@@ -58,11 +62,20 @@ def graph_data(request):
             signature_list = []
             for factor in assay.factor_of.all():
                 for signature in factor.signature_of_of.all():
-                    signature_list.append({'name': signature.name, 'type': 'signature'})
-            assay_list.append({'name': assay.name, 'children': signature_list, 'type': 'assay'})
-        study_list.append({'name': study.name, 'children': assay_list, 'type': 'study'})
+                    sign_count +=1
+                    signature_list.append({'name': signature.name, 'type': 'signature', 'tsx_id': signature.tsx_id})
+            assay_count +=1
+            assay_list.append({'name': assay.name, 'children': signature_list, 'type': 'assay', 'tsx_id': assay.tsx_id})
+        study_count +=1
+        study_list.append({'name': study.name, 'children': assay_list, 'type': 'study', 'tsx_id': study.tsx_id})
     response['children'] = study_list
-    return JsonResponse(response, safe=False)
+    data = {
+        "data": response,
+        "max_parallel": max(assay_count, study_count, sign_count),
+        "max_depth": 4
+    }
+
+    return JsonResponse(data, safe=False)
 
 def index(request):
     projects = Project.objects.all()

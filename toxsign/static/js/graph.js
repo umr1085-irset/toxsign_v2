@@ -1,5 +1,5 @@
 // Set the dimensions and margins of the diagram
-function drawGraph(treeData){
+function drawGraph(treeData, max_Parallel, max_Depth){
 
   var textcolored = {
     project: "#337ab7",
@@ -14,27 +14,13 @@ function drawGraph(treeData){
 					right : 0,
 					bottom : 100,
 					left : 0
-				 },
-		// Height and width are redefined later in function of the size of the tree
-		// (after that the data are loaded)
-	height = 800 - margin.right - margin.left,
-	width = 400 - margin.top - margin.bottom;
+				 };
 
   var rectNode = { width : 140, height : 60, textMargin : 10 };
   var tooltip = { width : 150, height : 60, textMargin : 10 };
-  var treemap = d3.tree().size([height, width]);
-  var root = d3.hierarchy(treeData, function(d) { return d.children; });
-  var treeData = treemap(root);
-  var maxTreeWidth = 0;
-  var maxDepth = breadthFirstTraversal(treeData.descendants(), function(currentLevel) {
-    maxTreeWidth++;
-    currentLevel.forEach(function(node) {
-        node.color = textcolored[node.data.type];
-    });
-  });
 
-  width = maxTreeWidth * (rectNode.width + 20) + tooltip.width + 20 - margin.right - margin.left;
-  heigth = maxDepth * (rectNode.height * 1.5) + tooltip.height / 2 - margin.top - margin.bottom;
+  var width = max_Parallel * (rectNode.width + 20) + tooltip.width + 20 - margin.right - margin.left;
+  var height = max_Depth * (rectNode.height * 1.5) + tooltip.height / 2 - margin.top - margin.bottom;
 
   var colorScale = d3.scaleLinear()
       .domain([0, 1])
@@ -50,9 +36,12 @@ function drawGraph(treeData){
       .attr("width", width + margin.right + margin.left)
       .attr("height", height + margin.top + margin.bottom)
       .attr('class', 'svgContainer')
-      .append("g")
+
+  var svgGroup = svg.append('g')
+      .attr('class','drawarea')
+      .append('g')
       .attr("transform", "translate("
-            + margin.left + "," + margin.top + ")");
+            + "0 ," + margin.top + ")");
 
   var i = 0,
       duration = 750,
@@ -71,12 +60,12 @@ function drawGraph(treeData){
 
   // Assigns parent, children, height, depth
   root = d3.hierarchy(treeData, function(d) { return d.children; });
-  root.x0 = width / 2;
+  root.x0 = (width) / 2;
   root.y0 = 0;
 
-  nodeGroup = svg.append('g')
+  nodeGroup = svgGroup.append('g')
     .attr('id', 'nodes');
-  nodeGroupTooltip = svg.append('g')
+  nodeGroupTooltip = svgGroup.append('g')
     .attr('id', 'nodesTooltips');
 
   // Collapse after the second level
@@ -116,9 +105,8 @@ function drawGraph(treeData){
         .data(nodes, function(d) {return d.id || (d.id = ++i); });
 
     // Enter any new modes at the parent's previous position.
-/*
-    var nodeEnter = node.enter().append('g')
-*/
+
+
     var nodeEnter = node.enter().insert('g', 'g.node')
         .attr('class', 'node')
         .attr("transform", function(d) {
@@ -138,7 +126,7 @@ function drawGraph(treeData){
       .attr('height', rectNode.height)
       .attr('class', 'node-rect')
       .attr('fill', function(d){
-        return d.data.color;
+        return textcolored[d.data.type];
       })
 
     // Add labels for the nodes
@@ -157,17 +145,15 @@ function drawGraph(treeData){
 			    return '<div style="width: '
 					     + (rectNode.width - rectNode.textMargin * 2) + 'px; height: '
 					     + (rectNode.height - rectNode.textMargin * 2) + 'px;" class="node-text wordwrap">'
-						 + '<b>' + d.data.data.name + '</b><br><br>'
+						 + '<b> ' + d.data.tsx_id + '-' + d.data.name + '</b><br><br>'
 					     + '</div>';
        })
        .on('mouseover', function(d) {
+                $('.tooltip-box').css('visibility', 'hidden');
+                $('.tooltip-text').css('visibility', 'hidden');
 			    $('#nodeInfoID' + d.id).css('visibility', 'visible');
 			    $('#nodeInfoTextID' + d.id).css('visibility', 'visible');
 	   })
-	   .on('mouseout', function(d) {
-			    $('#nodeInfoID' + d.id).css('visibility', 'hidden');
-			    $('#nodeInfoTextID' + d.id).css('visibility', 'hidden');
-       });
 
     nodeEnterTooltip.append("rect")
  		  .attr('id', function(d) { return 'nodeInfoID' + d.id; })
@@ -187,11 +173,11 @@ function drawGraph(treeData){
  		  .attr('class', 'tooltip-text')
  		  .style('fill', 'white')
  		  .append("tspan")
- 	      .text(function(d) {return 'Name: ' + d.data.data.name;})
+ 	      .text(function(d) {return 'Name: ' + d.data.name;})
  	      .append("tspan")
  	      .attr('x', rectNode.width / 2 + tooltip.textMargin)
  	      .attr('dy', '1.5em')
- 	      .text(function(d) {return 'Info: ' + d.data.data.name;});
+ 	      .text(function(d) {return 'Info: ' + d.data.name;});
 
     // UPDATE
     var nodeUpdate = nodeEnter.merge(node);
@@ -293,6 +279,8 @@ function drawGraph(treeData){
 
     // Toggle children on click.
     function click(d) {
+      $('.tooltip-box').css('visibility', 'hidden');
+      $('.tooltip-text').css('visibility', 'hidden');
       if (d.children) {
           d._children = d.children;
           d.children = null;
@@ -308,8 +296,8 @@ function drawGraph(treeData){
 	  if (siblings) {
 		  for (var i = 0; i < siblings.length - 1; i++)
 		  {
-			  if (siblings[i + 1].x - (siblings[i].x + rectNode.height) < minPadding)
-				  siblings[i + 1].x = siblings[i].x + rectNode.height + minPadding;
+			  if (siblings[i + 1].x - (siblings[i].x + rectNode.width) < minPadding)
+				  siblings[i + 1].x = siblings[i].x + rectNode.width + minPadding;
 		  }
 	  }
   }
