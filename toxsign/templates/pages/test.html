@@ -14,7 +14,6 @@
         <div id="graph"></div>
         <script>
             d3.json("{% url 'graph' %}?q=TSP1").then( function(json){
-                console.log(json);
                 drawGraph(json.data, json.max_parallel, json.max_depth);
             });
         </script>

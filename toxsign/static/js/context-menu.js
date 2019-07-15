@@ -15,17 +15,16 @@ d3.contextMenu = function (menu, openCallback) {
     return function(data, index) {
         var elm = this;
         
-        menu_copy = JSON.parse(JSON.stringify(menu));
-        menu_copy[0]["title"] =  menu_copy[0]["title"].replace("%name%", data.data.name);
-
         d3.selectAll('.d3-context-menu').html('');
         var list = d3.selectAll('.d3-context-menu').append('ul');
-        list.selectAll('li').data(menu_copy).enter()
+        list.selectAll('li').data(menu).enter()
             .append('li')
             .html(function(d) {
-                return d.title;
+                // Override title with entity name
+                return d.title.replace("%name%", data.data.name);
             })
             .on('click', function(d, i) {
+                console.log(d);
                 d.action(elm, data, index);
                 d3.select('.d3-context-menu').style('display', 'none');
             });

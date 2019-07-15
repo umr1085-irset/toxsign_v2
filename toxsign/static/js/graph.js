@@ -1,6 +1,5 @@
 // Set the dimensions and margins of the diagram
 function drawGraph(treeData, max_Parallel, max_Depth){
-
   var textcolored = {
     project: "#337ab7",
     study: "#5cb85c",
@@ -19,7 +18,7 @@ function drawGraph(treeData, max_Parallel, max_Depth){
   var rectNode = { width : 140, height : 60, textMargin : 10 };
   var tooltip = { width : 150, height : 60, textMargin : 10 };
 
-  var width = max_Parallel * (rectNode.width + 20) + tooltip.width + 20 - margin.right - margin.left;
+  var width = max_Parallel * (rectNode.width + 40) + tooltip.width + 40 - margin.right - margin.left;
   var height = max_Depth * (rectNode.height * 1.5) + tooltip.height / 2 - margin.top - margin.bottom;
 
   var colorScale = d3.scaleLinear()
@@ -36,12 +35,9 @@ function drawGraph(treeData, max_Parallel, max_Depth){
       .attr("width", width + margin.right + margin.left)
       .attr("height", height + margin.top + margin.bottom)
       .attr('class', 'svgContainer')
-
-  var svgGroup = svg.append('g')
-      .attr('class','drawarea')
       .append('g')
       .attr("transform", "translate("
-            + "0 ," + margin.top + ")");
+          + 0  + "," + margin.top + ")");
 
   var i = 0,
       duration = 750,
@@ -51,21 +47,19 @@ function drawGraph(treeData, max_Parallel, max_Depth){
 	  mouseWheelName,
       isKeydownZoom = false;
 
-  getMouseWheelEvent();
-  d3.select('#graph').select('svg').on(mouseWheelName, null);
-  d3.select('#graph').select('svg').on('dblclick.zoom', null);
-
   // declares a tree layout and assigns the size
-  var treemap = d3.tree().size([height, width]);
+//  var treemap = d3.tree().size([height, width]);
+  var treemap = d3.tree().size([width, height]);
+//  var treemap = d3.tree().nodeSize([width/2, height/2]);
 
   // Assigns parent, children, height, depth
   root = d3.hierarchy(treeData, function(d) { return d.children; });
-  root.x0 = (width) / 2;
+  root.x0 = (width-rectNode.width)/2;
   root.y0 = 0;
 
-  nodeGroup = svgGroup.append('g')
+  nodeGroup = svg.append('g')
     .attr('id', 'nodes');
-  nodeGroupTooltip = svgGroup.append('g')
+  nodeGroupTooltip = svg.append('g')
     .attr('id', 'nodesTooltips');
 
   // Collapse after the second level
@@ -86,7 +80,7 @@ function drawGraph(treeData, max_Parallel, max_Depth){
     var menu = [{
       title: "View %name%",
       action: function(elm, d, i) {
-            console.log("lol");
+            
       }
     }];
 
@@ -100,7 +94,9 @@ function drawGraph(treeData, max_Parallel, max_Depth){
     // Normalize for fixed-depth.
     breadthFirstTraversal(nodes, collision);
 
-    nodes.forEach(function(d){ d.y = d.depth * (rectNode.height * 1.5)});
+    nodes.forEach(function(d){
+      d.y = d.depth * (rectNode.height * 1.5)
+    });
 
     // ****************** Nodes section ***************************
 
