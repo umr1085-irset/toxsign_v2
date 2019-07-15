@@ -275,24 +275,6 @@ function drawGraph(treeData){
       d.y0 = d.y;
     });
 
-    function zoomAndDrag() {
-	    //var scale = d3.event.scale,
-	     var scale = 1,
-	     translation = d3.event.translate,
-	     tbound = -height * scale,
-	     bbound = height * scale,
-	     lbound = (-width + margin.right) * scale,
-	     rbound = (width - margin.left) * scale;
-	    // limit translation to thresholds
-	     translation = [
-	        Math.max(Math.min(translation[0], rbound), lbound),
-	        Math.max(Math.min(translation[1], bbound), tbound)
-	     ];
-	     d3.select('.drawarea')
-	      .attr('transform', 'translate(' + translation + ')' +
-	      ' scale(' + scale + ')');
-    }
-
     // Creates a curved (diagonal) path from parent to the child nodes
     function diagonal(s, d) {
             var p0 = {
@@ -368,6 +350,23 @@ function drawGraph(treeData){
   		    return Math.max(max, currentLevel.length);
   	  }
   	  return 0;
+    }
+    function zoomAndDrag() {
+	    //var scale = d3.event.scale,
+	     var scale = 1,
+	     translation = d3.event.translate,
+	     tbound = -height * scale,
+	     bbound = height * scale,
+	     lbound = (-width + margin.right) * scale,
+	     rbound = (width - margin.left) * scale;
+	    // limit translation to thresholds
+	     translation = [
+	        Math.max(Math.min(translation[0], rbound), lbound),
+	        Math.max(Math.min(translation[1], bbound), tbound)
+	     ];
+	     d3.select('.drawarea')
+	      .attr('transform', 'translate(' + translation + ')' +
+	      ' scale(' + scale + ')');
     }
 
 }
