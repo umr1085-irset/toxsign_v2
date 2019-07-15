@@ -49,9 +49,15 @@ function drawGraph(treeData){
   var svg = d3.select("#graph").append("svg")
       .attr("width", width + margin.right + margin.left)
       .attr("height", height + margin.top + margin.bottom)
+      .attr('class', 'svgContainer')
       .append("g")
+      .call(d3.behavior.zoom()
+        .on('zoom', zoomAndDrag))
       .attr("transform", "translate("
             + margin.left + "," + margin.top + ")");
+
+  d3.select('#graph').select('svg').on(mouseWheelName, null);
+  d3.select('#graph').select('svg').on('dblclick.zoom', null);
 
   var i = 0,
       duration = 750,
@@ -64,6 +70,15 @@ function drawGraph(treeData){
   root = d3.hierarchy(treeData, function(d) { return d.children; });
   root.x0 = width / 2;
   root.y0 = 0;
+
+  nodeGroup = svg.append('g')
+    .attr('id', 'nodes');
+  linkGroup = svg.append('g')
+    .attr('id', 'links');
+  linkGroupToolTip = svg.append('g')
+	  .attr('id', 'linksTooltips');
+	nodeGroupTooltip = svg.append('g')
+	  .attr('id', 'nodesTooltips');
 
   // Collapse after the second level
   root.children.forEach(collapse);
@@ -88,12 +103,17 @@ function drawGraph(treeData){
         links = treeData.descendants().slice(1);
 
     // Normalize for fixed-depth.
-    nodes.forEach(function(d){ d.y = d.depth * 180});
+    breadthFirstTraversal(nodes, collision);
+
+    nodes.forEach(function(d){ d.y = d.depth (rectNode.height * 1.5)});
 
     // ****************** Nodes section ***************************
 
     // Update the nodes...
-    var node = svg.selectAll('g.node')
+    var node = nodeGroup.selectAll('g.node')
+        .data(nodes, function(d) {return d.id || (d.id = ++i); });
+
+    var nodeTooltip = nodeGroupTooltip.selectAll('g')
         .data(nodes, function(d) {return d.id || (d.id = ++i); });
 
     // Enter any new modes at the parent's previous position.
@@ -103,6 +123,11 @@ function drawGraph(treeData){
           return "translate(" + source.x0 + "," + source.y0 + ")";
       })
       .on('click', click);
+
+    var nodeEnterTooltip = nodesTooltip.enter().append('g')
+  			.attr('transform', function(d) {
+  				  return 'translate(' + source.y0 + ',' + source.x0 + ')'; });
+
 
     // Add Circle for the nodes
     nodeEnter.append('rect')
@@ -134,6 +159,48 @@ function drawGraph(treeData){
 							 + '<b>' + d.data.data.name + '</b><br><br>'
 							 + '</div>';
        })
+       .on('mouseover', function(d) {
+			    $('#nodeInfoID' + d.id).css('visibility', 'visible');
+			    $('#nodeInfoTextID' + d.id).css('visibility', 'visible');
+		   })
+		   .on('mouseout', function(d) {
+			    $('#nodeInfoID' + d.id).css('visibility', 'hidden');
+			    $('#nodeInfoTextID' + d.id).css('visibility', 'hidden');
+		   });
+
+    nodeEnterTooltip.append("rect")
+ 		  .attr('id', function(d) { return 'nodeInfoID' + d.id; })
+     	.attr('x', rectNode.width / 2)
+ 		  .attr('y', rectNode.height / 2)
+ 		  .attr('width', tooltip.width)
+ 		  .attr('height', tooltip.height)
+     	.attr('class', 'tooltip-box')
+     	.style('fill-opacity', 0.8)
+ 		  .on('mouseover', function(d) {
+ 			  $('#nodeInfoID' + d.id).css('visibility', 'visible');
+ 			  $('#nodeInfoTextID' + d.id).css('visibility', 'visible');
+ 			  removeMouseEvents();
+ 		  })
+ 		  .on('mouseout', function(d) {
+ 			  $('#nodeInfoID' + d.id).css('visibility', 'hidden');
+ 			  $('#nodeInfoTextID' + d.id).css('visibility', 'hidden');
+ 			  reactivateMouseEvents();
+ 		  });
+
+ 		nodeEnterTooltip.append("text")
+ 		  .attr('id', function(d) { return 'nodeInfoTextID' + d.id; })
+     	.attr('x', rectNode.width / 2 + tooltip.textMargin)
+ 		  .attr('y', rectNode.height / 2 + tooltip.textMargin * 2)
+ 		  .attr('width', tooltip.width)
+ 		  .attr('height', tooltip.height)
+ 		  .attr('class', 'tooltip-text')
+ 		  .style('fill', 'white')
+ 		  .append("tspan")
+ 	    .text(function(d) {return 'Name: ' + d.name;})
+ 	    .append("tspan")
+ 	    .attr('x', rectNode.width / 2 + tooltip.textMargin)
+ 	    .attr('dy', '1.5em')
+ 	    .text(function(d) {return 'Info: ' + d.name;});
 
     // UPDATE
     var nodeUpdate = nodeEnter.merge(node);
@@ -144,6 +211,8 @@ function drawGraph(treeData){
       .attr("transform", function(d) {
           return "translate(" + d.x + "," + d.y + ")";
        });
+    nodesTooltip.transition().duration(duration)
+   	  .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
 
     // Update the node attributes and style
     nodeUpdate.select('rect')
