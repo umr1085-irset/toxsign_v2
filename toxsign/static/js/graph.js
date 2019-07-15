@@ -131,7 +131,7 @@ function drawGraph(treeData){
 
     var nodeEnterTooltip = nodeTooltip.enter().append('g')
   			.attr('transform', function(d) {
-  				  return 'translate(' + source.y0 + ',' + source.x0 + ')'; });
+  				  return 'translate(' + source.x0 + ',' + source.y0 + ')'; });
 
 
     // Add Circle for the nodes
@@ -201,11 +201,11 @@ function drawGraph(treeData){
  		  .attr('class', 'tooltip-text')
  		  .style('fill', 'white')
  		  .append("tspan")
- 	    .text(function(d) {return 'Name: ' + d.name;})
+ 	    .text(function(d) {return 'Name: ' + d.data.data.name;})
  	    .append("tspan")
  	    .attr('x', rectNode.width / 2 + tooltip.textMargin)
  	    .attr('dy', '1.5em')
- 	    .text(function(d) {return 'Info: ' + d.name;});
+ 	    .text(function(d) {return 'Info: ' + d.data.data.name;});
 
     // UPDATE
     var nodeUpdate = nodeEnter.merge(node);
@@ -232,6 +232,10 @@ function drawGraph(treeData){
             return "translate(" + source.x + "," + source.y + ")";
         })
         .remove();
+    nodeTooltip.exit().transition().duration(duration)
+        .attr('transform', function(d) { return 'translate(' + source.x + ',' + source.y + ')'; })
+    		.remove();
+
     nodeExit.select('text').style('fill-opacity', 1e-6);
 
     // ****************** links section ***************************
@@ -394,7 +398,7 @@ function drawGraph(treeData){
          mousedown = d3.select('#graph').select('svg').on('mousedown.zoom');
          d3.select('#graph').select('svg').on("mousedown.zoom", null);
       }
-    
+
       function reactivateMouseEvents() {
         // Reactivate the drag and zoom behaviors
         d3.select('#graph').select('svg').on('mousedown.zoom', mousedown);
