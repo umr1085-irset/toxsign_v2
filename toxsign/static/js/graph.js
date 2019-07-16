@@ -66,24 +66,19 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 
   // Collapse after the second level
 //  root.children.forEach(collapse);
-  collapse2(root);
+  collapse(root);
   update(root);
   // Collapse the node and all it's children
-  function collapse(d) {
-    console.log(d);
-    if(d.children) {
-      d._children = d.children
-      d._children.forEach(collapse)
-      d.children = null
-    }
-  }
 
-  function collapse2(element){
+  function collapse(element){
+    // IF project, do not collapse anything (overwiew)
+    if(element.data.type == 'project' && element.data.tsx_id == current_Entity){ return;}
+
     var stop = false;
     if(element.children){
         var is_current_entity = false;
         for(var i=0; i < element.children.length; i++){
-            is_current_entity = collapse2(element.children[i]);
+            is_current_entity = collapse(element.children[i]);
             if(is_current_entity){stop = true};
         }
         if(!stop){
