@@ -22,6 +22,11 @@
 	stroke: rgb(0,0,0);
 }
 
+.node-rect-current {
+     stroke-width: 4px;
+     stroke: rgb(255,0,0);
+ }
+
 .link {
 	fill: none;
 	stroke: lightsteelblue;

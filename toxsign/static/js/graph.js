@@ -1,5 +1,7 @@
 // Set the dimensions and margins of the diagram
-function drawGraph(treeData, max_Parallel, max_Depth){
+function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
+  var current_Entity;
+
   var textcolored = {
     project: "#337ab7",
     study: "#5cb85c",
@@ -10,9 +12,9 @@ function drawGraph(treeData, max_Parallel, max_Depth){
 
   var margin = {
 					top : 0,
-					right : 0,
+					right : 10,
 					bottom : 100,
-					left : 0
+					left : 10
 				 };
 
   var rectNode = { width : 140, height : 60, textMargin : 10 };
@@ -63,17 +65,39 @@ function drawGraph(treeData, max_Parallel, max_Depth){
     .attr('id', 'nodesTooltips');
 
   // Collapse after the second level
-  root.children.forEach(collapse);
-
+//  root.children.forEach(collapse);
+  collapse2(root);
   update(root);
   // Collapse the node and all it's children
   function collapse(d) {
+    console.log(d);
     if(d.children) {
       d._children = d.children
       d._children.forEach(collapse)
       d.children = null
     }
   }
+
+  function collapse2(element){
+    var stop = false;
+    if(element.children){
+        var is_current_entity = false;
+        for(var i=0; i < element.children.length; i++){
+            is_current_entity = collapse2(element.children[i]);
+            if(is_current_entity){stop = true};
+        }
+        if(!stop){
+            element._children = element.children
+            element.children = null
+        };
+    }
+    if( stop || element.data.tsx_id == current_Entity){
+        return true;
+    } else {
+        return false;
+    }
+  };
+
 
   function update(source) {
 
@@ -190,7 +214,12 @@ function drawGraph(treeData, max_Parallel, max_Depth){
 
     // Update the node attributes and style
     nodeUpdate.select('rect')
-      .attr('class', function(d) { return d._children ? 'node-rect-closed' : 'node-rect'; });
+      .attr('class', function(d) {
+        if(d.data.tsx_id == current_Entity){
+            return 'node-rect-current';
+        }
+        return d._children ? 'node-rect-closed' : 'node-rect';
+      });
 
     nodeUpdate.select('text').style('fill-opacity', 1);
 
