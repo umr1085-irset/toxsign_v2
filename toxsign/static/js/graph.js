@@ -17,7 +17,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 					left : 10
 				 };
 
-  var rectNode = { width : 140, height : 60, textMargin : 10 };
+  var rectNode = { width : 140, height : 60, textMargin : 5 };
 
   var width = max_Parallel * (rectNode.width + 40) + 200 - margin.right - margin.left;
   var height = max_Depth * (rectNode.height * 1.5) - margin.top - margin.bottom;
@@ -40,6 +40,15 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
       .attr("transform", "translate("
           + 0  + "," + margin.top + ")");
 
+
+  var tip = d3.tip().attr('class', 'd3-tip').direction('e').offset([0,5])
+    .html(function(d) {
+      var content = "<span style='margin-left: 2.5px;'><b>" + d.data.name + "</b></span><br>";
+      return content;
+     });
+
+  svg.call(tip);
+
   var i = 0,
       duration = 750,
       root,
@@ -60,10 +69,8 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
     .attr('id', 'nodes');
 
   // Collapse after the second level
-//  root.children.forEach(collapse);
   collapse(root);
   update(root);
-  // Collapse the node and all it's children
 
   function collapse(element){
     // IF project, do not collapse anything (overwiew)
@@ -151,7 +158,10 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 						 + '<b> ' + d.data.tsx_id + '-' + d.data.name + '</b><br><br>'
 					     + '</div>';
        })
-           .on('contextmenu', d3.contextMenu());
+           .on('contextmenu', d3.contextMenu())
+           .on('mouseover', tip.show)
+           .on('mouseout', tip.hide);
+
 /*
        .on('mouseover', function(d) {
                 $('.tooltip-box').css('visibility', 'hidden');
