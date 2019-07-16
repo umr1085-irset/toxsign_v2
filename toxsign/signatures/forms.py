@@ -13,30 +13,37 @@ class SignatureCreateForm(forms.ModelForm):
 
     cell_line = forms.ModelChoiceField(
                 queryset=CellLine.objects.all(),
+                required=False,
                 widget=autocomplete.ModelSelect2(url='/ontologies/cellline-autocomplete')
               )
     cell = forms.ModelChoiceField(
                 queryset=Cell.objects.all(),
+                required=False,
                 widget=autocomplete.ModelSelect2(url='/ontologies/cell-autocomplete')
               )
     chemical = forms.ModelChoiceField(
                 queryset=Chemical.objects.all(),
+                required=False,
                 widget=autocomplete.ModelSelect2(url='/ontologies/chemical-autocomplete')
               )
     disease = forms.ModelChoiceField(
                 queryset=Disease.objects.all(),
+                required=False,
                 widget=autocomplete.ModelSelect2(url='/ontologies/disease-autocomplete')
               )
     technology = forms.ModelChoiceField(
                 queryset=Experiment.objects.all(),
+                required=False,
                 widget=autocomplete.ModelSelect2(url='/ontologies/experiment-autocomplete')
               )
     organism = forms.ModelChoiceField(
                 queryset=Species.objects.all(),
+                required=False,
                 widget=autocomplete.ModelSelect2(url='/ontologies/species-autocomplete')
               )
     tissue = forms.ModelChoiceField(
                 queryset=Tissue.objects.all(),
+                required=False,
                 widget=autocomplete.ModelSelect2(url='/ontologies/tissue-autocomplete')
               )
 
