@@ -18,10 +18,9 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 				 };
 
   var rectNode = { width : 140, height : 60, textMargin : 10 };
-  var tooltip = { width : 150, height : 60, textMargin : 10 };
 
-  var width = max_Parallel * (rectNode.width + 40) + tooltip.width + 40 - margin.right - margin.left;
-  var height = max_Depth * (rectNode.height * 1.5) + tooltip.height / 2 - margin.top - margin.bottom;
+  var width = max_Parallel * (rectNode.width + 40) + 200 - margin.right - margin.left;
+  var height = max_Depth * (rectNode.height * 1.5) - margin.top - margin.bottom;
 
   var colorScale = d3.scaleLinear()
       .domain([0, 1])
@@ -50,9 +49,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
       isKeydownZoom = false;
 
   // declares a tree layout and assigns the size
-//  var treemap = d3.tree().size([height, width]);
   var treemap = d3.tree().size([width, height]);
-//  var treemap = d3.tree().nodeSize([width/2, height/2]);
 
   // Assigns parent, children, height, depth
   root = d3.hierarchy(treeData, function(d) { return d.children; });
@@ -61,8 +58,6 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 
   nodeGroup = svg.append('g')
     .attr('id', 'nodes');
-  nodeGroupTooltip = svg.append('g')
-    .attr('id', 'nodesTooltips');
 
   // Collapse after the second level
 //  root.children.forEach(collapse);
@@ -116,11 +111,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
     var node = nodeGroup.selectAll('g.node')
         .data(nodes, function(d) {return d.id || (d.id = ++i); });
 
-    var nodeTooltip = nodeGroupTooltip.selectAll('g')
-        .data(nodes, function(d) {return d.id || (d.id = ++i); });
-
     // Enter any new modes at the parent's previous position.
-
 
     var nodeEnter = node.enter().insert('g', 'g.node')
         .attr('class', 'node')
@@ -128,10 +119,6 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
           return "translate(" + source.x0 + "," + source.y0 + ")";
       })
       .on('click', click);
-
-    var nodeEnterTooltip = nodeTooltip.enter().append('g')
-  		.attr('transform', function(d) {
-          return 'translate(' + d.x + ',' + d.y + ')'; });
 
     // Add rect for the nodes
     nodeEnter.append('rect')
@@ -173,29 +160,6 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 			    $('#nodeInfoTextID' + d.id).css('visibility', 'visible');
 	   })
 */
-    nodeEnterTooltip.append("rect")
- 		  .attr('id', function(d) { return 'nodeInfoID' + d.id; })
-     	  .attr('x', rectNode.width / 2)
- 		  .attr('y', rectNode.height / 2)
- 		  .attr('width', tooltip.width)
- 		  .attr('height', tooltip.height)
-     	  .attr('class', 'tooltip-box')
-     	  .style('fill-opacity', 0.8);
-
- 	nodeEnterTooltip.append("text")
- 		  .attr('id', function(d) { return 'nodeInfoTextID' + d.id; })
-     	  .attr('x', rectNode.width / 2 + tooltip.textMargin)
- 		  .attr('y', rectNode.height / 2 + tooltip.textMargin * 2)
- 		  .attr('width', tooltip.width)
- 		  .attr('height', tooltip.height)
- 		  .attr('class', 'tooltip-text')
- 		  .style('fill', 'white')
- 		  .append("tspan")
- 	      .text(function(d) {return 'Name: ' + d.data.name;})
- 	      .append("tspan")
- 	      .attr('x', rectNode.width / 2 + tooltip.textMargin)
- 	      .attr('dy', '1.5em')
- 	      .text(function(d) {return 'Info: ' + d.data.name;});
 
     // UPDATE
     var nodeUpdate = nodeEnter.merge(node);
@@ -203,9 +167,6 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
     // Transition to the proper position for the node
     nodeUpdate.transition().duration(duration)
       .attr("transform", function(d) {return "translate(" + d.x + "," + d.y + ")";});
-
-    nodeTooltip.transition().duration(duration)
-   	  .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
 
     // Update the node attributes and style
     nodeUpdate.select('rect')
@@ -221,10 +182,6 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
     // Remove any exiting nodes
     var nodeExit = node.exit().transition().duration(duration)
         .attr("transform", function(d) {return "translate(" + source.x + "," + source.y + ")";})
-        .remove();
-
-    nodeTooltip.exit().transition().duration(duration)
-        .attr('transform', function(d) { return 'translate(' + source.x + ',' + source.y + ')'; })
         .remove();
 
     nodeExit.select('text').style('fill-opacity', 1e-6);
@@ -302,8 +259,6 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 
     // Toggle children on click.
     function click(d) {
-      $('.tooltip-box').css('visibility', 'hidden');
-      $('.tooltip-text').css('visibility', 'hidden');
       if (d.children) {
           d._children = d.children;
           d.children = null;
@@ -353,47 +308,5 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
   	  }
   	  return 0;
     }
-    function zoomAndDrag() {
-        var transform = d3.event.transform;
-	    //var scale = d3.event.scale,
-	     var scale = transform["k"],
-	     tbound = -height * scale,
-	     bbound = height * scale,
-	     lbound = (-width + margin.right) * scale,
-	     rbound = (width - margin.left) * scale;
-	    // limit translation to thresholds
-         transform = {
-           k: scale,
-           x: Math.max(Math.min(transform["x"], rbound), lbound),
-           y:Math.max(Math.min(transform["y"], bbound), tbound)
-         };
-	     d3.select('#graph')
-	      .attr('transform', transform);
-    }
 
-    function getMouseWheelEvent() {
-    		if (d3.select('#graph').select('svg').on('wheel.zoom')){
-    			mouseWheelName = 'wheel.zoom';
-    			return d3.select('#graph').select('svg').on('wheel.zoom');
-    		}
-    		if (d3.select('#graph').select('svg').on('mousewheel.zoom') != null){
-    			mouseWheelName = 'mousewheel.zoom';
-    			return d3.select('#graph').select('svg').on('mousewheel.zoom');
-    		}
-    		if (d3.select('#graph').select('svg').on('DOMMouseScroll.zoom')){
-    			mouseWheelName = 'DOMMouseScroll.zoom';
-    			return d3.select('#graph').select('svg').on('DOMMouseScroll.zoom');
-    		}
-	}
-
-    function removeMouseEvents() {
-        // Drag and zoom behaviors are temporarily disabled, so tooltip text can be selected
-       mousedown = d3.select('#graph').select('svg').on('mousedown.zoom');
-       d3.select('#graph').select('svg').on("mousedown.zoom", null);
-    }
-
-    function reactivateMouseEvents() {
-      // Reactivate the drag and zoom behaviors
-      d3.select('#graph').select('svg').on('mousedown.zoom', mousedown);
-    }
 }
