@@ -10,6 +10,15 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
     signature: "#9467bd"
   }
 
+  var glyphicon = {
+    project: "fas fa-project-diagram",
+    study: "fas fa-book-open",
+    assay: "fas fa-flask",
+    signature: "fas fa-signature"
+ }
+
+
+
   var margin = {
 					top : 0,
 					right : 10,
@@ -41,7 +50,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
           + 0  + "," + margin.top + ")");
 
 
-  var tip = d3.tip().attr('class', 'd3-tip').direction('e').offset([0,5])
+  var tip = d3.tip().attr('class', 'd3-tip').direction('e').offset([-10,10])
     .html(function(d) {
       var content = "<span style='margin-left: 2.5px;'><b>" + d.data.name + "</b></span><br>";
       return content;
@@ -155,7 +164,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 			    return '<div style="width: '
 					     + (rectNode.width - rectNode.textMargin * 2) + 'px; height: '
 					     + (rectNode.height - rectNode.textMargin * 2) + 'px;" class="node-text wordwrap">'
-						 + '<b> ' + d.data.tsx_id + '-' + d.data.name + '</b><br><br>'
+						 + '<b> ' + d.data.tsx_id + '-' + d.data.name + '</b><br><br><i style="font-size:12px" class="'+ glyphicon[d.data.type]+ '"></i><br>'
 					     + '</div>';
        })
            .on('contextmenu', d3.contextMenu())
