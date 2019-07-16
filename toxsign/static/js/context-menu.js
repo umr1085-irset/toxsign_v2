@@ -22,16 +22,15 @@ d3.contextMenu = function (openCallback) {
             }
           },
         ];
-
         for (var key in data.data.create_url){
+            let path = data.data.create_url[key];
             menu.push({
-              title: "Create " + key,
+              title: "Create new " + key,
               action: function(elm, d, i) {
-               window.location.assign(data.data.create_url[key]);
+                window.location.assign(path);
               }
             })
         }
-
 
         var elm = this;
 
@@ -44,7 +43,6 @@ d3.contextMenu = function (openCallback) {
                 return d.title;
             })
             .on('click', function(d, i) {
-                console.log(d);
                 d.action(elm, data, index);
                 d3.select('.d3-context-menu').style('display', 'none');
             });
