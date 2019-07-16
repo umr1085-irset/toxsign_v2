@@ -77,13 +77,6 @@ function drawGraph(treeData, max_Parallel, max_Depth){
 
   function update(source) {
 
-    var menu = [{
-      title: "View %name%",
-      action: function(elm, d, i) {
-            
-      }
-    }];
-
     // Assigns the x and y position for the nodes
     var treeData = treemap(root);
 
@@ -128,7 +121,7 @@ function drawGraph(treeData, max_Parallel, max_Depth){
       .attr('width', rectNode.width)
       .attr('height', rectNode.height)
       .attr('class', 'node-rect')
-      .on('contextmenu', d3.contextMenu(menu))
+      .on('contextmenu', d3.contextMenu())
       .attr('fill', function(d){
         return textcolored[d.data.type];
       })
@@ -152,7 +145,7 @@ function drawGraph(treeData, max_Parallel, max_Depth){
 						 + '<b> ' + d.data.tsx_id + '-' + d.data.name + '</b><br><br>'
 					     + '</div>';
        })
-           .on('contextmenu', d3.contextMenu(menu));
+           .on('contextmenu', d3.contextMenu());
 /*
        .on('mouseover', function(d) {
                 $('.tooltip-box').css('visibility', 'hidden');

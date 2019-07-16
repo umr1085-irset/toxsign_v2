@@ -1,4 +1,4 @@
-d3.contextMenu = function (menu, openCallback) {
+d3.contextMenu = function (openCallback) {
 
     // create the div element that will hold the context menu
     d3.selectAll('.d3-context-menu').data([1])
@@ -13,15 +13,35 @@ d3.contextMenu = function (menu, openCallback) {
 
     // this gets executed when a contextmenu event occurs
     return function(data, index) {
+
+        var menu = [
+          {
+            title: "View " + data.data.name,
+            action: function(elm, d, i) {
+              window.location.assign(d.data.view_url);
+            }
+          },
+        ];
+
+        for (var key in data.data.create_url){
+            menu.push({
+              title: "Create " + key,
+              action: function(elm, d, i) {
+               window.location.assign(data.data.create_url[key]);
+              }
+            })
+        }
+
+
         var elm = this;
-        
+
         d3.selectAll('.d3-context-menu').html('');
         var list = d3.selectAll('.d3-context-menu').append('ul');
         list.selectAll('li').data(menu).enter()
             .append('li')
             .html(function(d) {
                 // Override title with entity name
-                return d.title.replace("%name%", data.data.name);
+                return d.title;
             })
             .on('click', function(d, i) {
                 console.log(d);

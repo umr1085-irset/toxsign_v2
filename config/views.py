@@ -49,7 +49,9 @@ def graph_data(request):
     response = {
         'name': project.name,
         'type': 'project',
-        'tsx_id': project.tsx_id
+        'tsx_id': project.tsx_id,
+        'view_url': project.get_absolute_url(),
+        'create_url' : get_sub_create_url('project', project.tsx_id)
     }
     sign_count = 0
     study_count = 0
@@ -63,11 +65,14 @@ def graph_data(request):
             for factor in assay.factor_of.all():
                 for signature in factor.signature_of_of.all():
                     sign_count +=1
-                    signature_list.append({'name': signature.name, 'type': 'signature', 'tsx_id': signature.tsx_id})
+                    signature_list.append({'name': signature.name, 'type': 'signature', 'tsx_id': signature.tsx_id, 'view_url': signature.get_absolute_url(),
+                                          'create_url': {}})
             assay_count +=1
-            assay_list.append({'name': assay.name, 'children': signature_list, 'type': 'assay', 'tsx_id': assay.tsx_id})
+            assay_list.append({'name': assay.name, 'children': signature_list, 'type': 'assay', 'tsx_id': assay.tsx_id, 'view_url': assay.get_absolute_url(),
+                              'create_url': get_sub_create_url('assay', assay.tsx_id)})
         study_count +=1
-        study_list.append({'name': study.name, 'children': assay_list, 'type': 'study', 'tsx_id': study.tsx_id})
+        study_list.append({'name': study.name, 'children': assay_list, 'type': 'study', 'tsx_id': study.tsx_id, 'view_url': study.get_absolute_url(),
+                          'create_url': get_sub_create_url('study', study.tsx_id)})
     response['children'] = study_list
     data = {
         "data": response,
@@ -139,3 +144,16 @@ def index(request):
 def search(request,query):
     print(query)
     search_qs = Project.objects.filter(name__contains=query)
+
+def get_sub_create_url(entity_type, tsx_id):
+
+    if entity_type == 'project':
+        return {'study': reverse('studies:study_create', kwargs={'prjid': tsx_id})}
+
+    elif entity_type == 'study':
+        return {'assay': reverse('assays:assay_create', kwargs={'stdid': tsx_id})}
+    elif entity_type == 'assay':
+        return {
+            'factor': reverse('assays:factor_create', kwargs={'assid': tsx_id}),
+            'signature': reverse('signatures:signature_create', kwargs={'assid': tsx_id})
+        }
