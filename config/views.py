@@ -5,17 +5,18 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views import generic
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 import json
 
-from toxsign.assays.models import Assay
+from toxsign.assays.models import Assay, Factor
 from toxsign.projects.models import Project
 from toxsign.signatures.models import Signature
 from toxsign.studies.models import Study
+
 
 
 
@@ -37,6 +38,49 @@ def autocompleteModel(request):
         'signatures': results_signatures
     }
     return render(request, 'pages/ajax_search.html', {'statuss': results})
+
+def graph_data(request):
+    # Need to check permissions for entities
+
+    query = request.GET.get('q')
+    project = Project.objects.get(tsx_id=query)
+    studies = project.study_of.all()
+
+    response = {
+        'name': project.name,
+        'type': 'project',
+        'tsx_id': project.tsx_id,
+        'view_url': project.get_absolute_url(),
+        'create_url' : get_sub_create_url('project', project.tsx_id)
+    }
+    sign_count = 0
+    study_count = 0
+    assay_count = 0
+
+    study_list = []
+    for study in studies:
+        assay_list = []
+        for assay in study.assay_of.all():
+            signature_list = []
+            for factor in assay.factor_of.all():
+                for signature in factor.signature_of_of.all():
+                    sign_count +=1
+                    signature_list.append({'name': signature.name, 'type': 'signature', 'tsx_id': signature.tsx_id, 'view_url': signature.get_absolute_url(),
+                                          'create_url': {}})
+            assay_count +=1
+            assay_list.append({'name': assay.name, 'children': signature_list, 'type': 'assay', 'tsx_id': assay.tsx_id, 'view_url': assay.get_absolute_url(),
+                              'create_url': get_sub_create_url('assay', assay.tsx_id)})
+        study_count +=1
+        study_list.append({'name': study.name, 'children': assay_list, 'type': 'study', 'tsx_id': study.tsx_id, 'view_url': study.get_absolute_url(),
+                          'create_url': get_sub_create_url('study', study.tsx_id)})
+    response['children'] = study_list
+    data = {
+        "data": response,
+        "max_parallel": max(assay_count, study_count, sign_count),
+        "max_depth": 4
+    }
+
+    return JsonResponse(data, safe=False)
 
 def index(request):
     projects = Project.objects.all()
@@ -93,10 +137,23 @@ def index(request):
         'assay_number': assay_number,
         'signature_number': signature_number
     }
-    
+
     return render(request, 'pages/index.html', context)
 
 
 def search(request,query):
     print(query)
     search_qs = Project.objects.filter(name__contains=query)
+
+def get_sub_create_url(entity_type, tsx_id):
+
+    if entity_type == 'project':
+        return {'study': reverse('studies:study_create', kwargs={'prjid': tsx_id})}
+
+    elif entity_type == 'study':
+        return {'assay': reverse('assays:assay_create', kwargs={'stdid': tsx_id})}
+    elif entity_type == 'assay':
+        return {
+            'factor': reverse('assays:factor_create', kwargs={'assid': tsx_id}),
+            'signature': reverse('signatures:signature_create', kwargs={'assid': tsx_id})
+        }

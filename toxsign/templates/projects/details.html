@@ -1,8 +1,24 @@
 {% extends "base.html" %}
-
+{% load static i18n %}
 
 {% block content %}
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.9.1/d3-tip.min.js"></script>
+    <link href="{% static 'css/graph.css' %}" rel="stylesheet">
+    <script src="{% static 'js/graph.js' %}"></script>
+    <script src="{% static 'js/context-menu.js' %}"></script>
     <div class="container-fluid">
+      <div class="tab-content card" style="text-align:center;">
+        <div class="tab-pane active text-style card-body">
+          <div id='graph'></div>
+          <script>
+            d3.json("{% url 'graph' %}?q={{project.tsx_id}}").then( function(json){
+              drawGraph(json.data, json.max_parallel, json.max_depth, "{{project.tsx_id}}");
+            });
+          </script>
+        </div>
+      </div>
+      <br>
       <div class="row">
         <div class="col-md-3 ">
           <div class="list-group ">
