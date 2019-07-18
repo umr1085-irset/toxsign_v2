@@ -16,7 +16,7 @@ from toxsign.assays.models import Assay, Factor
 from toxsign.projects.models import Project
 from toxsign.signatures.models import Signature
 from toxsign.studies.models import Study
-
+from toxsign.projects.views import check_view_permissions
 
 
 
@@ -83,7 +83,21 @@ def graph_data(request):
     return JsonResponse(data, safe=False)
 
 def index(request):
-    projects = Project.objects.all()
+
+    all_projects = Project.objects.all()
+    projects = []
+    studies = []
+    assays = []
+    signatures = []
+
+    for project in all_projects:
+        if check_view_permissions(request.user, project):
+            # Might be better to loop around than to request.
+            projects.append(project)
+            studies = studies + [study for study in Study.objects.filter(project=project)]
+            assays = assays + [ assay for assay in Assay.objects.filter(study__project=project)]
+            signatures = signatures + [ signature for signature in Signature.objects.filter(factor__assay__study__project=project)]
+
     project_number = len(projects)
     paginator = Paginator(projects, 5)
     page = request.GET.get('projects')
@@ -94,7 +108,6 @@ def index(request):
     except EmptyPage:
         projects = paginator.page(paginator.num_pages)
 
-    studies = Study.objects.all()
     study_number = len(studies)
     paginator = Paginator(studies, 6)
     page = request.GET.get('studies')
@@ -105,7 +118,6 @@ def index(request):
     except EmptyPage:
         studies = paginator.page(paginator.num_pages)
 
-    assays = Assay.objects.all()
     assay_number = len(assays)
     paginator = Paginator(assays, 6)
     page = request.GET.get('assays')
@@ -116,7 +128,6 @@ def index(request):
     except EmptyPage:
         assays = paginator.page(paginator.num_pages)
 
-    signatures = Signature.objects.all()
     signature_number = len(signatures)
     paginator = Paginator(signatures, 6)
     page = request.GET.get('signatures')

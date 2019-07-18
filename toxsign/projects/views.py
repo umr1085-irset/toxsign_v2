@@ -53,6 +53,8 @@ def check_view_permissions(user, project):
     has_access = False
     if project.status == "PUBLIC":
         has_access = True
+    elif user.is_superuser:
+        has_access = True
     elif user.is_authenticated and 'view_project' in get_user_perms(user, project):
         has_access = True
 
