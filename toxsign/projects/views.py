@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView, CreateView
 from django.shortcuts import redirect
 from guardian.mixins import PermissionRequiredMixin
-from guardian.shortcuts import get_user_perms
+from guardian.shortcuts import get_perms
 
 from toxsign.assays.models import Assay
 from toxsign.projects.models import Project
@@ -55,7 +55,7 @@ def check_view_permissions(user, project):
         has_access = True
     elif user.is_superuser:
         has_access = True
-    elif user.is_authenticated and 'view_project' in get_user_perms(user, project):
+    elif user.is_authenticated and 'view_project' in get_perms(user, project):
         has_access = True
 
     return has_access
