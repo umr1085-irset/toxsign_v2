@@ -76,7 +76,7 @@ def graph_data(request):
     response['children'] = study_list
     data = {
         "data": response,
-        "max_parallel": max(assay_count, study_count, sign_count),
+        "max_parallel": max(assay_count, study_count, sign_count, 1),
         "max_depth": 4
     }
 

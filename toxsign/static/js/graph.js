@@ -20,16 +20,17 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 
 
   var margin = {
-					top : 0,
-					right : 10,
+					top : 10,
+					right : 90,
 					bottom : 100,
-					left : 10
+					left : 90
 				 };
 
   var rectNode = { width : 140, height : 60, textMargin : 5 };
 
-  var width = max_Parallel * (rectNode.width + 40) + 200 - margin.right - margin.left;
-  var height = max_Depth * (rectNode.height * 1.5) - margin.top - margin.bottom;
+  var width = max_Parallel * (rectNode.width + 40) + 100 - margin.right - margin.left;
+  var height = max_Depth * (rectNode.height * 1.5) + 50 - margin.top - margin.bottom;
+
 
   var colorScale = d3.scaleLinear()
       .domain([0, 1])
@@ -47,7 +48,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
       .attr('class', 'svgContainer')
       .append('g')
       .attr("transform", "translate("
-          + 0  + "," + margin.top + ")");
+          + margin.left  + "," + margin.top + ")");
 
 
   var tip = d3.tip().attr('class', 'd3-tip').direction('e').offset([-10,10])
@@ -68,11 +69,14 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 
   // declares a tree layout and assigns the size
   var treemap = d3.tree().size([width, height]);
+  //var treemap = d3.tree().nodeSize([width, height]);
 
   // Assigns parent, children, height, depth
   root = d3.hierarchy(treeData, function(d) { return d.children; });
+
   root.x0 = (width-rectNode.width)/2;
   root.y0 = 0;
+
 
   nodeGroup = svg.append('g')
     .attr('id', 'nodes');
@@ -119,6 +123,10 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 
     nodes.forEach(function(d){
       d.y = d.depth * (rectNode.height * 1.5)
+      // Force centering on center of node, not on corner
+      d.y = d.y + (rectNode.height/2)
+      d.x = d.x - (rectNode.width/2)
+
     });
 
     // ****************** Nodes section ***************************
@@ -137,6 +145,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
       .on('click', click);
 
     // Add rect for the nodes
+
     nodeEnter.append('rect')
       .attr('rx', 6)
       .attr('ry', 6)
@@ -147,6 +156,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
       .attr('fill', function(d){
         return textcolored[d.data.type];
       })
+
 
     // Add labels for the nodes
     nodeEnter.append('foreignObject')
@@ -185,7 +195,8 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 
     // Transition to the proper position for the node
     nodeUpdate.transition().duration(duration)
-      .attr("transform", function(d) {return "translate(" + d.x + "," + d.y + ")";});
+      .attr("transform", function(d) {
+            return "translate(" + d.x + "," + d.y + ")";});
 
     // Update the node attributes and style
     nodeUpdate.select('rect')
@@ -200,7 +211,8 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 
     // Remove any exiting nodes
     var nodeExit = node.exit().transition().duration(duration)
-        .attr("transform", function(d) {return "translate(" + source.x + "," + source.y + ")";})
+        .attr("transform", function(d) {
+            return "translate(" + source.x + "," + source.y + ")";})
         .remove();
 
     nodeExit.select('text').style('fill-opacity', 1e-6);
@@ -258,7 +270,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
                    y : s.y
             },
         p3 = {
-                   x : d.x + rectNode.width/2,
+                   x : d.x + rectNode.width/2 ,
                    y : d.y + rectNode.height // -12, so the end arrows are just before the rect node
             },
         m = (p0.y + p3.y) / 2,
