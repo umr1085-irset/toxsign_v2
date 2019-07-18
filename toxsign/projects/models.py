@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.db import models
 from django.contrib.auth.models import  User, Group
 from django.conf import settings
-from guardian.shortcuts import assign_perm, remove_perm, get_group_perms
+from guardian.shortcuts import assign_perm, remove_perm, get_group_perms, get_user_perms
 from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
 
@@ -36,8 +36,14 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse('projects:detail', kwargs={"prjid": self.tsx_id})
 
+    def __init__(self, *args, **kwargs):
+        super(Project, self).__init__(*args, **kwargs)
+        self.initial_owner = self.created_by
+
     # Override save method to auto increment tsx_id
+    # Also set permissions for owner on item
     def save(self, *args, **kwargs):
+        change_permission_owner(self)
         super(Project, self).save(*args, **kwargs)
         self.tsx_id = "TSP" + str(self.id)
         super(Project, self).save()
@@ -61,6 +67,24 @@ def update__permissions(sender, instance, action, **kwargs):
         if action == 'pre_remove':
             current_perms = get_groups_with_perms()
             for group in instance.edit_groups.all():
-                remove_perm('edit_project', group, instance)
+                remove_perm('change_project', group, instance)
         if action == 'post_add':
-            assign_perm('edit_project', instance.edit_groups.all(), instance)
+            assign_perm('change_project', instance.edit_groups.all(), instance)
+
+
+
+def change_permission_owner(self):
+    owner_permissions = ['view_project', 'change_project', 'delete_project']
+
+    if self.initial_owner:
+               # If update, remove permission, else do nothing
+        if self.initial_owner != self.created_by:
+            initial_owner_permission = get_user_perms(self.initial_owner, self)
+            for permission in owner_permissions:
+                if permission in initial_owner_permission:
+                    remove_perm(permission, self.initial_owner, self)
+
+    user_permissions = get_user_perms(self.created_by, self)
+    for permission in owner_permissions:
+        if permission not in user_permissions:
+            assign_perm(permission, self.created_by, self)
