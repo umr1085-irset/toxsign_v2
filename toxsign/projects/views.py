@@ -6,6 +6,8 @@ from django.utils import timezone
 from django.views import generic
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView, CreateView
 from django.shortcuts import redirect
+from guardian.decorators import permission_required_or_403
+
 
 from toxsign.assays.models import Assay
 from toxsign.projects.models import Project
@@ -14,7 +16,7 @@ from toxsign.signatures.models import Signature
 from toxsign.studies.models import Study
 
 
-
+@permission_required_or_403('view_project', (Project, 'tsx_id', 'prjid'))
 def DetailView(request, prjid):
     project_object = Project.objects.get(tsx_id=prjid)
     project = get_object_or_404(Project, pk=project_object.id)
