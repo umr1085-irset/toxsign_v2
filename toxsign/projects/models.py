@@ -42,10 +42,11 @@ class Project(models.Model):
     # Override save method to auto increment tsx_id
     # Also set permissions for owner on item
     def save(self, *args, **kwargs):
-        change_permission_owner(self)
         super(Project, self).save(*args, **kwargs)
         self.tsx_id = "TSP" + str(self.id)
         super(Project, self).save()
+        change_permission_owner(self)
+
 
 # Need to add some checks (or catch exception) in case there is a disconnect between existing perm and groups
 @receiver(m2m_changed, sender=Project.read_groups.through)
