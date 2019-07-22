@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -26,11 +27,11 @@ def DetailView(request, prjid):
     signatures = Signature.objects.filter(factor__assay__study__project=project)
     return render(request, 'projects/details.html', {'project': project,'studies': studies, 'assays': assays, 'signatures': signatures})
 
-# TODO : clearer error message
+# TODO : clear 403 page redirect (page with an explanation?)
 class EditView(PermissionRequiredMixin, UpdateView):
     permission_required = 'change_project'
-
     model = Project
+    login_url = "/index"
     template_name = 'projects/project_edit.html'
     fields = ["name", "description"]
     context_object_name = 'edit'
@@ -42,6 +43,11 @@ class CreateView(LoginRequiredMixin, CreateView):
     model = Project
     template_name = 'pages/entity_create.html'
     form_class = ProjectCreateForm
+
+    def get_form_kwargs(self):
+        kwargs = super(CreateView, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
 
     # Autofill the user
     def form_valid(self, form):

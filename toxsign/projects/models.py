@@ -25,7 +25,6 @@ class Project(models.Model):
     status = models.CharField(max_length=20, choices=AVAILABLE_STATUS, default="PRIVATE")
     description = models.TextField("description")
 
-
     class Meta:
         permissions = (('view_project', 'View project'),)
         default_permissions = ('add', 'change', 'delete')
