@@ -170,3 +170,23 @@ def get_sub_create_url(entity_type, tsx_id):
             'factor': reverse('assays:factor_create', kwargs={'assid': tsx_id}),
             'signature': reverse('signatures:signature_create', kwargs={'assid': tsx_id})
         }
+
+
+def render_403(request):
+    if request.GET.get('edit'):
+        action = "edit"
+        split = request.GET.get('edit').split('/')
+        type = split[1]
+    elif request.GET.get('create'):
+        action = "create"
+        split = request.GET.get('create').split('/')
+        type = split[1]
+    else:
+        action = "view"
+        type = ""
+    data = {
+        'action': action,
+        'type': type
+    }
+
+    return render(request, '403.html', {'data':data})

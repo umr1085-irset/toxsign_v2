@@ -20,7 +20,7 @@ def DetailView(request, prjid):
     project_object = Project.objects.get(tsx_id=prjid)
     project = get_object_or_404(Project, pk=project_object.id)
     if not check_view_permissions(request.user, project):
-        return redirect('/index')
+        return redirect('/unauthorized')
     studies = project.study_of.all()
     assays = Assay.objects.filter(study__project=project)
     signatures = Signature.objects.filter(factor__assay__study__project=project)
@@ -30,7 +30,8 @@ def DetailView(request, prjid):
 class EditView(PermissionRequiredMixin, UpdateView):
     permission_required = 'change_project'
     model = Project
-    login_url = "/index"
+    login_url = "/unauthorized"
+    redirect_field_name="edit"
     template_name = 'projects/project_edit.html'
     fields = ["name", "description"]
     context_object_name = 'edit'

@@ -20,7 +20,7 @@ def DetailView(request, stdid):
     study = get_object_or_404(Study, tsx_id=stdid)
     project = study.project
     if not check_view_permissions(request.user, project):
-        return redirect('/index')
+        return redirect('/unauthorized')
 
     assays = study.assay_of.all()
     signatures = Signature.objects.filter(factor__assay__study=study)
@@ -33,6 +33,8 @@ class EditView(PermissionRequiredMixin, UpdateView):
 
     model = Study
     template_name = 'studies/study_edit.html'
+    redirect_field_name="edit"
+    login_url = "/unauthorized"
     fields = ["name", "description"]
     context_object_name = 'edit'
 
@@ -44,10 +46,19 @@ class EditView(PermissionRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
         return Study.objects.get(pk=self.kwargs['pk'])
 
-class CreateView(LoginRequiredMixin, CreateView):
+class CreateView(PermissionRequiredMixin, CreateView):
+
+    permission_required = 'change_project'
+    login_url = "/unauthorized"
+    redirect_field_name="create"
     model = Study
     template_name = 'pages/entity_create.html'
     form_class = StudyCreateForm
+
+
+    def get_permission_object(self):
+         project = Project.objects.get(tsx_id=self.kwargs['prjid'])
+         return project
 
     # Autofill the user and project
     def form_valid(self, form):

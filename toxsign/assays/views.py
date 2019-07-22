@@ -7,6 +7,8 @@ from django.views import generic
 from django.views.generic import CreateView, DetailView, ListView, RedirectView, UpdateView
 from django.contrib.auth.decorators import login_required
 
+from guardian.mixins import PermissionRequiredMixin
+
 from toxsign.projects.views import check_view_permissions
 from toxsign.studies.models import Study
 from toxsign.assays.models import Assay, Factor
@@ -28,10 +30,19 @@ def DetailView(request, assid):
     return render(request, 'assays/details.html', {'project': project,'study': study, 'assay': assay, 'factors': factors,'signatures': signatures})
 
 
-class AssayCreateView(LoginRequiredMixin, CreateView):
+class AssayCreateView(PermissionRequiredMixin, CreateView):
     model = Assay
     template_name = 'pages/entity_create.html'
     form_class = AssayCreateForm
+    redirect_field_name = "create"
+    permission_required = 'change_project'
+    login_url = "/unauthorized"
+
+    def get_permission_object(self):
+        study = Study.objects.get(tsx_id=self.kwargs['stdid'])
+        project = study.project
+        return project
+
 
     # Autofill the user
     def form_valid(self, form):
@@ -42,10 +53,18 @@ class AssayCreateView(LoginRequiredMixin, CreateView):
         self.object.study = study
         return super(CreateView, self).form_valid(form)
 
-class FactorCreateView(LoginRequiredMixin, CreateView):
+class FactorCreateView(PermissionRequiredMixin, CreateView):
     model = Factor
     template_name = 'pages/entity_create.html'
     form_class = FactorCreateForm
+    redirect_field_name="create"
+    permission_required = 'change_project'
+    login_url = "/unauthorized"
+
+    def get_permission_object(self):
+        assay = Assay.objects.get(tsx_id=self.kwargs['assid'])
+        project = assay.study.project
+        return project
 
     # Autofill the user
     def form_valid(self, form):

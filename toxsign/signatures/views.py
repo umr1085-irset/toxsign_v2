@@ -7,6 +7,8 @@ from django.views import generic
 from django.views.generic import CreateView, DetailView, ListView, RedirectView, UpdateView
 from django.contrib.auth.decorators import login_required
 
+from guardian.mixins import PermissionRequiredMixin
+
 from toxsign.projects.views import check_view_permissions
 from toxsign.assays.models import Assay
 from toxsign.signatures.models import Signature
@@ -21,15 +23,23 @@ def DetailView(request, sigid):
     project = study.project
 
     if not check_view_permissions(request.user, project):
-        return redirect('/index')
-
+        return redirect('/unauthorized')
 
     return render(request, 'signatures/details.html', {'project': project,'study': study, 'assay': assay, 'signature': signature})
 
-class CreateView(LoginRequiredMixin, CreateView):
+class CreateView(PermissionRequiredMixin, CreateView):
+
+    permission_required = 'change_project'
+    login_url = "/unauthorized"
+    redirect_field_name = "create"
     model = Signature
     form_class = SignatureCreateForm
     template_name = 'pages/entity_create.html'
+
+    def get_permission_object(self):
+        assay = Assay.objects.get(pk=self.kwargs['assid'])
+        project = assay.study.project
+        return project
 
     # We need to get the assay id to restrict the factors (since we don't pass a factor id to the form directly)
     def get_form_kwargs(self):
