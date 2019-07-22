@@ -44,6 +44,8 @@ def graph_data(request):
 
     query = request.GET.get('q')
     project = Project.objects.get(tsx_id=query)
+    if not check_view_permissions(request.user, project):
+        return JsonResponse({"data" : {}, "max_parallel":0, max_depth: "0"}, safe=False)
     studies = project.study_of.all()
 
     response = {
