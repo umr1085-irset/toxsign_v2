@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Forbidden (403){% endblock %}
+
+{% block content %}
+<h1>Forbidden (403)</h1>
+{% if data.action == 'create' %}
+<p> To create this entity, you need to have editing access to the related project. </p>
+{% elif data.action == 'edit' %}
+{% if data.type == 'projects' %}
+<p> You currently do not have editing rights on this project. </p>
+{% else %}
+<p> To edit this entity, you need to have editing access to the related project. </p>
+{% endif %}
+{% else %}
+<p> You currently do not have view access to this content. </p>
+{% endif %}
+<p><a href="/index">Go back to the index</a></p>
+{% endblock content %}

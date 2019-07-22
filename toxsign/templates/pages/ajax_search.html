@@ -33,7 +33,7 @@
               </div>
               <div class="tab-pane text-style card-body" id="tab3">
                 {% for signature in statuss.signatures %}
-                    <h3><a href="{% url 'signature:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{signature.name}}</h3>
+                    <h3><a href="{% url 'signatures:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{signature.name}}</h3>
                     <small><b>Author:</b>{{ signature.created_by }} - {{ signature.created_at }}</small>
                     <hr>
                 {% endfor %}

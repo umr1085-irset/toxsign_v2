@@ -37,7 +37,7 @@ class CreateView(PermissionRequiredMixin, CreateView):
     template_name = 'pages/entity_create.html'
 
     def get_permission_object(self):
-        assay = Assay.objects.get(pk=self.kwargs['assid'])
+        assay = Assay.objects.get(tsx_id=self.kwargs['assid'])
         project = assay.study.project
         return project
 
