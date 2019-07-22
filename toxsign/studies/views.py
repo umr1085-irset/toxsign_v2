@@ -15,7 +15,6 @@ from toxsign.signatures.models import Signature
 from toxsign.projects.views import check_view_permissions
 from toxsign.studies.forms import StudyCreateForm
 
-@login_required
 def DetailView(request, stdid):
 
     study = get_object_or_404(Study, tsx_id=stdid)

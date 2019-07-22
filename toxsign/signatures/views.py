@@ -7,18 +7,23 @@ from django.views import generic
 from django.views.generic import CreateView, DetailView, ListView, RedirectView, UpdateView
 from django.contrib.auth.decorators import login_required
 
+from toxsign.projects.views import check_view_permissions
 from toxsign.assays.models import Assay
 from toxsign.signatures.models import Signature
 from toxsign.signatures.forms import SignatureCreateForm
 
 
-@login_required
 def DetailView(request, sigid):
 
     signature = get_object_or_404(Signature, tsx_id=sigid)
     assay = signature.factor.assay
     study = assay.study
     project = study.project
+
+    if not check_view_permissions(request.user, project):
+        return redirect('/index')
+
+
     return render(request, 'signatures/details.html', {'project': project,'study': study, 'assay': assay, 'signature': signature})
 
 class CreateView(LoginRequiredMixin, CreateView):
