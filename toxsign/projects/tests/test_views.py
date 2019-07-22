@@ -13,10 +13,25 @@ pytestmark = pytest.mark.django_db
 
 class TestProjectDetailView:
 
-    def test_details_view(self, client):
+    def test_details_private_anonymous(self, client):
+
         project = ProjectFactory.create()
         response = client.get(reverse("projects:detail", kwargs={"prjid": project.tsx_id}))
-        response_project = projects = response.context['project']
+        # This actually fails silently.. with a redirect.
+        assert response.status_code == 302
+
+    def test_details_private_logged(self, client, django_user_model):
+        user = django_user_model.objects.create_user(username='random', password='user')
+        client.login(username='random', password='user')
+        project = ProjectFactory.create(created_by=user)
+        response = client.get(reverse("projects:detail", kwargs={"prjid": project.tsx_id}))
+        response_project = response.context['project']
+        assert project == response_project
+
+    def test_details_public(self, client):
+        project = ProjectFactory.create(status="PUBLIC")
+        response = client.get(reverse("projects:detail", kwargs={"prjid": project.tsx_id}))
+        response_project = response.context['project']
         assert project == response_project
 
 class TestProjectUpdateView:
