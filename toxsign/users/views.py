@@ -17,6 +17,9 @@ class UserDetailView(LoginRequiredMixin, DetailView):
     slug_url_kwarg = "username"
     def get_context_data(self, **kwargs):
         context = super(UserDetailView, self).get_context_data(**kwargs)
+        groups = self.request.user.groups.all()
+        context['groups'] = groups
+        context['group_number'] = len(groups)
         context['project_list'] = Project.objects.filter(created_by__exact=self.request.user.id).order_by('id')
         context['project_number'] = len(context['project_list'])
         paginator = Paginator(context['project_list'], 5)
