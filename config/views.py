@@ -86,7 +86,7 @@ def graph_data(request):
 
 def index(request):
 
-    all_projects = Project.objects.all()
+    all_projects = Project.objects.all().order_by('id')
     projects = []
     studies = []
     assays = []
