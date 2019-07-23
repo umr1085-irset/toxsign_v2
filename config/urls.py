@@ -33,6 +33,7 @@ urlpatterns = [
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
+    path("groups/", include("toxsign.groups.urls", namespace="groups")),
     path("users/", include("toxsign.users.urls", namespace="users")),
     path("projects/", include("toxsign.projects.urls", namespace="projects")),
     path("studies/", include("toxsign.studies.urls", namespace="studies")),
