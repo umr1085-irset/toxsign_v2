@@ -88,12 +88,18 @@
                         <thead>
                             <tr style="text-align:center;">
                                 <th scope="col">Name</th>
+                                <th scope="col">Is owner?</th>
                             </tr>
                         </thead>
                     <tbody>
                         {% for group in groups %}
                         <tr>
                             <th>{{group.name}}</th>
+                            {% if group.ownership.owner == request.user %}
+                            <th>Ok</th>
+                            {% else %}
+                            <th>No</th>
+                            {{% endif %}
                         </tr>
                         {% endfor %}
                     </tbody>
