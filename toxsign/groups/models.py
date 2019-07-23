@@ -22,7 +22,7 @@ def create_custom_group(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Group)
 def save_custom_group(sender, instance, **kwargs):
-        if not hasattr(instance, 'customgroup'):
+        if not hasattr(instance, 'ownership'):
             Ownership.objects.create(group=instance)
         else:
             instance.ownership.save()
