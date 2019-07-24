@@ -29,6 +29,10 @@ def autocompleteModel(request):
     results_projects = Project.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query))
     results_studies = Study.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query))
     results_signatures = Signature.objects.filter(Q(name__icontains=query) | Q(tsx_id__icontains=query))
+    results_projects = [project for project in results_projects if check_view_permissions(request.user, project)]
+    results_studies = [study for study in results_studies if check_view_permissions(request.user, study.project)]
+    results_signatures = [sig for sig in results_signatures if check_view_permissions(request.user, sig.factor.assay.study.project)]
+
     results = {
         'projects_number' : len(results_projects),
         'studies_number' : len(results_studies),
