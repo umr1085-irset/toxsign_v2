@@ -98,7 +98,7 @@
                     <tbody>
                         {% for group in groups %}
                         <tr style="text-align:center;">
-                            <td>{{group.name}}</td>
+                            <td><a href="{% url 'groups:detail' group.id %}">{{group.name}}</a></td>
                             <td>{{group.members_number}}</td>
                             {% if group.ownership.owner == request.user %}
                             <td><i class="fas fa-check"></i</td>
@@ -167,7 +167,7 @@
                         </ul>
                       </nav>
                     {% endif %}
-                  </div>                    
+                  </div>
                 </div>
                 <div class="tab-pane" id="studies">
                 </div>
@@ -181,4 +181,3 @@
 
 
 {% endblock content %}
-

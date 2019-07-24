@@ -17,7 +17,7 @@ def DetailView(request, grpid):
         return redirect('/unauthorized')
 
     data = {
-        'group': group
-        'is_owner': request.user == group.ownership.owner
+        'group': group,
+        'users' : group.user_set.all(),
     }
-    return render(request, 'groups/details.html', data)
+    return render(request, 'groups/group_detail.html', data)
