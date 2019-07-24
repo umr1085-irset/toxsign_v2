@@ -8,13 +8,17 @@
   <div class="tab-content card" style="text-align:center;">
     <div class="tab-pane active text-style card-body">
       <h2>{{ group.name }}</h2>
+      <br>
       <div class="table-responsive-xl">
-          <table class="table table-hover">
+          <table id="group_users" class="table table-hover">
               <thead>
                   <tr style="text-align:center;">
                       <th scope="col">Username</th>
                       <th scope="col">Email</th>
                       <th scope="col">Group owner</th>
+                      {% if group.ownership.owner == request.user %}
+                        <th scope="col">Remove user</th>
+                      {% endif %}
                   </tr>
               </thead>
               <tbody>
@@ -27,10 +31,23 @@
                   {% else %}
                   <td></td>
                   {% endif %}
+                  {% if group.ownership.owner == request.user %}
+                  <td>
+                    <button type="button" class="btn btn-danger btn-sm js-remove_user" data-url="{% url 'groups:remove_user' group.id user.id %}">
+                      <span class="glyphicon glyphicon-trash"></span> Remove
+                    </button>
+                  </td>
+                  {% endif %}
                 </tr>
                 {% endfor %}
               </tbody>
           </table>
+        <div class="modal fade" id="modal-group">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                </div>
+            </div>
+        </div>
       </div>
     </div>
   </div>

@@ -1,23 +1,41 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
-from django.views.generic import DetailView, ListView, RedirectView, UpdateView, CreateView
 from django.shortcuts import redirect
-from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import get_perms
-
+from django.contrib.auth.models import Group
+from toxsign.users.models import User
+from django.template.loader import render_to_string
+from django.http import JsonResponse
 
 # TODO : clear 403 page redirect (page with an explanation?)
 def DetailView(request, grpid):
-    group = user.groups.filter(id=grpid)
+    group = request.user.groups.filter(id=grpid)
 
-    if not group.exist()
+    if not group.count():
         return redirect('/unauthorized')
 
     data = {
-        'group': group,
-        'users' : group.user_set.all(),
+        'group': group.get(),
+        'users' : group.get().user_set.all()
     }
     return render(request, 'groups/group_detail.html', data)
+
+def remove_user_from_group(request, group_id, user_to_remove_id):
+    group = get_object_or_404(Group, pk=group_id)
+    # Check user is owner
+    # And target is not owner
+
+    user = get_object_or_404(User, pk=user_to_remove_id)
+    data = dict()
+    if request.method == 'POST':
+        group.user_set.remove(user)
+        data['form_is_valid'] = True
+    else:
+        context = {'group': group, 'user': user}
+        data['html_form'] = render_to_string('groups/partial_user_remove.html',
+            context,
+            request=request,
+        )
+    return JsonResponse(data)
