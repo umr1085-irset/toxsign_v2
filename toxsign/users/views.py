@@ -6,6 +6,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 from toxsign.projects.models import Project
+from toxsign.projects.views import get_access_type, check_view_permissions
+
 
 User = get_user_model()
 
@@ -18,9 +20,23 @@ class UserDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(UserDetailView, self).get_context_data(**kwargs)
         groups = self.request.user.groups.all()
+        projects = Project.objects.all().order_by('id')
+        context['permissions'] = {}
         context['groups'] = groups
         context['group_number'] = len(groups)
-        context['project_list'] = Project.objects.filter(created_by__exact=self.request.user.id).order_by('id')
+        context['project_list'] = [project for project in projects if check_view_permissions(self.request.user, project)]
+        context['in_use'] = {
+            'user': "",
+            'project': "",
+        }
+        if self.request.GET.get('projects'):
+            context['in_use']['project'] = 'active'
+        else:
+            context['in_use']['user'] = 'active'
+
+        for project in context['project_list']:
+            project.permissions = get_access_type(self.request.user, project)
+
         context['project_number'] = len(context['project_list'])
         paginator = Paginator(context['project_list'], 5)
         page = self.request.GET.get('projects')

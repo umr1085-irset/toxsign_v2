@@ -65,3 +65,24 @@ def check_view_permissions(user, project):
         has_access = True
 
     return has_access
+
+def get_access_type(user, project):
+    access = {
+        'view' : False,
+        'edit': False,
+        'delete': False
+    }
+
+    if user.is_authenticated:
+        perms = get_perms(user, project)
+        if 'view_project' in perms:
+            access['view'] = True
+        if 'change_project' in perms:
+            access['edit'] = True
+        if 'delete_project' in perms:
+            access['delete'] = True
+
+    if project.status == "PUBLIC":
+        access['view'] = True
+
+    return access
