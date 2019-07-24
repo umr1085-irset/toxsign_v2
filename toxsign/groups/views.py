@@ -26,8 +26,15 @@ def remove_user_from_group(request, group_id, user_to_remove_id):
     group = get_object_or_404(Group, pk=group_id)
     # Check user is owner
     # And target is not owner
+    if not request.user == group.ownership.owner:
+        redirect('/unauthorized')
 
     user = get_object_or_404(User, pk=user_to_remove_id)
+
+    if group.ownership.owner == user:
+    # TODO: Give a proper error instead
+        redirect('/unauthorized')
+
     data = dict()
     if request.method == 'POST':
         group.user_set.remove(user)

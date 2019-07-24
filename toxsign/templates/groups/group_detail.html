@@ -33,9 +33,11 @@
                   {% endif %}
                   {% if group.ownership.owner == request.user %}
                   <td>
-                    <button type="button" class="btn btn-danger btn-sm js-remove_user" data-url="{% url 'groups:remove_user' group.id user.id %}">
+                    <button type="button" class="btn btn-danger btn-sm js-remove_user" data-url="{% url 'groups:remove_user' group.id user.id %}"
+                    {% if group.ownership.owner == user %} disabled {% endif %} >
                       <span class="glyphicon glyphicon-trash"></span> Remove
                     </button>
+                    
                   </td>
                   {% endif %}
                 </tr>
