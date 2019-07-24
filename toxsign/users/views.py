@@ -23,6 +23,8 @@ class UserDetailView(LoginRequiredMixin, DetailView):
         projects = Project.objects.all().order_by('id')
         context['permissions'] = {}
         context['groups'] = groups
+        for group in context['groups']:
+            group.members_number = group.user_set.count()
         context['group_number'] = len(groups)
         context['project_list'] = [project for project in projects if check_view_permissions(self.request.user, project)]
         context['in_use'] = {

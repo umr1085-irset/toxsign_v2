@@ -91,18 +91,20 @@
                         <thead>
                             <tr style="text-align:center;">
                                 <th scope="col">Name</th>
-                                <th scope="col">Is owner?</th>
+                                <th scope="col">Members</th>
+                                <th scope="col">Group owner?</th>
                             </tr>
                         </thead>
                     <tbody>
                         {% for group in groups %}
-                        <tr>
-                            <th>{{group.name}}</th>
+                        <tr style="text-align:center;">
+                            <td>{{group.name}}</td>
+                            <td>{{group.members_number}}</td>
                             {% if group.ownership.owner == request.user %}
-                            <th>Ok</th>
+                            <td><i class="fas fa-check"></i</td>
                             {% else %}
-                            <th>No</th>
-                            {{% endif %}
+                            <td>{{group.ownership.owner.username}}</td>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     </tbody>
