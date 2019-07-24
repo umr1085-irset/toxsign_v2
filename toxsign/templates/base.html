@@ -76,7 +76,7 @@
               {% if request.user.is_authenticated %}
                 <li class="nav-item dropdown {% if request.resolver_match.url_name == 'detail' or request.resolver_match.url_name == 'account_logout' %} active {% endif %}">
                   <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fas fa-user"></i> Logged as {{request.user.username }}
+                    <i class="fas fa-user"></i> {{request.user.username }}
                   </a>
                   <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                     <a class="nav-link" href="{% url 'users:detail' request.user.username  %}">{% trans "My Profile" %}</a>
