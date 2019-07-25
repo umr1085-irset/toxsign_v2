@@ -1,4 +1,5 @@
-from django.contrib.auth.models import AbstractUser
+
+from django.contrib.auth.models import AbstractUser, Group
 from django.db.models import CharField
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -18,3 +19,17 @@ class User(AbstractUser):
 
     def get_absolute_url(self):
         return reverse("users:detail", kwargs={"username": self.username})
+
+
+# Might be a better way to implement this if we need other types..
+class Notification(models.Model):
+
+    NOTIFICATION_TYPES = [
+        ('GROUP', 'Add user to group'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_notifications')
+    message =  models.TextField("description")
+    group = models.ForeignKey(Group, blank=True, null=True, on_delete=models.CASCADE, related_name='add_notifications')
+    type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES)

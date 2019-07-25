@@ -7,7 +7,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from toxsign.projects.models import Project
 from toxsign.projects.views import get_access_type, check_view_permissions
-
+from toxsign.users.models import Notification
 
 User = get_user_model()
 
@@ -17,12 +17,16 @@ class UserDetailView(LoginRequiredMixin, DetailView):
     model = User
     slug_field = "username"
     slug_url_kwarg = "username"
+
     def get_context_data(self, **kwargs):
         context = super(UserDetailView, self).get_context_data(**kwargs)
         groups = self.request.user.groups.all()
         projects = Project.objects.all().order_by('id')
         context['permissions'] = {}
         context['groups'] = groups
+        notifications = Notification.objects.filter(user=self.request.user)
+        context['notifications'] = notifications
+        context['notification_number'] = notifications.count()
         for group in context['groups']:
             group.members_number = group.user_set.count()
         context['group_number'] = len(groups)
@@ -78,7 +82,6 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
 
 user_update_view = UserUpdateView.as_view()
 
-
 class UserRedirectView(LoginRequiredMixin, RedirectView):
 
     permanent = False
@@ -88,3 +91,34 @@ class UserRedirectView(LoginRequiredMixin, RedirectView):
 
 
 user_redirect_view = UserRedirectView.as_view()
+
+
+def dismiss_notification(request, notification_id):
+    notification = Notification.objects.get(id=notification_id)
+
+    if not request.user == notification.user:
+        redirect('/unauthorized')
+
+    notification.delete()
+    data = {'form_is_valid': True}
+    return JsonResponse(data)
+
+
+def accept_group_invitation(request, notification_id):
+    notification = Notification.objects.get(id=notification_id)
+
+    # Check group is set
+    if not notification.group:
+        # Need a better redirection, though this should not happen
+        notification.delete()
+        redirect('/unauthorized')
+
+    if not request.user == notification.user:
+        redirect('/unauthorized')
+
+    if not request.user in notification.group.user_set.all():
+        notification.group.user_set.add(request.user)
+
+    notification.delete()
+    data = {'form_is_valid': True}
+    return JsonResponse(data)
