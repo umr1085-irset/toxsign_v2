@@ -26,7 +26,7 @@ $(function () {
       dataType: 'json',
       success: function (data) {
         if (data.form_is_valid) {
-            window.location.reload();
+            window.location.href = data.redirect
         }
         else {
           $("#modal-group .modal-content").html(data.html_form);

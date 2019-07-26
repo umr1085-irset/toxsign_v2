@@ -49,10 +49,11 @@ def remove_user_from_group(request, group_id, user_to_remove_id):
     group = get_object_or_404(Group, pk=group_id)
     # Check user is owner
     # And target is not owner
-    if not request.user == group.ownership.owner:
-        redirect('/unauthorized')
 
     user = get_object_or_404(User, pk=user_to_remove_id)
+
+    if not request.user == group.ownership.owner and not request.user == user:
+        redirect('/unauthorized')
 
     if group.ownership.owner == user:
     # TODO: Give a proper error instead
@@ -62,8 +63,12 @@ def remove_user_from_group(request, group_id, user_to_remove_id):
     if request.method == 'POST':
         group.user_set.remove(user)
         data['form_is_valid'] = True
+        if request.user == user:
+            data['redirect'] = reverse("users:detail", kwargs={"username": request.user.username})
+        else:
+            data['redirect'] = reverse("groups:detail", kwargs={"grpid": group.id})
     else:
-        context = {'group': group, 'user': user}
+        context = {'group': group, 'user': user, 'self': request.user == user}
         data['html_form'] = render_to_string('groups/partial_user_remove.html',
             context,
             request=request,

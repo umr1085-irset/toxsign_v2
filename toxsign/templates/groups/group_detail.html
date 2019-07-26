@@ -6,11 +6,11 @@
 {% block content %}
 <div class="container-fluid">
   <div class="tab-content card" style="text-align:center;">
-    <div class="tab-pane active text-style card-body">
+    <div class="tab-pane active text-style card-body" id="group_users">
       <h2>{{ group.name }}</h2>
       <br>
       <div class="table-responsive-xl">
-          <table id="group_users" class="table table-hover">
+          <table class="table table-hover">
               <thead>
                   <tr style="text-align:center;">
                       <th scope="col">Username</th>
@@ -46,7 +46,12 @@
                 </tr>
                 {% endfor %}
               </tbody>
+          <tr>
           </table>
+          <button type="button" class="btn btn-danger btn-sm js-remove_user" data-url="{% url 'groups:remove_user' group.id request.user.id %}"
+            {% if group.ownership.owner == request.user %} disabled {% endif %} >
+            <span class="glyphicon glyphicon-trash"></span> Leave group
+          </button>
         <div class="modal fade" id="modal-group">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -57,4 +62,5 @@
     </div>
   </div>
 </div>
+<br>
 {% endblock content %}
