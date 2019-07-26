@@ -39,6 +39,7 @@ $(function () {
     var btn = $(this);
     $.ajax({
       url: btn.attr("data-url"),
+      data: [{name: 'csrfmiddlewaretoken', value: token }],
       type: 'post',
       dataType: 'json',
       success: function (data) {
