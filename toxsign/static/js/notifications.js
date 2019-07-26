@@ -1,7 +1,6 @@
 $(function () {
 
   /* Functions */
-
   var loadForm = function () {
     var btn = $(this);
     $.ajax({
@@ -26,7 +25,7 @@ $(function () {
       dataType: 'json',
       success: function (data) {
         if (data.form_is_valid) {
-            window.location.reload();
+            window.location.href = correct_url();
         }
         else {
           $("#modal-group .modal-content").html(data.html_form);
@@ -36,11 +35,29 @@ $(function () {
     return false;
   };
 
+  var send_action = function () {
+    var btn = $(this);
+    $.ajax({
+      url: btn.attr("data-url"),
+      type: 'post',
+      dataType: 'json',
+      success: function (data) {
+        if (data.form_is_valid) {
+            window.location.href = correct_url();
+        }
+      }
+    });
+      return false;
+  };
+
+  var correct_url = function () {
+    var url = window.location.href;
+    url = url.split("?")[0];
+    return url + "?notification=true"
+  }
 
   /* Binding */
-    $("#group_users").on("click", ".js-remove_user", loadForm);
-    $("#modal-group").on("submit", ".js-user-remove-form", saveForm);
-    $("#group_users").on("click", ".js-change_owner", loadForm);
-    $("#modal-group").on("submit", ".js-owner-change-form", saveForm);
-
+    $("#notification_list").on("click", ".js-refuse-invitation", loadForm);
+    $("#modal-group").on("submit", ".js-dismiss-notif-form", saveForm);
+    $("#notification_list").on("click", ".js-notif-action", send_action);
 });

@@ -4,6 +4,9 @@ from django.urls import reverse
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
+from django.template.loader import render_to_string
+from django.http import JsonResponse
+
 
 from toxsign.projects.models import Project
 from toxsign.projects.views import get_access_type, check_view_permissions
@@ -34,9 +37,12 @@ class UserDetailView(LoginRequiredMixin, DetailView):
         context['in_use'] = {
             'user': "",
             'project': "",
+            'notification': ""
         }
         if self.request.GET.get('projects'):
             context['in_use']['project'] = 'active'
+        elif self.request.GET.get('notification'):
+            context['in_use']['notification'] = 'active'
         else:
             context['in_use']['user'] = 'active'
 
@@ -99,8 +105,16 @@ def dismiss_notification(request, notification_id):
     if not request.user == notification.user:
         redirect('/unauthorized')
 
-    notification.delete()
-    data = {'form_is_valid': True}
+    data = dict()
+    if request.method == 'POST':
+        notification.delete()
+        data = {'form_is_valid': True}
+    else:
+       context = {'group': notification.group, 'notification': notification}
+       data['html_form'] = render_to_string('users/partial_notif_dismiss.html',
+           context,
+           request=request,
+       )
     return JsonResponse(data)
 
 

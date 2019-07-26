@@ -16,5 +16,5 @@ urlpatterns = [
     path("~update/", view=user_update_view, name="update"),
     path("<str:username>/", view=user_detail_view, name="detail"),
     path("notification/dismiss/<int:notification_id>", view=dismiss_notification, name="dismiss_notification"),
-    path("notification/accept/<int:notification_id>", view=accept_group_invitation, name="accept_notification"),
+    path("notification/accept/<int:notification_id>", view=accept_group_invitation, name="accept_group_invitation"),
 ]

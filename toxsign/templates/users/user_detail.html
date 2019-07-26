@@ -30,7 +30,7 @@
                 </li>
                 {% if object == request.user %}
                 <li class="nav-item">
-                    <a href="" data-target="#notifications" data-toggle="tab" class="nav-link {{in_use.notifications}}">Notifications ({{ notification_number }})</a>
+                    <a href="" data-target="#notifications" data-toggle="tab" class="nav-link {{in_use.notification}}">Notifications ({{ notification_number }})</a>
                 </li>
                 <li class="nav-item">
                     <a href="" data-target="#groups" data-toggle="tab" class="nav-link">My groups  ({{ group_number }})</a>
@@ -87,13 +87,14 @@
                     </div>
                 </div>
                 {% if object == request.user %}
-                <div class="tab-pane" id="notifications">
+                <div class="tab-pane {{in_use.notification}}" id="notifications">
                 <h2>My notifications</h2>
                 <div class="table-responsive-xl">
-                    <table class="table table-hover">
+                    <table class="table table-hover" id="notification_list">
                         <thead>
                             <tr style="text-align:center;">
                                 <th scope="col">Sent by</th>
+                                <th scope="col">Message</th>
                                 <th scope="col">Action</th>
                             </tr>
                         </thead>
@@ -101,10 +102,20 @@
                         {% for notification in notifications %}
                         <tr style="text-align:center;">
                             <td>{{notification.created_by}}</td>
+                            <td>{{notification.message}}</td>
                             <td>
-                                <button type="button" class="btn btn-danger btn-sm" data-url="{% url 'users:dismiss_notification' notification.id %}">
-                                <span class="glyphicon glyphicon-trash"></span> Dismiss
+                                {% if notification.type == 'GROUP' %}
+                                <button type="button" class="btn btn-success btn-sm js-notif-action" data-url="{% url 'users:accept_group_invitation' notification.id %}">
+                                <span class="glyphicon glyphicon-trash"></span> Accept 
                                 </button>
+                                <button type="button" class="btn btn-danger btn-sm js-refuse-invitation" data-url="{% url 'users:dismiss_notification' notification.id %}">
+                                <span class="glyphicon glyphicon-trash"></span> Dismiss 
+                                </button>
+                                {% else %}
+                                <button type="button" class="btn btn-danger btn-sm js-notif-action" data-url="{% url 'users:dismiss_notification' notification.id %}">
+                                <span class="glyphicon glyphicon-trash"></span> Dismiss 
+                                </button>
+                                {% endif %} 
                             </td>
                         </tr>
                         {% endfor %}
@@ -199,7 +210,13 @@
                 </div>
                 <div class="tab-pane" id="studies">
                 </div>
-                {% endif %}
+                <div class="modal fade" id="modal-group">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                    </div>
+                  </div>
+               </div>
+               {% endif %}
             </div>
         </div>
     </div>

@@ -28,9 +28,21 @@ def set_owner(request, group_id, new_owner_id):
     # And target is not owner
     if not request.user == group.ownership.owner:
          redirect('/unauthorized')
+
     user = get_object_or_404(User, pk=new_owner_id)
-    group.ownership.owner.set(user)
-    data['form_is_valid'] = True
+    data = {}
+
+    if request.method == 'POST':
+        if not group.ownership.owner == user:
+            group.ownership.owner = user
+            group.ownership.save()
+        data['form_is_valid'] = True
+    else:
+        context = {'group': group, 'user': user}
+        data['html_form'] = render_to_string('groups/partial_owner_change.html',
+            context,
+            request=request,
+         )
     return JsonResponse(data)
 
 def remove_user_from_group(request, group_id, user_to_remove_id):

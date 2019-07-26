@@ -17,7 +17,7 @@
                       <th scope="col">Email</th>
                       <th scope="col">Group owner</th>
                       {% if group.ownership.owner == request.user %}
-                        <th scope="col">Remove user</th>
+                        <th scope="col">Actions</th>
                       {% endif %}
                   </tr>
               </thead>
@@ -33,11 +33,14 @@
                   {% endif %}
                   {% if group.ownership.owner == request.user %}
                   <td>
+                    <button type="button" class="btn btn-danger btn-sm js-change_owner" data-url="{% url 'groups:change_owner' group.id user.id %}"
+                     {% if group.ownership.owner == user %} disabled {% endif %} >
+                       <span class="glyphicon glyphicon-trash"></span> Set owner
+                     </button>
                     <button type="button" class="btn btn-danger btn-sm js-remove_user" data-url="{% url 'groups:remove_user' group.id user.id %}"
                     {% if group.ownership.owner == user %} disabled {% endif %} >
                       <span class="glyphicon glyphicon-trash"></span> Remove
                     </button>
-                    
                   </td>
                   {% endif %}
                 </tr>
