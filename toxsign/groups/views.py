@@ -4,10 +4,16 @@ from django.urls import reverse
 from django.utils import timezone
 from django.shortcuts import redirect
 from guardian.shortcuts import get_perms
+from django.views.generic import CreateView
 from django.contrib.auth.models import Group
+
+from toxsign.groups.forms import GroupCreateForm
 from toxsign.users.models import User
 from django.template.loader import render_to_string
 from django.http import JsonResponse
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseRedirect
+
 
 # TODO : clear 403 page redirect (page with an explanation?)
 def DetailView(request, grpid):
@@ -21,6 +27,21 @@ def DetailView(request, grpid):
         'users' : group.get().user_set.all()
     }
     return render(request, 'groups/group_detail.html', data)
+
+class CreateView(LoginRequiredMixin, CreateView):
+    model = Group
+    template_name = 'groups/entity_create.html'
+    form_class = GroupCreateForm
+
+     # Autofill the owner
+    def form_valid(self, form):
+        self.object = form.save()
+        # Add owner here + add owner to members
+        self.object.ownership.owner = self.request.user
+        self.object.ownership.save()
+        self.object.user_set.add(self.request.user)
+        return HttpResponseRedirect(reverse("groups:detail", kwargs={"grpid": self.object.id}))
+
 
 def set_owner(request, group_id, new_owner_id):
     group = get_object_or_404(Group, pk=group_id)

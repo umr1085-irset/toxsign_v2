@@ -32,7 +32,7 @@ def DetailView(request, assid):
 
 class AssayCreateView(PermissionRequiredMixin, CreateView):
     model = Assay
-    template_name = 'pages/entity_create.html'
+    template_name = 'assays/assay_create.html'
     form_class = AssayCreateForm
     redirect_field_name = "create"
     permission_required = 'change_project'
@@ -55,7 +55,7 @@ class AssayCreateView(PermissionRequiredMixin, CreateView):
 
 class FactorCreateView(PermissionRequiredMixin, CreateView):
     model = Factor
-    template_name = 'pages/entity_create.html'
+    template_name = 'assays/factor_create.html'
     form_class = FactorCreateForm
     redirect_field_name="create"
     permission_required = 'change_project'

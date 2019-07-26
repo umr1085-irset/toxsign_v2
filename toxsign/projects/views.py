@@ -41,7 +41,7 @@ class EditView(PermissionRequiredMixin, UpdateView):
 
 class CreateView(LoginRequiredMixin, CreateView):
     model = Project
-    template_name = 'pages/entity_create.html'
+    template_name = 'projects/entity_create.html'
     form_class = ProjectCreateForm
 
     def get_form_kwargs(self):

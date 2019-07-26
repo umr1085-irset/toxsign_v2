@@ -52,7 +52,7 @@ class CreateView(PermissionRequiredMixin, CreateView):
     login_url = "/unauthorized"
     redirect_field_name="create"
     model = Study
-    template_name = 'pages/entity_create.html'
+    template_name = 'studies/entity_create.html'
     form_class = StudyCreateForm
 
 

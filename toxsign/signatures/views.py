@@ -34,7 +34,7 @@ class CreateView(PermissionRequiredMixin, CreateView):
     redirect_field_name = "create"
     model = Signature
     form_class = SignatureCreateForm
-    template_name = 'pages/entity_create.html'
+    template_name = 'signatures/entity_create.html'
 
     def get_permission_object(self):
         assay = Assay.objects.get(tsx_id=self.kwargs['assid'])
