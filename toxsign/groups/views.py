@@ -7,8 +7,9 @@ from guardian.shortcuts import get_perms
 from django.views.generic import CreateView
 from django.contrib.auth.models import Group
 
-from toxsign.groups.forms import GroupCreateForm
-from toxsign.users.models import User
+from django.db.models import Q
+from toxsign.groups.forms import GroupCreateForm, GroupInvitationForm
+from toxsign.users.models import User, Notification
 from django.template.loader import render_to_string
 from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -24,11 +25,12 @@ def DetailView(request, grpid):
 
     data = {
         'group': group.get(),
-        'users' : group.get().user_set.all()
+        'users': group.get().user_set.all(),
+        'notifications': group.get().add_notifications.all()
     }
     return render(request, 'groups/group_detail.html', data)
 
-class CreateView(LoginRequiredMixin, CreateView):
+class GroupCreateView(LoginRequiredMixin, CreateView):
     model = Group
     template_name = 'groups/entity_create.html'
     form_class = GroupCreateForm
@@ -42,6 +44,34 @@ class CreateView(LoginRequiredMixin, CreateView):
         self.object.user_set.add(self.request.user)
         return HttpResponseRedirect(reverse("groups:detail", kwargs={"grpid": self.object.id}))
 
+def send_invitation(request, group_id):
+    group = get_object_or_404(Group, pk=group_id)
+
+    if not request.user == group.ownership.owner:
+         redirect('/unauthorized')
+
+    data = {}
+    if request.method == 'POST':
+        form = GroupInvitationForm(request.POST)
+        if form.is_valid():
+            object = form.save(commit=False)
+            object.created_by = request.user
+            object.group = group
+            object.type = "GROUP"
+            object.message = "Invitation to the group " + group.name
+            object.save()
+            data['redirect'] = reverse("groups:detail", kwargs={"grpid": group_id})
+            data['form_is_valid'] = True
+    else:
+        users = User.objects.exclude(Q(groups=group) | Q(notifications__group=group) | Q(username="AnonymousUser")).all()
+        form = GroupInvitationForm(users=users)
+        context = {'form': form, 'group': group}
+        data['html_form'] = render_to_string('groups/partial_user_add.html',
+            context,
+            request=request,
+        )
+
+    return JsonResponse(data)
 
 def set_owner(request, group_id, new_owner_id):
     group = get_object_or_404(Group, pk=group_id)
@@ -57,6 +87,8 @@ def set_owner(request, group_id, new_owner_id):
         if not group.ownership.owner == user:
             group.ownership.owner = user
             group.ownership.save()
+
+        data['redirect'] = reverse("groups:detail", kwargs={"grpid": group_id})
         data['form_is_valid'] = True
     else:
         context = {'group': group, 'user': user}

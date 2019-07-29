@@ -33,13 +33,13 @@
                   {% endif %}
                   {% if group.ownership.owner == request.user %}
                   <td>
-                    <button type="button" class="btn btn-danger btn-sm js-change_owner" data-url="{% url 'groups:change_owner' group.id user.id %}"
-                     {% if group.ownership.owner == user %} disabled {% endif %} >
-                       <span class="glyphicon glyphicon-trash"></span> Set owner
+                    <button type="button" class="btn btn-primary btn-sm js-change_owner" data-url="{% url 'groups:change_owner' group.id user.id %}"
+                     {% if group.ownership.owner == user %} disabled data-toggle="tooltip" data-placement="top" title="You are already the owner" {% endif %} >
+                       <i class="fas fa-crown"></i> Set owner
                      </button>
                     <button type="button" class="btn btn-danger btn-sm js-remove_user" data-url="{% url 'groups:remove_user' group.id user.id %}"
-                    {% if group.ownership.owner == user %} disabled {% endif %} >
-                      <span class="glyphicon glyphicon-trash"></span> Remove
+                    {% if group.ownership.owner == user %} disabled data-toggle="tooltip" data-placement="top" title="Owner cannot be removed from group" {% endif %} >
+                       <i class="fas fa-trash"></i> Remove
                     </button>
                   </td>
                   {% endif %}
@@ -48,10 +48,43 @@
               </tbody>
           <tr>
           </table>
-          <button type="button" class="btn btn-danger btn-sm js-remove_user" data-url="{% url 'groups:remove_user' group.id request.user.id %}"
-            {% if group.ownership.owner == request.user %} disabled {% endif %} >
-            <span class="glyphicon glyphicon-trash"></span> Leave group
+          <button type="button" class="btn btn-success btn-sm js-invite_user" data-url="{% url 'groups:invite_user' group.id %}">
+             <i class="fas fa-user"></i> Invite user
           </button>
+          <button type="button" class="btn btn-danger btn-sm js-remove_user" data-url="{% url 'groups:remove_user' group.id request.user.id %}"
+            {% if group.ownership.owner == request.user %} disabled data-toggle="tooltip" data-placement="top" title="The owner cannot leave the group" {% endif %} >
+             <i class="fas fa-sign-out-alt"></i> Leave group
+          </button>
+          <br>
+          <br>
+        </div>
+    </div>
+    </div>
+    <div class="tab-content card" style="text-align:center;">
+        
+      <h3>Pending invitations</h3>
+      <div class="tab-pane active text-style card-body" id="group_users">
+      <br>
+      <div class="table-responsive-xl">
+          <table class="table table-hover">
+              <thead>
+                  <tr style="text-align:center;">
+                      <th scope="col">User</th>
+                      <th scope="col">Sent by</th>
+                      <th scope="col">Date</th>
+                  </tr>
+              </thead>
+              <tbody>
+              {% for notification in notifications %}
+                <tr style="text-align:center;">
+                    <td>{{notification.user.username}}</td>
+                    <td>{{notification.created_by.username}}</td>
+                    <td>{{notification.created_at | date}}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+        <tr>
+        </table>
         <div class="modal fade" id="modal-group">
             <div class="modal-dialog">
                 <div class="modal-content">

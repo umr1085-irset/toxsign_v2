@@ -6,7 +6,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from django.template.loader import render_to_string
 from django.http import JsonResponse
-
+from django.shortcuts import redirect
 
 from toxsign.projects.models import Project
 from toxsign.projects.views import get_access_type, check_view_permissions

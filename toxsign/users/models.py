@@ -30,6 +30,7 @@ class Notification(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_notifications')
+    created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     message =  models.TextField("description")
     group = models.ForeignKey(Group, blank=True, null=True, on_delete=models.CASCADE, related_name='add_notifications')
     type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES)

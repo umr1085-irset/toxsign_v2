@@ -1,3 +1,7 @@
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip();
+});
+
 $(function () {
 
   /* Functions */
@@ -42,5 +46,7 @@ $(function () {
     $("#modal-group").on("submit", ".js-user-remove-form", saveForm);
     $("#group_users").on("click", ".js-change_owner", loadForm);
     $("#modal-group").on("submit", ".js-owner-change-form", saveForm);
+    $("#group_users").on("click", ".js-invite_user", loadForm);
+    $("#modal-group").on("submit", ".js-invite-user-form", saveForm);
 
 });
