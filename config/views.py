@@ -29,6 +29,10 @@ def autocompleteModel(request):
     results_projects = Project.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query))
     results_studies = Study.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query))
     results_signatures = Signature.objects.filter(Q(name__icontains=query) | Q(tsx_id__icontains=query))
+    results_projects = [project for project in results_projects if check_view_permissions(request.user, project)]
+    results_studies = [study for study in results_studies if check_view_permissions(request.user, study.project)]
+    results_signatures = [sig for sig in results_signatures if check_view_permissions(request.user, sig.factor.assay.study.project)]
+
     results = {
         'projects_number' : len(results_projects),
         'studies_number' : len(results_studies),
@@ -86,7 +90,7 @@ def graph_data(request):
 
 def index(request):
 
-    all_projects = Project.objects.all()
+    all_projects = Project.objects.all().order_by('id')
     projects = []
     studies = []
     assays = []
@@ -170,3 +174,23 @@ def get_sub_create_url(entity_type, tsx_id):
             'factor': reverse('assays:factor_create', kwargs={'assid': tsx_id}),
             'signature': reverse('signatures:signature_create', kwargs={'assid': tsx_id})
         }
+
+
+def render_403(request):
+    if request.GET.get('edit'):
+        action = "edit"
+        split = request.GET.get('edit').split('/')
+        type = split[1]
+    elif request.GET.get('create'):
+        action = "create"
+        split = request.GET.get('create').split('/')
+        type = split[1]
+    else:
+        action = "view"
+        type = ""
+    data = {
+        'action': action,
+        'type': type
+    }
+
+    return render(request, '403.html', {'data':data})

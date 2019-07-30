@@ -29,12 +29,11 @@ urlpatterns = [
     path(
         "graphs/", views.graph_data, name="graph"
     ),
-    path(
-        "test/",  TemplateView.as_view(template_name="pages/test.html"), name="test"
-    ),
+    path("unauthorized", views.render_403, name="unauthorized"),
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
+    path("groups/", include("toxsign.groups.urls", namespace="groups")),
     path("users/", include("toxsign.users.urls", namespace="users")),
     path("projects/", include("toxsign.projects.urls", namespace="projects")),
     path("studies/", include("toxsign.studies.urls", namespace="studies")),

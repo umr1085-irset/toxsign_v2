@@ -20,7 +20,7 @@ def DetailView(request, prjid):
     project_object = Project.objects.get(tsx_id=prjid)
     project = get_object_or_404(Project, pk=project_object.id)
     if not check_view_permissions(request.user, project):
-        return redirect('/index')
+        return redirect('/unauthorized')
     studies = project.study_of.all()
     assays = Assay.objects.filter(study__project=project)
     signatures = Signature.objects.filter(factor__assay__study__project=project)
@@ -30,7 +30,8 @@ def DetailView(request, prjid):
 class EditView(PermissionRequiredMixin, UpdateView):
     permission_required = 'change_project'
     model = Project
-    login_url = "/index"
+    login_url = "/unauthorized"
+    redirect_field_name="edit"
     template_name = 'projects/project_edit.html'
     fields = ["name", "description"]
     context_object_name = 'edit'
@@ -40,7 +41,7 @@ class EditView(PermissionRequiredMixin, UpdateView):
 
 class CreateView(LoginRequiredMixin, CreateView):
     model = Project
-    template_name = 'pages/entity_create.html'
+    template_name = 'projects/entity_create.html'
     form_class = ProjectCreateForm
 
     def get_form_kwargs(self):
@@ -64,3 +65,24 @@ def check_view_permissions(user, project):
         has_access = True
 
     return has_access
+
+def get_access_type(user, project):
+    access = {
+        'view' : False,
+        'edit': False,
+        'delete': False
+    }
+
+    if user.is_authenticated:
+        perms = get_perms(user, project)
+        if 'view_project' in perms:
+            access['view'] = True
+        if 'change_project' in perms:
+            access['edit'] = True
+        if 'delete_project' in perms:
+            access['delete'] = True
+
+    if project.status == "PUBLIC":
+        access['view'] = True
+
+    return access
