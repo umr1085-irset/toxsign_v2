@@ -127,7 +127,10 @@
                 </div>
                 </div>
                 <div class="tab-pane" id="groups">
-                <h2>My groups <a role="button" href="{% url 'groups:create' %}" class="btn btn-outline-info float-right"><i class="fas fa-external-link-alt"></i>New</a></h2></h2>
+                        <div class="modal fade" id="modal-group">
+                            <div class="modal-dialog"><div class="modal-content"></div></div>
+                        </div>
+                <h2>My groups <button data-url="{% url 'groups:create' %}" class="btn btn-outline-info js-create_group float-right"><i class="fas fa-external-link-alt"></i>New</button></h2>
                 <div class="table-responsive-xl">
                     <table class="table table-hover">
                         <thead>
@@ -211,13 +214,6 @@
                     {% endif %}
                   </div>
                 </div>
-                <div class="tab-pane" id="studies">
-                </div>
-                <div class="modal fade" id="modal-group">
-                  <div class="modal-dialog">
-                    <div class="modal-content">
-                    </div>
-                  </div>
                </div>
                {% endif %}
             </div>

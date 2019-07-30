@@ -33,19 +33,30 @@ def DetailView(request, grpid):
     }
     return render(request, 'groups/group_detail.html', data)
 
-class GroupCreateView(LoginRequiredMixin, CreateView):
-    model = Group
-    template_name = 'groups/entity_create.html'
-    form_class = GroupCreateForm
+def create_group(request):
 
-     # Autofill the owner
-    def form_valid(self, form):
-        self.object = form.save()
-        # Add owner here + add owner to members
-        self.object.ownership.owner = self.request.user
-        self.object.ownership.save()
-        self.object.user_set.add(self.request.user)
-        return HttpResponseRedirect(reverse("groups:detail", kwargs={"grpid": self.object.id}))
+    if not request.user.is_authenticated:
+        redirect('/unauthorized')
+
+    data = {}
+    if request.method == 'POST':
+        form = GroupCreateForm(request.POST)
+        if form.is_valid():
+            object = form.save()
+            object.ownership.owner = request.user
+            object.ownership.save()
+            object.user_set.add(request.user)
+            data['redirect'] = reverse("groups:detail", kwargs={"grpid": object.id})
+            data['form_is_valid'] = True
+    else:
+        form = GroupCreateForm()
+        context = {'form': form}
+        data['html_form'] = render_to_string('groups/partial_group_create.html',
+            context,
+            request=request,
+        )
+
+    return JsonResponse(data)
 
 def send_invitation(request, group_id):
     group = get_object_or_404(Group, pk=group_id)

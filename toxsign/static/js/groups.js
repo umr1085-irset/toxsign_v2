@@ -40,6 +40,9 @@ $(function () {
     return false;
   };
 
+  var test = function () {
+    console.log("test");
+  };
 
   /* Binding */
     $("#group_users").on("click", ".js-remove_user", loadForm);
@@ -48,5 +51,7 @@ $(function () {
     $("#modal-group").on("submit", ".js-owner-change-form", saveForm);
     $("#group_users").on("click", ".js-invite_user", loadForm);
     $("#modal-group").on("submit", ".js-invite-user-form", saveForm);
+    $("#groups").on("click", ".js-create_group", loadForm);
+    $("#modal-group").on("submit", ".js-create-group-form", saveForm);
 
 });
