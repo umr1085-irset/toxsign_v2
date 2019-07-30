@@ -172,7 +172,7 @@
                       <tbody>
                         {% for project in project_list %}
                           <tr>
-                            <th>{{ project.tsx_id }}</th>
+                            <th><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a></th>
                             <td>{{ project.name }}</td>
                             <td>{{ project.created_at }}</td>
                             <td>{{ project.status }}</td>
