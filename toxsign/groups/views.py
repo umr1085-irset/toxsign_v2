@@ -48,42 +48,54 @@ def create_group(request):
             object.user_set.add(request.user)
             data['redirect'] = reverse("groups:detail", kwargs={"grpid": object.id})
             data['form_is_valid'] = True
+        else:
+            data['form_is_valid'] = False
     else:
         form = GroupCreateForm()
-        context = {'form': form}
-        data['html_form'] = render_to_string('groups/partial_group_create.html',
-            context,
-            request=request,
-        )
+
+    context = {'form': form}
+    data['html_form'] = render_to_string('groups/partial_group_create.html',
+        context,
+        request=request,
+    )
 
     return JsonResponse(data)
 
 def send_invitation(request, group_id):
     group = get_object_or_404(Group, pk=group_id)
+    users = User.objects.exclude(Q(groups=group) | Q(notifications__group=group) | Q(username="AnonymousUser")).all()
 
     if not request.user == group.ownership.owner:
          redirect('/unauthorized')
 
     data = {}
     if request.method == 'POST':
-        form = GroupInvitationForm(request.POST)
-        if form.is_valid():
-            object = form.save(commit=False)
-            object.created_by = request.user
-            object.group = group
-            object.type = "GROUP"
-            object.message = "Invitation to the group " + group.name
-            object.save()
-            data['redirect'] = reverse("groups:detail", kwargs={"grpid": group_id})
-            data['form_is_valid'] = True
+        if request.POST.user not in users:
+            form = GroupInvitationForm(request.POST)
+            data['form_is_valid'] = False
+            data['error'] = "This user is either already in the group, or has already an invitation pending. Please select another."
+        else:
+            form = GroupInvitationForm(request.POST)
+            if form.is_valid():
+                object = form.save(commit=False)
+                object.created_by = request.user
+                object.group = group
+                object.type = "GROUP"
+                object.message = "Invitation to the group " + group.name
+                object.save()
+                data['redirect'] = reverse("groups:detail", kwargs={"grpid": group_id})
+                data['form_is_valid'] = True
+            else:
+                data['form_is_valid'] = False
     else:
-        users = User.objects.exclude(Q(groups=group) | Q(notifications__group=group) | Q(username="AnonymousUser")).all()
         form = GroupInvitationForm(users=users)
-        context = {'form': form, 'group': group}
-        data['html_form'] = render_to_string('groups/partial_user_add.html',
-            context,
-            request=request,
-        )
+
+
+    context = {'form': form, 'group': group}
+    data['html_form'] = render_to_string('groups/partial_user_add.html',
+        context,
+        request=request,
+    )
 
     return JsonResponse(data)
 

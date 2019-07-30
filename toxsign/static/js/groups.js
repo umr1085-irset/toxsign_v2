@@ -34,6 +34,9 @@ $(function () {
         }
         else {
           $("#modal-group .modal-content").html(data.html_form);
+          if (data.error){
+            $("#modal-group .modal-content #error").html(data.error);
+          }
         }
       }
     });
