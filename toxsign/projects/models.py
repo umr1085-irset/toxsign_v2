@@ -65,11 +65,13 @@ def update__permissions_test(sender, instance, action, **kwargs):
 def update__permissions(sender, instance, action, **kwargs):
     if instance.edit_groups.all():
         if action == 'pre_remove':
-            current_perms = get_groups_with_perms()
             for group in instance.edit_groups.all():
-                remove_perm('change_project', group, instance)
+                if 'view_project' in get_group_perms(group, instance):
+                    remove_perm('change_project', group, instance)
         if action == 'post_add':
-            assign_perm('change_project', instance.edit_groups.all(), instance)
+            for group in instance.edit_groups.all():
+                if 'view_project' not in get_group_perms(group, instance):
+                    assign_perm('change_project', group, instance)
 
 
 
