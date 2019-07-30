@@ -30,3 +30,6 @@ class GroupInvitationForm(forms.ModelForm):
         super(GroupInvitationForm, self).__init__( *args, **kwargs)
         if users:
             self.fields['user'].queryset = users
+        else:
+            self.fields['user'].widget.attrs['disabled'] = True
+            self.fields['user'].label = "All users are already invited or members of the group."

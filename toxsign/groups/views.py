@@ -70,26 +70,25 @@ def send_invitation(request, group_id):
 
     data = {}
     if request.method == 'POST':
-        if request.POST.user not in users:
-            form = GroupInvitationForm(request.POST)
+        form = GroupInvitationForm(request.POST)
+        if not form.is_valid():
+            data['form_is_valid'] = False
+
+        elif request.POST.user not in users:
             data['form_is_valid'] = False
             data['error'] = "This user is either already in the group, or has already an invitation pending. Please select another."
+
         else:
-            form = GroupInvitationForm(request.POST)
-            if form.is_valid():
-                object = form.save(commit=False)
-                object.created_by = request.user
-                object.group = group
-                object.type = "GROUP"
-                object.message = "Invitation to the group " + group.name
-                object.save()
-                data['redirect'] = reverse("groups:detail", kwargs={"grpid": group_id})
-                data['form_is_valid'] = True
-            else:
-                data['form_is_valid'] = False
+            object = form.save(commit=False)
+            object.created_by = request.user
+            object.group = group
+            object.type = "GROUP"
+            object.message = "Invitation to the group " + group.name
+            object.save()
+            data['redirect'] = reverse("groups:detail", kwargs={"grpid": group_id})
+            data['form_is_valid'] = True
     else:
         form = GroupInvitationForm(users=users)
-
 
     context = {'form': form, 'group': group}
     data['html_form'] = render_to_string('groups/partial_user_add.html',
