@@ -10,6 +10,7 @@
       <div class="list-group ">
           <a href="#group_users" data-toggle="tab" class="list-group-item list-group-item-action active">Overview</a>
           <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Sent invitation(s)  ({{ notifications.count }})</a>
+          <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Accesses</a>
         </div>
     </div>
     <div class="col-md-9">
@@ -82,6 +83,36 @@
                         <td>{{notification.user.username}}</td>
                         <td>{{notification.created_by.username}}</td>
                         <td>{{notification.created_at | date}}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                  <tr>
+            </table>
+          </div>
+        </div>
+        <div class="tab-pane text-style card-body" id="tab3">
+          <h3>Project accesses</h3>
+          <div class="table-responsive-xl">
+              <table class="table table-hover">
+                  <thead>
+                      <tr style="text-align:center;">
+                          <th scope="col">Project</th>
+                          <th scope="col">Owner</th>
+                          <th scope="col">Read access</th>
+                          <th scope="col">Edit access</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                  {% for project in read_access %}
+                    <tr style="text-align:center;">
+                        <td><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a> - {{project.name}}</td>
+                        <td>{{project.created_by.username}}</td>
+                        <td><i class="fas fa-check"></i></td>
+                        {% if project in edit_access %}
+                        <td><i class="fas fa-check"></i></td>
+                        {% else %}
+                        <td></td>
+                        {% endif %}
                     </tr>
                   {% endfor %}
                   </tbody>

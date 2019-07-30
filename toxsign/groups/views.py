@@ -3,13 +3,14 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
 from django.shortcuts import redirect
-from guardian.shortcuts import get_perms
+from guardian.shortcuts import get_perms, get_objects_for_group
 from django.views.generic import CreateView
 from django.contrib.auth.models import Group
 
 from django.db.models import Q
 from toxsign.groups.forms import GroupCreateForm, GroupInvitationForm
 from toxsign.users.models import User, Notification
+from toxsign.projects.models import Project
 from django.template.loader import render_to_string
 from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -18,15 +19,17 @@ from django.http import HttpResponseRedirect
 
 # TODO : clear 403 page redirect (page with an explanation?)
 def DetailView(request, grpid):
-    group = request.user.groups.filter(id=grpid)
+    group = request.user.groups.filter(id=grpid).get()
 
-    if not group.count():
+    if not group:
         return redirect('/unauthorized')
 
     data = {
-        'group': group.get(),
-        'users': group.get().user_set.all(),
-        'notifications': group.get().add_notifications.all()
+        'group': group,
+        'users': group.user_set.all(),
+        'notifications': group.add_notifications.all(),
+        'read_access': get_objects_for_group(group, 'view_project', Project),
+        'edit_access': get_objects_for_group(group, 'change_project', Project)
     }
     return render(request, 'groups/group_detail.html', data)
 

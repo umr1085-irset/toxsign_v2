@@ -143,7 +143,7 @@
                             <td><a href="{% url 'groups:detail' group.id %}">{{group.name}}</a></td>
                             <td>{{group.members_number}}</td>
                             {% if group.ownership.owner == request.user %}
-                            <td><i class="fas fa-check"></i</td>
+                            <td><i class="fas fa-check"></i></td>
                             {% else %}
                             <td>{{group.ownership.owner.username}}</td>
                             {% endif %}
