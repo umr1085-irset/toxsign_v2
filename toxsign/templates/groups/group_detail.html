@@ -10,7 +10,7 @@
       <div class="list-group ">
           <a href="#group_users" data-toggle="tab" class="list-group-item list-group-item-action active">Overview</a>
           <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Sent invitation(s)  ({{ notifications.count }})</a>
-          <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Accesses</a>
+          <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Permissions</a>
         </div>
     </div>
     <div class="col-md-9">
@@ -68,6 +68,7 @@
         </div>
         <div class="tab-pane text-style card-body" id="tab2">
           <h3>Sent invitation(s)</h3>
+          {% if notification %}
           <div class="table-responsive-xl">
               <table class="table table-hover">
                   <thead>
@@ -89,9 +90,14 @@
                   <tr>
             </table>
           </div>
+          {% else %}
+          <br>
+          <p>No pending invitations</p>
+          {% endif %}
         </div>
         <div class="tab-pane text-style card-body" id="tab3">
-          <h3>Project accesses</h3>
+          <h3>Project permissions</h3>
+          {% if read_access %}
           <div class="table-responsive-xl">
               <table class="table table-hover">
                   <thead>
@@ -119,6 +125,10 @@
                   <tr>
             </table>
           </div>
+        {% else %}
+        <br>
+        <p>This group does not have any specific access.</p>
+        {% endif %}
         </div>
       </div>
     </div>
