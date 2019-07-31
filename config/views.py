@@ -84,7 +84,7 @@ def graph_data(request):
                               'create_url': get_sub_create_url('assay', assay.tsx_id), 'clone_url':""})
         study_count +=1
         study_list.append({'name': study.name, 'children': assay_list, 'type': 'study', 'tsx_id': study.tsx_id, 'view_url': study.get_absolute_url(),
-                          'create_url': get_sub_create_url('study', study.tsx_id), 'clone_url':""})
+                          'create_url': get_sub_create_url('study', study.tsx_id), 'clone_url': reverse("studies:study_create", kwargs={'prjid': project.tsx_id}) + "?clone=" + study.tsx_id})
     response['children'] = study_list
 
     data = {

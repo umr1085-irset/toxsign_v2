@@ -55,6 +55,14 @@ class CreateView(PermissionRequiredMixin, CreateView):
     template_name = 'studies/entity_create.html'
     form_class = StudyCreateForm
 
+    def get_form_kwargs(self):
+        kwargs = super(CreateView, self).get_form_kwargs()
+        if self.request.GET.get('clone'):
+            studies = Study.objects.filter(tsx_id=self.request.GET.get('clone'))
+            if studies.exists():
+                study = studies.first()
+                kwargs.update({'study': study})
+        return kwargs
 
     def get_permission_object(self):
          project = Project.objects.get(tsx_id=self.kwargs['prjid'])
