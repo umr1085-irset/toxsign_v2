@@ -22,6 +22,14 @@ d3.contextMenu = function (openCallback) {
             }
           },
         ];
+
+        menu.push({
+              title: "Clone " + data.data.type,
+              action: function(elm, d, i) {
+                window.location.assign(d.data.clone_url);
+              }
+        })
+
         for (var key in data.data.create_url){
             let path = data.data.create_url[key];
             menu.push({
@@ -31,13 +39,6 @@ d3.contextMenu = function (openCallback) {
               }
             })
         }
-
-        menu.push({
-              title: "Clone " + data.data.type,
-              action: function(elm, d, i) {
-                window.location.assign(d.data.clone_url);
-              }
-        })
 
         var elm = this;
 
