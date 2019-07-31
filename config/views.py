@@ -63,28 +63,34 @@ def graph_data(request):
     sign_count = 0
     study_count = 0
     assay_count = 0
+    factor_count = 0
 
     study_list = []
     for study in studies:
         assay_list = []
         for assay in study.assay_of.all():
-            signature_list = []
+            factor_list = []
             for factor in assay.factor_of.all():
+                signature_list = []
                 for signature in factor.signature_of_of.all():
                     sign_count +=1
                     signature_list.append({'name': signature.name, 'type': 'signature', 'tsx_id': signature.tsx_id, 'view_url': signature.get_absolute_url(),
                                           'create_url': {}, 'clone_url':""})
+                factor_count += 1
+                factor_list.append({'name': factor.name, 'children': signature_list, 'type': 'factor', 'tsx_id': factor.tsx_id, 'view_url': '',
+                              'create_url': get_sub_create_url('factor', factor.tsx_id), 'clone_url':""})
             assay_count +=1
-            assay_list.append({'name': assay.name, 'children': signature_list, 'type': 'assay', 'tsx_id': assay.tsx_id, 'view_url': assay.get_absolute_url(),
+            assay_list.append({'name': assay.name, 'children': factor_list, 'type': 'assay', 'tsx_id': assay.tsx_id, 'view_url': assay.get_absolute_url(),
                               'create_url': get_sub_create_url('assay', assay.tsx_id), 'clone_url':""})
         study_count +=1
         study_list.append({'name': study.name, 'children': assay_list, 'type': 'study', 'tsx_id': study.tsx_id, 'view_url': study.get_absolute_url(),
                           'create_url': get_sub_create_url('study', study.tsx_id), 'clone_url':""})
     response['children'] = study_list
+
     data = {
         "data": response,
         "max_parallel": max(assay_count, study_count, sign_count, 1),
-        "max_depth": 4
+        "max_depth": 5
     }
 
     return JsonResponse(data, safe=False)
@@ -167,14 +173,12 @@ def get_sub_create_url(entity_type, tsx_id):
 
     if entity_type == 'project':
         return {'study': reverse('studies:study_create', kwargs={'prjid': tsx_id})}
-
     elif entity_type == 'study':
         return {'assay': reverse('assays:assay_create', kwargs={'stdid': tsx_id})}
     elif entity_type == 'assay':
-        return {
-            'factor': reverse('assays:factor_create', kwargs={'assid': tsx_id}),
-            'signature': reverse('signatures:signature_create', kwargs={'assid': tsx_id})
-        }
+        return {'factor': reverse('assays:factor_create', kwargs={'assid': tsx_id})}
+    elif entity_type == 'factor':
+        return {'signature': reverse('signatures:signature_create', kwargs={'assid': tsx_id})}
 
 
 def render_403(request):
