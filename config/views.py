@@ -57,7 +57,8 @@ def graph_data(request):
         'type': 'project',
         'tsx_id': project.tsx_id,
         'view_url': project.get_absolute_url(),
-        'create_url' : get_sub_create_url('project', project.tsx_id)
+        'create_url' : get_sub_create_url('project', project.tsx_id),
+        'clone_url': reverse("projects:project_create") + "?clone=" + project.tsx_id
     }
     sign_count = 0
     study_count = 0
@@ -72,13 +73,13 @@ def graph_data(request):
                 for signature in factor.signature_of_of.all():
                     sign_count +=1
                     signature_list.append({'name': signature.name, 'type': 'signature', 'tsx_id': signature.tsx_id, 'view_url': signature.get_absolute_url(),
-                                          'create_url': {}})
+                                          'create_url': {}, 'clone_url':""})
             assay_count +=1
             assay_list.append({'name': assay.name, 'children': signature_list, 'type': 'assay', 'tsx_id': assay.tsx_id, 'view_url': assay.get_absolute_url(),
-                              'create_url': get_sub_create_url('assay', assay.tsx_id)})
+                              'create_url': get_sub_create_url('assay', assay.tsx_id), 'clone_url':""})
         study_count +=1
         study_list.append({'name': study.name, 'children': assay_list, 'type': 'study', 'tsx_id': study.tsx_id, 'view_url': study.get_absolute_url(),
-                          'create_url': get_sub_create_url('study', study.tsx_id)})
+                          'create_url': get_sub_create_url('study', study.tsx_id), 'clone_url':""})
     response['children'] = study_list
     data = {
         "data": response,

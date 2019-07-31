@@ -32,6 +32,13 @@ d3.contextMenu = function (openCallback) {
             })
         }
 
+        menu.push({
+              title: "Clone " + data.data.type,
+              action: function(elm, d, i) {
+                window.location.assign(d.data.clone_url);
+              }
+        })
+
         var elm = this;
 
         d3.selectAll('.d3-context-menu').html('');

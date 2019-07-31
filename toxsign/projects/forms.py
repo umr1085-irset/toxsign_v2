@@ -20,6 +20,7 @@ class ProjectCreateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
+        self.project = kwargs.pop('project', None)
 
         super(ProjectCreateForm, self).__init__(*args, **kwargs)
         self.fields['read_groups'].help_text = "Groups with viewing permission on project and subentities. Will be ignored if the visibility is set to public. Use 'ctrl' to select multiple/unselect."
@@ -29,6 +30,17 @@ class ProjectCreateForm(forms.ModelForm):
         groups = self.user.groups.all()
         self.fields['read_groups'].queryset = groups
         self.fields['edit_groups'].queryset = groups
+
+        if self.project:
+            self.fields['name'].initial = self.project.name
+            self.fields['status'].initial = self.project.status
+            self.fields['description'].initial = self.project.description
+
+            if all([group in groups for group in self.project.read_groups.all()]):
+                self.fields['read_groups'].initial = self.project.read_groups.all()
+
+            if all([group in groups for group in self.project.edit_groups.all()]):
+                self.fields['edit_groups'].initial = self.project.edit_groups.all()
 
         self.helper = FormHelper(self)
         self.helper.form_method = 'POST'

@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
@@ -39,7 +39,7 @@ class EditView(PermissionRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
         return Project.objects.get(pk=self.kwargs['pk'])
 
-class CreateView(LoginRequiredMixin, CreateView):
+class CreateProjectView(LoginRequiredMixin, CreateView):
     model = Project
     template_name = 'projects/entity_create.html'
     form_class = ProjectCreateForm
@@ -47,6 +47,12 @@ class CreateView(LoginRequiredMixin, CreateView):
     def get_form_kwargs(self):
         kwargs = super(CreateView, self).get_form_kwargs()
         kwargs.update({'user': self.request.user})
+        if self.request.GET.get('clone'):
+            projects = Project.objects.filter(tsx_id=self.request.GET.get('clone'))
+            if projects.exists():
+                project = projects.first()
+                if check_view_permissions(self.request.user, project):
+                    kwargs.update({'project': project})
         return kwargs
 
     # Autofill the user
