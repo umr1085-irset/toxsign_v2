@@ -32,10 +32,32 @@ class AssayCreateForm(forms.ModelForm):
 
     class Meta:
         model = Assay
-        exclude = ("tsx_id", "created_at", "created_by", "updated_at", "study", )
+        exclude = ("tsx_id", "created_at", "created_by", "updated_at",)
 
     def __init__(self, *args, **kwargs):
+        self.studies = kwargs.pop('study')
+        self.assay = kwargs.pop('assay', None)
+
         super(AssayCreateForm, self).__init__(*args, **kwargs)
+
+        self.fields['study'].queryset = self.studies
+        if self.studies.count() == 1:
+            self.fields['study'].initial = self.studies.first()
+
+        if self.assay:
+            self.fields['name'].initial = self.assay.name
+            self.fields['additional_info'].initial = self.assay.additional_info
+            self.fields['experimental_design'].initial = self.assay.experimental_design
+            self.fields['dev_stage'].initial = self.assay.dev_stage
+            self.fields['generation'].initial = self.assay.generation
+            self.fields['sex_type'].initial = self.assay.sex_type
+            self.fields['exp_type'].initial = self.assay.exp_type
+            self.fields['study'].initial = self.assay.study
+            self.fields['organism'].initial = self.assay.organism
+            self.fields['tissue'].initial = self.assay.tissue
+            self.fields['cell'].initial = self.assay.cell
+            self.fields['cell_line'].initial = self.assay.cell_line
+
         self.helper = FormHelper(self)
         self.helper.form_method = 'POST'
         self.helper.add_input(Submit('save', 'Save'))
@@ -50,10 +72,32 @@ class FactorCreateForm(forms.ModelForm):
 
     class Meta:
         model = Factor
-        exclude = ("tsx_id", "created_at", "created_by", "updated_at", "assay", )
+        exclude = ("tsx_id", "created_at", "created_by", "updated_at", )
 
     def __init__(self, *args, **kwargs):
+        self.assays = kwargs.pop('assay')
+        self.factor = kwargs.pop('factor', None)
+
         super(FactorCreateForm, self).__init__(*args, **kwargs)
+
+        self.fields['assay'].queryset = self.assays
+        if self.assays.count() == 1:
+            self.fields['assay'].initial = self.assays.first()
+
+        if self.factor:
+            self.fields['name'].initial = self.factor.name
+            self.fields['chemical'].initial = self.factor.chemical
+            self.fields['chemical_slug'].initial = self.factor.chemical_slug
+            self.fields['factor_type'].initial = self.factor.factor_type
+            self.fields['route'].initial = self.factor.route
+            self.fields['vehicule'].initial = self.factor.vehicule
+            self.fields['dose_value'].initial = self.factor.dose_value
+            self.fields['dose_unit'].initial = self.factor.dose_unit
+            self.fields['exposure_time'].initial = self.factor.exposure_time
+            self.fields['exposure_frequencie'].initial = self.factor.exposure_frequencie
+            self.fields['additional_info'].initial = self.factor.additional_info
+            self.fields['assay'].initial = self.factor.assay
+
         self.helper = FormHelper(self)
         self.helper.form_method = 'POST'
         self.helper.add_input(Submit('save', 'Save'))

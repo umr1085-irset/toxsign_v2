@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from guardian.mixins import PermissionRequiredMixin
 
 from toxsign.projects.views import check_view_permissions
+from toxsign.projects.models import Project
 from toxsign.studies.models import Study
 from toxsign.assays.models import Assay, Factor
 from toxsign.assays.forms import AssayCreateForm, FactorCreateForm
@@ -39,18 +40,36 @@ class AssayCreateView(PermissionRequiredMixin, CreateView):
     login_url = "/unauthorized"
 
     def get_permission_object(self):
-        study = Study.objects.get(tsx_id=self.kwargs['stdid'])
-        project = study.project
-        return project
+        self.project = get_object_or_404(Project, tsx_id=self.kwargs['prjid'])
+        return self.project
 
+    def get_form_kwargs(self):
+        kwargs = super(AssayCreateView, self).get_form_kwargs()
+
+        if self.request.GET.get('selected'):
+            studies = Study.objects.filter(tsx_id=self.request.GET.get('selected'))
+            if studies.exists():
+                study = studies.all()
+                kwargs.update({'study': study})
+            else:
+                studies = self.project.study_of.all()
+                kwargs.update({'study': studies})
+        else:
+            studies = self.project.study_of.all()
+            kwargs.update({'study': studies})
+
+        if self.request.GET.get('clone'):
+            assays = Assay.objects.filter(tsx_id=self.request.GET.get('clone'))
+            if assays.exists():
+                assay = assays.first()
+                kwargs.update({'assay': assay})
+
+        return kwargs
 
     # Autofill the user
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.created_by = self.request.user
-        study = Study.objects.get(tsx_id=self.kwargs['stdid'])
-        # Need safegards (access? exists?)
-        self.object.study = study
         return super(CreateView, self).form_valid(form)
 
 class FactorCreateView(PermissionRequiredMixin, CreateView):
@@ -62,9 +81,32 @@ class FactorCreateView(PermissionRequiredMixin, CreateView):
     login_url = "/unauthorized"
 
     def get_permission_object(self):
-        assay = Assay.objects.get(tsx_id=self.kwargs['assid'])
-        project = assay.study.project
-        return project
+        self.project = Project.objects.get(tsx_id=self.kwargs['prjid'])
+        return self.project
+
+    def get_form_kwargs(self):
+        kwargs = super(FactorCreateView, self).get_form_kwargs()
+
+        if self.request.GET.get('selected'):
+            assays = Assay.objects.filter(tsx_id=self.request.GET.get('selected'))
+            if assays.exists():
+                assay = assays.all()
+                kwargs.update({'assay': assay})
+            else:
+                assays = Assay.objects.filter(study__project=self.project).all()
+                kwargs.update({'assay': assays})
+        else:
+            assays = Assay.objects.filter(study__project=self.project).all()
+            kwargs.update({'assay': assays})
+
+        if self.request.GET.get('clone'):
+            factors = Factor.objects.filter(tsx_id=self.request.GET.get('clone'))
+            if factors.exists():
+                factor = factors.first()
+                kwargs.update({'factor': factor})
+
+        return kwargs
+
 
     # Autofill the user
     def form_valid(self, form):
