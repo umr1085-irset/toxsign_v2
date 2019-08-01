@@ -23,7 +23,7 @@ d3.contextMenu = function (openCallback) {
           },
         ];
 
-        if (user_is_authenticated){
+        if (data.data.editable){
 
             menu.push({
                 title: "Clone " + data.data.type,

@@ -8,6 +8,7 @@ from django.shortcuts import redirect
 from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import get_perms
 
+
 from toxsign.assays.models import Assay, Factor
 from toxsign.projects.models import Project
 from toxsign.projects.forms import ProjectCreateForm
@@ -73,6 +74,16 @@ def check_view_permissions(user, project):
 
     return has_access
 
+def check_edit_permissions(user, project):
+    has_access = False
+    if user.is_superuser:
+        has_access = True
+    elif user.is_authenticated and 'change_project' in get_perms(user, project):
+        has_access = True
+
+    return has_access
+
+
 def get_access_type(user, project):
     access = {
         'view' : False,
@@ -93,3 +104,4 @@ def get_access_type(user, project):
         access['view'] = True
 
     return access
+
