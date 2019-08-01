@@ -10,6 +10,7 @@ from guardian.mixins import PermissionRequiredMixin
 
 from toxsign.projects.models import Project
 from toxsign.studies.models import Study
+from toxsign.assays.models import Factor
 from toxsign.signatures.models import Signature
 
 from toxsign.projects.views import check_view_permissions
@@ -23,8 +24,9 @@ def DetailView(request, stdid):
         return redirect('/unauthorized')
 
     assays = study.assay_of.all()
+    factors = Factor.objects.filter(assay__study=study)
     signatures = Signature.objects.filter(factor__assay__study=study)
-    return render(request, 'studies/details.html', {'project': project,'study': study, 'assays': assays, 'signatures': signatures})
+    return render(request, 'studies/details.html', {'project': project,'study': study, 'assays': assays, 'factors': factors, 'signatures': signatures})
 
 # TODO : check for project edit permission
 class EditView(PermissionRequiredMixin, UpdateView):

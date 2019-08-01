@@ -16,9 +16,7 @@ from toxsign.assays.models import Assay, Factor
 from toxsign.assays.forms import AssayCreateForm, FactorCreateForm
 from toxsign.signatures.models import Signature
 
-
-
-def DetailView(request, assid):
+def AssayDetailView(request, assid):
 
     assay = get_object_or_404(Assay, tsx_id=assid)
     study = assay.study
@@ -28,8 +26,19 @@ def DetailView(request, assid):
 
     factors = assay.factor_of.all()
     signatures = Signature.objects.filter(factor__assay=assay)
-    return render(request, 'assays/details.html', {'project': project,'study': study, 'assay': assay, 'factors': factors,'signatures': signatures})
+    return render(request, 'assays/assay_details.html', {'project': project,'study': study, 'assay': assay, 'factors': factors,'signatures': signatures})
 
+def FactorDetailView(request, facid):
+
+    factor = get_object_or_404(Factor, tsx_id=facid)
+    assay = factor.assay
+    study = assay.study
+    project = study.project
+    if not check_view_permissions(request.user, project):
+        return redirect('/index')
+
+    signatures = Signature.objects.filter(factor=factor)
+    return render(request, 'assays/factor_details.html', {'project': project,'study': study, 'assay': assay, 'factor': factor,'signatures': signatures})
 
 class AssayCreateView(PermissionRequiredMixin, CreateView):
     model = Assay
@@ -112,7 +121,4 @@ class FactorCreateView(PermissionRequiredMixin, CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.created_by = self.request.user
-        assay = Assay.objects.get(tsx_id=self.kwargs['assid'])
-        # Need safegards (access? exists?)
-        self.object.assay = assay
         return super(CreateView, self).form_valid(form)

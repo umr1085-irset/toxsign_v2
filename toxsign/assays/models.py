@@ -68,7 +68,7 @@ class Assay(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('assays:detail', kwargs={"assid": self.tsx_id})
+        return reverse('assays:assay_detail', kwargs={"assid": self.tsx_id})
 
     # Override save method to auto increment tsx_id
     def save(self, *args, **kwargs):
@@ -121,7 +121,7 @@ class Factor(models.Model):
 
     # Redirect to assay page
     def get_absolute_url(self):
-        return reverse('assays:detail', kwargs={"assid": self.assay.tsx_id})
+        return reverse('assays:factor_detail', kwargs={"facid": self.tsx_id})
 
     # Override save method to auto increment tsx_id
     def save(self, *args, **kwargs):

@@ -8,7 +8,7 @@ from django.shortcuts import redirect
 from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import get_perms
 
-from toxsign.assays.models import Assay
+from toxsign.assays.models import Assay, Factor
 from toxsign.projects.models import Project
 from toxsign.projects.forms import ProjectCreateForm
 from toxsign.signatures.models import Signature
@@ -23,8 +23,9 @@ def DetailView(request, prjid):
         return redirect('/unauthorized')
     studies = project.study_of.all()
     assays = Assay.objects.filter(study__project=project)
+    factors = Factor.objects.filter(assay__study__project=project)
     signatures = Signature.objects.filter(factor__assay__study__project=project)
-    return render(request, 'projects/details.html', {'project': project,'studies': studies, 'assays': assays, 'signatures': signatures})
+    return render(request, 'projects/details.html', {'project': project,'studies': studies, 'assays': assays, 'factors': factors, 'signatures': signatures})
 
 # TODO : clear 403 page redirect (page with an explanation?)
 class EditView(PermissionRequiredMixin, UpdateView):

@@ -19,14 +19,15 @@ from toxsign.signatures.forms import SignatureCreateForm
 def DetailView(request, sigid):
 
     signature = get_object_or_404(Signature, tsx_id=sigid)
-    assay = signature.factor.assay
+    factor = signature.factor
+    assay = factor.assay
     study = assay.study
     project = study.project
 
     if not check_view_permissions(request.user, project):
         return redirect('/unauthorized')
 
-    return render(request, 'signatures/details.html', {'project': project,'study': study, 'assay': assay, 'signature': signature})
+    return render(request, 'signatures/details.html', {'project': project,'study': study, 'assay': assay, 'factor': factor, 'signature': signature})
 
 class CreateSignatureView(PermissionRequiredMixin, CreateView):
 
