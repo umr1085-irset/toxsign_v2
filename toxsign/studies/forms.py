@@ -28,3 +28,16 @@ class StudyCreateForm(forms.ModelForm):
         self.helper.form_method = 'POST'
         self.helper.add_input(Submit('save', 'Save'))
 
+
+class StudyEditForm(forms.ModelForm):
+
+    class Meta:
+        model = Study
+        fields = ["name", "description", "experimental_design", "study_type", "results"]
+
+    def __init__(self, *args, **kwargs):
+        super(StudyEditForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_method = 'POST'
+        self.helper.add_input(Submit('save', 'Save'))
+

@@ -62,6 +62,45 @@ class AssayCreateForm(forms.ModelForm):
         self.helper.form_method = 'POST'
         self.helper.add_input(Submit('save', 'Save'))
 
+
+class AssayEditForm(forms.ModelForm):
+
+    cell_line = forms.ModelChoiceField(
+                    queryset=CellLine.objects.all(),
+                    required=False,
+                    widget=autocomplete.ModelSelect2(url='/ontologies/cellline-autocomplete')
+                    )
+    cell = forms.ModelChoiceField(
+                queryset=Cell.objects.all(),
+                required=False,
+                widget=autocomplete.ModelSelect2(url='/ontologies/cell-autocomplete')
+                )
+    organism = forms.ModelChoiceField(
+                    queryset=Species.objects.all(),
+                    required=False,
+                    widget=autocomplete.ModelSelect2(url='/ontologies/species-autocomplete')
+                    )
+    tissue = forms.ModelChoiceField(
+                queryset=Tissue.objects.all(),
+                required=False,
+                widget=autocomplete.ModelSelect2(url='/ontologies/tissue-autocomplete')
+                )
+
+    class Meta:
+        model = Assay
+        exclude = ("tsx_id", "created_at", "created_by", "updated_at",)
+
+    def __init__(self, *args, **kwargs):
+        self.studies = kwargs.pop('study')
+        super(AssayEditForm, self).__init__(*args, **kwargs)
+
+        self.fields['study'].queryset = self.studies
+
+        self.helper = FormHelper(self)
+        self.helper.form_method = 'POST'
+        self.helper.add_input(Submit('save', 'Save'))
+
+
 class FactorCreateForm(forms.ModelForm):
 
     chemical = forms.ModelChoiceField(
@@ -97,6 +136,29 @@ class FactorCreateForm(forms.ModelForm):
             self.fields['exposure_frequencie'].initial = self.factor.exposure_frequencie
             self.fields['additional_info'].initial = self.factor.additional_info
             self.fields['assay'].initial = self.factor.assay
+
+        self.helper = FormHelper(self)
+        self.helper.form_method = 'POST'
+        self.helper.add_input(Submit('save', 'Save'))
+
+class FactorEditForm(forms.ModelForm):
+
+    chemical = forms.ModelChoiceField(
+                    queryset=Chemical.objects.all(),
+                    required=False,
+                    widget=autocomplete.ModelSelect2(url='/ontologies/chemical-autocomplete')
+                    )
+
+    class Meta:
+        model = Factor
+        exclude = ("tsx_id", "created_at", "created_by", "updated_at", )
+
+    def __init__(self, *args, **kwargs):
+        self.assays = kwargs.pop('assay')
+
+        super(FactorEditForm, self).__init__(*args, **kwargs)
+
+        self.fields['assay'].queryset = self.assays
 
         self.helper = FormHelper(self)
         self.helper.form_method = 'POST'

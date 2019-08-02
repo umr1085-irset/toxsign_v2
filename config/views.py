@@ -206,16 +206,16 @@ def get_clone_url(entity_type, prj_id, tsx_id):
     elif entity_type == 'signature':
         return reverse('signatures:signature_create', kwargs={'prjid': prj_id}) + query
 
-def get_edit_url(entity_type, prj_id):
+def get_edit_url(entity_type, tsx_id):
 
     if entity_type == 'project':
-        return reverse('projects:project_edit', kwargs={'prjid': prj_id})
+        return reverse('projects:project_edit', kwargs={'prjid': tsx_id})
     elif entity_type == 'study':
-        return ""
+        return reverse('studies:study_edit', kwargs={'stdid': tsx_id})
     elif entity_type == 'assay':
-        return ""
+        return reverse('assays:assay_edit', kwargs={'assid': tsx_id})
     elif entity_type == 'factor':
-        return ""
+        return reverse('assays:factor_edit', kwargs={'facid': tsx_id})
     elif entity_type == 'signature':
         return ""
 

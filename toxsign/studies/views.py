@@ -14,7 +14,7 @@ from toxsign.assays.models import Factor
 from toxsign.signatures.models import Signature
 
 from toxsign.projects.views import check_view_permissions
-from toxsign.studies.forms import StudyCreateForm
+from toxsign.studies.forms import StudyCreateForm, StudyEditForm
 
 def DetailView(request, stdid):
 
@@ -29,26 +29,26 @@ def DetailView(request, stdid):
     return render(request, 'studies/details.html', {'project': project,'study': study, 'assays': assays, 'factors': factors, 'signatures': signatures})
 
 # TODO : check for project edit permission
-class EditView(PermissionRequiredMixin, UpdateView):
+class EditStudyView(PermissionRequiredMixin, UpdateView):
 
     permission_required = 'change_project'
 
     model = Study
     template_name = 'studies/study_edit.html'
+    form_class = StudyEditForm
     redirect_field_name="edit"
     login_url = "/unauthorized"
-    fields = ["name", "description"]
     context_object_name = 'edit'
 
     def get_permission_object(self):
-        study = Study.objects.get(pk=self.kwargs['pk'])
+        study = Study.objects.get(tsx_id=self.kwargs['stdid'])
         project = study.project
         return project
 
     def get_object(self, queryset=None):
-        return Study.objects.get(pk=self.kwargs['pk'])
+        return Study.objects.get(tsx_id=self.kwargs['stdid'])
 
-class CreateView(PermissionRequiredMixin, CreateView):
+class CreateStudyView(PermissionRequiredMixin, CreateView):
 
     permission_required = 'change_project'
     login_url = "/unauthorized"
@@ -58,7 +58,7 @@ class CreateView(PermissionRequiredMixin, CreateView):
     form_class = StudyCreateForm
 
     def get_form_kwargs(self):
-        kwargs = super(CreateView, self).get_form_kwargs()
+        kwargs = super(CreateStudyView, self).get_form_kwargs()
         if self.request.GET.get('clone'):
             studies = Study.objects.filter(tsx_id=self.request.GET.get('clone'))
             if studies.exists():
@@ -77,4 +77,4 @@ class CreateView(PermissionRequiredMixin, CreateView):
         project = Project.objects.get(tsx_id=self.kwargs['prjid'])
         # Need safegards (access? exists?)
         self.object.project = project
-        return super(CreateView, self).form_valid(form)
+        return super(CreateStudyView, self).form_valid(form)

@@ -11,9 +11,9 @@ def test_assay_details():
     assay = AssayFactory.create()
     assert (
         reverse("assays:assay_detail", kwargs={"assid": assay.tsx_id})
-        == f"/assays/{assay.tsx_id}/"
+        == f"/assays/assay/{assay.tsx_id}/"
     )
-    assert resolve(f"/assays/{assay.tsx_id}/").view_name == "assays:assay_detail"
+    assert resolve(f"/assays/assay/{assay.tsx_id}/").view_name == "assays:assay_detail"
 
 def test_factor_details():
     factor = FactorFactory.create()
