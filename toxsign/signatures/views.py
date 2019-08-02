@@ -13,7 +13,7 @@ from toxsign.projects.views import check_view_permissions
 from toxsign.projects.models import Project
 from toxsign.assays.models import Assay, Factor
 from toxsign.signatures.models import Signature
-from toxsign.signatures.forms import SignatureCreateForm
+from toxsign.signatures.forms import SignatureCreateForm, SignatureEditForm
 
 
 def DetailView(request, sigid):
@@ -28,6 +28,30 @@ def DetailView(request, sigid):
         return redirect('/unauthorized')
 
     return render(request, 'signatures/details.html', {'project': project,'study': study, 'assay': assay, 'factor': factor, 'signature': signature})
+
+class EditSignatureView(PermissionRequiredMixin, UpdateView):
+    permission_required = 'change_project'
+
+    model = Signature
+    template_name = 'signatures/signature_edit.html'
+    form_class = SignatureEditForm
+    redirect_field_name="edit"
+    login_url = "/unauthorized"
+    context_object_name = 'edit'
+
+    def get_permission_object(self):
+        self.signature = Signature.objects.get(tsx_id=self.kwargs['sigid'])
+        self.project = self.signature.factor.assay.study.project
+        return self.project
+
+    def get_object(self, queryset=None):
+        return self.signature
+
+    def get_form_kwargs(self):
+        kwargs = super(EditSignatureView, self).get_form_kwargs()
+        factors = Factor.objects.filter(assay__study__project = self.project)
+        kwargs.update({'factor': factors})
+        return kwargs
 
 class CreateSignatureView(PermissionRequiredMixin, CreateView):
 

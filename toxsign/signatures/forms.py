@@ -79,3 +79,13 @@ class SignatureCreateForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.form_method = 'POST'
         self.helper.add_input(Submit('save', 'Save'))
+
+class SignatureEditForm(SignatureCreateForm):
+
+    def __init__(self, *args, **kwargs):
+        self.factors = kwargs.pop('factor')
+        super(SignatureCreateForm, self).__init__(*args, **kwargs)
+        self.fields['factor'].queryset = self.factors
+        self.helper = FormHelper(self)
+        self.helper.form_method = 'POST'
+        self.helper.add_input(Submit('save', 'Save'))

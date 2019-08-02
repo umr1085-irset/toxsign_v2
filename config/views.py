@@ -217,7 +217,7 @@ def get_edit_url(entity_type, tsx_id):
     elif entity_type == 'factor':
         return reverse('assays:factor_edit', kwargs={'facid': tsx_id})
     elif entity_type == 'signature':
-        return ""
+        return reverse('signatures:signature_edit', kwargs={'sigid': tsx_id})
 
 def render_403(request):
     if request.GET.get('edit'):
