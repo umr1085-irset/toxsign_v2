@@ -57,8 +57,10 @@ def graph_data(request):
         'type': 'project',
         'tsx_id': project.tsx_id,
         'view_url': project.get_absolute_url(),
-        'create_url' : get_sub_create_url('project', project.tsx_id, project.tsx_id),
+        'create_url': get_sub_create_url('project', project.tsx_id, project.tsx_id),
+        'edit_url': get_edit_url('project', project.tsx_id),
         'clone_url': get_clone_url('project', project.tsx_id, project.tsx_id),
+        'self_editable': check_edit_permissions(request.user, project, True),
         'editable': editable
     }
     sign_count = 0
@@ -76,19 +78,23 @@ def graph_data(request):
                 for signature in factor.signature_of_of.all():
                     sign_count +=1
                     signature_list.append({'name': signature.name, 'type': 'signature', 'tsx_id': signature.tsx_id, 'view_url': signature.get_absolute_url(),
-                                          'create_url': {}, 'clone_url': get_clone_url('signature', project.tsx_id, signature.tsx_id), 'editable': editable})
+                                          'create_url': {}, 'clone_url': get_clone_url('signature', project.tsx_id, signature.tsx_id),
+                                          'edit_url': get_edit_url('signature', signature.tsx_id), 'editable': editable, 'self_editable': editable})
                 factor_count += 1
                 factor_list.append({'name': factor.name, 'children': signature_list, 'type': 'factor', 'tsx_id': factor.tsx_id, 'view_url': factor.get_absolute_url(),
                               'create_url': get_sub_create_url('factor', project.tsx_id, factor.tsx_id),
-                              'clone_url': get_clone_url('factor', project.tsx_id, factor.tsx_id), 'editable': editable})
+                              'clone_url': get_clone_url('factor', project.tsx_id, factor.tsx_id),
+                              'edit_url': get_edit_url('factor', factor.tsx_id), 'editable': editable, 'self_editable': editable})
             assay_count +=1
             assay_list.append({'name': assay.name, 'children': factor_list, 'type': 'assay', 'tsx_id': assay.tsx_id, 'view_url': assay.get_absolute_url(),
                               'create_url': get_sub_create_url('assay', project.tsx_id, assay.tsx_id),
-                              'clone_url': get_clone_url('assay', project.tsx_id, assay.tsx_id), 'editable': editable})
+                              'clone_url': get_clone_url('assay', project.tsx_id, assay.tsx_id),
+                              'edit_url': get_edit_url('assay', assay.tsx_id), 'editable': editable, 'self_editable': editable})
         study_count +=1
         study_list.append({'name': study.name, 'children': assay_list, 'type': 'study', 'tsx_id': study.tsx_id, 'view_url': study.get_absolute_url(),
                           'create_url': get_sub_create_url('study', project.tsx_id, study.tsx_id),
-                          'clone_url': get_clone_url('study', project.tsx_id, study.tsx_id), 'editable': editable})
+                          'clone_url': get_clone_url('study', project.tsx_id, study.tsx_id),
+                          'edit_url': get_edit_url('study', study.tsx_id), 'editable': editable, 'self_editable': editable})
     response['children'] = study_list
 
     data = {
@@ -199,6 +205,19 @@ def get_clone_url(entity_type, prj_id, tsx_id):
         return reverse('assays:factor_create', kwargs={'prjid': prj_id}) + query
     elif entity_type == 'signature':
         return reverse('signatures:signature_create', kwargs={'prjid': prj_id}) + query
+
+def get_edit_url(entity_type, prj_id):
+
+    if entity_type == 'project':
+        return reverse('projects:project_edit', kwargs={'prjid': prj_id})
+    elif entity_type == 'study':
+        return ""
+    elif entity_type == 'assay':
+        return ""
+    elif entity_type == 'factor':
+        return ""
+    elif entity_type == 'signature':
+        return ""
 
 def render_403(request):
     if request.GET.get('edit'):

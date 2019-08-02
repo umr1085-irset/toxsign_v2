@@ -25,6 +25,16 @@ d3.contextMenu = function (openCallback) {
 
         if (data.data.editable){
 
+            if(data.data.self_editable){
+
+                menu.push({
+                    title: "Edit " + data.data.type,
+                    action: function(elm, d, i) {
+                        window.location.assign(d.data.edit_url);
+                    }
+                })
+            }
+
             menu.push({
                 title: "Clone " + data.data.type,
                 action: function(elm, d, i) {

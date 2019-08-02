@@ -11,7 +11,7 @@ from guardian.shortcuts import get_perms
 
 from toxsign.assays.models import Assay, Factor
 from toxsign.projects.models import Project
-from toxsign.projects.forms import ProjectCreateForm
+from toxsign.projects.forms import ProjectCreateForm, ProjectEditForm
 from toxsign.signatures.models import Signature
 from toxsign.studies.models import Study
 
@@ -29,17 +29,22 @@ def DetailView(request, prjid):
     return render(request, 'projects/details.html', {'project': project,'studies': studies, 'assays': assays, 'factors': factors, 'signatures': signatures})
 
 # TODO : clear 403 page redirect (page with an explanation?)
-class EditView(PermissionRequiredMixin, UpdateView):
+class EditProjectView(PermissionRequiredMixin, UpdateView):
     permission_required = 'change_project'
     model = Project
     login_url = "/unauthorized"
     redirect_field_name="edit"
+    form_class = ProjectEditForm
     template_name = 'projects/project_edit.html'
-    fields = ["name", "description"]
     context_object_name = 'edit'
 
+    def get_form_kwargs(self):
+        kwargs = super(EditProjectView, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
+
     def get_object(self, queryset=None):
-        return Project.objects.get(pk=self.kwargs['pk'])
+        return Project.objects.get(tsx_id=self.kwargs['prjid'])
 
 class CreateProjectView(LoginRequiredMixin, CreateView):
     model = Project
@@ -47,7 +52,7 @@ class CreateProjectView(LoginRequiredMixin, CreateView):
     form_class = ProjectCreateForm
 
     def get_form_kwargs(self):
-        kwargs = super(CreateView, self).get_form_kwargs()
+        kwargs = super(CreateProjectView, self).get_form_kwargs()
         kwargs.update({'user': self.request.user})
         if self.request.GET.get('clone'):
             projects = Project.objects.filter(tsx_id=self.request.GET.get('clone'))
@@ -61,7 +66,7 @@ class CreateProjectView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.created_by = self.request.user
-        return super(CreateView, self).form_valid(form)
+        return super(CreateProjectView, self).form_valid(form)
 
 def check_view_permissions(user, project):
     has_access = False
@@ -74,12 +79,17 @@ def check_view_permissions(user, project):
 
     return has_access
 
-def check_edit_permissions(user, project):
+def check_edit_permissions(user, project, need_owner=False):
     has_access = False
     if user.is_superuser:
         has_access = True
-    elif user.is_authenticated and 'change_project' in get_perms(user, project):
-        has_access = True
+
+    if not need_owner:
+        if user.is_authenticated and 'change_project' in get_perms(user, project) and not need_owner:
+            has_access = True
+    else:
+        if user == project.created_by:
+            has_access = True
 
     return has_access
 
