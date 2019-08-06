@@ -16,6 +16,15 @@ class Tag(models.Model):
     def __str__(self):
         return self.word
 
+class CommandLineArgument(models.Model):
+
+    label = models.CharField(max_length=200)
+    parameter = models.CharField(max_length=10,  blank=True, null=True)
+    optional = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.label
+
 class Tool(models.Model):
     AVAILABLE_STATUS = (
         ('STABLE', 'Stable'),
@@ -37,6 +46,16 @@ class Tool(models.Model):
     script_name = models.CharField(max_length=250,null=True)
     visuel = models.ImageField(upload_to='tools/', null=True, verbose_name="")
     tags = models.ManyToManyField(Tag, related_name='tool_tag_description')
+    arguments = models.ManyToManyField(CommandLineArgument, through='ArgumentOrder')
 
     def __str__(self):
         return self.name
+
+class ArgumentOrder(models.Model):
+    tool = models.ForeignKey(Tool, on_delete=models.CASCADE, related_name='arguments_order')
+    argument = models.ForeignKey(CommandLineArgument, on_delete=models.CASCADE)
+    order = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ('order',)
+

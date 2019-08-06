@@ -1,5 +1,10 @@
 from django.contrib import admin
-from .models import Tool, Tag
+from .models import Tool, Tag, CommandLineArgument
+
+
+class ArgumentsAdmin(admin.TabularInline):
+    model = Tool.arguments.through
+
 
 # Register your models here.
 class ToolsAdmin(admin.ModelAdmin):
@@ -9,7 +14,9 @@ class ToolsAdmin(admin.ModelAdmin):
     list_display = ['name', 'created_at', 'updated_at']
     list_filter = ['created_at']
     search_fields = ['name']
+    inlines = [ArgumentsAdmin,]
 
 admin.site.register(Tool, ToolsAdmin)
 admin.site.register(Tag)
+admin.site.register(CommandLineArgument)
 

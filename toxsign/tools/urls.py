@@ -8,5 +8,5 @@ urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
     # ex: /tools/5/
     # the 'name' value as called by the {% url %} template tag
-    path('<int:pk>/', views.DetailView.as_view(), name='detail'),
+    path('<int:toolid>/', views.DetailView, name='detail'),
 ]

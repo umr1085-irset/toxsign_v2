@@ -1,6 +1,29 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 
 
 {% block content %}
-    
+<div class="container-fluid">    
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card" style="text-align:center;">
+                <div class="card-header bg-white">{{tool.name}}</div>
+                <div class="card-body bg-light">
+                    <p>{{tool.description}}
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">Parameters</div>
+                <div class="card-body">
+                    {% crispy form %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
