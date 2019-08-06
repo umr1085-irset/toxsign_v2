@@ -19,7 +19,8 @@ class Tag(models.Model):
 class CommandLineArgument(models.Model):
 
     label = models.CharField(max_length=200)
-    parameter = models.CharField(max_length=10,  blank=True, null=True)
+    parameter = models.CharField(max_length=10, blank=True, null=True)
+    user_filled = models.BooleanField(default=True)
     optional = models.BooleanField(default=True)
 
     def __str__(self):

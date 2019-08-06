@@ -27,6 +27,7 @@ class test_form(forms.Form):
     def __init__(self, *args, **kwargs):
 
         self.projects = kwargs.pop('projects', None)
+        self.arguments_order = kwargs.pop('arguments_order', None)
         super(test_form, self).__init__(*args, **kwargs)
 
         if self.projects:
@@ -35,6 +36,13 @@ class test_form(forms.Form):
             self.fields['signatures'].queryset = signatures
             if not signatures.exists():
                 self.fields['signatures'].widget.attrs['disabled'] = True
+
+        if self.arguments_order:
+            for argument in self.arguments_order.all():
+                if argument.argument.user_filled:
+                    self.fields[argument.argument.label] = forms.CharField(label="{} ({})".format(argument.argument.label, argument.argument.parameter), max_length=100)
+                    if argument.argument.optional:
+                        self.fields[argument.argument.label].required = False
 
         self.helper = FormHelper(self)
         self.helper.form_class = 'form-horizontal'

@@ -58,7 +58,8 @@ def DetailView(request, toolid):
 #        create_job("test", "/bla", request.user, task.id)
     else:
         projects = get_objects_for_user(request.user, 'view_project', Project)
-        form = test_form(projects=projects)
+        arguments_order = tool.arguments_order
+        form = test_form(projects=projects, arguments_order=arguments_order)
         context = {'tool': tool, 'form':form}
         return render(request, 'tools/detail.html', context)
 
