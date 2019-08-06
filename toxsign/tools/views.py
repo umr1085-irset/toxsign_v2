@@ -24,7 +24,7 @@ from guardian.shortcuts import get_objects_for_user
 from toxsign.projects.models import Project
 from toxsign.projects.views import check_view_permissions
 from toxsign.tools.models import Tool
-from toxsign.tools.forms import *
+import toxsign.tools.forms as forms
 from toxsign.jobs.models import Job
 
 from django.conf import settings
@@ -48,21 +48,23 @@ class IndexView(LoginRequiredMixin, generic.ListView):
 def DetailView(request, toolid):
     model = Tool
     template_name = 'tools/detail.html'
+    # Or 404
     tool = Tool.objects.get(id=toolid)
-
+    # Get form attached to the tool
+    # Need an error management here
+    form_function = getattr(forms, tool.form_name)
     data = dict()
     if request.method == 'POST':
             data = request.post
-            # Do something here
+            # Do something here with the args
 #        task = show_hello_world.delay()
 #        create_job("test", "/bla", request.user, task.id)
     else:
         projects = get_objects_for_user(request.user, 'view_project', Project)
         arguments_order = tool.arguments_order
-        form = test_form(projects=projects, arguments_order=arguments_order)
+        form = form_function(projects=projects, arguments_order=arguments_order)
         context = {'tool': tool, 'form':form}
         return render(request, 'tools/detail.html', context)
-
 
 def create_job(title, output, owner, task_id):
     # Add checks?

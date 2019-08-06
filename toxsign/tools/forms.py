@@ -17,7 +17,7 @@ class module_007_Form(forms.Form):
     job_name = forms.CharField(label='Job_name', max_length=100)
     characters = forms.CharField(label='Chain of charaters', max_length=200)
 
-class test_form(forms.Form):
+class my_tool_form(forms.Form):
     job_name = forms.CharField(label='Job_name', max_length=100)
     characters = forms.CharField(label='Chain of characters', max_length=200)
     signatures = forms.ModelMultipleChoiceField(
@@ -28,7 +28,7 @@ class test_form(forms.Form):
 
         self.projects = kwargs.pop('projects', None)
         self.arguments_order = kwargs.pop('arguments_order', None)
-        super(test_form, self).__init__(*args, **kwargs)
+        super(my_tool_form, self).__init__(*args, **kwargs)
 
         if self.projects:
 
