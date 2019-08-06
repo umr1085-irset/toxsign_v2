@@ -26,6 +26,10 @@ class AdminForm(forms.ModelForm):
 
 class ArgumentsAdminForm(forms.ModelForm):
 
+    TYPE_CHOICES = (('TEXT', 'Text'), ('SIGNATURE', 'Signature'),)
+
+    type = forms.ChoiceField(choices = TYPE_CHOICES, label="Argument type", initial='TEXT', widget=forms.Select(), required=True)
+
     class Meta:
         model = CommandLineArgument
         fields = ['label', 'parameter', 'type', 'multiple', 'user_filled', 'optional']
@@ -36,6 +40,7 @@ class ArgumentsAdminForm(forms.ModelForm):
         app_models = apps.get_app_config('ontologies').get_models()
         for model in app_models:
             choices += ((model.__name__, model.__name__),)
+
         self.fields['type'].choices = choices
 
 class ArgumentAdmin(admin.ModelAdmin):

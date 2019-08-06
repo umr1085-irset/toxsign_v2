@@ -1,9 +1,11 @@
 from django import forms
+from dal import autocomplete
 from django.core.validators import MinValueValidator, MaxValueValidator
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout
 from crispy_forms.bootstrap import FormActions
 from toxsign.signatures.models import Signature
+import toxsign.ontologies.models as models
 
 class python_printForm(forms.Form):
     job_name = forms.CharField(label='Job_name', max_length=100)
@@ -20,9 +22,6 @@ class module_007_Form(forms.Form):
 class my_tool_form(forms.Form):
     job_name = forms.CharField(label='Job_name', max_length=100)
     characters = forms.CharField(label='Chain of characters', max_length=200)
-    signatures = forms.ModelMultipleChoiceField(
-                    queryset=Signature.objects.all(),
-                    required=False)
 
     def __init__(self, *args, **kwargs):
 
@@ -31,16 +30,36 @@ class my_tool_form(forms.Form):
         super(my_tool_form, self).__init__(*args, **kwargs)
 
         if self.projects:
-
-            signatures = Signature.objects.filter(factor__assay__study__project__in=self.projects)
-            self.fields['signatures'].queryset = signatures
-            if not signatures.exists():
-                self.fields['signatures'].widget.attrs['disabled'] = True
+            self.signatures = Signature.objects.filter(factor__assay__study__project__in=self.projects)
+        else:
+            self.signatures = Signature.objects.all()
 
         if self.arguments_order:
             for argument in self.arguments_order.all():
                 if argument.argument.user_filled:
-                    self.fields[argument.argument.label] = forms.CharField(label="{} ({})".format(argument.argument.label, argument.argument.parameter), max_length=100)
+                    if argument.argument.type == "TEXT":
+                        self.fields[argument.argument.label] = forms.CharField(label="{} ({})".format(argument.argument.label, argument.argument.parameter), max_length=100)
+                    elif argument.argument.type == "SIGNATURE":
+                        if argument.argument.multiple:
+                            self.fields[argument.argument.label] = forms.ModelMultipleChoiceField(queryset=self.signatures, label="{} ({})".format(argument.argument.label, argument.argument.parameter))
+                        else:
+                            self.fields[argument.argument.label] = forms.ModelChoiceField(queryset=self.signatures, label="{} ({})".format(argument.argument.label, argument.argument.parameter))
+                    else:
+                    # Ontologies
+                        model = getattr(models, argument.argument.type)
+                        autocomplete_url = "/ontologies/" + argument.argument.type.lower() + "-autocomplete"
+                        if argument.argument.multiple:
+                            self.fields[argument.argument.label] = forms.ModelMultipleChoiceField(
+                                                                    queryset=model.objects.all(),
+                                                                    widget=autocomplete.ModelSelect2(url=autocomplete_url),
+                                                                    label="{} ({})".format(argument.argument.label, argument.argument.parameter)
+                            )
+                        else:
+                            self.fields[argument.argument.label] = forms.ModelChoiceField(
+                                                                    queryset=model.objects.all(),
+                                                                    widget=autocomplete.ModelSelect2(url=autocomplete_url),
+                                                                    label="{} ({})".format(argument.argument.label, argument.argument.parameter)
+                            )
                     if argument.argument.optional:
                         self.fields[argument.argument.label].required = False
 

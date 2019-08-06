@@ -17,14 +17,10 @@ class Tag(models.Model):
         return self.word
 
 class CommandLineArgument(models.Model):
-    PARAMETER_TYPE = (
-        ('TEXT', 'Text'),
-        ('SIGNATURE', 'Signature'),
-    )
 
     label = models.CharField(max_length=200)
     parameter = models.CharField(max_length=10, blank=True, null=True)
-    type = models.CharField(max_length=20, choices=PARAMETER_TYPE, default="TEXT")
+    type = models.CharField(max_length=20, default="TEXT")
     multiple = models.BooleanField(default=False)
     user_filled = models.BooleanField(default=True)
     optional = models.BooleanField(default=True)
