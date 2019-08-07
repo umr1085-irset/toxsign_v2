@@ -9,14 +9,13 @@ from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-
 import json
 
 from toxsign.assays.models import Assay, Factor
 from toxsign.projects.models import Project
 from toxsign.signatures.models import Signature
 from toxsign.studies.models import Study
-from toxsign.projects.views import check_view_permissions
+from toxsign.projects.views import check_view_permissions, check_edit_permissions
 
 
 
@@ -44,7 +43,6 @@ def autocompleteModel(request):
     return render(request, 'pages/ajax_search.html', {'statuss': results})
 
 def graph_data(request):
-    # Need to check permissions for entities
 
     query = request.GET.get('q')
     project = Project.objects.get(tsx_id=query)
@@ -52,38 +50,57 @@ def graph_data(request):
         return JsonResponse({"data" : {}, "max_parallel":0, max_depth: "0"}, safe=False)
     studies = project.study_of.all()
 
+    editable = check_edit_permissions(request.user, project)
+
     response = {
         'name': project.name,
         'type': 'project',
         'tsx_id': project.tsx_id,
         'view_url': project.get_absolute_url(),
-        'create_url' : get_sub_create_url('project', project.tsx_id)
+        'create_url': get_sub_create_url('project', project.tsx_id, project.tsx_id),
+        'edit_url': get_edit_url('project', project.tsx_id),
+        'clone_url': get_clone_url('project', project.tsx_id, project.tsx_id),
+        'self_editable': check_edit_permissions(request.user, project, True),
+        'editable': editable
     }
     sign_count = 0
     study_count = 0
     assay_count = 0
+    factor_count = 0
 
     study_list = []
     for study in studies:
         assay_list = []
         for assay in study.assay_of.all():
-            signature_list = []
+            factor_list = []
             for factor in assay.factor_of.all():
+                signature_list = []
                 for signature in factor.signature_of_of.all():
                     sign_count +=1
                     signature_list.append({'name': signature.name, 'type': 'signature', 'tsx_id': signature.tsx_id, 'view_url': signature.get_absolute_url(),
-                                          'create_url': {}})
+                                          'create_url': {}, 'clone_url': get_clone_url('signature', project.tsx_id, signature.tsx_id),
+                                          'edit_url': get_edit_url('signature', signature.tsx_id), 'editable': editable, 'self_editable': editable})
+                factor_count += 1
+                factor_list.append({'name': factor.name, 'children': signature_list, 'type': 'factor', 'tsx_id': factor.tsx_id, 'view_url': factor.get_absolute_url(),
+                              'create_url': get_sub_create_url('factor', project.tsx_id, factor.tsx_id),
+                              'clone_url': get_clone_url('factor', project.tsx_id, factor.tsx_id),
+                              'edit_url': get_edit_url('factor', factor.tsx_id), 'editable': editable, 'self_editable': editable})
             assay_count +=1
-            assay_list.append({'name': assay.name, 'children': signature_list, 'type': 'assay', 'tsx_id': assay.tsx_id, 'view_url': assay.get_absolute_url(),
-                              'create_url': get_sub_create_url('assay', assay.tsx_id)})
+            assay_list.append({'name': assay.name, 'children': factor_list, 'type': 'assay', 'tsx_id': assay.tsx_id, 'view_url': assay.get_absolute_url(),
+                              'create_url': get_sub_create_url('assay', project.tsx_id, assay.tsx_id),
+                              'clone_url': get_clone_url('assay', project.tsx_id, assay.tsx_id),
+                              'edit_url': get_edit_url('assay', assay.tsx_id), 'editable': editable, 'self_editable': editable})
         study_count +=1
         study_list.append({'name': study.name, 'children': assay_list, 'type': 'study', 'tsx_id': study.tsx_id, 'view_url': study.get_absolute_url(),
-                          'create_url': get_sub_create_url('study', study.tsx_id)})
+                          'create_url': get_sub_create_url('study', project.tsx_id, study.tsx_id),
+                          'clone_url': get_clone_url('study', project.tsx_id, study.tsx_id),
+                          'edit_url': get_edit_url('study', study.tsx_id), 'editable': editable, 'self_editable': editable})
     response['children'] = study_list
+
     data = {
         "data": response,
         "max_parallel": max(assay_count, study_count, sign_count, 1),
-        "max_depth": 4
+        "max_depth": 5
     }
 
     return JsonResponse(data, safe=False)
@@ -162,19 +179,45 @@ def search(request,query):
     print(query)
     search_qs = Project.objects.filter(name__contains=query)
 
-def get_sub_create_url(entity_type, tsx_id):
+def get_sub_create_url(entity_type, prj_id, tsx_id):
+    query = "?selected=" + tsx_id
 
     if entity_type == 'project':
-        return {'study': reverse('studies:study_create', kwargs={'prjid': tsx_id})}
-
+        return {'study': reverse('studies:study_create', kwargs={'prjid': prj_id}) + query}
     elif entity_type == 'study':
-        return {'assay': reverse('assays:assay_create', kwargs={'stdid': tsx_id})}
+        return {'assay': reverse('assays:assay_create', kwargs={'prjid': prj_id}) + query}
     elif entity_type == 'assay':
-        return {
-            'factor': reverse('assays:factor_create', kwargs={'assid': tsx_id}),
-            'signature': reverse('signatures:signature_create', kwargs={'assid': tsx_id})
-        }
+        return {'factor': reverse('assays:factor_create', kwargs={'prjid': prj_id}) + query}
+    elif entity_type == 'factor':
+        return {'signature': reverse('signatures:signature_create', kwargs={'prjid': prj_id}) + query}
 
+def get_clone_url(entity_type, prj_id, tsx_id):
+
+    query = "?clone=" + tsx_id
+
+    if entity_type == 'project':
+        return reverse('projects:project_create') + query
+    elif entity_type == 'study':
+        return reverse('studies:study_create', kwargs={'prjid': prj_id}) + query
+    elif entity_type == 'assay':
+        return reverse('assays:assay_create', kwargs={'prjid': prj_id}) + query
+    elif entity_type == 'factor':
+        return reverse('assays:factor_create', kwargs={'prjid': prj_id}) + query
+    elif entity_type == 'signature':
+        return reverse('signatures:signature_create', kwargs={'prjid': prj_id}) + query
+
+def get_edit_url(entity_type, tsx_id):
+
+    if entity_type == 'project':
+        return reverse('projects:project_edit', kwargs={'prjid': tsx_id})
+    elif entity_type == 'study':
+        return reverse('studies:study_edit', kwargs={'stdid': tsx_id})
+    elif entity_type == 'assay':
+        return reverse('assays:assay_edit', kwargs={'assid': tsx_id})
+    elif entity_type == 'factor':
+        return reverse('assays:factor_edit', kwargs={'facid': tsx_id})
+    elif entity_type == 'signature':
+        return reverse('signatures:signature_edit', kwargs={'sigid': tsx_id})
 
 def render_403(request):
     if request.GET.get('edit'):

@@ -18,7 +18,7 @@ def test_details():
 def test_update():
     study = StudyFactory.create()
     assert (
-        reverse("studies:study_edit", kwargs={"pk": study.id})
-        == f"/studies/study_edit/{study.id}/"
+        reverse("studies:study_edit", kwargs={"stdid": study.tsx_id})
+        == f"/studies/edit/{study.tsx_id}/"
     )
-    assert resolve(f"/studies/study_edit/{study.id}/").view_name == "studies:study_edit"
+    assert resolve(f"/studies/edit/{study.tsx_id}/").view_name == "studies:study_edit"

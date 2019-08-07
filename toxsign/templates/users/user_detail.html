@@ -157,7 +157,7 @@
                 </div>
                 </div>
                 <div class="tab-pane {{in_use.project}}" id="project">
-                <h2>My projects <a role="button" href="#" class="btn btn-outline-info float-right"><i class="fas fa-external-link-alt"></i> New</a></h2>
+                <h2>My projects <a role="button" href="{% url 'projects:project_create' %}" class="btn btn-outline-info float-right"><i class="fas fa-external-link-alt"></i> New</a></h2>
                   <div class="table-responsive-xl">
                     <table class="table table-hover">
                       <thead>
@@ -172,14 +172,13 @@
                       <tbody>
                         {% for project in project_list %}
                           <tr>
-                            <th>{{ project.tsx_id }}</th>
+                            <th><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a></th>
                             <td>{{ project.name }}</td>
                             <td>{{ project.created_at }}</td>
                             <td>{{ project.status }}</td>
                             <td>
                               {% if project.permissions.edit %}
-                              <a role="button" href="{% url 'projects:project_edit' project.id %}" class="btn btn-outline-success"><i class="far fa-edit"></i> Edit</a>
-                              <a role="button" href="#" class="btn btn-outline-info"><i class="far fa-share-square"></i> Share</a>
+                              <a role="button" href="{% url 'projects:project_edit' project.tsx_id %}" class="btn btn-outline-success"><i class="far fa-edit"></i> Edit</a>
                               {% endif %}
                               {% if project.permissions.delete %}
                               <a role="button" href="#" class="btn btn-outline-danger"><i class="far fa-trash-alt"></i> Delete</a>

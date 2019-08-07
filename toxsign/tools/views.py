@@ -18,10 +18,19 @@ from django.contrib import messages
 import uuid
 import shutil
 
+from celery.result import AsyncResult
+
+from guardian.shortcuts import get_objects_for_user
+from toxsign.projects.models import Project
+from toxsign.projects.views import check_view_permissions
 from toxsign.tools.models import Tool
-from toxsign.tools.forms import python_printForm
+import toxsign.tools.forms as forms
 from toxsign.jobs.models import Job
 
+from django.conf import settings
+from toxsign.taskapp.celery import app
+
+from time import sleep
 # Create your views here.
 class IndexView(LoginRequiredMixin, generic.ListView):
     template_name = 'tools/index.html'
@@ -36,11 +45,45 @@ class IndexView(LoginRequiredMixin, generic.ListView):
             created_at__lte=timezone.now()
         ).order_by('-created_at')[:5]
 
-class DetailView(LoginRequiredMixin, generic.DetailView):
+def DetailView(request, toolid):
     model = Tool
     template_name = 'tools/detail.html'
-    def get_queryset(self):
-        """
-        Excludes any questions that aren't published yet.
-        """
-        return Tool.objects.filter(created_at__lte=timezone.now())
+    # Or 404
+    tool = Tool.objects.get(id=toolid)
+    # Get form attached to the tool
+    # Need an error management here
+    form_function = getattr(forms, tool.form_name)
+    data = dict()
+    if request.method == 'POST':
+            data = request.POST
+            # Do something here with the args
+            task = print_command_line.delay(tool.id, data)
+            create_job("test", "/bla", request.user, task.id)
+            return(redirect(reverse("jobs:running_jobs")))
+    else:
+        projects = get_objects_for_user(request.user, 'view_project', Project)
+        arguments = tool.arguments
+        form = form_function(projects=projects, arguments=arguments)
+        context = {'tool': tool, 'form':form}
+        return render(request, 'tools/detail.html', context)
+
+def create_job(title, output, owner, task_id):
+    # Add checks?
+    job = Job(
+            title = title,
+            output = output,
+            created_by = owner,
+            celery_task_id = task_id
+        )
+    job.save()
+
+
+# Move this to task.py
+@app.task
+def print_command_line(tool_id, args):
+    tool = Tool.objects.get(id=tool_id)
+    string = "Command line : {} {} {} ".format(tool.command_line, tool.path, tool.script_name)
+    for argument in tool.arguments.all():
+        if argument.label in args:
+            string += "{} {} ".format(argument.parameter, str(args[argument.label]))
+    print(string)

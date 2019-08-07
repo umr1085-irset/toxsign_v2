@@ -1,5 +1,6 @@
 // Set the dimensions and margins of the diagram
 function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
+
   var current_Entity;
 
   var textcolored = {
@@ -14,6 +15,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
     project: "fas fa-project-diagram",
     study: "fas fa-book-open",
     assay: "fas fa-flask",
+    factor: "fas fa-cog",
     signature: "fas fa-signature"
  }
 

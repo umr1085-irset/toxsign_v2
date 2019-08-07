@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.contrib.auth.models import  User, Group
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
-
+from django.apps import apps
 
 # Create your models here.
 
@@ -16,6 +16,13 @@ class Tag(models.Model):
     def __str__(self):
         return self.word
 
+class ArgumentType(models.Model):
+
+    type = models.CharField(max_length=20, default="TEXT")
+
+    def __str__(self):
+        return self.type
+
 class Tool(models.Model):
     AVAILABLE_STATUS = (
         ('STABLE', 'Stable'),
@@ -24,6 +31,8 @@ class Tool(models.Model):
     )
 
     name = models.CharField(max_length=200)
+    form_name = models.CharField(max_length=100, default='default_form')
+    # Form file?
     html_name = models.CharField(max_length=200,  blank=True, null=True)
     short_description = models.CharField(max_length=200, blank=True, null=True)
     description = models.TextField("description")
@@ -37,6 +46,21 @@ class Tool(models.Model):
     script_name = models.CharField(max_length=250,null=True)
     visuel = models.ImageField(upload_to='tools/', null=True, verbose_name="")
     tags = models.ManyToManyField(Tag, related_name='tool_tag_description')
+    argument_types = models.ManyToManyField(ArgumentType, through='Argument')
 
     def __str__(self):
         return self.name
+
+class Argument(models.Model):
+    tool = models.ForeignKey(Tool, on_delete=models.CASCADE, related_name='arguments')
+    argument_type = models.ForeignKey(ArgumentType, on_delete=models.CASCADE)
+    label = models.CharField(max_length=200)
+    parameter = models.CharField(max_length=10, blank=True, null=True)
+    multiple = models.BooleanField(default=False)
+    user_filled = models.BooleanField(default=True)
+    optional = models.BooleanField(default=True)
+    order = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ('order',)
+

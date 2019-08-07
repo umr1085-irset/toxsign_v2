@@ -81,7 +81,7 @@
               </div>
               <div class="tab-pane text-style card-body" id="tab3">
                 {% for assay in assay_list %}
-                      <h3><a href="{% url 'assays:detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{assay.name}}</h3>
+                      <h3><a href="{% url 'assays:assay_detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{assay.name}}</h3>
                       <small><b>Owner : </b>{{ assay.created_by }} - {{ assay.created_at }}</small>
                       <p><b>Organism : </b>{{study.organism}}</p>
                       <hr>

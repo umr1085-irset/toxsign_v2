@@ -19,14 +19,7 @@ class SignatureFactory(DjangoModelFactory):
     sex_type = 'BOTH'
     exp_type = 'OTHER'
     factor = SubFactory(FactorFactory)
-    organism = SubFactory(SpeciesFactory)
-    tissue = SubFactory(TissueFactory)
-    cell = SubFactory(CellFactory)
-    cell_line = SubFactory(CellLineFactory)
-    chemical = SubFactory(ChemicalFactory)
     chemical_slug = Faker("text", max_nb_chars=100)
-    disease = SubFactory(DiseaseFactory)
-    technology = SubFactory(ExperimentFactory)
     technology_slug = Faker("text", max_nb_chars=100)
     platform = Faker("text")
     control_sample_number = Faker("pyfloat")

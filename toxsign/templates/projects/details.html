@@ -25,7 +25,8 @@
               <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action active">Project</a>
               <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Studies ({{ studies|length }})</a>
               <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Assays ({{ assays|length }})</a>
-              <a href="#tab4" data-toggle="tab" class="list-group-item list-group-item-action">Signatures ({{ signatures|length }})</a>
+              <a href="#tab4" data-toggle="tab" class="list-group-item list-group-item-action">Factors ({{ factors|length }})</a>
+              <a href="#tab5" data-toggle="tab" class="list-group-item list-group-item-action">Signatures ({{ signatures|length }})</a>
             </div>
         </div>
         <div class="col-md-9">
@@ -58,14 +59,24 @@
                   <p> No assays are related to this project. To create one, please use the study screen.</p>
                 {% endif %}
                 {% for assay in assays %}
-                  <h2><a href="{% url 'assays:detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{ assay.name }}</h2>
+                  <h2><a href="{% url 'assays:assay_detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{ assay.name }}</h2>
                   <hr>
                 {% endfor %}
               </div>
               <div class="tab-pane text-style card-body" id="tab4">
+                <h2> List of factors related to this project : </h2>
+                {% if not factors %}
+                  <p> No Factors are related to this project. To create one, please use the assay screen.</p>
+                {% endif %}
+                {% for factor in factors %}
+                  <h2><a href="{% url 'assays:factor_detail' factor.tsx_id %}">{{ factor.tsx_id }}</a> - {{ factor.name }}</h2>
+                  <hr>
+                {% endfor %}
+              </div>
+              <div class="tab-pane text-style card-body" id="tab5">
                 <h2> List of signatures related to this project : </h2>
                 {% if not signatures %}
-                  <p> No signatures are related to this project. To create one, please use the study, and then the assay screen.</p>
+                  <p> No signatures are related to this project. To create one, please use the factor screen.</p>
                 {% endif %}
                 {% for signature in signatures %}
                   <h2><a href="{% url 'signatures:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{ signature.name }}</h2>

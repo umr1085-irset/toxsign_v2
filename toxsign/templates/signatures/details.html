@@ -25,7 +25,8 @@
               <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action">Project</a>
               <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Study</a>
               <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Assay</a>
-              <a href="#tab4" data-toggle="tab" class="list-group-item list-group-item-action active">Signature</a>
+              <a href="#tab4" data-toggle="tab" class="list-group-item list-group-item-action">Assay</a>
+              <a href="#tab5" data-toggle="tab" class="list-group-item list-group-item-action active">Signature</a>
             </div>
         </div>
         <div class="col-md-9">
@@ -40,7 +41,11 @@
                 <p>{{ study.experimental_design }}</p>
               </div>
               <div class="tab-pane text-style card-body" id="tab3">
-                <h2><a href="{% url 'assays:detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{ assay.name }}</h2>
+                <h2><a href="{% url 'assays:assay_detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{ assay.name }}</h2>
+                <hr>
+              </div>
+              <div class="tab-pane text-style card-body" id="tab4">
+                <h2><a href="{% url 'assays:factor_detail' factor.tsx_id %}">{{ factor.tsx_id }}</a> - {{ factor.name }}</h2>
                 <hr>
               </div>
               <div class="tab-pane active text-style card-body" id="tab4">
