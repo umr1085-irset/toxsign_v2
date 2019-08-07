@@ -14,42 +14,42 @@ class default_form(forms.Form):
     def __init__(self, *args, **kwargs):
 
         self.projects = kwargs.pop('projects', None)
-        self.arguments_order = kwargs.pop('arguments_order', None)
-        super(my_tool_form, self).__init__(*args, **kwargs)
+        self.arguments = kwargs.pop('arguments', None)
+        super(default_form, self).__init__(*args, **kwargs)
 
         if self.projects:
             self.signatures = Signature.objects.filter(factor__assay__study__project__in=self.projects)
         else:
             self.signatures = Signature.objects.all()
 
-        if self.arguments_order:
-            for argument in self.arguments_order.all():
-                if argument.argument.user_filled:
-                    if argument.argument.type == "TEXT":
-                        self.fields[argument.argument.label] = forms.CharField(label="{} ({})".format(argument.argument.label, argument.argument.parameter), max_length=100)
-                    elif argument.argument.type == "SIGNATURE":
-                        if argument.argument.multiple:
-                            self.fields[argument.argument.label] = forms.ModelMultipleChoiceField(queryset=self.signatures, label="{} ({})".format(argument.argument.label, argument.argument.parameter))
+        if self.arguments:
+            for argument in self.arguments.all():
+                if argument.user_filled:
+                    if argument.argument_type.type == "Text":
+                        self.fields[argument.label] = forms.CharField(label="{} ({})".format(argument.label, argument.parameter), max_length=100)
+                    elif argument.argument_type.type == "Signature":
+                        if argument.multiple:
+                            self.fields[argument.label] = forms.ModelMultipleChoiceField(queryset=self.signatures, label="{} ({})".format(argument.label, argument.parameter))
                         else:
-                            self.fields[argument.argument.label] = forms.ModelChoiceField(queryset=self.signatures, label="{} ({})".format(argument.argument.label, argument.argument.parameter))
+                            self.fields[argument.label] = forms.ModelChoiceField(queryset=self.signatures, label="{} ({})".format(argument.label, argument.parameter))
                     else:
                     # Ontologies
-                        model = getattr(models, argument.argument.type)
-                        autocomplete_url = "/ontologies/" + argument.argument.type.lower() + "-autocomplete"
-                        if argument.argument.multiple:
-                            self.fields[argument.argument.label] = forms.ModelMultipleChoiceField(
+                        model = getattr(models, argument.argument_type.type)
+                        autocomplete_url = "/ontologies/" + argument.argument_type.type.lower() + "-autocomplete"
+                        if argument.multiple:
+                            self.fields[argument.label] = forms.ModelMultipleChoiceField(
                                                                     queryset=model.objects.all(),
                                                                     widget=autocomplete.ModelSelect2(url=autocomplete_url),
-                                                                    label="{} ({})".format(argument.argument.label, argument.argument.parameter)
+                                                                    label="{} ({})".format(argument.label, argument.parameter)
                             )
                         else:
-                            self.fields[argument.argument.label] = forms.ModelChoiceField(
+                            self.fields[argument.label] = forms.ModelChoiceField(
                                                                     queryset=model.objects.all(),
                                                                     widget=autocomplete.ModelSelect2(url=autocomplete_url),
-                                                                    label="{} ({})".format(argument.argument.label, argument.argument.parameter)
+                                                                    label="{} ({})".format(argument.label, argument.parameter)
                             )
-                    if argument.argument.optional:
-                        self.fields[argument.argument.label].required = False
+                    if argument.optional:
+                        self.fields[argument.label].required = False
 
         self.helper = FormHelper(self)
         self.helper.form_class = 'form-horizontal'

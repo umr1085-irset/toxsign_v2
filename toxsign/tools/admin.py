@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from .models import Tool, Tag, CommandLineArgument
+from .models import Tool, Tag, ArgumentType
 import toxsign.tools.forms as tool_forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -24,18 +24,18 @@ class AdminForm(forms.ModelForm):
             return False
         return True
 
-class ArgumentsAdminForm(forms.ModelForm):
+class ArgumentTypeAdminForm(forms.ModelForm):
 
-    TYPE_CHOICES = (('TEXT', 'Text'), ('SIGNATURE', 'Signature'),)
+    TYPE_CHOICES = (('Text', 'Text'), ('Signature', 'Signature'),)
 
-    type = forms.ChoiceField(choices = TYPE_CHOICES, label="Argument type", initial='TEXT', widget=forms.Select(), required=True)
+    type = forms.ChoiceField(choices = TYPE_CHOICES, label="Argument type", initial='Text', widget=forms.Select(), required=True)
 
     class Meta:
-        model = CommandLineArgument
-        fields = ['label', 'parameter', 'type', 'multiple', 'user_filled', 'optional']
+        model = ArgumentType
+        fields = ['type']
 
     def __init__(self, *args, **kwargs):
-        super(ArgumentsAdminForm, self).__init__(*args, **kwargs)
+        super(ArgumentTypeAdminForm, self).__init__(*args, **kwargs)
         choices = self.fields['type'].choices
         app_models = apps.get_app_config('ontologies').get_models()
         for model in app_models:
@@ -43,24 +43,24 @@ class ArgumentsAdminForm(forms.ModelForm):
 
         self.fields['type'].choices = choices
 
-class ArgumentAdmin(admin.ModelAdmin):
-    model = CommandLineArgument
-    form = ArgumentsAdminForm
+class ArgumentTypeAdmin(admin.ModelAdmin):
+    model = ArgumentType
+    form = ArgumentTypeAdminForm
 
-class ArgumentsOrderAdmin(admin.TabularInline):
-    model = Tool.arguments.through
+class ArgumentsAdmin(admin.TabularInline):
+    model = Tool.argument_types.through
 
 # Register your models here.
 class ToolsAdmin(admin.ModelAdmin):
     list_display = ['name', 'created_at', 'updated_at']
     list_filter = ['created_at']
     search_fields = ['name']
-    inlines = [ArgumentsOrderAdmin,]
+    inlines = [ArgumentsAdmin,]
     form = AdminForm
 
 admin.site.register(Tool, ToolsAdmin)
 admin.site.register(Tag)
-admin.site.register(CommandLineArgument, ArgumentAdmin)
+admin.site.register(ArgumentType, ArgumentTypeAdmin)
 
 
 
