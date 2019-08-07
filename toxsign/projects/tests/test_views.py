@@ -5,7 +5,6 @@ from django.test import Client
 
 from toxsign.projects.tests.factories import ProjectFactory
 from toxsign.users.tests.factories import UserFactory
-from toxsign.projects.views import EditView
 
 
 pytestmark = pytest.mark.django_db
@@ -41,7 +40,7 @@ class TestProjectUpdateView:
         new_description = project.description + '_new'
         body = {'name': project.name, 'description': new_description}
         # This actually fails silently.. with a redirect.
-        response = client.post(reverse("projects:project_edit", kwargs={"pk": project.id}), body)
+        response = client.post(reverse("projects:project_edit", kwargs={"prjid": project.tsx_id}), body)
         assert response.status_code == 302
         project.refresh_from_db()
         assert project.description != new_description
@@ -52,8 +51,9 @@ class TestProjectUpdateView:
         client.login(username='random', password='user')
         project = ProjectFactory.create(created_by=user)
         new_description = project.description + '_new'
-        body = {'name': project.name, 'description': new_description}
-        response = client.post(reverse("projects:project_edit", kwargs={"pk": project.id}), body)
+        body = {'name': project.name, 'description': new_description, 'status': "PRIVATE", 'save': "Save"}
+        response = client.post(reverse("projects:project_edit", kwargs={"prjid": project.tsx_id}), body)
+        print(response)
         assert response.status_code == 302
         project.refresh_from_db()
         assert project.description == new_description

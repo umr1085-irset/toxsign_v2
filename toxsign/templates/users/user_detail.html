@@ -178,7 +178,7 @@
                             <td>{{ project.status }}</td>
                             <td>
                               {% if project.permissions.edit %}
-                              <a role="button" href="{% url 'projects:project_edit' project.id %}" class="btn btn-outline-success"><i class="far fa-edit"></i> Edit</a>
+                              <a role="button" href="{% url 'projects:project_edit' project.tsx_id %}" class="btn btn-outline-success"><i class="far fa-edit"></i> Edit</a>
                               {% endif %}
                               {% if project.permissions.delete %}
                               <a role="button" href="#" class="btn btn-outline-danger"><i class="far fa-trash-alt"></i> Delete</a>
