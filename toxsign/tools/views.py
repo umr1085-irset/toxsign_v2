@@ -55,10 +55,11 @@ def DetailView(request, toolid):
     form_function = getattr(forms, tool.form_name)
     data = dict()
     if request.method == 'POST':
-            data = request.post
+            data = request.POST
             # Do something here with the args
-#        task = show_hello_world.delay()
-#        create_job("test", "/bla", request.user, task.id)
+            task = print_command_line.delay(tool.id, data)
+            create_job("test", "/bla", request.user, task.id)
+            return(redirect(reverse("jobs:running_jobs")))
     else:
         projects = get_objects_for_user(request.user, 'view_project', Project)
         arguments = tool.arguments
@@ -69,18 +70,20 @@ def DetailView(request, toolid):
 def create_job(title, output, owner, task_id):
     # Add checks?
     job = Job(
-            title="Test",
-            output="/bla",
-            created_by=request.user,
-            celery_task_id = task.id
+            title = title,
+            output = output,
+            created_by = owner,
+            celery_task_id = task_id
         )
     job.save()
 
 
 # Move this to task.py
 @app.task
-def show_hello_world():
-    sleep(3600)
-    print("-"*25)
-    print("Printing Hello from Celery")
-    print("-"*25)
+def print_command_line(tool_id, args):
+    tool = Tool.objects.get(id=tool_id)
+    string = "Command line : {} {} {} ".format(tool.command_line, tool.path, tool.script_name)
+    for argument in tool.arguments.all():
+        if argument.label in args:
+            string += "{} {} ".format(argument.parameter, str(args[argument.label]))
+    print(string)
