@@ -124,7 +124,6 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
     breadthFirstTraversal(nodes, collision);
 
     nodes.forEach(function(d){
-      // Pass the perm to the data
       d.y = d.depth * (rectNode.height * 1.5)
       // Force centering on center of node, not on corner
       d.y = d.y + (rectNode.height/2)
