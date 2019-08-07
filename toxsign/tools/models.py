@@ -36,7 +36,7 @@ class Tool(models.Model):
     )
 
     name = models.CharField(max_length=200)
-    form_name = models.CharField(max_length=100)
+    form_name = models.CharField(max_length=100, default='default_form')
     # Form file?
     html_name = models.CharField(max_length=200,  blank=True, null=True)
     short_description = models.CharField(max_length=200, blank=True, null=True)

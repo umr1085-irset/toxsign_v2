@@ -7,21 +7,9 @@ from crispy_forms.bootstrap import FormActions
 from toxsign.signatures.models import Signature
 import toxsign.ontologies.models as models
 
-class python_printForm(forms.Form):
-    job_name = forms.CharField(label='Job_name', max_length=100)
-    characters = forms.CharField(label='Chain of charaters', max_length=200)
+class default_form(forms.Form):
 
-class module_006_Form(forms.Form):
     job_name = forms.CharField(label='Job_name', max_length=100)
-    characters = forms.CharField(label='Chain of charaters', max_length=200)
-
-class module_007_Form(forms.Form):
-    job_name = forms.CharField(label='Job_name', max_length=100)
-    characters = forms.CharField(label='Chain of charaters', max_length=200)
-
-class my_tool_form(forms.Form):
-    job_name = forms.CharField(label='Job_name', max_length=100)
-    characters = forms.CharField(label='Chain of characters', max_length=200)
 
     def __init__(self, *args, **kwargs):
 
@@ -69,4 +57,3 @@ class my_tool_form(forms.Form):
         self.helper.field_class = 'col-lg-8'
         self.helper.form_method = 'POST'
         self.helper.add_input(Submit('save', 'Submit job'))
-
