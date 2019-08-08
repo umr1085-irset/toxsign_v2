@@ -39,13 +39,13 @@ class default_form(forms.Form):
                         if argument.multiple:
                             self.fields[argument.label] = forms.ModelMultipleChoiceField(
                                                                     queryset=model.objects.all(),
-                                                                    widget=autocomplete.ModelSelect2(url=autocomplete_url),
+                                                                    widget=autocomplete.ModelSelect2(url=autocomplete_url, attrs={'data-minimum-input-length': 3}),
                                                                     label="{} ({})".format(argument.label, argument.parameter)
                             )
                         else:
                             self.fields[argument.label] = forms.ModelChoiceField(
                                                                     queryset=model.objects.all(),
-                                                                    widget=autocomplete.ModelSelect2(url=autocomplete_url),
+                                                                    widget=autocomplete.ModelSelect2(url=autocomplete_url, attrs={'data-minimum-input-length': 3}),
                                                                     label="{} ({})".format(argument.label, argument.parameter)
                             )
                     if argument.optional:
