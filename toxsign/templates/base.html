@@ -172,7 +172,6 @@
       <script src="{% static 'js/forms.js' %}"></script>
       <script src="{% static 'js/groups.js' %}"></script>
       <script src="{% static 'js/notifications.js' %}"></script>
-      <script>var user_is_authenticated = {{ request.user.is_authenticated|yesno:"true,false" }}; </script>
     {% endblock javascript %}
   </body>
 </html>

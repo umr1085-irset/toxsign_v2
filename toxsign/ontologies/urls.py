@@ -1,4 +1,4 @@
-from django.urls import re_path
+from django.urls import re_path, path
 from toxsign.ontologies.views import *
 
 app_name = "ontologies"
@@ -11,4 +11,5 @@ urlpatterns = [
     re_path(r'^experiment-autocomplete/$', ExperimentAutocomplete.as_view(), name='experiment-autocomplete'),
     re_path(r'^species-autocomplete/$', SpeciesAutocomplete.as_view(), name='species-autocomplete'),
     re_path(r'^tissue-autocomplete/$', TissueAutocomplete.as_view(), name='tissue-autocomplete'),
+    path('search', DetailView, name='search')
 ]
