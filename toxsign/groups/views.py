@@ -71,10 +71,12 @@ def send_invitation(request, group_id):
     data = {}
     if request.method == 'POST':
         form = GroupInvitationForm(request.POST)
+
         if not form.is_valid():
             data['form_is_valid'] = False
 
-        elif request.POST.user not in users:
+        elif not users.filter(id=request.POST['user']).exists():
+            form = GroupInvitationForm(users=users)
             data['form_is_valid'] = False
             data['error'] = "This user is either already in the group, or has already an invitation pending. Please select another."
 
