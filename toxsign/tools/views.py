@@ -23,7 +23,7 @@ from celery.result import AsyncResult
 from guardian.shortcuts import get_objects_for_user
 from toxsign.projects.models import Project
 from toxsign.projects.views import check_view_permissions
-from toxsign.tools.models import Tool
+from toxsign.tools.models import Tool, Category
 import toxsign.tools.forms as forms
 from toxsign.jobs.models import Job
 
@@ -34,16 +34,10 @@ from time import sleep
 # Create your views here.
 class IndexView(LoginRequiredMixin, generic.ListView):
     template_name = 'tools/index.html'
-    context_object_name = 'tools_list'
+    context_object_name = 'category_list'
 
     def get_queryset(self):
-        """
-        Return the last five published questions (not including those set to be
-        published in the future).
-        """
-        return Tool.objects.filter(
-            created_at__lte=timezone.now()
-        ).order_by('-created_at')[:5]
+        return Category.objects.exclude(category_of=None)
 
 def DetailView(request, toolid):
     model = Tool

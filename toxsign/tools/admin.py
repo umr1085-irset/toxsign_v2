@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from .models import Tool, Tag, ArgumentType
+from .models import Category, Tool, Tag, ArgumentType
 import toxsign.tools.forms as tool_forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -12,7 +12,7 @@ class AdminForm(forms.ModelForm):
 
     class Meta:
         model = Tool
-        fields = ['name', 'form_name', 'html_name', 'created_by', 'short_description', 'description', 'path', 'script_name', 'command_line', 'status', 'visuel', 'tags']
+        fields = ['name', 'type', 'category', 'short_description', 'description', 'status', 'created_by', 'icon', 'visuel', 'link', 'form_name', 'command_line', 'path', 'script_name', 'tags', 'argument_types']
 
     def is_valid(self):
         valid = super(AdminForm, self).is_valid()
@@ -50,6 +50,12 @@ class ArgumentTypeAdmin(admin.ModelAdmin):
 class ArgumentsAdmin(admin.TabularInline):
     model = Tool.argument_types.through
 
+class CategoryAdmin(admin.ModelAdmin):
+    fieldsets = [
+        (None,               {'fields': ['name', 'description']}),
+    ]
+
+
 # Register your models here.
 class ToolsAdmin(admin.ModelAdmin):
     list_display = ['name', 'created_at', 'updated_at']
@@ -61,6 +67,6 @@ class ToolsAdmin(admin.ModelAdmin):
 admin.site.register(Tool, ToolsAdmin)
 admin.site.register(Tag)
 admin.site.register(ArgumentType, ArgumentTypeAdmin)
-
+admin.site.register(Category, CategoryAdmin)
 
 

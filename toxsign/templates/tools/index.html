@@ -6,44 +6,17 @@
       <h1 class="my-4">Existing Tools
       </h1>
       <!-- Insert in house tools by hand here (custom search + ontologies) -->
-        <h2>Search</h2>
-        <p>Tools blablabla</p>
-                <div class="card">
-                    <div class="card-header bg-info text-white">
-                        <div class="row">
-                            <div class="col-md-1 my-auto">
-                                <img class="img-fluid rounded mb-3 mb-md-0" src="/media/tools/Chrysanthemum_Jjy7Jia.jpg" alt="">
-                            </div>
-                            <div class="col-md-9 my-auto">
-                                <b>Browse ontologies</b>
-                                <p>Short description here</p>
-                            </div>
-                            <div class="col-md-2 my-auto">
-                                <button class="btn btn-outline-light btn-sm float-right" data-toggle="collapse" data-target="#ontologies">More info <i class="fas fa-chevron-down"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Need to wrap in div to avoid choppy animation due to padding -->
-                    <div class="collapse" id="ontologies">
-                        <div class="card-body bg-light>
-                            <p>TOXsIgN also includes a tool to browse the ontologies used in the resource to describe data.
-                            This feature is especially relevant for filling the excel template required when submitting a novel signature.
-                            </p>
-                            <a class="btn btn-primary" href="{% url 'ontologies:search' %}">View tool</a>
-                        </div>
-                    </div>
-                </div>
-        <hr>
-        {% if tools_list %}
+        {% if category_list %}
             <!-- TODO: filter by category beforehand -->
-            <h2>Category_1</h2>
-            <p>Lorem Ipsum</p>
-            {% for tool in tools_list %}
+            {% for category in category_list %}
+            <h2>{{category.name}}</h2>
+            <p>{{category.description}}</p>
+            {% for tool in category.category_of.all %}
                 <div class="card">
                     <div class="card-header bg-info text-white">
                         <div class="row">
                             <div class="col-md-1 my-auto">
-                                <img class="img-fluid rounded mb-3 mb-md-0" src="/media/tools/Chrysanthemum_Jjy7Jia.jpg" alt="">
+                                <img class="img-fluid rounded mb-3 mb-md-0" src="{{ tool.icon.url }}" alt="" style="background-color:white;">
                             </div>
                             <div class="col-md-9 my-auto">
                                 <b>{{ tool.name }}</b>
@@ -59,7 +32,7 @@
                             <div class="row align-items-center">
                                 <div class="col-md-3">
                                     <a href="#">
-                                        <img class="img-fluid rounded mb-3 mb-md-0" src="{{ tool.visuel.url }}" alt="">
+                                        <img class="img-fluid rounded mb-3 mb-md-0" src="{{ tool.visuel.url }}" alt="" style="background-color:white;">
                                     </a>
                                 </div>
                                 <div class="col-md-9">
@@ -78,13 +51,20 @@
                                             </tr>
                                         </tbody>
                                     </table>
+                                    {% if tool.type == "LOCAL" %}
+                                    <a class="btn btn-primary" href="{% url tool.link  %}">View tool</a>
+                                    {% elif tool.type == "REMOTE" %}
+                                    <a class="btn btn-primary" href="{{ tool.link }}">View tool</a>
+                                    {% else %}
                                     <a class="btn btn-primary" href="{% url 'tools:detail' tool.id  %}">View tool</a>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <hr>
+            {% endfor %}
             {% endfor %}
         {% else %}
             <p>No tools are available.</p>
