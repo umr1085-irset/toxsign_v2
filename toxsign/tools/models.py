@@ -23,6 +23,13 @@ class ArgumentType(models.Model):
     def __str__(self):
         return self.type
 
+class Category(models.Model):
+    name = models.CharField(max_length=200)
+    description = models.TextField("description")
+
+    def __str__(self):
+        return self.name
+
 class Tool(models.Model):
     AVAILABLE_STATUS = (
         ('STABLE', 'Stable'),
@@ -30,21 +37,29 @@ class Tool(models.Model):
         ('OUTDATED', 'Outdated'),
     )
 
+    TYPES = (
+        ('LOCAL', 'Local link'),
+        ('COMPUTED', 'Local job'),
+        ('REMOTE', 'Remote tool'),
+    )
+
     name = models.CharField(max_length=200)
-    form_name = models.CharField(max_length=100, default='default_form')
-    # Form file?
-    html_name = models.CharField(max_length=200,  blank=True, null=True)
-    short_description = models.CharField(max_length=200, blank=True, null=True)
+    type = models.CharField(max_length=20, choices=TYPES, default="LOCAL")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category_of')
+    short_description = models.CharField(max_length=200)
     description = models.TextField("description")
-    created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
+    status = models.CharField(max_length=20, choices=AVAILABLE_STATUS, default="DEVELOPPMENT")
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_created_by')
+    icon = models.ImageField(upload_to='tools/', null=True, verbose_name="")
+    visuel = models.ImageField(upload_to='tools/', null=True, verbose_name="")
+    link = models.CharField(max_length=200,  blank=True, null=True)
+    form_name = models.CharField(max_length=100, default='default_form', blank=True, null=True)
+    command_line = models.CharField(max_length=250, blank=True, null=True)
+    path = models.CharField(max_length=250, blank=True, null=True)
+    script_name = models.CharField(max_length=250, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated_at = models.DateTimeField(auto_now=True, null=True, verbose_name=("user"))
     updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_updated_by')
-    status = models.CharField(max_length=20, choices=AVAILABLE_STATUS, default="DEVELOPPMENT")
-    command_line = models.CharField(max_length=250, null=True)
-    path = models.CharField(max_length=250,null=True)
-    script_name = models.CharField(max_length=250,null=True)
-    visuel = models.ImageField(upload_to='tools/', null=True, verbose_name="")
     tags = models.ManyToManyField(Tag, related_name='tool_tag_description')
     argument_types = models.ManyToManyField(ArgumentType, through='Argument')
 
@@ -63,4 +78,3 @@ class Argument(models.Model):
 
     class Meta:
         ordering = ('order',)
-

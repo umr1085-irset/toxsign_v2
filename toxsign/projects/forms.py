@@ -52,11 +52,11 @@ class ProjectCreateForm(forms.ModelForm):
         if not valid:
             return valid
 
-        for edit_group in self.cleaned_data['edit_groups']:
-            if edit_group not in self.cleaned_data['read_groups']:
-                self.add_error("edit_groups", ValidationError(_('Projects with editing rights must also have reading rights'), code='invalid'))
-                return False
-
+        if self.cleaned_data['status'] == 'PRIVATE':
+            for edit_group in self.cleaned_data['edit_groups']:
+                if edit_group not in self.cleaned_data['read_groups']:
+                    self.add_error("edit_groups", ValidationError(_('Projects with editing rights must also have reading rights'), code='invalid'))
+                    return False
         return True
 
 class ProjectEditForm(ProjectCreateForm):

@@ -43,10 +43,6 @@ $(function () {
     return false;
   };
 
-  var test = function () {
-    console.log("test");
-  };
-
   /* Binding */
     $("#group_users").on("click", ".js-remove_user", loadForm);
     $("#modal-group").on("submit", ".js-user-remove-form", saveForm);
