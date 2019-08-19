@@ -114,4 +114,3 @@ def get_access_type(user, project):
         access['view'] = True
 
     return access
-

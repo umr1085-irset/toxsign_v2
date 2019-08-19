@@ -16,7 +16,7 @@ ontology_models = {
     'specie': 'Species',
     'tissue': 'Tissue'
 }
-
+# Need to index after adding all ontologies instead of after each one (maybe?)
 def import_data(apps, schema_editor):
     if os.getenv("ONTOLOGY_DATA_FOLDER"):
         dir = os.getenv("ONTOLOGY_DATA_FOLDER").replace('"','').replace("'",'')
