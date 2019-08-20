@@ -78,6 +78,7 @@ THIRD_PARTY_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     'guardian',
+    "django_elasticsearch_dsl",
     "rest_framework",
 ]
 LOCAL_APPS = [
@@ -276,3 +277,9 @@ SOCIALACCOUNT_ADAPTER = "toxsign.users.adapters.SocialAccountAdapter"
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'elasticsearch:9200'
+    },
+}

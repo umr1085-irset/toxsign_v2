@@ -8,7 +8,7 @@ services:
   django: &django
     build:
       context: .
-      dockerfile: ./compose/local/django/Dockerfile
+      dockerfile: ./compose/local_test/django/Dockerfile
     image: toxsign_local_django
     depends_on:
       - postgres

@@ -17,7 +17,10 @@ from toxsign.signatures.models import Signature
 from toxsign.studies.models import Study
 from toxsign.projects.views import check_view_permissions, check_edit_permissions
 
-
+from toxsign.projects.documents import ProjectDocument
+from toxsign.studies.documents import StudyDocument
+from toxsign.signatures.documents import SignatureDocument
+from elasticsearch_dsl import Q as Q_es
 
 def HomeView(request):
         context = {}
@@ -25,17 +28,59 @@ def HomeView(request):
 
 def autocompleteModel(request):
     query = request.GET.get('q')
-    results_projects = Project.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query))
-    results_studies = Study.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query))
-    results_signatures = Signature.objects.filter(Q(name__icontains=query) | Q(tsx_id__icontains=query))
-    results_projects = [project for project in results_projects if check_view_permissions(request.user, project)]
-    results_studies = [study for study in results_studies if check_view_permissions(request.user, study.project)]
-    results_signatures = [sig for sig in results_signatures if check_view_permissions(request.user, sig.factor.assay.study.project)]
+
+    try:
+        # Wildcard for search
+        query = "*" + query + "*"
+        if request.user.is_authenticated:
+            groups = [group.id for group in request.user.groups.all()]
+            q = Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups)) | Q_es("match", status="PUBLIC")
+        else:
+            q = Q_es("match", status="PUBLIC")
+
+        allowed_projects =  ProjectDocument.search().query(q).scan()
+        # Limit all query to theses projects
+        allowed_projects_id_list = [project.id for project in allowed_projects]
+
+        # Now do the queries
+
+        results_projects = ProjectDocument.search().filter("terms", id=allowed_projects_id_list)
+        results_studies = StudyDocument.search().filter("terms", project__id=allowed_projects_id_list)
+        results_signatures = SignatureDocument.search().filter("terms", factor__assay__study__project__id=allowed_projects_id_list)
+
+        # This search in all fields.. might be too much. Might need to restrict to fields we actually show on the search page..
+        q = Q_es("query_string", query=query+"*")
+
+        results_projects = results_projects.filter(q)
+        projects_number = results_projects.count()
+        results_projects = results_projects.scan()
+
+        results_studies = results_studies.filter(q)
+        studies_number = results_studies.count()
+        results_studies = results_studies.scan()
+
+        results_signatures = results_signatures.filter(q)
+        signatures_number = results_signatures.count()
+        results_signatures = results_signatures.scan()
+
+    # Fallback to DB search
+    # Need to select the correct error I guess
+    except Exception as e:
+        results_projects = Project.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query))
+        results_studies = Study.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query))
+        results_signatures = Signature.objects.filter(Q(name__icontains=query) | Q(tsx_id__icontains=query))
+
+        results_projects = [project for project in results_projects if check_view_permissions(request.user, project)]
+        results_studies = [study for study in results_studies if check_view_permissions(request.user, study.project)]
+        results_signatures = [sig for sig in results_signatures if check_view_permissions(request.user, sig.factor.assay.study.project)]
+        projects_number =  len(results_projects)
+        studies_number = len(results_studies)
+        signatures_number = len(results_signatures)
 
     results = {
-        'projects_number' : len(results_projects),
-        'studies_number' : len(results_studies),
-        'signatures_number' : len(results_signatures),
+        'projects_number' : projects_number,
+        'studies_number' : studies_number,
+        'signatures_number' : signatures_number,
         'projects': results_projects,
         'studies': results_studies,
         'signatures': results_signatures
@@ -113,9 +158,30 @@ def index(request):
     assays = []
     signatures = []
 
+    # TODO (Maybe?) -> Show index from elasticsearch : need fallback
+    # Below : tentative implementation for projects and studies
+
+    #  !!!!! WARNING: 'terms' query does not work on tsx_id fields (it works on id fields) !!!!!
+
+    #if request.user.is_authenticated:
+    #    groups = [group.id for group in request.user.groups.all()]
+    #    q = Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups)) | Q_es("match", status="PUBLIC")
+    #else:
+    #    q = Q_es("match", status="PUBLIC")
+        # Should use ES for pagination..
+        # Need to convert it to list for it to work with paginator...
+    #project_list =  ProjectDocument.search().query(q).scan()
+    #project_id_list = []
+    #for project in project_list:
+    #    projects.append(project)
+    #    project_id_list.append(project.id)
+    #q = Q_es("terms", project__id=project_id_list)
+    #studies = StudyDocument().search().query(q).scan()
+    #studies = [study for study in studies]
+
     for project in all_projects:
         if check_view_permissions(request.user, project):
-            # Might be better to loop around than to request.
+                # Might be better to loop around than to request.
             projects.append(project)
             studies = studies + [study for study in Study.objects.filter(project=project)]
             assays = assays + [ assay for assay in Assay.objects.filter(study__project=project)]
