@@ -28,4 +28,4 @@ django-elasticsearch-dsl
 xlrd==1.2.0
 Cython==0.29.13
 numpy==1.16.0
-panda==0.23.4
+pandas==0.23.4
