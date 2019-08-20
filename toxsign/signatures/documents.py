@@ -17,6 +17,9 @@ class SignatureDocument(Document):
         })
     })
 
+    created_by = fields.ObjectField(properties={
+        'username': fields.TextField()
+    })
 
     class Index:
         # Name of the Elasticsearch index
@@ -32,6 +35,7 @@ class SignatureDocument(Document):
         fields = [
             'id',
             'name',
+            'created_at',
             'tsx_id',
         ]
         related_models = [Factor]

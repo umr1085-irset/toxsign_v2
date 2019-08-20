@@ -12,6 +12,10 @@ class ProjectDocument(Document):
         'id': fields.TextField()
     })
 
+    created_by = fields.ObjectField(properties={
+        'username': fields.TextField()
+    })
+
     class Index:
         # Name of the Elasticsearch index
         name = 'projects'
@@ -27,6 +31,7 @@ class ProjectDocument(Document):
             'id',
             'name',
             'tsx_id',
+            'created_at',
             'description',
             'status',
         ]
@@ -37,7 +42,7 @@ class ProjectDocument(Document):
     def get_queryset(self):
         """Not mandatory but to improve performance we can select related in one sql request"""
         return super(ProjectDocument, self).get_queryset().prefetch_related(
-            'read_groups',
+            'read_groups'
         )
 
     def get_instances_from_related(self, related_instance):

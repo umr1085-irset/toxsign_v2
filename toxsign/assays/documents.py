@@ -13,6 +13,10 @@ class AssayDocument(Document):
         })
     })
 
+    created_by = fields.ObjectField(properties={
+        'username': fields.TextField()
+    })
+
     class Index:
         # Name of the Elasticsearch index
         name = 'assays'
@@ -27,6 +31,7 @@ class AssayDocument(Document):
         fields = [
             'id',
             'name',
+            'created_at',
             'tsx_id',
         ]
         related_models = [Study]
@@ -57,6 +62,11 @@ class FactorDocument(Document):
         })
     })
 
+    created_by = fields.ObjectField(properties={
+        'username': fields.TextField()
+    })
+
+
     class Index:
         # Name of the Elasticsearch index
         name = 'factors'
@@ -71,6 +81,7 @@ class FactorDocument(Document):
         fields = [
             'id',
             'name',
+            'created_at',
             'tsx_id',
         ]
         related_models = [Assay]

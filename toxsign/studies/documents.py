@@ -11,6 +11,10 @@ class StudyDocument(Document):
         'id': fields.TextField()
     })
 
+    created_by = fields.ObjectField(properties={
+        'username': fields.TextField()
+    })
+
     class Index:
         # Name of the Elasticsearch index
         name = 'studies'
@@ -26,6 +30,7 @@ class StudyDocument(Document):
             'id',
             'name',
             'tsx_id',
+            'created_at',
             'description',
             'experimental_design',
         ]

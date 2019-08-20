@@ -9,16 +9,7 @@ from toxsign.ontologies.forms import BiologicalForm
 from toxsign.ontologies.documents import *
 import toxsign.ontologies.models as ontologymodels
 
-class BiologicalAutocomplete(autocomplete.Select2QuerySetView):
-
-    def get_queryset(self):
-        if not self.request.user.is_authenticated:
-                    return Biological.objects.none()
-
-        qs = BiologicalDocument.search()
-        if self.q:
-            qs = qs.query("prefix", name=self.q)
-        return qs
+class OntologyAutocomplete(autocomplete.Select2QuerySetView):
 
     def get_result_value(self, result):
         return result.id
@@ -26,124 +17,59 @@ class BiologicalAutocomplete(autocomplete.Select2QuerySetView):
     def get_result_label(self, result):
         return result.name
 
-class CellLineAutocomplete(autocomplete.Select2QuerySetView):
+class BiologicalAutocomplete(OntologyAutocomplete):
 
     def get_queryset(self):
-        if not self.request.user.is_authenticated:
-                    return CellLine.objects.none()
+        return(get_results(self.q, Biological, BiologicalDocument))
 
-        qs = CellLineDocument.search()
-        if self.q:
-            qs = qs.query("prefix", name=self.q)
-        return qs
-
-    def get_result_value(self, result):
-        return result.id
-
-    def get_result_label(self, result):
-        return result.name
-
-class CellAutocomplete(autocomplete.Select2QuerySetView):
+class CellLineAutocomplete(OntologyAutocomplete):
 
     def get_queryset(self):
-        if not self.request.user.is_authenticated:
-                    return Cell.objects.none()
+        return(get_results(self.q, CellLine, CellLineDocument))
 
-        qs = CellDocument.search()
-        if self.q:
-            qs = qs.query("prefix", name=self.q)
-        return qs
-
-    def get_result_value(self, result):
-        return result.id
-
-    def get_result_label(self, result):
-        return result.name
-
-class ChemicalAutocomplete(autocomplete.Select2QuerySetView):
+class CellAutocomplete(OntologyAutocomplete):
 
     def get_queryset(self):
-        if not self.request.user.is_authenticated:
-                    return Disease.objects.none()
+        return(get_results(self.q, Cell, CellDocument))
 
-        qs = ChemicalDocument.search()
-        if self.q:
-            qs = qs.query("prefix", name=self.q)
-        return qs
-
-    def get_result_value(self, result):
-        return result.id
-
-    def get_result_label(self, result):
-        return result.name
-
-class DiseaseAutocomplete(autocomplete.Select2QuerySetView):
+class ChemicalAutocomplete(OntologyAutocomplete):
 
     def get_queryset(self):
-        if not self.request.user.is_authenticated:
-                    return Disease.objects.none()
+        return(get_results(self.q, Chemical, ChemicalDocument))
 
-        qs = DiseaseDocument.search()
-        if self.q:
-            qs = qs.query("prefix", name=self.q)
-        return qs
-
-    def get_result_value(self, result):
-        return result.id
-
-    def get_result_label(self, result):
-        return result.name
-
-class ExperimentAutocomplete(autocomplete.Select2QuerySetView):
+class DiseaseAutocomplete(OntologyAutocomplete):
 
     def get_queryset(self):
-        if not self.request.user.is_authenticated:
-                    return Experiment.objects.none()
+        return(get_results(self.q, Disease, DiseaseDocument))
 
-        qs = ExperimentDocument.search()
-        if self.q:
-            qs = qs.query("prefix", name=self.q)
-        return qs
-
-    def get_result_value(self, result):
-        return result.id
-
-    def get_result_label(self, result):
-        return result.name
-
-class SpeciesAutocomplete(autocomplete.Select2QuerySetView):
+class ExperimentAutocomplete(OntologyAutocomplete):
 
     def get_queryset(self):
-        if not self.request.user.is_authenticated:
-                    return Species.objects.none()
+        return(get_results(self.q, Experiment, ExperimentDocument))
 
-        qs = SpeciesDocument.search()
-        if self.q:
-            qs = qs.query("prefix", name=self.q)
-        return qs
-
-    def get_result_value(self, result):
-        return result.id
-
-    def get_result_label(self, result):
-        return result.name
-
-class TissueAutocomplete(autocomplete.Select2QuerySetView):
+class SpeciesAutocomplete(OntologyAutocomplete):
 
     def get_queryset(self):
-        if not self.request.user.is_authenticated:
-                    return Tissue.objects.none()
+        return(get_results(self.q, Species, SpeciesDocument))
 
-        qs = TissueDocument.search()
-        if self.q:
-            qs = qs.query("prefix", name=self.q)
+class TissueAutocomplete(OntologyAutocomplete):
+
+    def get_queryset(self):
+        return(get_results(self.q, Tissue, TissueDocument))
+
+def get_results(query, Model, Document):
+    try:
+        # No need to restrict to authenticated
+        qs = Document.search()
+        if query:
+            qs = qs.query("prefix", name=query)
         return qs
-
-    def get_result_value(self, result):
-        return result.id
-
-    def get_result_label(self, result):
-        return result.name
+        # Fall back to DB search if failure for any reason
+    except Exception as e:
+        qs = Model.objects.all()
+        if query:
+            qs = qs.filter(Q(name__istartswith=query))
+        return qs
 
 def DetailView(request):
 
