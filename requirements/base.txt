@@ -25,7 +25,7 @@ django-guardian==2.0.0
 elasticsearch-dsl>=7.0.0,<8.0.0
 django-elasticsearch-dsl
 
-xldr==1.2.0
+xlrd==1.2.0
 Cython==0.29.13
 numpy==1.16.0
 panda==0.23.4
