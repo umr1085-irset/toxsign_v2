@@ -35,7 +35,7 @@ class BiologicalDocument(Document):
 
     def get_instances_from_related(self, related_instance):
         if isinstance(related_instance, Biological):
-            return related_instance.as_grandson
+            return related_instance.as_grandson.all()
 
 @registry.register_document
 class CellLineDocument(Document):
@@ -97,7 +97,7 @@ class CellLineDocument(Document):
 
     def get_instances_from_related(self, related_instance):
         if isinstance(related_instance, CellLine):
-            return related_instance.as_grandson
+            return related_instance.as_grandson.all()
 
 @registry.register_document
 class CellDocument(Document):
@@ -134,7 +134,7 @@ class CellDocument(Document):
 
     def get_instances_from_related(self, related_instance):
         if isinstance(related_instance, Cell):
-            return related_instance.as_grandson
+            return related_instance.as_grandson.all()
 
 @registry.register_document
 class ChemicalDocument(Document):
@@ -171,7 +171,7 @@ class ChemicalDocument(Document):
 
     def get_instances_from_related(self, related_instance):
         if isinstance(related_instance, Chemical):
-            return related_instance.as_grandson
+            return related_instance.as_grandson.all()
 
 @registry.register_document
 class DiseaseDocument(Document):
@@ -208,7 +208,7 @@ class DiseaseDocument(Document):
 
     def get_instances_from_related(self, related_instance):
         if isinstance(related_instance, Disease):
-            return related_instance.as_grandson
+            return related_instance.as_grandson.all()
 
 @registry.register_document
 class ExperimentDocument(Document):
@@ -245,7 +245,7 @@ class ExperimentDocument(Document):
 
     def get_instances_from_related(self, related_instance):
         if isinstance(related_instance, Experiment):
-            return related_instance.as_grandson
+            return related_instance.as_grandson.all()
 
 @registry.register_document
 class SpeciesDocument(Document):
@@ -282,7 +282,7 @@ class SpeciesDocument(Document):
 
     def get_instances_from_related(self, related_instance):
         if isinstance(related_instance, Species):
-            return related_instance.as_grandson
+            return related_instance.as_grandson.all()
 
 @registry.register_document
 class TissueDocument(Document):
@@ -319,4 +319,4 @@ class TissueDocument(Document):
 
     def get_instances_from_related(self, related_instance):
         if isinstance(related_instance, Tissue):
-            return related_instance.as_grandson
+            return related_instance.as_grandson.all()
