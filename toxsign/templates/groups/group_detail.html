@@ -139,3 +139,8 @@
 </div>
 <br>
 {% endblock content %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static 'js/groups.js' %}"></script>
+{% endblock %} 
