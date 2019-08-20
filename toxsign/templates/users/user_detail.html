@@ -4,9 +4,6 @@
 {% block title %}User: {{ object.username }}{% endblock %}
 
 {% block content %}
-<script>
-    var token = '{{ csrf_token }}';
-</script>
 <div class="container-fluid">
     <h2 class="m-y-2">Profile</h2>
     <div class="row m-y-2">
@@ -224,3 +221,10 @@
 
 
 {% endblock content %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script>var token = '{{ csrf_token }}';</script>
+    <script src="{% static 'js/notifications.js' %}"></script>
+{% endblock %}
+
