@@ -50,7 +50,7 @@ class Project(models.Model):
 
 # Need to add some checks (or catch exception) in case there is a disconnect between existing perm and groups
 @receiver(m2m_changed, sender=Project.read_groups.through)
-def update__permissions_test(sender, instance, action, **kwargs):
+def update__permissions_read(sender, instance, action, **kwargs):
     if instance.read_groups.all():
         if action == 'pre_remove':
             for group in instance.read_groups.all():
@@ -62,7 +62,7 @@ def update__permissions_test(sender, instance, action, **kwargs):
                     assign_perm('view_project', group, instance)
 
 @receiver(m2m_changed, sender=Project.edit_groups.through)
-def update__permissions(sender, instance, action, **kwargs):
+def update__permissions_write(sender, instance, action, **kwargs):
     if instance.edit_groups.all():
         if action == 'pre_remove':
             for group in instance.edit_groups.all():
@@ -72,8 +72,6 @@ def update__permissions(sender, instance, action, **kwargs):
             for group in instance.edit_groups.all():
                 if 'view_project' not in get_group_perms(group, instance):
                     assign_perm('change_project', group, instance)
-
-
 
 def change_permission_owner(self):
     owner_permissions = ['view_project', 'change_project', 'delete_project']

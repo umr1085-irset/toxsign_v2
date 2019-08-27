@@ -14,7 +14,7 @@ from toxsign.projects.models import Project
 from toxsign.assays.models import Assay, Factor
 from toxsign.signatures.models import Signature
 from toxsign.signatures.forms import SignatureCreateForm, SignatureEditForm
-
+from toxsign.users.models import User
 
 def DetailView(request, sigid):
 
@@ -94,5 +94,5 @@ class CreateSignatureView(PermissionRequiredMixin, CreateView):
     # Autofill the user
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.created_by = self.request.user
+        self.object.created_by = User.objects.get(id=self.request.user.id)
         return super(CreateView, self).form_valid(form)

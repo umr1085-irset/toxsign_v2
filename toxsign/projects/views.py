@@ -8,7 +8,7 @@ from django.shortcuts import redirect
 from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import get_perms
 
-
+from toxsign.users.models import User
 from toxsign.assays.models import Assay, Factor
 from toxsign.projects.models import Project
 from toxsign.projects.forms import ProjectCreateForm, ProjectEditForm
@@ -65,7 +65,8 @@ class CreateProjectView(LoginRequiredMixin, CreateView):
     # Autofill the user
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.created_by = self.request.user
+        # self.request.user is not a 'true' user, so it bugs out in elasticsearch...
+        self.object.created_by = User.objects.get(id=self.request.user.id)
         return super(CreateProjectView, self).form_valid(form)
 
 def check_view_permissions(user, project):

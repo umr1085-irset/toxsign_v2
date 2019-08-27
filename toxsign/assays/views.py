@@ -16,6 +16,8 @@ from toxsign.assays.models import Assay, Factor
 from toxsign.assays.forms import AssayCreateForm, AssayEditForm, FactorCreateForm, FactorEditForm
 from toxsign.signatures.models import Signature
 
+from toxsign.users.models import User
+
 def DetailAssayView(request, assid):
 
     assay = get_object_or_404(Assay, tsx_id=assid)
@@ -128,7 +130,7 @@ class CreateAssayView(PermissionRequiredMixin, CreateView):
     # Autofill the user
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.created_by = self.request.user
+        self.object.created_by = User.objects.get(id=self.request.user.id)
         return super(CreateAssayView, self).form_valid(form)
 
 class CreateFactorView(PermissionRequiredMixin, CreateView):
@@ -170,5 +172,5 @@ class CreateFactorView(PermissionRequiredMixin, CreateView):
     # Autofill the user
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.created_by = self.request.user
+        self.object.created_by = User.objects.get(id=self.request.user.id)
         return super(CreateFactorView, self).form_valid(form)

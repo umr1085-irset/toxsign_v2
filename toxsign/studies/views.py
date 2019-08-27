@@ -13,6 +13,7 @@ from toxsign.projects.models import Project
 from toxsign.studies.models import Study
 from toxsign.assays.models import Factor
 from toxsign.signatures.models import Signature
+from toxsign.users.models import User
 
 from toxsign.projects.views import check_view_permissions
 from toxsign.studies.forms import StudyCreateForm, StudyEditForm
@@ -74,7 +75,7 @@ class CreateStudyView(PermissionRequiredMixin, CreateView):
     # Autofill the user and project
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.created_by = self.request.user
+        self.object.created_by = User.objects.get(id=self.request.user.id)
         project = Project.objects.get(tsx_id=self.kwargs['prjid'])
         # Need safegards (access? exists?)
         self.object.project = project
