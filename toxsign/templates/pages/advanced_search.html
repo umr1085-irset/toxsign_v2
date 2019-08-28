@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% load account socialaccount %}
+{% load static i18n %}
+
+{% block content %}
+    <form id="entity_form" data-url="{% url 'advanced_search_api' %}">
+        <select id="entity_select">
+            <option disabled selected value> -- Select an entity -- </option>
+            <option value="project">Project</option>
+            <option value="study">Study</option>
+            <option value="signature">Signature</option>
+        </select>
+    </form>
+    <br>
+    <div id="result"></div>
+    <br>
+    <div id="search_terms"></div>
+    <br>
+    <button class="btn btn-primary" id="load_results" style="display:none;">Search</button>
+    <br>
+
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static 'js/advanced_search.js' %}"></script>
+{% endblock %} 

@@ -9,6 +9,8 @@ from . import views
 urlpatterns = [
     path("", views.HomeView, name="home"),
     path("search/", views.autocompleteModel, name="search"),
+    path("advanced_search", TemplateView.as_view(template_name="pages/advanced_search.html"), name="advanced_search"),
+    path("advanced_search_api", views.advanced_search_form, name="advanced_search_api"),
     path("index/", views.index, name="index"),
     path(
         "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"

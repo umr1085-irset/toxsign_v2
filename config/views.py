@@ -22,6 +22,11 @@ from toxsign.studies.documents import StudyDocument
 from toxsign.signatures.documents import SignatureDocument
 from elasticsearch_dsl import Q as Q_es
 
+from django.template.loader import render_to_string
+from . import forms
+from django.http import JsonResponse
+
+
 def HomeView(request):
         context = {}
         return render(request, 'pages/home.html',context)
@@ -86,6 +91,32 @@ def autocompleteModel(request):
         'signatures': results_signatures
     }
     return render(request, 'pages/ajax_search.html', {'statuss': results})
+
+def advanced_search_form(request):
+
+    if request.method == 'POST':
+        data = request.POST
+        terms = json.loads(data['terms'])
+        entity = data['entity']
+    else:
+        entity_type = request.GET.get('entity')
+        data = {}
+        if entity_type == 'project':
+        # Manually selecting the fields might be better
+        # Should be done in the form directly maybe
+            field_names = ['name', 'tsx_id', 'description']
+            form = forms.ProjectSearchForm(fields=field_names)
+            context = {'form': form, 'field_names': field_names}
+            data['html_form'] = render_to_string('pages/advanced_search_form.html',
+                context,
+                request=request,
+            )
+            return JsonResponse(data)
+        elif entity_type == 'study':
+            pass
+        elif entity_type == 'signature':
+            pass
+    return None
 
 def graph_data(request):
 
