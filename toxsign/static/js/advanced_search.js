@@ -4,6 +4,8 @@ $(function () {
 
   /* Functions */
 
+  var selected_field_id = "";
+
   var get_form = function () {
     var entity_type = $("#entity_select").val();
     var url = $("#entity_form").attr("data-url") + "?entity=" + entity_type;
@@ -12,8 +14,10 @@ $(function () {
       type: 'get',
       dataType: 'json',
       success: function (data) {
-        $("#result").html(data.html_form);
         $("#load_results").show();
+        $("#result").html(data.html_form);
+        // Fix issue with autocomplete box too small
+        $(".select2-container").width("100%");
       }
     });
     return false;
@@ -21,14 +25,23 @@ $(function () {
 
     var add_param = function() {
         var arg_type = $("#id_field").val();
-        var arg_value = $("#id_value").val();
+        var arg_value = "*" + $("#id_value").val() + "*";
         var type = $("#id_type").val();
         $("#id_type").show();
-        var dict = { bool_type: type, arg_type:arg_type, arg_value: arg_value};
+        var dict = { bool_type: type, arg_type:arg_type, arg_value: arg_value, is_ontology: false, ontology_options: {}};
+        // Get options if it's an ontology
+        if(is_ontology(arg_type)){
+            dict['is_ontology'] = true;
+            // Need to access the name from the other field
+            dict['arg_value'] = $("#select2-id_" + arg_type + "-container").attr("title");
+            dict['ontology_options']['id'] = $("#id_" + arg_type).val();
+            dict['ontology_options']['search_type'] = $("#id_onto_type").val();
+        }
         search_params.push(dict);
         //Reset fields
-        $('#advanced_search_form').trigger("reset");
+        reset_form(arg_type, dict['is_ontology']);
         fill_html();
+        console.log(search_params);
         return false;
     };
 
@@ -47,7 +60,6 @@ $(function () {
         var entity_type = $("#entity_select").val();
         var token = $("input[name=csrfmiddlewaretoken]").val();
         var data = {entity: entity_type, terms: JSON.stringify(search_params), csrfmiddlewaretoken: token};
-        console.log(data);
         var url = $("#entity_form").attr("data-url");
         $.ajax({
             url: url,
@@ -55,7 +67,7 @@ $(function () {
             type: 'post',
             dataType: 'json',
             success: function (response) {
-                console.log(response);
+                $("#search_results").html(response.html_page);
             }
         });
         return false;
@@ -70,16 +82,59 @@ $(function () {
         var html = ""
         for (i=0; i < search_params.length; i++)
             if (i == 0){
-                html += `(${search_params[0]['arg_type']} : *${search_params[0]['arg_value']}*) ${get_button(0)} <br>`;
+                if(search_params[i]['is_ontology']){
+                    html += `(${search_params[i]['arg_type']} : ${search_params[i]['arg_value']}, search type : ${search_params[i]['ontology_options']['search_type']}) ${get_button(i)} <br>`;
+                } else {
+                    html += `(${search_params[i]['arg_type']} : ${search_params[i]['arg_value']}) ${get_button(i)} <br>`;
+                }
             } else {
-                html += `${search_params[i]['bool_type']} (${search_params[i]['arg_type']} : *${search_params[i]['arg_value']}*) ${get_button(i)} <br>`;
+                if(search_params[i]['is_ontology']){
+                    html += `${search_params[i]['bool_type']} (${search_params[i]['arg_type']} : ${search_params[i]['arg_value']}, search type : ${search_params[i]['ontology_options']['search_type']}) ${get_button(i)} <br>`;
+                } else {
+                    html += `${search_params[i]['bool_type']} (${search_params[i]['arg_type']} : ${search_params[i]['arg_value']}) ${get_button(i)} <br>`;
+                }
             }
         $("#search_terms").html(html);
     }
 
+    var update_fields = function(){
+        var field = $("#id_field").val();
+        // Check if a field  with _id_wrapper exists (it must be an ontology), then make it visible
+        if ($("#" + field + "_id_wrapper").length ) {
+            $(selected_field_id).hide()
+            $("#" + field + "_id_wrapper").show();
+            $("#id_onto_type").show();
+            selected_field_id = "#" + field + "_id_wrapper";
+        } else {
+            $(selected_field_id).hide();
+            $("#id_value").show();
+            selected_field_id = "#id_value";
+        }
+    }
+
+    var reset_form = function(arg_type, is_ontology){
+        // Need to manually reset field if it's an ontology
+        if(is_ontology){
+            $("#id_" + arg_type).val(null).trigger('change');
+        }
+        $(selected_field_id).hide();
+        $("#id_onto_type").hide();
+        $('#advanced_search_form').trigger("reset");
+    }
+
+    var is_ontology = function(field){
+        if ($("#" + field + "_id_wrapper").length) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
   /* Binding */
     $('#entity_select').on('change', get_form);
-    $('#result').on('submit','#advanced_search_form', add_param);
+//    $('#result').on('submit','#advanced_search_form', add_param);
+    $('#result').on('click','#add_argument', add_param);
+    $('#result').on('change','#id_field', update_fields);
     $('#search_terms').on('click','.remove_arg', remove_param);
     $("#load_results").on('click', search);
 });
