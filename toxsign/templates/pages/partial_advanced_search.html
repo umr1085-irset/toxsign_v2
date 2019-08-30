@@ -1,0 +1,11 @@
+{% load static i18n %}
+
+{% block content %}
+{% if not projects %}
+    <p>No results</p>
+{% endif %}
+{% for project in projects %}
+    {{ project.tsx_id }} 
+    <br>   
+{% endfor %}
+{% endblock %}

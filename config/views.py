@@ -39,7 +39,7 @@ def autocompleteModel(request):
         query = "*" + query + "*"
         if request.user.is_authenticated:
             groups = [group.id for group in request.user.groups.all()]
-            q = Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups)) | Q_es("match", status="PUBLIC")
+            q = Q_es("match", created_by__username=request.user.username)  | Q_es("match", status="PUBLIC") | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
         else:
             q = Q_es("match", status="PUBLIC")
 
@@ -49,7 +49,7 @@ def autocompleteModel(request):
 
         # Now do the queries
 
-        results_projects = ProjectDocument.search().filter("terms", id=allowed_projects_id_list)
+        results_projects = allowed_projects
         results_studies = StudyDocument.search().filter("terms", project__id=allowed_projects_id_list)
         results_signatures = SignatureDocument.search().filter("terms", factor__assay__study__project__id=allowed_projects_id_list)
 
@@ -98,24 +98,41 @@ def advanced_search_form(request):
         data = request.POST
         terms = json.loads(data['terms'])
         entity = data['entity']
+        context = {}
+        data = {}
+        if entity == 'project':
+            context['projects'] = search(request, Project, ProjectDocument, entity, terms)
+
+        elif entity == "study":
+            context['studies'] = search(request, Study, StudyDocument, entity, terms)
+
+        elif entity == "signature":
+            context['signatures'] = search(request, Signature, SignatureDocument, entity, terms)
+
+
+        data['html_page'] = render_to_string('pages/partial_advanced_search.html',
+            context,
+            request=request,
+        )
+        return JsonResponse(data)
+
     else:
         entity_type = request.GET.get('entity')
         data = {}
         if entity_type == 'project':
-        # Manually selecting the fields might be better
-        # Should be done in the form directly maybe
-            field_names = ['name', 'tsx_id', 'description']
-            form = forms.ProjectSearchForm(fields=field_names)
-            context = {'form': form, 'field_names': field_names}
-            data['html_form'] = render_to_string('pages/advanced_search_form.html',
-                context,
-                request=request,
-            )
-            return JsonResponse(data)
+            form = forms.ProjectSearchForm()
         elif entity_type == 'study':
-            pass
+            form = forms.StudySearchForm()
         elif entity_type == 'signature':
-            pass
+            form = forms.SignatureSearchForm()
+
+        context = {'form': form}
+        data['html_form'] = render_to_string('pages/advanced_search_form.html',
+            context,
+            request=request,
+        )
+        return JsonResponse(data)
+
     return None
 
 def graph_data(request):
@@ -271,11 +288,6 @@ def index(request):
 
     return render(request, 'pages/index.html', context)
 
-
-def search(request,query):
-    print(query)
-    search_qs = Project.objects.filter(name__contains=query)
-
 def get_sub_create_url(entity_type, prj_id, tsx_id):
     query = "?selected=" + tsx_id
 
@@ -334,3 +346,44 @@ def render_403(request):
     }
 
     return render(request, '403.html', {'data':data})
+
+def search(request, model, document, entity, search_terms):
+
+    # First try with elasticsearch, then fallback to  DB query if it fails
+    try:
+        # Wildcard for search
+        if request.user.is_authenticated:
+            groups = [group.id for group in request.user.groups.all()]
+            q = Q_es("match", created_by__username=request.user.username)  | Q_es("match", status="PUBLIC") | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
+        else:
+            q = Q_es("match", status="PUBLIC")
+
+        allowed_projects =  ProjectDocument.search().query(q)
+        # Limit all query to theses projects
+        allowed_projects_id_list = [project.id for project in allowed_projects]
+
+        for index, item in enumerate(search_terms):
+            if index == 0:
+                # Multi match with one field to set the field name using variable
+                query = Q_es("query_string", query=item['arg_value'], fields=[item['arg_type']])
+            else:
+                if item['bool_type'] == "AND":
+                    query = query & Q_es("query_string", query=item['arg_value'], fields=[item['arg_type']])
+                elif item['bool_type'] == "OR":
+                    query = query | Q_es("query_string", query=item['arg_value'], fields=[item['arg_type']])
+
+        # Now do the queries
+        if entity == 'project':
+            results = allowed_projects
+        elif entity == "study":
+            results = StudyDocument.search().filter("terms", project__id=allowed_projects_id_list)
+        elif entity == "signature":
+            results = SignatureDocument.search().filter("terms", factor__assay__study__project__id=allowed_projects_id_list)
+
+        if query:
+            results = results.filter(query)
+        return results
+
+    except Exception as e:
+        raise e
+
