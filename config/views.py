@@ -20,6 +20,7 @@ from toxsign.projects.views import check_view_permissions, check_edit_permission
 from toxsign.projects.documents import ProjectDocument
 from toxsign.studies.documents import StudyDocument
 from toxsign.signatures.documents import SignatureDocument
+from toxsign.ontologies.documents import *
 from elasticsearch_dsl import Q as Q_es
 
 from django.template.loader import render_to_string
@@ -362,16 +363,7 @@ def search(request, model, document, entity, search_terms):
         # Limit all query to theses projects
         allowed_projects_id_list = [project.id for project in allowed_projects]
 
-        for index, item in enumerate(search_terms):
-            if index == 0:
-                # Multi match with one field to set the field name using variable
-                query = Q_es("query_string", query=item['arg_value'], fields=[item['arg_type']])
-            else:
-                if item['bool_type'] == "AND":
-                    query = query & Q_es("query_string", query=item['arg_value'], fields=[item['arg_type']])
-                elif item['bool_type'] == "OR":
-                    query = query | Q_es("query_string", query=item['arg_value'], fields=[item['arg_type']])
-
+        query = generate_query(search_terms)
         # Now do the queries
         if entity == 'project':
             results = allowed_projects
@@ -387,3 +379,45 @@ def search(request, model, document, entity, search_terms):
     except Exception as e:
         raise e
 
+def generate_query(search_terms):
+
+    # Need a dict to link the fields to the correct document
+    documentDict = {
+        "disease": DiseaseDocument,
+    }
+
+    for index, item in enumerate(search_terms):
+            # TODO : Refactor
+            if index == 0:
+                # Couldn't make double nested query work, so first query the correct ontologies, then query the correct signatures
+                if item['is_ontology']:
+                    if item['ontology_options']['search_type'] == "CHILDREN":
+                        onto_query = Q_es('nested', path="as_ancestor", query=Q_es("match", as_ancestor__id=item['ontology_options']['id'])) | Q_es("match", id=item['ontology_options']['id'])
+                    else:
+                        onto_query = Q_es("match", id=item['ontology_options']['id'])
+
+                    ontology_list = [ontology.id for ontology in documentDict[item['arg_type']].search().query(onto_query).scan()]
+                    id_field = item['arg_type'] + "__id"
+                    query = Q_es("nested", path=item['arg_type'], query=Q_es("terms", **{id_field:ontology_list}))
+
+                else:
+                    query = Q_es("match", **{item['arg_type']:item['arg_value']})
+            else:
+                if item['is_ontology']:
+                    if item['ontology_options']['search_type'] == "CHILDREN":
+                        onto_query = Q_es('nested', path="as_ancestor", query=Q_es("match", as_ancestor__id=item['ontology_options']['id'])) | Q_es("match", id=item['ontology_options']['id'])
+                    else:
+                        onto_query = Q_es("match", id=item['ontology_options']['id'])
+
+                    ontology_list = [ontology.id for ontology in documentDict[item['arg_type']].search().query(onto_query).scan()]
+                    id_field = item['arg_type'] + "__id"
+                    new_query = Q_es("nested", path=item['arg_type'], query=Q_es("terms", **{id_field:ontology_list}))
+
+                else:
+                    new_query = Q_es("match", **{item['arg_type']:item['arg_value']})
+
+                if item['bool_type'] == "AND":
+                    query = query & new_query
+                else:
+                    query = query | new_query
+    return query

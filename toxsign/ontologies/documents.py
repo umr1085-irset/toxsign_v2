@@ -125,7 +125,7 @@ class CellDocument(Document):
             'onto_id',
         ]
 
-         
+
 
     def get_queryset(self):
         return super(CellDocument, self).get_queryset().prefetch_related(
@@ -162,7 +162,7 @@ class ChemicalDocument(Document):
             'onto_id',
         ]
 
-         
+
 
     def get_queryset(self):
         return super(ChemicalDocument, self).get_queryset().prefetch_related(
@@ -177,6 +177,7 @@ class ChemicalDocument(Document):
 class DiseaseDocument(Document):
 
     as_ancestor = fields.NestedField(properties={
+        'id': fields.TextField(),
         'name': fields.TextField(),
         'synonyms': fields.TextField()
     })
@@ -199,7 +200,7 @@ class DiseaseDocument(Document):
             'onto_id',
         ]
 
-         
+
 
     def get_queryset(self):
         return super(DiseaseDocument, self).get_queryset().prefetch_related(
@@ -236,7 +237,7 @@ class ExperimentDocument(Document):
             'onto_id',
         ]
 
-         
+
 
     def get_queryset(self):
         return super(ExperimentDocument, self).get_queryset().prefetch_related(
@@ -273,7 +274,7 @@ class SpeciesDocument(Document):
             'onto_id',
         ]
 
-         
+
 
     def get_queryset(self):
         return super(SpeciesDocument, self).get_queryset().prefetch_related(
@@ -310,7 +311,7 @@ class TissueDocument(Document):
             'onto_id',
         ]
 
-         
+
 
     def get_queryset(self):
         return super(TissueDocument, self).get_queryset().prefetch_related(

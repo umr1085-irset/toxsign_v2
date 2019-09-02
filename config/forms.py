@@ -32,8 +32,8 @@ class ProjectSearchForm(forms.Form):
         self.helper.field_class = 'col-lg-8'
         # Wrapping in div to hide the label and the field
         self.helper.layout = Layout(
-            Div(id='error_field', style='color:red'),
-            Div('type', style="display:none; text-align:center;", id="id_type_wrapper"),
+            Div(id='error_field', style='color:red; text-align:center;'),
+            Div('type', style="display:none", id="id_type_wrapper"),
             Div('field', id="id_field_wrapper"),
             Div('value', style="display:none", id="id_value_wrapper"),
             Div(HTML("<button class='btn btn-primary' id='add_argument'><i class='fas fa-plus'></i></button>"), style="text-align:center;"),

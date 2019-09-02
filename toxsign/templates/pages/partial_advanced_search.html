@@ -1,11 +1,16 @@
 {% load static i18n %}
 
 {% block content %}
-{% if not projects %}
-    <p>No results</p>
-{% endif %}
 {% for project in projects %}
     {{ project.tsx_id }} 
     <br>   
+{% endfor %}
+{% for study in studies %}
+    {{ study.tsx_id }}
+    <br>
+{% endfor %}
+{% for signature in signatures %}
+    {{ signature.tsx_id }}
+    <br>
 {% endfor %}
 {% endblock %}

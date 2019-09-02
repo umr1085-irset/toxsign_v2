@@ -15,6 +15,8 @@ $(function () {
       dataType: 'json',
       success: function (data) {
         $("#result").html(data.html_form);
+        // Enable button
+        $("#load_results").prop('disabled', false);
         // Fix issue with autocomplete box too small
         $(".select2-container").width("100%");
       }
@@ -37,6 +39,7 @@ $(function () {
             dict['ontology_options']['search_type'] = $("#id_onto_type").val();
         }
         if( dict['arg_value'] == "" || dict['arg_value'] == "**" || dict['arg_type'] == "" ){
+            console.log(dict);
             $("#error_field").html("Field name and field value are required<br>");
             return false;
         }
@@ -70,6 +73,7 @@ $(function () {
             type: 'post',
             dataType: 'json',
             success: function (response) {
+                $("#search_results_wrapper").show();
                 $("#search_results").html(response.html_page);
             }
         });
@@ -126,7 +130,7 @@ $(function () {
     }
 
     var is_ontology = function(field){
-        if ($("#id_" + field + "ontology_wrapper").length) {
+        if ($("#id_" + field).length) {
             return true;
         } else {
             return false;

@@ -25,13 +25,13 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card-header bg-info text-white"> Search history </div>
+                    <div class="card-header bg-info text-white" style="text-align:center;"> Search history </div>
                     <div class="card-body bg-light"></div>
                 </div>
             </div>
             <br>
-            <div class="card"">
-                <div class="card-header bg-info text-white"> Select search terms </div>
+            <div class="card">
+                <div class="card-header bg-info text-white" style="text-align:center;"> Select search terms </div>
                 <div class="card-body bg-light">
                     <div id="result">Please select an entity to load the available fields</div>
                 </div>
@@ -45,10 +45,16 @@
             </div>
             <br>
             <div style="text-align:center;">
-                <button class="btn btn-primary" id="load_results">Search</button>
+                <button class="btn btn-primary" id="load_results" disabled>Search</button>
             </div>
             <br>
-            <div id="search_results"></div>
+            <div class="card" id="search_results_wrapper" style="display:none">
+                <div class="card-header bg-info text-white"> Select search terms </div>
+                <div class="card-body bg-light">
+                    <div id="search_results"></div>
+                </div>
+            </div>
+            <br>            
         </div>
     </div>
 {% endblock %}
