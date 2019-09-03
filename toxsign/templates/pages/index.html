@@ -83,7 +83,7 @@
                 {% for assay in assay_list %}
                       <h3><a href="{% url 'assays:assay_detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{assay.name}}</h3>
                       <small><b>Owner : </b>{{ assay.created_by }} - {{ assay.created_at }}</small>
-                      <p><b>Organism : </b>{{study.organism}}</p>
+                      <p><b>Organism : </b>{{assay.organism}}</p>
                       <hr>
                   {% endfor %}
                   {% if assay_list %}
@@ -113,9 +113,9 @@
               <div class="tab-pane text-style card-body" id="tab4">
                 {% for signature in signature_list %}
                       <h3><a href="{% url 'signatures:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{signature.name}}</h3>
-                      <small><b>Owner:</b>{{ signature.created_by }} - {{ signature.created_at }}</small>
-                      <p><b>Type : </b>{{signature.organism}}</p>
-                      <p><b>Organism : </b>{{signature.signature_type | lower | capfirst}}</p>
+                      <small><b>Owner : </b>{{ signature.created_by }} - {{ signature.created_at }}</small>
+                      <p><b>Type : </b>{{signature.signature_type | lower | capfirst}}</p>
+                      <p><b>Organism : </b>{{signature.organism}}</p>
                       <hr>
                   {% endfor %}
                   {% if signature_list %}

@@ -44,7 +44,7 @@ def autocompleteModel(request):
         else:
             q = Q_es("match", status="PUBLIC")
 
-        allowed_projects =  ProjectDocument.search().query(q).scan()
+        allowed_projects =  ProjectDocument.search().query(q)
         # Limit all query to theses projects
         allowed_projects_id_list = [project.id for project in allowed_projects]
 
@@ -55,7 +55,7 @@ def autocompleteModel(request):
         results_signatures = SignatureDocument.search().filter("terms", factor__assay__study__project__id=allowed_projects_id_list)
 
         # This search in all fields.. might be too much. Might need to restrict to fields we actually show on the search page..
-        q = Q_es("query_string", query=query+"*")
+        q = Q_es("query_string", query=query)
 
         results_projects = results_projects.filter(q)
         projects_number = results_projects.count()
@@ -374,6 +374,7 @@ def search(request, model, document, entity, search_terms):
 
         if query:
             results = results.filter(query)
+
         return results
 
     except Exception as e:
@@ -385,7 +386,6 @@ def generate_query(search_terms):
     documentDict = {
         "disease": DiseaseDocument,
     }
-
     for index, item in enumerate(search_terms):
             # TODO : Refactor
             if index == 0:
@@ -401,7 +401,7 @@ def generate_query(search_terms):
                     query = Q_es("nested", path=item['arg_type'], query=Q_es("terms", **{id_field:ontology_list}))
 
                 else:
-                    query = Q_es("match", **{item['arg_type']:item['arg_value']})
+                    query = Q_es("wildcard", **{item['arg_type']:item['arg_value']})
             else:
                 if item['is_ontology']:
                     if item['ontology_options']['search_type'] == "CHILDREN":
@@ -414,7 +414,7 @@ def generate_query(search_terms):
                     new_query = Q_es("nested", path=item['arg_type'], query=Q_es("terms", **{id_field:ontology_list}))
 
                 else:
-                    new_query = Q_es("match", **{item['arg_type']:item['arg_value']})
+                    new_query = Q_es("wildcard", **{item['arg_type']:item['arg_value']})
 
                 if item['bool_type'] == "AND":
                     query = query & new_query

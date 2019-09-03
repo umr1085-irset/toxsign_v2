@@ -25,6 +25,8 @@ class SignatureDocument(Document):
         'id': fields.TextField(),
     })
 
+    tsx_id = fields.KeywordField()
+
     class Index:
         # Name of the Elasticsearch index
         name = 'signatures'
@@ -40,7 +42,6 @@ class SignatureDocument(Document):
             'id',
             'name',
             'created_at',
-            'tsx_id',
         ]
         related_models = [Factor, Disease]
         ignore_signals = False

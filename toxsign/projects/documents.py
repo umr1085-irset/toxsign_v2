@@ -16,6 +16,8 @@ class ProjectDocument(Document):
         'username': fields.TextField()
     })
 
+    tsx_id = fields.KeywordField()
+
     class Index:
         # Name of the Elasticsearch index
         name = 'projects'
@@ -30,7 +32,6 @@ class ProjectDocument(Document):
         fields = [
             'id',
             'name',
-            'tsx_id',
             'created_at',
             'description',
             'status',

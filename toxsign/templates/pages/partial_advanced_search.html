@@ -1,16 +1,35 @@
 {% load static i18n %}
 
 {% block content %}
-{% for project in projects %}
-    {{ project.tsx_id }} 
-    <br>   
-{% endfor %}
-{% for study in studies %}
-    {{ study.tsx_id }}
-    <br>
-{% endfor %}
-{% for signature in signatures %}
-    {{ signature.tsx_id }}
-    <br>
-{% endfor %}
+
+{% if projects and projects.count > 0 %}
+    <h2 style="text-align:center">{{ projects.count }} result(s)</h2>
+    <hr>
+    {% for project in projects %}
+        <h3><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a> - {{project.name}}</h3>
+        <small><b>Owner : </b>{{ project.created_by.username }} - {{ project.created_at }}</small>
+        <p><b>Description : </b>{{project.description}}</p>
+        <hr>
+    {% endfor %}
+{% elif studies and studies.count > 0 %}
+    <h2 style="text-align:center">{{ studies.count }} result(s)</h2>
+    <hr>
+    {% for study in studies %}
+        <h3><a href="{% url 'studies:detail' study.tsx_id %}">{{ study.tsx_id }}</a> - {{study.name}}</h3>
+        <small><b>Owner : </b>{{ study.created_by.username }} - {{ study.created_at }}</small>
+        <p><b>Description : </b>{{study.description}}</p>
+        <hr>
+    {% endfor %}
+{% elif signatures and signatures.count > 0 %}
+    <h2 style="text-align:center">{{ signatures.count }} result(s)</h2>
+    <hr>
+    {% for signature in signatures %}
+        <h3><a href="{% url 'signatures:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{signature.name}}</h3>
+        <small><b>Owner : </b>{{ signature.created_by.username }} - {{ signature.created_at }}</small>
+        <p><b>Type : </b>{{signature.organism}}</p>
+        <hr>
+    {% endfor %}
+{% else %}
+    <p> No results found! </p>
+{% endif %}
 {% endblock %}
