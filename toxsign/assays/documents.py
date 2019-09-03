@@ -17,6 +17,8 @@ class AssayDocument(Document):
         'username': fields.TextField()
     })
 
+    tsx_id = fields.KeywordField()
+
     class Index:
         # Name of the Elasticsearch index
         name = 'assays'
@@ -32,7 +34,6 @@ class AssayDocument(Document):
             'id',
             'name',
             'created_at',
-            'tsx_id',
         ]
         related_models = [Study]
         ignore_signals = False
@@ -66,6 +67,7 @@ class FactorDocument(Document):
         'username': fields.TextField()
     })
 
+    tsx_id = fields.KeywordField()
 
     class Index:
         # Name of the Elasticsearch index
@@ -82,7 +84,6 @@ class FactorDocument(Document):
             'id',
             'name',
             'created_at',
-            'tsx_id',
         ]
         related_models = [Assay]
         ignore_signals = False

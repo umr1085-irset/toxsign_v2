@@ -1,4 +1,4 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, get_user
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -14,7 +14,6 @@ from toxsign.projects.models import Project
 from toxsign.assays.models import Assay, Factor
 from toxsign.signatures.models import Signature
 from toxsign.signatures.forms import SignatureCreateForm, SignatureEditForm
-
 
 def DetailView(request, sigid):
 
@@ -94,5 +93,5 @@ class CreateSignatureView(PermissionRequiredMixin, CreateView):
     # Autofill the user
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.created_by = self.request.user
+        self.object.created_by = get_user(self.request)
         return super(CreateView, self).form_valid(form)

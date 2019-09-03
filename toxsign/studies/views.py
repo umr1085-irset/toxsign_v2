@@ -1,4 +1,4 @@
-
+from django.contrib.auth import get_user
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -74,7 +74,7 @@ class CreateStudyView(PermissionRequiredMixin, CreateView):
     # Autofill the user and project
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.created_by = self.request.user
+        self.object.created_by = get_user(self.request)
         project = Project.objects.get(tsx_id=self.kwargs['prjid'])
         # Need safegards (access? exists?)
         self.object.project = project

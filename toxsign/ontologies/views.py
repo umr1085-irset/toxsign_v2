@@ -15,7 +15,7 @@ class OntologyAutocomplete(autocomplete.Select2QuerySetView):
         return result.id
 
     def get_result_label(self, result):
-        return result.name
+        return result.name.capitalize()
 
 class BiologicalAutocomplete(OntologyAutocomplete):
 

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% load account socialaccount %}
+{% load static i18n %}
+
+{% block content %}
+    <link href="{% static 'css/advanced_search.css' %}" rel="stylesheet">
+    <div class="container">
+        <h2> Advanced search </h2>
+        <div id="advanced_search_wrapper">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card" style="text-align:center;">
+                        <div class="card-header bg-info text-white"> Select entity to search </div>
+                        <div class="card-body bg-light">
+                            <form id="entity_form" data-url="{% url 'advanced_search_api' %}">
+                                <select id="entity_select" class="select form-control">
+                                    <option disabled selected value> -- Select an entity -- </option>
+                                    <option value="project">Project</option>
+                                    <option value="study">Study</option>
+                                    <option value="signature">Signature</option>
+                                </select>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card-header bg-info text-white" style="text-align:center;"> Search history </div>
+                    <div class="card-body bg-light"><div id="history"></div></div>
+                </div>
+            </div>
+            <br>
+            <div class="card">
+                <div class="card-header bg-info text-white" style="text-align:center;"> Select search terms </div>
+                <div class="card-body bg-light">
+                    <div id="result"><div  style="text-align:center;"> Please select an entity to load the available fields</div></div>
+                </div>
+            </div>
+            <br>
+            <div class="card" style="text-align:center;">
+                <div class="card-header bg-info text-white"> Selected search terms </div>
+                <div class="card-body bg-light">
+                    <div id="search_terms">Search terms you have selected will appear here for review</div>
+                </div>
+            </div>
+            <br>
+            <div style="text-align:center;">
+                <button class="btn btn-primary" id="load_results" disabled>Search</button>
+            </div>
+            <br>
+            <div class="card" id="search_results_wrapper" style="display:none">
+                <div class="card-header bg-info text-white" style="text-align:center;"> Results </div>
+                <div class="card-body bg-light">
+                    <div id="search_results"></div>
+                </div>
+            </div>
+            <br>            
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static 'js/advanced_search.js' %}"></script>
+{% endblock %} 

@@ -20,7 +20,13 @@ from toxsign.projects.views import check_view_permissions, check_edit_permission
 from toxsign.projects.documents import ProjectDocument
 from toxsign.studies.documents import StudyDocument
 from toxsign.signatures.documents import SignatureDocument
+from toxsign.ontologies.documents import *
 from elasticsearch_dsl import Q as Q_es
+
+from django.template.loader import render_to_string
+from . import forms
+from django.http import JsonResponse
+
 
 def HomeView(request):
         context = {}
@@ -34,22 +40,22 @@ def autocompleteModel(request):
         query = "*" + query + "*"
         if request.user.is_authenticated:
             groups = [group.id for group in request.user.groups.all()]
-            q = Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups)) | Q_es("match", status="PUBLIC")
+            q = Q_es("match", created_by__username=request.user.username)  | Q_es("match", status="PUBLIC") | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
         else:
             q = Q_es("match", status="PUBLIC")
 
-        allowed_projects =  ProjectDocument.search().query(q).scan()
+        allowed_projects =  ProjectDocument.search().query(q)
         # Limit all query to theses projects
         allowed_projects_id_list = [project.id for project in allowed_projects]
 
         # Now do the queries
 
-        results_projects = ProjectDocument.search().filter("terms", id=allowed_projects_id_list)
+        results_projects = allowed_projects
         results_studies = StudyDocument.search().filter("terms", project__id=allowed_projects_id_list)
         results_signatures = SignatureDocument.search().filter("terms", factor__assay__study__project__id=allowed_projects_id_list)
 
         # This search in all fields.. might be too much. Might need to restrict to fields we actually show on the search page..
-        q = Q_es("query_string", query=query+"*")
+        q = Q_es("query_string", query=query)
 
         results_projects = results_projects.filter(q)
         projects_number = results_projects.count()
@@ -86,6 +92,49 @@ def autocompleteModel(request):
         'signatures': results_signatures
     }
     return render(request, 'pages/ajax_search.html', {'statuss': results})
+
+def advanced_search_form(request):
+
+    if request.method == 'POST':
+        data = request.POST
+        terms = json.loads(data['terms'])
+        entity = data['entity']
+        context = {}
+        data = {}
+        if entity == 'project':
+            context['projects'] = search(request, Project, ProjectDocument, entity, terms)
+
+        elif entity == "study":
+            context['studies'] = search(request, Study, StudyDocument, entity, terms)
+
+        elif entity == "signature":
+            context['signatures'] = search(request, Signature, SignatureDocument, entity, terms)
+
+
+        data['html_page'] = render_to_string('pages/partial_advanced_search.html',
+            context,
+            request=request,
+        )
+        return JsonResponse(data)
+
+    else:
+        entity_type = request.GET.get('entity')
+        data = {}
+        if entity_type == 'project':
+            form = forms.ProjectSearchForm()
+        elif entity_type == 'study':
+            form = forms.StudySearchForm()
+        elif entity_type == 'signature':
+            form = forms.SignatureSearchForm()
+
+        context = {'form': form}
+        data['html_form'] = render_to_string('pages/advanced_search_form.html',
+            context,
+            request=request,
+        )
+        return JsonResponse(data)
+
+    return None
 
 def graph_data(request):
 
@@ -240,11 +289,6 @@ def index(request):
 
     return render(request, 'pages/index.html', context)
 
-
-def search(request,query):
-    print(query)
-    search_qs = Project.objects.filter(name__contains=query)
-
 def get_sub_create_url(entity_type, prj_id, tsx_id):
     query = "?selected=" + tsx_id
 
@@ -303,3 +347,77 @@ def render_403(request):
     }
 
     return render(request, '403.html', {'data':data})
+
+def search(request, model, document, entity, search_terms):
+
+    # First try with elasticsearch, then fallback to  DB query if it fails
+    try:
+        # Wildcard for search
+        if request.user.is_authenticated:
+            groups = [group.id for group in request.user.groups.all()]
+            q = Q_es("match", created_by__username=request.user.username)  | Q_es("match", status="PUBLIC") | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
+        else:
+            q = Q_es("match", status="PUBLIC")
+
+        allowed_projects =  ProjectDocument.search().query(q)
+        # Limit all query to theses projects
+        allowed_projects_id_list = [project.id for project in allowed_projects]
+
+        query = generate_query(search_terms)
+        # Now do the queries
+        if entity == 'project':
+            results = allowed_projects
+        elif entity == "study":
+            results = StudyDocument.search().filter("terms", project__id=allowed_projects_id_list)
+        elif entity == "signature":
+            results = SignatureDocument.search().filter("terms", factor__assay__study__project__id=allowed_projects_id_list)
+
+        if query:
+            results = results.filter(query)
+
+        return results
+
+    except Exception as e:
+        raise e
+
+def generate_query(search_terms):
+
+    # Need a dict to link the fields to the correct document
+    documentDict = {
+        "disease": DiseaseDocument,
+    }
+    for index, item in enumerate(search_terms):
+            # TODO : Refactor
+            if index == 0:
+                # Couldn't make double nested query work, so first query the correct ontologies, then query the correct signatures
+                if item['is_ontology']:
+                    if item['ontology_options']['search_type'] == "CHILDREN":
+                        onto_query = Q_es('nested', path="as_ancestor", query=Q_es("match", as_ancestor__id=item['ontology_options']['id'])) | Q_es("match", id=item['ontology_options']['id'])
+                    else:
+                        onto_query = Q_es("match", id=item['ontology_options']['id'])
+
+                    ontology_list = [ontology.id for ontology in documentDict[item['arg_type']].search().query(onto_query).scan()]
+                    id_field = item['arg_type'] + "__id"
+                    query = Q_es("nested", path=item['arg_type'], query=Q_es("terms", **{id_field:ontology_list}))
+
+                else:
+                    query = Q_es("wildcard", **{item['arg_type']:item['arg_value']})
+            else:
+                if item['is_ontology']:
+                    if item['ontology_options']['search_type'] == "CHILDREN":
+                        onto_query = Q_es('nested', path="as_ancestor", query=Q_es("match", as_ancestor__id=item['ontology_options']['id'])) | Q_es("match", id=item['ontology_options']['id'])
+                    else:
+                        onto_query = Q_es("match", id=item['ontology_options']['id'])
+
+                    ontology_list = [ontology.id for ontology in documentDict[item['arg_type']].search().query(onto_query).scan()]
+                    id_field = item['arg_type'] + "__id"
+                    new_query = Q_es("nested", path=item['arg_type'], query=Q_es("terms", **{id_field:ontology_list}))
+
+                else:
+                    new_query = Q_es("wildcard", **{item['arg_type']:item['arg_value']})
+
+                if item['bool_type'] == "AND":
+                    query = query & new_query
+                else:
+                    query = query | new_query
+    return query

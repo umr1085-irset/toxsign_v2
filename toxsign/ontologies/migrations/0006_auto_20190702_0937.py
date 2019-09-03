@@ -2,6 +2,7 @@
 
 from django.db import migrations
 from django_elasticsearch_dsl.registries import registry
+import toxsign.ontologies.models as onto_models
 
 import csv
 import os
@@ -28,14 +29,19 @@ def import_data(apps, schema_editor):
                     print("Importing file {} in model {}".format(file.name, ontology_models[filename]))
                     model = apps.get_model('ontologies', ontology_models[filename])
                     load_data(model, file.path)
-                    
+                    # Need to get current model name, it does not work with apps.get_model
+                    onto_model = getattr(onto_models, ontology_models[filename])
+                    # Rebuild indexes
+                    for index in registry.get_indices([onto_model]):
+                        if index.exists():
+                            index.delete()
+                        index.create()
+                    # Populate indexes
+                    for doc in registry.get_documents([onto_model]):
+                        qs = doc().get_queryset()
+                        doc().update(qs)
                 else:
                     print("Ignoring {} : either not a file, or not a recognized model name.".format(file.name))
-            # Rebuild indexes
-            for index in registry.get_indices():
-                if index.exists():
-                    index.delete()
-                index.create()
         else:
             print("The folder {} was not found, or is empty. Skipping migration".format(os.getenv("ONTOLOGY_DATA_FOLDER")))
     else:

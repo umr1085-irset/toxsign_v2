@@ -1,4 +1,4 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, get_user
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -128,7 +128,7 @@ class CreateAssayView(PermissionRequiredMixin, CreateView):
     # Autofill the user
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.created_by = self.request.user
+        self.object.created_by = get_user(self.request)
         return super(CreateAssayView, self).form_valid(form)
 
 class CreateFactorView(PermissionRequiredMixin, CreateView):
@@ -170,5 +170,5 @@ class CreateFactorView(PermissionRequiredMixin, CreateView):
     # Autofill the user
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.created_by = self.request.user
+        self.object.created_by = get_user(self.request)
         return super(CreateFactorView, self).form_valid(form)

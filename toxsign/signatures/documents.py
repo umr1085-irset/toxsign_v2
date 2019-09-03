@@ -2,7 +2,7 @@ from django_elasticsearch_dsl import Document, fields
 from django_elasticsearch_dsl.registries import registry
 from toxsign.assays.models import Factor
 from toxsign.signatures.models import Signature
-
+from toxsign.ontologies.models import *
 
 @registry.register_document
 class SignatureDocument(Document):
@@ -21,6 +21,12 @@ class SignatureDocument(Document):
         'username': fields.TextField()
     })
 
+    disease = fields.NestedField(properties={
+        'id': fields.TextField(),
+    })
+
+    tsx_id = fields.KeywordField()
+
     class Index:
         # Name of the Elasticsearch index
         name = 'signatures'
@@ -36,9 +42,8 @@ class SignatureDocument(Document):
             'id',
             'name',
             'created_at',
-            'tsx_id',
         ]
-        related_models = [Factor]
+        related_models = [Factor, Disease]
         ignore_signals = False
 
     def get_queryset(self):
