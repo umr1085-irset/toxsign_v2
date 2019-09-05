@@ -6,7 +6,6 @@ from django.contrib.auth.models import  User, Group
 from django.conf import settings
 
 from toxsign.projects.models import Project
-from toxsign.studies.models import Study
 from toxsign.ontologies.models import Biological, Cell, CellLine, Chemical, Disease, Experiment, Species, Tissue
 
 
@@ -58,7 +57,7 @@ class Assay(models.Model):
     generation = models.CharField(max_length=10, choices=GENERATION, default="F0")
     sex_type = models.CharField(max_length=10, choices=SEX_TYPE, default="MALE")
     exp_type = models.CharField(max_length=10, choices=EXPERIMENTAL_TYPE, default="NA")
-    study = models.ForeignKey(Study, blank=True, null=True, on_delete=models.CASCADE, related_name='assay_of')
+    project = models.ForeignKey(Project, blank=True, null=True, on_delete=models.CASCADE, related_name='assay_of')
     organism = models.ForeignKey(Species, blank=True, null=True, on_delete=models.CASCADE, related_name='assay_used_in')
     tissue = models.ForeignKey(Tissue, blank=True, null=True, on_delete=models.CASCADE, related_name='assay_used_in')
     cell = models.ForeignKey(Cell, blank=True, null=True, on_delete=models.CASCADE, related_name='assay_used_in')

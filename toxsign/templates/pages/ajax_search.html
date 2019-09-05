@@ -10,8 +10,7 @@
           <div class="list-group ">
               <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action active">Superprojects ({{ status.superprojects_number }})</a>
               <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Projects ({{ status.projects_number }})</a>
-              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Studies ({{ status.studies_number }})</a>
-              <a href="#tab4" data-toggle="tab" class="list-group-item list-group-item-action">Signatures ({{ status.signatures_number }})</a>
+              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Signatures ({{ status.signatures_number }})</a>
             </div>
         </div>
         <div class="col-md-9">
@@ -33,14 +32,6 @@
                 {% endfor %}
               </div>
               <div class="tab-pane text-style card-body" id="tab3">
-                {% for study in status.studies %}
-                      <h3><a href="{% url 'studies:detail' study.tsx_id %}">{{ study.tsx_id }}</a> - {{study.name}}</h3>
-                      <small><b>Author:</b>{{ study.created_by.username }} - {{ study.created_at }}</small>
-                      <p><b>Description : </b>{{study.description}}</p>
-                      <hr>
-                  {% endfor %}
-              </div>
-              <div class="tab-pane text-style card-body" id="tab4">
                 {% for signature in status.signatures %}
                     <h3><a href="{% url 'signatures:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{signature.name}}</h3>
                     <small><b>Author:</b>{{ signature.created_by.username }} - {{ signature.created_at }}</small>

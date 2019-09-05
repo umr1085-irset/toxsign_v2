@@ -8,9 +8,8 @@
           <div class="list-group ">
               <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action active">Superprojects ({{ superproject_list|length }})</a>
               <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Projects ({{ project_list|length }})</a>
-              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Studies ({{ study_list|length }})</a>
-              <a href="#tab4" data-toggle="tab" class="list-group-item list-group-item-action">Assays ({{ assay_list|length }})</a>
-              <a href="#tab5" data-toggle="tab" class="list-group-item list-group-item-action">Signatures ({{ signature_list|length }})</a>
+              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Assays ({{ assay_list|length }})</a>
+              <a href="#tab4" data-toggle="tab" class="list-group-item list-group-item-action">Signatures ({{ signature_list|length }})</a>
           </div>
         </div>
         <div class="col-md-9">
@@ -81,40 +80,6 @@
                 {% endif %}
               </div>
               <div class="tab-pane text-style card-body" id="tab3">
-                {% for study in study_list %}
-                      <h3><a href="{% url 'studies:detail' study.tsx_id %}">{{ study.tsx_id }}</a> - {{study.name}}</h3>
-                      <p><b>Owner : </b>{{ study.created_by }} - {{ study.created_at }}</p>
-                      <p><b>Description : </b>{{study.description}}</p>
-                      <p><b>Experimental design : </b>{{study.experimental_design}}</p>
-                      <p><b>Type : </b>{{study.study_type | lower | capfirst}}</p>
-                      <hr>
-                  {% endfor %}
-                  {% if study_list %}
-                  <nav aria-label="Page navigation example">
-                    <ul class="pagination">
-                      {% if study_list.has_previous %}
-                        <li class="page-item"><a class="page-link" href="?studies={{ study_list.previous_page_number }}">&laquo;</a></li>
-                      {% else %}
-                        <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
-                      {% endif %}
-                      {% for i in study_list.paginator.page_range %}
-                        {% if study_list.number == i %}
-                          <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
-                        {% else %}
-                          <li class="page-item"><a class="page-link" href="?studies={{ i }}">{{ i }}</a></li>
-                        {% endif %}
-                      {% endfor %}
-                      {% if study_list.has_next %}
-                        <li class="page-item"><a class="page-link" href="?studies={{ study_list.next_page_number }}">&raquo;</a></li>
-                      {% else %}
-                        <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
-                      {% endif %}
-                    </ul>
-                </nav>
-                {% endif %}
-
-              </div>
-              <div class="tab-pane text-style card-body" id="tab4">
                 {% for assay in assay_list %}
                       <h3><a href="{% url 'assays:assay_detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{assay.name}}</h3>
                       <p><b>Owner : </b>{{ assay.created_by }} - {{ assay.created_at }}</p>
@@ -145,7 +110,7 @@
                 </nav>
                 {% endif %}
               </div>
-              <div class="tab-pane text-style card-body" id="tab5">
+              <div class="tab-pane text-style card-body" id="tab4">
                 {% for signature in signature_list %}
                       <h3><a href="{% url 'signatures:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{signature.name}}</h3>
                       <p><b>Owner : </b>{{ signature.created_by }} - {{ signature.created_at }}</p>

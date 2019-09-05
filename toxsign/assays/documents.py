@@ -1,16 +1,14 @@
 from django_elasticsearch_dsl import Document, fields
 from django_elasticsearch_dsl.registries import registry
-from toxsign.studies.models import Study
+from toxsign.projects.models import Project
 from toxsign.assays.models import Assay, Factor
 from toxsign.signatures.models import Signature
 
 @registry.register_document
 class AssayDocument(Document):
 
-    study = fields.ObjectField(properties={
-        'project': fields.ObjectField(properties={
+    project= fields.ObjectField(properties={
             'id': fields.TextField()
-        })
     })
 
     created_by = fields.ObjectField(properties={
@@ -35,13 +33,13 @@ class AssayDocument(Document):
             'name',
             'created_at',
         ]
-        related_models = [Study]
+        related_models = [Project]
         ignore_signals = False
 
     def get_queryset(self):
         """Not mandatory but to improve performance we can select related in one sql request"""
         return super(AssayDocument, self).get_queryset().select_related(
-            'study'
+            'project'
         )
 
     def get_instances_from_related(self, related_instance):
@@ -49,17 +47,15 @@ class AssayDocument(Document):
         The related_models option should be used with caution because it can lead in the index
         to the updating of a lot of items.
         """
-        if isinstance(related_instance, Study):
+        if isinstance(related_instance, Project):
             return related_instance.assay_of.all()
 
 @registry.register_document
 class FactorDocument(Document):
 
     assay = fields.ObjectField(properties={
-        'study': fields.ObjectField(properties={
-            'project': fields.ObjectField(properties={
-                'id': fields.TextField()
-            })
+        'project': fields.ObjectField(properties={
+            'id': fields.TextField()
         })
     })
 

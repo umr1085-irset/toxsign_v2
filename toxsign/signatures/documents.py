@@ -9,10 +9,8 @@ class SignatureDocument(Document):
 
     factor = fields.ObjectField(properties={
         'assay': fields.ObjectField(properties={
-            'study': fields.ObjectField(properties={
-                'project': fields.ObjectField(properties={
-                    'id': fields.TextField()
-                })
+            'project': fields.ObjectField(properties={
+                'id': fields.TextField()
             })
         })
     })

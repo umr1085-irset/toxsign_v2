@@ -20,13 +20,12 @@ def DetailView(request, sigid):
     signature = get_object_or_404(Signature, tsx_id=sigid)
     factor = signature.factor
     assay = factor.assay
-    study = assay.study
-    project = study.project
+    project = assay.project
 
     if not check_view_permissions(request.user, project):
         return redirect('/unauthorized')
 
-    return render(request, 'signatures/details.html', {'project': project,'study': study, 'assay': assay, 'factor': factor, 'signature': signature})
+    return render(request, 'signatures/details.html', {'project': project, 'assay': assay, 'factor': factor, 'signature': signature})
 
 class EditSignatureView(PermissionRequiredMixin, UpdateView):
     permission_required = 'change_project'
@@ -40,7 +39,7 @@ class EditSignatureView(PermissionRequiredMixin, UpdateView):
 
     def get_permission_object(self):
         self.signature = Signature.objects.get(tsx_id=self.kwargs['sigid'])
-        self.project = self.signature.factor.assay.study.project
+        self.project = self.signature.factor.assay.project
         return self.project
 
     def get_object(self, queryset=None):
@@ -48,7 +47,7 @@ class EditSignatureView(PermissionRequiredMixin, UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super(EditSignatureView, self).get_form_kwargs()
-        factors = Factor.objects.filter(assay__study__project = self.project)
+        factors = Factor.objects.filter(assay__project = self.project)
         kwargs.update({'factor': factors})
         return kwargs
 
@@ -75,10 +74,10 @@ class CreateSignatureView(PermissionRequiredMixin, CreateView):
                 factor = factors.all()
                 kwargs.update({'factor': factor})
             else:
-                factors = Factor.objects.filter(assay__study__project = self.project)
+                factors = Factor.objects.filter(assay__project = self.project)
                 kwargs.update({'factor': factors})
         else:
-            factors = Factor.objects.filter(assay__study__project = self.project)
+            factors = Factor.objects.filter(assay__project = self.project)
             kwargs.update({'factor': factors})
 
 

@@ -23,10 +23,9 @@
         <div class="col-md-3 ">
           <div class="list-group ">
               <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action active">Project</a>
-              <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Studies ({{ studies|length }})</a>
-              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Assays ({{ assays|length }})</a>
-              <a href="#tab4" data-toggle="tab" class="list-group-item list-group-item-action">Factors ({{ factors|length }})</a>
-              <a href="#tab5" data-toggle="tab" class="list-group-item list-group-item-action">Signatures ({{ signatures|length }})</a>
+              <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Assays ({{ assays|length }})</a>
+              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Factors ({{ factors|length }})</a>
+              <a href="#tab4" data-toggle="tab" class="list-group-item list-group-item-action">Signatures ({{ signatures|length }})</a>
             </div>
         </div>
         <div class="col-md-9">
@@ -37,33 +36,16 @@
                 <hr>
               </div>
               <div class="tab-pane text-style card-body" id="tab2">
-                <h2> List of studies related to this project : </h2>
-                {% if not studies %}
-                  <p> No studies are related to this project</p>
-                {% endif %}
-                {% for study in studies %}
-                  <h2><a href="{% url 'studies:detail' study.tsx_id %}">{{ study.tsx_id }}</a> - {{ study.name }}</h2>
-                  <small> {{ study.study_type | lower | capfirst}}</small>
-                  <p>{{ study.experimental_design }}</p>
-                  <hr>
-                  {% endfor %}
-                  <br>
-                  <a class="btn btn-large btn-info" href="{% url 'studies:study_create' project.tsx_id %}">
-                    <i class="fa fa-plus-circle"></i> New study
-                  </a>
-                  <br>
-              </div>
-              <div class="tab-pane text-style card-body" id="tab3">
                 <h2> List of assays related to this project : </h2>
                 {% if not assays %}
-                  <p> No assays are related to this project. To create one, please use the study screen.</p>
+                  <p> No assays are related to this project. To create one, please use the project screen.</p>
                 {% endif %}
                 {% for assay in assays %}
                   <h2><a href="{% url 'assays:assay_detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{ assay.name }}</h2>
                   <hr>
                 {% endfor %}
               </div>
-              <div class="tab-pane text-style card-body" id="tab4">
+              <div class="tab-pane text-style card-body" id="tab3">
                 <h2> List of factors related to this project : </h2>
                 {% if not factors %}
                   <p> No Factors are related to this project. To create one, please use the assay screen.</p>
@@ -73,7 +55,7 @@
                   <hr>
                 {% endfor %}
               </div>
-              <div class="tab-pane text-style card-body" id="tab5">
+              <div class="tab-pane text-style card-body" id="tab4">
                 <h2> List of signatures related to this project : </h2>
                 {% if not signatures %}
                   <p> No signatures are related to this project. To create one, please use the factor screen.</p>

@@ -17,7 +17,6 @@
                                 <select id="entity_select" class="select form-control">
                                     <option disabled selected value> -- Select an entity -- </option>
                                     <option value="project">Project</option>
-                                    <option value="study">Study</option>
                                     <option value="signature">Signature</option>
                                 </select>
                             </form>
@@ -54,7 +53,7 @@
                     <div id="search_results"></div>
                 </div>
             </div>
-            <br>            
+            <br>
         </div>
     </div>
 {% endblock %}
@@ -62,4 +61,4 @@
 {% block javascript %}
     {{ block.super }}
     <script src="{% static 'js/advanced_search.js' %}"></script>
-{% endblock %} 
+{% endblock %}

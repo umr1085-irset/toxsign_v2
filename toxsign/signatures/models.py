@@ -7,7 +7,6 @@ from django.conf import settings
 
 from toxsign.projects.models import Project
 from toxsign.assays.models import Assay
-from toxsign.studies.models import Study
 from toxsign.assays.models import Factor, Assay
 from toxsign.ontologies.models import Biological, Cell, CellLine, Chemical, Disease, Experiment, Species, Tissue
 

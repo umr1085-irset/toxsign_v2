@@ -17,6 +17,12 @@ class Project(models.Model):
         ('PENDING', 'Pending'),
         ('PUBLIC', 'Public'),
     )
+
+      PROJECT_TYPE = (
+        ('INTERVENTIONAL', 'Interventional'),
+        ('OBSERVATIONAL', 'Observational'),
+    )
+
     name = models.CharField(max_length=200, unique=True)
     tsx_id = models.CharField(max_length=200)
     superproject = models.ForeignKey(Superproject, blank=True, null=True, on_delete=models.SET_NULL, related_name='project_of')
@@ -26,7 +32,10 @@ class Project(models.Model):
     read_groups = models.ManyToManyField(Group, blank=True, related_name='read_access_to')
     edit_groups = models.ManyToManyField(Group, blank=True, related_name='edit_access_to')
     status = models.CharField(max_length=20, choices=AVAILABLE_STATUS, default="PRIVATE")
-    description = models.TextField("description")
+    description = models.TextField("description", blank=True)
+    experimental_design = models.TextField("Experimental design", blank=True)
+    study_type = models.CharField(max_length=50, choices=PROJECT, default="INTERVENTIONAL")
+    results = models.TextField("Results", blank=True)
 
     class Meta:
         permissions = (('view_project', 'View project'),)

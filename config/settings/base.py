@@ -85,7 +85,6 @@ LOCAL_APPS = [
     "toxsign.users.apps.UsersAppConfig",
     "toxsign.superprojects.apps.SuperprojectsAppConfig",
     "toxsign.projects.apps.ProjectsAppConfig",
-    "toxsign.studies.apps.StudiesAppConfig",
     "toxsign.assays.apps.AssaysAppConfig",
     "toxsign.ontologies.apps.OntologiesAppConfig",
     "toxsign.jobs.apps.JobsAppConfig",

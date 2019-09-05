@@ -23,10 +23,9 @@
         <div class="col-md-3 ">
           <div class="list-group ">
               <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action">Project</a>
-              <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Study</a>
-              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Assay</a>
-              <a href="#tab4" data-toggle="tab" class="list-group-item list-group-item-action active">Factor</a>
-              <a href="#tab5" data-toggle="tab" class="list-group-item list-group-item-action">Signatures ({{ signatures|length }})</a>
+              <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Assay</a>
+              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action active">Factor</a>
+              <a href="#tab4" data-toggle="tab" class="list-group-item list-group-item-action">Signatures ({{ signatures|length }})</a>
             </div>
         </div>
         <div class="col-md-9">
@@ -36,18 +35,13 @@
                 <p>{{ project.description }}</p>
               </div>
               <div class="tab-pane text-style card-body" id="tab2">
-                <h2><a href="{% url 'studies:detail' study.tsx_id %}">{{ study.tsx_id }}</a> - {{ study.name }}</h2>
-                <small> {{ study.study_type | lower | capfirst}}</small>
-                <p>{{ study.experimental_design }}</p>
-              </div>
-              <div class="tab-pane text-style card-body" id="tab3">
                 <h2><a href="{% url 'assays:assay_detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{ assay.name }}</h2>
               </div>
-              <div class="tab-pane active text-style card-body" id="tab4">
+              <div class="tab-pane active text-style card-body" id="tab3">
                 <h2>{{ factor.tsx_id }} - {{ factor.name }}</h2>
                 <br>
               </div>
-              <div class="tab-pane text-style card-body" id="tab5">
+              <div class="tab-pane text-style card-body" id="tab4">
                 <h2> List of signatures related to this assay : </h2>
                 {% if not signatures %}
                   <p> No signatures are related to this project.</p>
