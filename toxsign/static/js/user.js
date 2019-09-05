@@ -14,6 +14,7 @@ $(function () {
         $("#modal-group .modal-content").html(data.html_form);
       }
     });
+    return false;
   };
 
   var saveForm = function () {
@@ -25,10 +26,13 @@ $(function () {
       dataType: 'json',
       success: function (data) {
         if (data.form_is_valid) {
-            window.location.href = correct_url();
+            window.location.href = data.redirect;
         }
         else {
           $("#modal-group .modal-content").html(data.html_form);
+          if (data.error){
+            $("#modal-group .modal-content #error").html(data.error);
+          }
         }
       }
     });
@@ -51,14 +55,10 @@ $(function () {
       return false;
   };
 
-  var correct_url = function () {
-    var url = window.location.href;
-    url = url.split("?")[0];
-    return url + "?notification=true"
-  }
-
   /* Binding */
     $("#notification_list").on("click", ".js-refuse-invitation", loadForm);
-    $("#modal-group").on("submit", ".js-dismiss-notif-form", saveForm);
     $("#notification_list").on("click", ".js-notif-action", send_action);
+    $("#groups").on("click", ".js-create", loadForm);
+    $("#superprojects").on("click", ".js-create", loadForm);
+    $("#modal-group").on("submit", ".js-form", saveForm);
 });

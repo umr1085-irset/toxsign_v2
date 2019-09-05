@@ -8,6 +8,8 @@ from django.conf import settings
 from guardian.shortcuts import assign_perm, remove_perm, get_group_perms, get_user_perms
 from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
+from toxsign.superprojects.models import Superproject
+
 
 class Project(models.Model):
     AVAILABLE_STATUS = (
@@ -15,15 +17,25 @@ class Project(models.Model):
         ('PENDING', 'Pending'),
         ('PUBLIC', 'Public'),
     )
+
+    PROJECT_TYPE = (
+        ('INTERVENTIONAL', 'Interventional'),
+        ('OBSERVATIONAL', 'Observational'),
+    )
+
     name = models.CharField(max_length=200, unique=True)
     tsx_id = models.CharField(max_length=200)
+    superproject = models.ForeignKey(Superproject, blank=True, null=True, on_delete=models.SET_NULL, related_name='project_of')
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_created_by')
     updated_at = models.DateTimeField(auto_now=True, null=True, verbose_name=("user"))
     read_groups = models.ManyToManyField(Group, blank=True, related_name='read_access_to')
     edit_groups = models.ManyToManyField(Group, blank=True, related_name='edit_access_to')
     status = models.CharField(max_length=20, choices=AVAILABLE_STATUS, default="PRIVATE")
-    description = models.TextField("description")
+    description = models.TextField("description", blank=True)
+    experimental_design = models.TextField("Experimental design", blank=True)
+    project_type = models.CharField(max_length=50, choices=PROJECT_TYPE, default="INTERVENTIONAL")
+    results = models.TextField("Results", blank=True)
 
     class Meta:
         permissions = (('view_project', 'View project'),)

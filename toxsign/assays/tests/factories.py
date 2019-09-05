@@ -2,7 +2,7 @@ from factory import DjangoModelFactory, Faker, SubFactory
 from toxsign.assays.models import Assay, Factor
 from toxsign.projects.tests.factories import ProjectFactory
 from toxsign.users.tests.factories import UserFactory
-from toxsign.studies.tests.factories import StudyFactory
+from toxsign.projects.tests.factories import ProjectFactory
 from toxsign.ontologies.tests.factories import *
 
 class AssayFactory(DjangoModelFactory):
@@ -16,7 +16,7 @@ class AssayFactory(DjangoModelFactory):
     generation = 'F0'
     sex_type = 'BOTH'
     exp_type = 'OTHER'
-    study = SubFactory(StudyFactory)
+    project = SubFactory(ProjectFactory)
     organism = SubFactory(SpeciesFactory)
     tissue = SubFactory(TissueFactory)
     cell = SubFactory(CellFactory)

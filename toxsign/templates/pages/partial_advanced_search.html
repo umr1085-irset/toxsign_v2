@@ -11,15 +11,7 @@
         <p><b>Description : </b>{{project.description}}</p>
         <hr>
     {% endfor %}
-{% elif studies and studies.count > 0 %}
-    <h2 style="text-align:center">{{ studies.count }} result(s)</h2>
-    <hr>
-    {% for study in studies %}
-        <h3><a href="{% url 'studies:detail' study.tsx_id %}">{{ study.tsx_id }}</a> - {{study.name}}</h3>
-        <small><b>Owner : </b>{{ study.created_by.username }} - {{ study.created_at }}</small>
-        <p><b>Description : </b>{{study.description}}</p>
-        <hr>
-    {% endfor %}
+
 {% elif signatures and signatures.count > 0 %}
     <h2 style="text-align:center">{{ signatures.count }} result(s)</h2>
     <hr>

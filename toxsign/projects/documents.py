@@ -1,7 +1,6 @@
 from django_elasticsearch_dsl import Document, fields
 from django_elasticsearch_dsl.registries import registry
 from toxsign.projects.models import Project
-from toxsign.studies.models import Study
 from toxsign.assays.models import Assay
 from toxsign.groups.models import Group
 
@@ -53,4 +52,3 @@ class ProjectDocument(Document):
         """
         if isinstance(related_instance, Group):
             return related_instance.read_access_to.all()
-

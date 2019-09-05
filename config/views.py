@@ -11,14 +11,14 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 import json
 
+from toxsign.superprojects.models import Superproject
 from toxsign.assays.models import Assay, Factor
 from toxsign.projects.models import Project
 from toxsign.signatures.models import Signature
-from toxsign.studies.models import Study
 from toxsign.projects.views import check_view_permissions, check_edit_permissions
 
+from toxsign.superprojects.documents import SuperprojectDocument
 from toxsign.projects.documents import ProjectDocument
-from toxsign.studies.documents import StudyDocument
 from toxsign.signatures.documents import SignatureDocument
 from toxsign.ontologies.documents import *
 from elasticsearch_dsl import Q as Q_es
@@ -49,21 +49,19 @@ def autocompleteModel(request):
         allowed_projects_id_list = [project.id for project in allowed_projects]
 
         # Now do the queries
-
+        results_superprojects = SuperprojectDocument.search()
         results_projects = allowed_projects
-        results_studies = StudyDocument.search().filter("terms", project__id=allowed_projects_id_list)
-        results_signatures = SignatureDocument.search().filter("terms", factor__assay__study__project__id=allowed_projects_id_list)
+        results_signatures = SignatureDocument.search().filter("terms", factor__assay__project__id=allowed_projects_id_list)
 
         # This search in all fields.. might be too much. Might need to restrict to fields we actually show on the search page..
         q = Q_es("query_string", query=query)
 
+        results_superprojects = results_superprojects.filter(q)
+        superprojects_number = results_superprojects.count()
+        results_superprojects = results_superprojects.scan()
         results_projects = results_projects.filter(q)
         projects_number = results_projects.count()
         results_projects = results_projects.scan()
-
-        results_studies = results_studies.filter(q)
-        studies_number = results_studies.count()
-        results_studies = results_studies.scan()
 
         results_signatures = results_signatures.filter(q)
         signatures_number = results_signatures.count()
@@ -72,26 +70,26 @@ def autocompleteModel(request):
     # Fallback to DB search
     # Need to select the correct error I guess
     except Exception as e:
+
+        results_superprojects = Superproject.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query))
         results_projects = Project.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query))
-        results_studies = Study.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query))
         results_signatures = Signature.objects.filter(Q(name__icontains=query) | Q(tsx_id__icontains=query))
 
         results_projects = [project for project in results_projects if check_view_permissions(request.user, project)]
-        results_studies = [study for study in results_studies if check_view_permissions(request.user, study.project)]
-        results_signatures = [sig for sig in results_signatures if check_view_permissions(request.user, sig.factor.assay.study.project)]
+        results_signatures = [sig for sig in results_signatures if check_view_permissions(request.user, sig.factor.assay.project)]
+        superprojects_number = len(results_superprojects)
         projects_number =  len(results_projects)
-        studies_number = len(results_studies)
         signatures_number = len(results_signatures)
 
     results = {
+        'superprojects_number' : superprojects_number,
         'projects_number' : projects_number,
-        'studies_number' : studies_number,
         'signatures_number' : signatures_number,
+        'superprojects' : results_superprojects,
         'projects': results_projects,
-        'studies': results_studies,
         'signatures': results_signatures
     }
-    return render(request, 'pages/ajax_search.html', {'statuss': results})
+    return render(request, 'pages/ajax_search.html', {'status': results})
 
 def advanced_search_form(request):
 
@@ -103,9 +101,6 @@ def advanced_search_form(request):
         data = {}
         if entity == 'project':
             context['projects'] = search(request, Project, ProjectDocument, entity, terms)
-
-        elif entity == "study":
-            context['studies'] = search(request, Study, StudyDocument, entity, terms)
 
         elif entity == "signature":
             context['signatures'] = search(request, Signature, SignatureDocument, entity, terms)
@@ -122,8 +117,6 @@ def advanced_search_form(request):
         data = {}
         if entity_type == 'project':
             form = forms.ProjectSearchForm()
-        elif entity_type == 'study':
-            form = forms.StudySearchForm()
         elif entity_type == 'signature':
             form = forms.SignatureSearchForm()
 
@@ -142,7 +135,6 @@ def graph_data(request):
     project = Project.objects.get(tsx_id=query)
     if not check_view_permissions(request.user, project):
         return JsonResponse({"data" : {}, "max_parallel":0, max_depth: "0"}, safe=False)
-    studies = project.study_of.all()
 
     editable = check_edit_permissions(request.user, project)
 
@@ -158,52 +150,45 @@ def graph_data(request):
         'editable': editable
     }
     sign_count = 0
-    study_count = 0
     assay_count = 0
     factor_count = 0
 
-    study_list = []
-    for study in studies:
-        assay_list = []
-        for assay in study.assay_of.all():
-            factor_list = []
-            for factor in assay.factor_of.all():
-                signature_list = []
-                for signature in factor.signature_of_of.all():
-                    sign_count +=1
-                    signature_list.append({'name': signature.name, 'type': 'signature', 'tsx_id': signature.tsx_id, 'view_url': signature.get_absolute_url(),
-                                          'create_url': {}, 'clone_url': get_clone_url('signature', project.tsx_id, signature.tsx_id),
-                                          'edit_url': get_edit_url('signature', signature.tsx_id), 'editable': editable, 'self_editable': editable})
-                factor_count += 1
-                factor_list.append({'name': factor.name, 'children': signature_list, 'type': 'factor', 'tsx_id': factor.tsx_id, 'view_url': factor.get_absolute_url(),
-                              'create_url': get_sub_create_url('factor', project.tsx_id, factor.tsx_id),
-                              'clone_url': get_clone_url('factor', project.tsx_id, factor.tsx_id),
-                              'edit_url': get_edit_url('factor', factor.tsx_id), 'editable': editable, 'self_editable': editable})
-            assay_count +=1
-            assay_list.append({'name': assay.name, 'children': factor_list, 'type': 'assay', 'tsx_id': assay.tsx_id, 'view_url': assay.get_absolute_url(),
-                              'create_url': get_sub_create_url('assay', project.tsx_id, assay.tsx_id),
-                              'clone_url': get_clone_url('assay', project.tsx_id, assay.tsx_id),
-                              'edit_url': get_edit_url('assay', assay.tsx_id), 'editable': editable, 'self_editable': editable})
-        study_count +=1
-        study_list.append({'name': study.name, 'children': assay_list, 'type': 'study', 'tsx_id': study.tsx_id, 'view_url': study.get_absolute_url(),
-                          'create_url': get_sub_create_url('study', project.tsx_id, study.tsx_id),
-                          'clone_url': get_clone_url('study', project.tsx_id, study.tsx_id),
-                          'edit_url': get_edit_url('study', study.tsx_id), 'editable': editable, 'self_editable': editable})
-    response['children'] = study_list
+    assay_list = []
+    for assay in project.assay_of.all():
+        factor_list = []
+        for factor in assay.factor_of.all():
+            signature_list = []
+            for signature in factor.signature_of_of.all():
+                sign_count +=1
+                signature_list.append({'name': signature.name, 'type': 'signature', 'tsx_id': signature.tsx_id, 'view_url': signature.get_absolute_url(),
+                                      'create_url': {}, 'clone_url': get_clone_url('signature', project.tsx_id, signature.tsx_id),
+                                      'edit_url': get_edit_url('signature', signature.tsx_id), 'editable': editable, 'self_editable': editable})
+            factor_count += 1
+            factor_list.append({'name': factor.name, 'children': signature_list, 'type': 'factor', 'tsx_id': factor.tsx_id, 'view_url': factor.get_absolute_url(),
+                          'create_url': get_sub_create_url('factor', project.tsx_id, factor.tsx_id),
+                          'clone_url': get_clone_url('factor', project.tsx_id, factor.tsx_id),
+                          'edit_url': get_edit_url('factor', factor.tsx_id), 'editable': editable, 'self_editable': editable})
+        assay_count +=1
+        assay_list.append({'name': assay.name, 'children': factor_list, 'type': 'assay', 'tsx_id': assay.tsx_id, 'view_url': assay.get_absolute_url(),
+                          'create_url': get_sub_create_url('assay', project.tsx_id, assay.tsx_id),
+                          'clone_url': get_clone_url('assay', project.tsx_id, assay.tsx_id),
+                          'edit_url': get_edit_url('assay', assay.tsx_id), 'editable': editable, 'self_editable': editable})
+
+    response['children'] = assay_list
 
     data = {
         "data": response,
-        "max_parallel": max(assay_count, study_count, sign_count, 1),
-        "max_depth": 5
+        "max_parallel": max(assay_count, sign_count, 1),
+        "max_depth": 4
     }
 
     return JsonResponse(data, safe=False)
 
 def index(request):
 
+    superprojects = Superproject.objects.all()
     all_projects = Project.objects.all().order_by('id')
     projects = []
-    studies = []
     assays = []
     signatures = []
 
@@ -232,11 +217,18 @@ def index(request):
         if check_view_permissions(request.user, project):
                 # Might be better to loop around than to request.
             projects.append(project)
-            studies = studies + [study for study in Study.objects.filter(project=project)]
-            assays = assays + [ assay for assay in Assay.objects.filter(study__project=project)]
-            signatures = signatures + [ signature for signature in Signature.objects.filter(factor__assay__study__project=project)]
+            assays = assays + [ assay for assay in Assay.objects.filter(project=project)]
+            signatures = signatures + [ signature for signature in Signature.objects.filter(factor__assay__project=project)]
 
-    project_number = len(projects)
+    paginator = Paginator(superprojects, 5)
+    page = request.GET.get('superprojects')
+    try:
+        superprojects = paginator.page(page)
+    except PageNotAnInteger:
+        superprojects = paginator.page(1)
+    except EmptyPage:
+        superprojects = paginator.page(paginator.num_pages)
+
     paginator = Paginator(projects, 5)
     page = request.GET.get('projects')
     try:
@@ -246,17 +238,6 @@ def index(request):
     except EmptyPage:
         projects = paginator.page(paginator.num_pages)
 
-    study_number = len(studies)
-    paginator = Paginator(studies, 6)
-    page = request.GET.get('studies')
-    try:
-        studies = paginator.page(page)
-    except PageNotAnInteger:
-        studies = paginator.page(1)
-    except EmptyPage:
-        studies = paginator.page(paginator.num_pages)
-
-    assay_number = len(assays)
     paginator = Paginator(assays, 6)
     page = request.GET.get('assays')
     try:
@@ -266,7 +247,6 @@ def index(request):
     except EmptyPage:
         assays = paginator.page(paginator.num_pages)
 
-    signature_number = len(signatures)
     paginator = Paginator(signatures, 6)
     page = request.GET.get('signatures')
     try:
@@ -277,14 +257,10 @@ def index(request):
         signatures = paginator.page(paginator.num_pages)
 
     context = {
+        'superproject_list': superprojects,
         'project_list': projects,
-        'study_list': studies,
         'assay_list': assays,
         'signature_list': signatures,
-        'project_number':project_number,
-        'study_number': study_number,
-        'assay_number': assay_number,
-        'signature_number': signature_number
     }
 
     return render(request, 'pages/index.html', context)
@@ -293,8 +269,6 @@ def get_sub_create_url(entity_type, prj_id, tsx_id):
     query = "?selected=" + tsx_id
 
     if entity_type == 'project':
-        return {'study': reverse('studies:study_create', kwargs={'prjid': prj_id}) + query}
-    elif entity_type == 'study':
         return {'assay': reverse('assays:assay_create', kwargs={'prjid': prj_id}) + query}
     elif entity_type == 'assay':
         return {'factor': reverse('assays:factor_create', kwargs={'prjid': prj_id}) + query}
@@ -307,8 +281,6 @@ def get_clone_url(entity_type, prj_id, tsx_id):
 
     if entity_type == 'project':
         return reverse('projects:project_create') + query
-    elif entity_type == 'study':
-        return reverse('studies:study_create', kwargs={'prjid': prj_id}) + query
     elif entity_type == 'assay':
         return reverse('assays:assay_create', kwargs={'prjid': prj_id}) + query
     elif entity_type == 'factor':
@@ -320,8 +292,6 @@ def get_edit_url(entity_type, tsx_id):
 
     if entity_type == 'project':
         return reverse('projects:project_edit', kwargs={'prjid': tsx_id})
-    elif entity_type == 'study':
-        return reverse('studies:study_edit', kwargs={'stdid': tsx_id})
     elif entity_type == 'assay':
         return reverse('assays:assay_edit', kwargs={'assid': tsx_id})
     elif entity_type == 'factor':
@@ -367,10 +337,8 @@ def search(request, model, document, entity, search_terms):
         # Now do the queries
         if entity == 'project':
             results = allowed_projects
-        elif entity == "study":
-            results = StudyDocument.search().filter("terms", project__id=allowed_projects_id_list)
         elif entity == "signature":
-            results = SignatureDocument.search().filter("terms", factor__assay__study__project__id=allowed_projects_id_list)
+            results = SignatureDocument.search().filter("terms", factor__assay__project__id=allowed_projects_id_list)
 
         if query:
             results = results.filter(query)

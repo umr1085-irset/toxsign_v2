@@ -12,7 +12,6 @@ class Migration(migrations.Migration):
     dependencies = [
         ('projects', '0002_auto_20190529_1245'),
         ('assays', '0004_auto_20190605_1558'),
-        ('studies', '0002_auto_20190529_1245'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('ontologies', '0005_auto_20190529_1039'),
     ]
@@ -56,7 +55,6 @@ class Migration(migrations.Migration):
                 ('ftc_subClass', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='signature_of_of', to='assays.Factor')),
                 ('organism', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='signature_used_in', to='ontologies.Species')),
                 ('prj_subClass', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='signature_of_of', to='projects.Project')),
-                ('std_subClass', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='signature_of_of', to='studies.Study')),
                 ('technology', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='signature_used_in', to='ontologies.Experiment')),
                 ('tissue', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='signature_used_in', to='ontologies.Tissue')),
             ],

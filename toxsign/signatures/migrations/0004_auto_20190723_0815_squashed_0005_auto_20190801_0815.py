@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('signatures', '0003_remove_signature_status'),
-        ('ontologies', '0006_auto_20190702_0937'),
+        ('ontologies', '0005_auto_20190529_1039'),
     ]
 
     operations = [

@@ -13,7 +13,6 @@ class Migration(migrations.Migration):
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('projects', '0001_initial'),
         ('ontologies', '0001_initial'),
-        ('studies', '0001_initial'),
     ]
 
     operations = [
@@ -36,8 +35,7 @@ class Migration(migrations.Migration):
                 ('cell_ligne', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='assay_used_in', to='ontologies.CellLine')),
                 ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='assays_assay_created_by', to=settings.AUTH_USER_MODEL)),
                 ('organism', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='assay_used_in', to='ontologies.Species')),
-                ('prj_subClass', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='assay_of', to='projects.Project')),
-                ('std_subClass', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='assay_of', to='studies.Study')),
+                ('project', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='assay_of', to='projects.Project')),
                 ('tissue', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='assay_used_in', to='ontologies.Tissue')),
             ],
         ),

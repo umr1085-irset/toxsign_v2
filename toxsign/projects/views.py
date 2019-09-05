@@ -12,8 +12,7 @@ from toxsign.assays.models import Assay, Factor
 from toxsign.projects.models import Project
 from toxsign.projects.forms import ProjectCreateForm, ProjectEditForm
 from toxsign.signatures.models import Signature
-from toxsign.studies.models import Study
-
+from toxsign.superprojects.models import Superproject
 
 # TODO : clear 403 page redirect (page with an explanation?)
 def DetailView(request, prjid):
@@ -21,11 +20,10 @@ def DetailView(request, prjid):
     project = get_object_or_404(Project, pk=project_object.id)
     if not check_view_permissions(request.user, project):
         return redirect('/unauthorized')
-    studies = project.study_of.all()
-    assays = Assay.objects.filter(study__project=project)
-    factors = Factor.objects.filter(assay__study__project=project)
-    signatures = Signature.objects.filter(factor__assay__study__project=project)
-    return render(request, 'projects/details.html', {'project': project,'studies': studies, 'assays': assays, 'factors': factors, 'signatures': signatures})
+    assays = Assay.objects.filter(project=project)
+    factors = Factor.objects.filter(assay__project=project)
+    signatures = Signature.objects.filter(factor__assay__project=project)
+    return render(request, 'projects/details.html', {'project': project, 'assays': assays, 'factors': factors, 'signatures': signatures})
 
 # TODO : clear 403 page redirect (page with an explanation?)
 class EditProjectView(PermissionRequiredMixin, UpdateView):
@@ -39,7 +37,8 @@ class EditProjectView(PermissionRequiredMixin, UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super(EditProjectView, self).get_form_kwargs()
-        kwargs.update({'user': self.request.user})
+        superprojects = Superproject.objects.filter(created_by=self.request.user)
+        kwargs.update({'user': self.request.user, 'superprojects': superprojects})
         return kwargs
 
     def get_object(self, queryset=None):
@@ -52,7 +51,8 @@ class CreateProjectView(LoginRequiredMixin, CreateView):
 
     def get_form_kwargs(self):
         kwargs = super(CreateProjectView, self).get_form_kwargs()
-        kwargs.update({'user': self.request.user})
+        superprojects = Superproject.objects.filter(created_by=self.request.user)
+        kwargs.update({'user': self.request.user, 'superprojects': superprojects})
         if self.request.GET.get('clone'):
             projects = Project.objects.filter(tsx_id=self.request.GET.get('clone'))
             if projects.exists():

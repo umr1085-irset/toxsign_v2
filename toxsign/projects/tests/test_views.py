@@ -51,7 +51,7 @@ class TestProjectUpdateView:
         client.login(username='random', password='user')
         project = ProjectFactory.create(created_by=user)
         new_description = project.description + '_new'
-        body = {'name': project.name, 'description': new_description, 'status': "PRIVATE", 'save': "Save"}
+        body = {'name': project.name, 'description': new_description, 'status': "PRIVATE", 'project_type':"INTERVENTIONAL", 'save': "Save"}
         response = client.post(reverse("projects:project_edit", kwargs={"prjid": project.tsx_id}), body)
         print(response)
         assert response.status_code == 302

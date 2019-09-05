@@ -32,17 +32,12 @@ class AssayCreateForm(forms.ModelForm):
 
     class Meta:
         model = Assay
-        exclude = ("tsx_id", "created_at", "created_by", "updated_at",)
+        exclude = ("tsx_id", "created_at", "created_by", "updated_at", "project")
 
     def __init__(self, *args, **kwargs):
-        self.studies = kwargs.pop('study')
         self.assay = kwargs.pop('assay', None)
 
         super(AssayCreateForm, self).__init__(*args, **kwargs)
-
-        self.fields['study'].queryset = self.studies
-        if self.studies.count() == 1:
-            self.fields['study'].initial = self.studies.first()
 
         if self.assay:
             self.fields['name'].initial = self.assay.name
@@ -52,7 +47,7 @@ class AssayCreateForm(forms.ModelForm):
             self.fields['generation'].initial = self.assay.generation
             self.fields['sex_type'].initial = self.assay.sex_type
             self.fields['exp_type'].initial = self.assay.exp_type
-            self.fields['study'].initial = self.assay.study
+            self.fields['project'].initial = self.assay.project
             self.fields['organism'].initial = self.assay.organism
             self.fields['tissue'].initial = self.assay.tissue
             self.fields['cell'].initial = self.assay.cell
@@ -66,9 +61,7 @@ class AssayCreateForm(forms.ModelForm):
 class AssayEditForm(AssayCreateForm):
 
     def __init__(self, *args, **kwargs):
-        self.studies = kwargs.pop('study')
         super(AssayCreateForm, self).__init__(*args, **kwargs)
-        self.fields['study'].queryset = self.studies
         self.helper = FormHelper(self)
         self.helper.form_method = 'POST'
         self.helper.add_input(Submit('save', 'Save'))
