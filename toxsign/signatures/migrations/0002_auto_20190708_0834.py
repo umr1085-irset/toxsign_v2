@@ -28,8 +28,4 @@ class Migration(migrations.Migration):
             model_name='signature',
             name='prj_subClass',
         ),
-        migrations.RemoveField(
-            model_name='signature',
-            name='std_subClass',
-        ),
     ]

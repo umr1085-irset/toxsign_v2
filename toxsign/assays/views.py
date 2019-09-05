@@ -100,17 +100,17 @@ class CreateAssayView(PermissionRequiredMixin, CreateView):
         return self.project
 
     def get_form_kwargs(self):
-    kwargs = super(CreateAssayView, self).get_form_kwargs()
-    if self.request.GET.get('clone'):
-        assays = Assay.objects.filter(tsx_id=self.request.GET.get('clone'))
-        if assays.exists():
-            assay = assays.first()
-            kwargs.update({'assay ': assay})
-    return kwargs
+        kwargs = super(CreateAssayView, self).get_form_kwargs()
+        if self.request.GET.get('clone'):
+            assays = Assay.objects.filter(tsx_id=self.request.GET.get('clone'))
+            if assays.exists():
+                assay = assays.first()
+                kwargs.update({'assay ': assay})
+        return kwargs
 
     def get_permission_object(self):
-     project = Project.objects.get(tsx_id=self.kwargs['prjid'])
-     return project
+        project = Project.objects.get(tsx_id=self.kwargs['prjid'])
+        return project
 
     # Autofill the user and project
     def form_valid(self, form):

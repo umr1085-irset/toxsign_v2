@@ -11,7 +11,7 @@ class ProjectCreateForm(forms.ModelForm):
 
     class Meta:
         model = Project
-        fields = ["name", "status", "read_groups", "edit_groups", "description", "superproject"]
+        fields = ["name", "status", "read_groups", "edit_groups", "description", "experimental_design", "project_type", "results", "superproject"]
         labels = {
             "status": "Visibility of the project and related entities",
             "read_groups": "Groups with viewing permissions",

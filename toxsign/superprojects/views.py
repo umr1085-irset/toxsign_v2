@@ -69,7 +69,7 @@ def create_superproject(request):
         form = SuperprojectCreateForm(request.POST)
         if form.is_valid():
             object = form.save(commit=False)
-            object.created_by = request.user
+            object.created_by = get_user(request)
             object.save()
             data['redirect'] = reverse("superprojects:detail", kwargs={"spjid": object.tsx_id})
             data['form_is_valid'] = True

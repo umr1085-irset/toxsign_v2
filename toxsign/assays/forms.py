@@ -32,17 +32,12 @@ class AssayCreateForm(forms.ModelForm):
 
     class Meta:
         model = Assay
-        exclude = ("tsx_id", "created_at", "created_by", "updated_at",)
+        exclude = ("tsx_id", "created_at", "created_by", "updated_at", "project")
 
     def __init__(self, *args, **kwargs):
-        self.projects = kwargs.pop('project')
         self.assay = kwargs.pop('assay', None)
 
         super(AssayCreateForm, self).__init__(*args, **kwargs)
-
-        self.fields['project'].queryset = self.projects
-        if self.studies.count() == 1:
-            self.fields['project'].initial = self.projects.first()
 
         if self.assay:
             self.fields['name'].initial = self.assay.name
@@ -66,9 +61,7 @@ class AssayCreateForm(forms.ModelForm):
 class AssayEditForm(AssayCreateForm):
 
     def __init__(self, *args, **kwargs):
-        self.studies = kwargs.pop('project')
         super(AssayCreateForm, self).__init__(*args, **kwargs)
-        self.fields['project'].queryset = self.studies
         self.helper = FormHelper(self)
         self.helper.form_method = 'POST'
         self.helper.add_input(Submit('save', 'Save'))

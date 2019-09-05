@@ -16,25 +16,12 @@ class Migration(migrations.Migration):
             new_name='cell_line',
         ),
         migrations.RenameField(
-            model_name='assay',
-            old_name='std_subClass',
-            new_name='study',
-        ),
-        migrations.RenameField(
             model_name='factor',
             old_name='ass_subClass',
             new_name='assay',
         ),
         migrations.RemoveField(
-            model_name='assay',
-            name='prj_subClass',
-        ),
-        migrations.RemoveField(
             model_name='factor',
             name='prj_subClass',
-        ),
-        migrations.RemoveField(
-            model_name='factor',
-            name='std_subClass',
         ),
     ]

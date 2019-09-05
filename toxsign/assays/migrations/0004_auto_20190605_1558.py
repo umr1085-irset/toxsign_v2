@@ -7,7 +7,6 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('studies', '0002_auto_20190529_1245'),
         ('projects', '0002_auto_20190529_1245'),
         ('assays', '0003_factor'),
     ]
@@ -22,11 +21,6 @@ class Migration(migrations.Migration):
             model_name='factor',
             name='prj_subClass',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='factor_of', to='projects.Project'),
-        ),
-        migrations.AddField(
-            model_name='factor',
-            name='std_subClass',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='factor_of', to='studies.Study'),
         ),
         migrations.AlterField(
             model_name='factor',

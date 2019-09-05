@@ -18,7 +18,7 @@ class Project(models.Model):
         ('PUBLIC', 'Public'),
     )
 
-      PROJECT_TYPE = (
+    PROJECT_TYPE = (
         ('INTERVENTIONAL', 'Interventional'),
         ('OBSERVATIONAL', 'Observational'),
     )
@@ -34,7 +34,7 @@ class Project(models.Model):
     status = models.CharField(max_length=20, choices=AVAILABLE_STATUS, default="PRIVATE")
     description = models.TextField("description", blank=True)
     experimental_design = models.TextField("Experimental design", blank=True)
-    study_type = models.CharField(max_length=50, choices=PROJECT, default="INTERVENTIONAL")
+    project_type = models.CharField(max_length=50, choices=PROJECT_TYPE, default="INTERVENTIONAL")
     results = models.TextField("Results", blank=True)
 
     class Meta:
