@@ -13,7 +13,7 @@ from toxsign.projects.models import Project
 from toxsign.projects.forms import ProjectCreateForm, ProjectEditForm
 from toxsign.signatures.models import Signature
 from toxsign.studies.models import Study
-
+from toxsign.superprojects.models import Superproject
 
 # TODO : clear 403 page redirect (page with an explanation?)
 def DetailView(request, prjid):
@@ -39,7 +39,8 @@ class EditProjectView(PermissionRequiredMixin, UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super(EditProjectView, self).get_form_kwargs()
-        kwargs.update({'user': self.request.user})
+        superprojects = Superproject.objects.filter(created_by=self.request.user)
+        kwargs.update({'user': self.request.user, 'superprojects': superprojects})
         return kwargs
 
     def get_object(self, queryset=None):
@@ -52,7 +53,8 @@ class CreateProjectView(LoginRequiredMixin, CreateView):
 
     def get_form_kwargs(self):
         kwargs = super(CreateProjectView, self).get_form_kwargs()
-        kwargs.update({'user': self.request.user})
+        superprojects = Superproject.objects.filter(created_by=self.request.user)
+        kwargs.update({'user': self.request.user, 'superprojects': superprojects})
         if self.request.GET.get('clone'):
             projects = Project.objects.filter(tsx_id=self.request.GET.get('clone'))
             if projects.exists():

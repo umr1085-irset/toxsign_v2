@@ -11,16 +11,18 @@ class ProjectCreateForm(forms.ModelForm):
 
     class Meta:
         model = Project
-        fields = ["name", "status", "read_groups", "edit_groups", "description"]
+        fields = ["name", "status", "read_groups", "edit_groups", "description", "superproject"]
         labels = {
             "status": "Visibility of the project and related entities",
             "read_groups": "Groups with viewing permissions",
-            "edit_groups": "Groups with editing permissions"
+            "edit_groups": "Groups with editing permissions",
+            "superproject": "Link this project to a superproject you own"
         }
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
         self.project = kwargs.pop('project', None)
+        self.superprojects =  kwargs.pop('superprojects', None)
 
         super(ProjectCreateForm, self).__init__(*args, **kwargs)
         self.fields['read_groups'].help_text = "Groups with viewing permission on project and subentities. Will be ignored if the visibility is set to public. Use 'ctrl' to select multiple/unselect."
@@ -41,6 +43,11 @@ class ProjectCreateForm(forms.ModelForm):
 
             if all([group in groups for group in self.project.edit_groups.all()]):
                 self.fields['edit_groups'].initial = self.project.edit_groups.all()
+
+        if self.superprojects:
+            self.fields['superproject'].queryset = self.superprojects
+        else:
+            self.fields['superproject'].widget.attrs['disabled'] = True
 
         self.helper = FormHelper(self)
         self.helper.form_method = 'POST'
@@ -63,6 +70,7 @@ class ProjectEditForm(ProjectCreateForm):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
+        self.superprojects =  kwargs.pop('superprojects', None)
 
         super(ProjectCreateForm, self).__init__(*args, **kwargs)
         self.fields['read_groups'].help_text = "Groups with viewing permission on project and subentities. Will be ignored if the visibility is set to public. Use 'ctrl' to select multiple/unselect."
@@ -72,6 +80,11 @@ class ProjectEditForm(ProjectCreateForm):
         groups = self.user.groups.all()
         self.fields['read_groups'].queryset = groups
         self.fields['edit_groups'].queryset = groups
+
+        if self.superprojects:
+            self.fields['superproject'].queryset = self.superprojects
+        else:
+            self.fields['superproject'].widget.attrs['disabled'] = True
 
         self.helper = FormHelper(self)
         self.helper.form_method = 'POST'
