@@ -83,6 +83,7 @@ THIRD_PARTY_APPS = [
 ]
 LOCAL_APPS = [
     "toxsign.users.apps.UsersAppConfig",
+    "toxsign.superprojects.apps.SuperprojectsAppConfig",
     "toxsign.projects.apps.ProjectsAppConfig",
     "toxsign.studies.apps.StudiesAppConfig",
     "toxsign.assays.apps.AssaysAppConfig",
