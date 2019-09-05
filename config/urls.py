@@ -36,6 +36,7 @@ urlpatterns = [
     # User management
     path("groups/", include("toxsign.groups.urls", namespace="groups")),
     path("users/", include("toxsign.users.urls", namespace="users")),
+    path("superprojects/", include("toxsign.superprojects.urls", namespace="superprojects")),
     path("projects/", include("toxsign.projects.urls", namespace="projects")),
     path("studies/", include("toxsign.studies.urls", namespace="studies")),
     path("assays/", include("toxsign.assays.urls", namespace="assays")),

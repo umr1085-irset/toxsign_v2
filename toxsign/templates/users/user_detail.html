@@ -30,16 +30,16 @@
                 </li>
                 {% if object == request.user %}
                 <li class="nav-item">
-                    <a href="" data-target="#notifications" data-toggle="tab" class="nav-link {{in_use.notification}}">Notifications ({{ notification_number }})</a>
+                    <a href="" data-target="#notifications" data-toggle="tab" class="nav-link {{in_use.notification}}">Notifications ({{ notifications | length }})</a>
                 </li>
                 <li class="nav-item">
-                    <a href="" data-target="#groups" data-toggle="tab" class="nav-link">My groups  ({{ group_number }})</a>
+                    <a href="" data-target="#groups" data-toggle="tab" class="nav-link">My groups  ({{ groups | length }})</a>
                 </li>
                 <li class="nav-item">
-                    <a href="" data-target="#project" data-toggle="tab" class="nav-link {{in_use.project}}">My projects ({{ project_number }})</a>
+                    <a href="" data-target="#superprojects" data-toggle="tab" class="nav-link {{in_use.project}}">My superprojects ({{ superprojects | length }})</a>
                 </li>
                 <li class="nav-item">
-                    <a href="" data-target="#studies" data-toggle="tab" class="nav-link disabled">Jobs</a>
+                    <a href="" data-target="#project" data-toggle="tab" class="nav-link {{in_use.project}}">My projects ({{ projects | length }})</a>
                 </li>
                 {% endif %}
             </ul>
@@ -124,10 +124,7 @@
                 </div>
                 </div>
                 <div class="tab-pane" id="groups">
-                        <div class="modal fade" id="modal-group">
-                            <div class="modal-dialog"><div class="modal-content"></div></div>
-                        </div>
-                <h2>My groups <button data-url="{% url 'groups:create' %}" class="btn btn-outline-info js-create_group float-right"><i class="fas fa-external-link-alt"></i>New</button></h2>
+                <h2>My groups <button data-url="{% url 'groups:create' %}" class="btn btn-outline-info js-create float-right"><i class="fas fa-external-link-alt"></i>New</button></h2>
                 <div class="table-responsive-xl">
                     <table class="table table-hover">
                         <thead>
@@ -153,12 +150,63 @@
                     </table>
                 </div>
                 </div>
+                <div class="tab-pane {{in_use.superproject}}" id="superprojects">
+                <h2>My superprojects <a role="button" data-url="{% url 'superprojects:superproject_create' %}" class="btn btn-outline-info js-create float-right"><i class="fas fa-external-link-alt"></i> New</a></h2>
+                  <div class="table-responsive-xl">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">Name</th>
+                          <th scope="col">Creation date</th>
+                          <th scope="col">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for superproject in superprojects %}
+                          <tr>
+                            <th><a href="{% url 'superprojects:detail' superproject.tsx_id %}">{{ superproject.tsx_id }}</a></th>
+                            <td>{{ superproject.name }}</td>
+                            <td>{{ superproject.created_at }}</td>
+                            <td>
+                              <a role="button" data-url="{% url 'superprojects:superproject_edit' superproject.tsx_id %}" class="btn btn-outline-success js-create"><i class="far fa-edit"></i> Edit</a>
+                              <a role="button" href="#" class="btn btn-outline-danger"><i class="far fa-trash-alt"></i> Delete</a>
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                    {% if superprojects %}
+                      <nav aria-label="Page navigation example">
+                        <ul class="pagination">
+                          {% if superprojects.has_previous %}
+                            <li class="page-item"><a class="page-link" href="?superprojects={{ superprojects.previous_page_number }}">&laquo;</a></li>
+                          {% else %}
+                            <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
+                          {% endif %}
+                          {% for i in superprojects.paginator.page_range %}
+                            {% if superprojects.number == i %}
+                              <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
+                            {% else %}
+                              <li class="page-item"><a class="page-link" href="?superprojects={{ i }}">{{ i }}</a></li>
+                            {% endif %}
+                          {% endfor %}
+                          {% if superprojects.has_next %}
+                            <li class="page-item"><a class="page-link" href="?superprojects={{ superprojects.next_page_number }}">&raquo;</a></li>
+                          {% else %}
+                            <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
+                          {% endif %}
+                        </ul>
+                      </nav>
+                    {% endif %}
+                  </div>
+                </div>
                 <div class="tab-pane {{in_use.project}}" id="project">
                 <h2>My projects <a role="button" href="{% url 'projects:project_create' %}" class="btn btn-outline-info float-right"><i class="fas fa-external-link-alt"></i> New</a></h2>
                   <div class="table-responsive-xl">
                     <table class="table table-hover">
                       <thead>
-                        <tr style="text-align:center;">
+                        <tr>
                           <th scope="col">#</th>
                           <th scope="col">Name</th>
                           <th scope="col">Creation date</th>
@@ -167,7 +215,7 @@
                         </tr>
                       </thead>
                       <tbody>
-                        {% for project in project_list %}
+                        {% for project in projects %}
                           <tr>
                             <th><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a></th>
                             <td>{{ project.name }}</td>
@@ -185,23 +233,23 @@
                         {% endfor %}
                       </tbody>
                     </table>
-                    {% if project_list %}
+                    {% if projects %}
                       <nav aria-label="Page navigation example">
                         <ul class="pagination">
-                          {% if project_list.has_previous %}
-                            <li class="page-item"><a class="page-link" href="?projects={{ project_list.previous_page_number }}">&laquo;</a></li>
+                          {% if projects.has_previous %}
+                            <li class="page-item"><a class="page-link" href="?projects={{ projects.previous_page_number }}">&laquo;</a></li>
                           {% else %}
                             <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
                           {% endif %}
-                          {% for i in project_list.paginator.page_range %}
-                            {% if project_list.number == i %}
+                          {% for i in projects.paginator.page_range %}
+                            {% if projects.number == i %}
                               <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
                             {% else %}
                               <li class="page-item"><a class="page-link" href="?projects={{ i }}">{{ i }}</a></li>
                             {% endif %}
                           {% endfor %}
-                          {% if project_list.has_next %}
-                            <li class="page-item"><a class="page-link" href="?projects={{ project_list.next_page_number }}">&raquo;</a></li>
+                          {% if projects.has_next %}
+                            <li class="page-item"><a class="page-link" href="?projects={{ projects.next_page_number }}">&raquo;</a></li>
                           {% else %}
                             <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
                           {% endif %}
@@ -216,6 +264,11 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modal-group">
+    <div class="modal-dialog">
+        <div class="modal-content"></div>
+    </div>
+</div>
 <hr>
 </div>
 
@@ -225,6 +278,6 @@
 {% block javascript %}
     {{ block.super }}
     <script>var token = '{{ csrf_token }}';</script>
-    <script src="{% static 'js/notifications.js' %}"></script>
+    <script src="{% static 'js/user.js' %}"></script>
 {% endblock %}
 

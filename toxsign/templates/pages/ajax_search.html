@@ -8,31 +8,40 @@
         <div class="row">
         <div class="col-md-3 ">
           <div class="list-group ">
-              <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action active">Projects ({{ statuss.projects_number }})</a>
-              <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Studies ({{ statuss.studies_number }})</a>
-              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Signatures ({{ statuss.signatures_number }})</a>
+              <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action active">Superprojects ({{ status.superprojects_number }})</a>
+              <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Projects ({{ status.projects_number }})</a>
+              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Studies ({{ status.studies_number }})</a>
+              <a href="#tab4" data-toggle="tab" class="list-group-item list-group-item-action">Signatures ({{ status.signatures_number }})</a>
             </div>
         </div>
         <div class="col-md-9">
             <div class="tab-content card">
               <div class="tab-pane active text-style card-body" id="tab1">
-                {% for project in statuss.projects %}
+                {% for superproject in status.superprojects %}
+                    <h3><a href="{% url 'superprojects:detail' superproject.tsx_id %}">{{ superproject.tsx_id }}</a> - {{superproject.name}}</h3>
+                    <small><b>Author: </b>{{ superproject.created_by.username }} - {{ superproject.created_at }}</small>
+                    <p><b>Description : </b>{{superproject.description}}</p>
+                    <hr>
+                {% endfor %}
+              </div>
+              <div class="tab-pane text-style card-body" id="tab2">
+                {% for project in status.projects %}
                     <h3><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a> - {{project.name}}</h3>
                     <small><b>Author: </b>{{ project.created_by.username }} - {{ project.created_at }}</small>
                     <p><b>Description : </b>{{project.description}}</p>
                     <hr>
                 {% endfor %}
               </div>
-              <div class="tab-pane text-style card-body" id="tab2">
-                {% for study in statuss.studies %}
+              <div class="tab-pane text-style card-body" id="tab3">
+                {% for study in status.studies %}
                       <h3><a href="{% url 'studies:detail' study.tsx_id %}">{{ study.tsx_id }}</a> - {{study.name}}</h3>
                       <small><b>Author:</b>{{ study.created_by.username }} - {{ study.created_at }}</small>
                       <p><b>Description : </b>{{study.description}}</p>
                       <hr>
                   {% endfor %}
               </div>
-              <div class="tab-pane text-style card-body" id="tab3">
-                {% for signature in statuss.signatures %}
+              <div class="tab-pane text-style card-body" id="tab4">
+                {% for signature in status.signatures %}
                     <h3><a href="{% url 'signatures:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{signature.name}}</h3>
                     <small><b>Author:</b>{{ signature.created_by.username }} - {{ signature.created_at }}</small>
                     <hr>

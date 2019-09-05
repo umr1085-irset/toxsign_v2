@@ -11,12 +11,14 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 import json
 
+from toxsign.superprojects.models import Superproject
 from toxsign.assays.models import Assay, Factor
 from toxsign.projects.models import Project
 from toxsign.signatures.models import Signature
 from toxsign.studies.models import Study
 from toxsign.projects.views import check_view_permissions, check_edit_permissions
 
+from toxsign.superprojects.documents import SuperprojectDocument
 from toxsign.projects.documents import ProjectDocument
 from toxsign.studies.documents import StudyDocument
 from toxsign.signatures.documents import SignatureDocument
@@ -49,7 +51,7 @@ def autocompleteModel(request):
         allowed_projects_id_list = [project.id for project in allowed_projects]
 
         # Now do the queries
-
+        results_superprojects = SuperprojectDocument.search()
         results_projects = allowed_projects
         results_studies = StudyDocument.search().filter("terms", project__id=allowed_projects_id_list)
         results_signatures = SignatureDocument.search().filter("terms", factor__assay__study__project__id=allowed_projects_id_list)
@@ -57,6 +59,9 @@ def autocompleteModel(request):
         # This search in all fields.. might be too much. Might need to restrict to fields we actually show on the search page..
         q = Q_es("query_string", query=query)
 
+        results_superprojects = results_superprojects.filter(q)
+        superprojects_number = results_superprojects.count()
+        results_superprojects = results_superprojects.scan()
         results_projects = results_projects.filter(q)
         projects_number = results_projects.count()
         results_projects = results_projects.scan()
@@ -72,6 +77,8 @@ def autocompleteModel(request):
     # Fallback to DB search
     # Need to select the correct error I guess
     except Exception as e:
+
+        results_superprojects = Superproject.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query))
         results_projects = Project.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query))
         results_studies = Study.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query))
         results_signatures = Signature.objects.filter(Q(name__icontains=query) | Q(tsx_id__icontains=query))
@@ -79,19 +86,22 @@ def autocompleteModel(request):
         results_projects = [project for project in results_projects if check_view_permissions(request.user, project)]
         results_studies = [study for study in results_studies if check_view_permissions(request.user, study.project)]
         results_signatures = [sig for sig in results_signatures if check_view_permissions(request.user, sig.factor.assay.study.project)]
+        superprojects_number = len(results_superprojects)
         projects_number =  len(results_projects)
         studies_number = len(results_studies)
         signatures_number = len(results_signatures)
 
     results = {
+        'superprojects_number' : superprojects_number,
         'projects_number' : projects_number,
         'studies_number' : studies_number,
         'signatures_number' : signatures_number,
+        'superprojects' : results_superprojects,
         'projects': results_projects,
         'studies': results_studies,
         'signatures': results_signatures
     }
-    return render(request, 'pages/ajax_search.html', {'statuss': results})
+    return render(request, 'pages/ajax_search.html', {'status': results})
 
 def advanced_search_form(request):
 
@@ -201,6 +211,7 @@ def graph_data(request):
 
 def index(request):
 
+    superprojects = Superproject.objects.all()
     all_projects = Project.objects.all().order_by('id')
     projects = []
     studies = []
@@ -236,7 +247,15 @@ def index(request):
             assays = assays + [ assay for assay in Assay.objects.filter(study__project=project)]
             signatures = signatures + [ signature for signature in Signature.objects.filter(factor__assay__study__project=project)]
 
-    project_number = len(projects)
+    paginator = Paginator(superprojects, 5)
+    page = request.GET.get('superprojects')
+    try:
+        superprojects = paginator.page(page)
+    except PageNotAnInteger:
+        superprojects = paginator.page(1)
+    except EmptyPage:
+        superprojects = paginator.page(paginator.num_pages)
+
     paginator = Paginator(projects, 5)
     page = request.GET.get('projects')
     try:
@@ -246,7 +265,6 @@ def index(request):
     except EmptyPage:
         projects = paginator.page(paginator.num_pages)
 
-    study_number = len(studies)
     paginator = Paginator(studies, 6)
     page = request.GET.get('studies')
     try:
@@ -256,7 +274,6 @@ def index(request):
     except EmptyPage:
         studies = paginator.page(paginator.num_pages)
 
-    assay_number = len(assays)
     paginator = Paginator(assays, 6)
     page = request.GET.get('assays')
     try:
@@ -266,7 +283,6 @@ def index(request):
     except EmptyPage:
         assays = paginator.page(paginator.num_pages)
 
-    signature_number = len(signatures)
     paginator = Paginator(signatures, 6)
     page = request.GET.get('signatures')
     try:
@@ -277,14 +293,11 @@ def index(request):
         signatures = paginator.page(paginator.num_pages)
 
     context = {
+        'superproject_list': superprojects,
         'project_list': projects,
         'study_list': studies,
         'assay_list': assays,
         'signature_list': signatures,
-        'project_number':project_number,
-        'study_number': study_number,
-        'assay_number': assay_number,
-        'signature_number': signature_number
     }
 
     return render(request, 'pages/index.html', context)
