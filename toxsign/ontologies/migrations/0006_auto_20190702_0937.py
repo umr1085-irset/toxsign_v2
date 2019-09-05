@@ -32,12 +32,12 @@ def import_data(apps, schema_editor):
                     # Need to get current model name, it does not work with apps.get_model
                     onto_model = getattr(onto_models, ontology_models[filename])
                     # Rebuild indexes
-                    for index in registry.get_indices([onto_model]):
+                    for index in registry.get_indices():
                         if index.exists():
                             index.delete()
                         index.create()
                     # Populate indexes
-                    for doc in registry.get_documents([onto_model]):
+                    for doc in registry.get_documents():
                         qs = doc().get_queryset()
                         doc().update(qs)
                 else:
@@ -121,6 +121,9 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('ontologies', '0005_auto_20190529_1039'),
+        ('signatures', '0004_auto_20190723_0815_squashed_0005_auto_20190801_0815'),
+        ('assays', '0006_remove_assay_status'),
+        ('projects', '0007_auto_20190905_1324'),
     ]
 
     operations = [
