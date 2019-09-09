@@ -1,0 +1,46 @@
+{% load crispy_forms_tags %}
+{% load static i18n %}
+
+<div class="modal-header">
+    <h4 class="modal-title">Subfactors linked to this factor</h4>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a href="" data-target="#chemical" data-toggle="tab" class="nav-link active">Chemical ({{factor.chemical_subfactor_of.count}})</a>
+        </li>
+        <li class="nav-item">
+            <a href="" data-target="#biological" data-toggle="tab" class="nav-link">Biological</a>
+        </li>
+        <li class="nav-item">
+            <a href="" data-target="#physical" data-toggle="tab" class="nav-link">Physical</a>
+        </li>
+    </ul>
+    <div class="tab-content p-b-3" style="margin-top:20px;">
+        <div class="tab-pane active" id="chemical">
+            <p>Chemical subfactors : <a role="button" href="{% url 'assays:chemical_subfactor_create' factor.tsx_id %}"class="btn btn-outline-info float-right"><i class="fas fa-external-link-alt"></i>New</a></p>
+            <hr>
+            {% if not factor.chemical_subfactor_of.count %}
+                <p>There are no chemical subfactors linked to this factor</p>
+            {% endif %}
+            {% for chemical in factor.chemical_subfactor_of.all %}
+                <p><b>Chemical</b> {% if chemical.chemical %}{{chemical.chemical.name}}{% else %}{{chemical.chemical_slug}}{% endif %}</p><br>
+                <p><b>Route</b> : {{chemical.route}} <b>Vehicule</b> : {{chemical.vehicule}}</p><br>
+                <p><b>Dose</b> : {{chemical.dose_value}} {{chemical.dose_unit}}</p><br>
+                <p><b>Exposure</b> : {{chemical.exposure_time}} {{chemical.exposure_frequencie}}</p><br>
+                <p><b>Additional info</b> : {{chemical.additional_info}}</p><br>
+                <hr>
+            {% endfor %}
+        </div>
+        <div class="tab-pane" id="biological">
+        </div>
+        <div class="tab-pane" id="physical">
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+</div>

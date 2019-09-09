@@ -76,11 +76,28 @@ class Assay(models.Model):
         super(Assay, self).save()
 
 class Factor(models.Model):
-    CHEMICAL_TYPE = (
-        ('CHEMICAL', 'Chemical'),
-        ('BIOLOGICAL', 'Biological'),
-        ('PHYSICAL', 'Physical'),
-    )
+
+    name = models.CharField(max_length=200)
+    tsx_id = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_created_by')
+    updated_at = models.DateTimeField(auto_now=True, null=True, verbose_name=("user"))
+    assay = models.ForeignKey(Assay, blank=True, null=True, on_delete=models.CASCADE, related_name='factor_of')
+
+    def __str__(self):
+        return self.name
+
+    # Redirect to assay page
+    def get_absolute_url(self):
+        return reverse('assays:factor_detail', kwargs={"facid": self.tsx_id})
+
+    # Override save method to auto increment tsx_id
+    def save(self, *args, **kwargs):
+        super(Factor, self).save(*args, **kwargs)
+        self.tsx_id = "TSF" + str(self.id)
+        super(Factor, self).save()
+
+class ChemicalsubFactor(models.Model):
 
     DOSE_UNIT = (
         ('M','M'),
@@ -98,32 +115,20 @@ class Factor(models.Model):
         ('ng/g creatinine','ng/g creatinine'),
     )
 
-    name = models.CharField(max_length=200)
-    tsx_id = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_created_by')
     updated_at = models.DateTimeField(auto_now=True, null=True, verbose_name=("user"))
-    chemical = models.ForeignKey(Chemical, blank=True, null=True, on_delete=models.CASCADE, related_name='factor_used_in')
-    chemical_slug = models.CharField(max_length=200)
-    factor_type = models.CharField(max_length=50, choices=CHEMICAL_TYPE, default="CHEMICAL")
-    route = models.CharField(max_length=200)
-    vehicule = models.CharField(max_length=200)
+    factor = models.ForeignKey(Factor, on_delete=models.CASCADE, related_name='chemical_subfactor_of')
+    chemical = models.ForeignKey(Chemical, blank=True, null=True, on_delete=models.CASCADE, related_name='chemical_subfactor_used_in')
+    chemical_slug = models.CharField(max_length=200, blank=True)
+    route = models.CharField(max_length=200, blank=True)
+    vehicule = models.CharField(max_length=200, blank=True)
     dose_value = models.FloatField(null=True, blank=True, default=None)
     dose_unit = models.CharField(max_length=50, choices=DOSE_UNIT, default="M")
     exposure_time = models.FloatField(null=True, blank=True, default=None)
-    exposure_frequencie = models.CharField(max_length=200)
+    exposure_frequencie = models.CharField(max_length=200, blank=True)
     additional_info = models.TextField("Additional information")
-    assay = models.ForeignKey(Assay, blank=True, null=True, on_delete=models.CASCADE, related_name='factor_of')
 
-    def __str__(self):
-        return self.name
-
-    # Redirect to assay page
+    # Redirect to factor page
     def get_absolute_url(self):
-        return reverse('assays:factor_detail', kwargs={"facid": self.tsx_id})
-
-    # Override save method to auto increment tsx_id
-    def save(self, *args, **kwargs):
-        super(Factor, self).save(*args, **kwargs)
-        self.tsx_id = "TSF" + str(self.id)
-        super(Factor, self).save()
+        return reverse('assays:factor_detail', kwargs={"facid": self.factor.tsx_id})

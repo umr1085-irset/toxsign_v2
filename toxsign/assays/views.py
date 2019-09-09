@@ -8,12 +8,16 @@ from django.views.generic import CreateView, DetailView, ListView, RedirectView,
 from django.contrib.auth.decorators import login_required
 
 from guardian.mixins import PermissionRequiredMixin
+from django.template.loader import render_to_string
+from django.http import JsonResponse
 
-from toxsign.projects.views import check_view_permissions
+from toxsign.projects.views import check_view_permissions, check_edit_permissions
 from toxsign.projects.models import Project
 from toxsign.assays.models import Assay, Factor
-from toxsign.assays.forms import AssayCreateForm, AssayEditForm, FactorCreateForm, FactorEditForm
+from toxsign.assays.forms import *
 from toxsign.signatures.models import Signature
+
+from django.db import transaction
 
 def DetailAssayView(request, assid):
 
@@ -156,9 +160,53 @@ class CreateFactorView(PermissionRequiredMixin, CreateView):
 
         return kwargs
 
-
     # Autofill the user
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.created_by = get_user(self.request)
         return super(CreateFactorView, self).form_valid(form)
+
+class CreateChemicalsubFactorView(PermissionRequiredMixin, CreateView):
+    model = ChemicalsubFactor
+    template_name = 'assays/subfactor_create.html'
+    form_class = ChemicalsubFactorCreateForm
+    redirect_field_name="create"
+    permission_required = 'change_project'
+    login_url = "/unauthorized"
+
+    def get_permission_object(self):
+        self.factor = get_object_or_404(Factor, tsx_id=self.kwargs['facid'])
+        project = self.factor.assay.project
+        return project
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        # Add in a QuerySet of all the books
+        context['subfactor_name'] = "Chemical subfactor"
+        return context
+
+    # Autofill the user
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.created_by = get_user(self.request)
+        self.object.factor = self.factor
+        return super(CreateChemicalsubFactorView, self).form_valid(form)
+
+def get_subfactors(request, facid):
+
+    factor = get_object_or_404(Factor, tsx_id=facid)
+    project = factor.assay.project
+
+    if not check_view_permissions(request.user, project):
+        redirect('/unauthorized')
+
+    data = {}
+    context = {'factor': factor}
+
+    data['html_form'] = render_to_string('assays/partial_subfactor_show.html',
+        context,
+        request=request,
+    )
+
+    return JsonResponse(data)

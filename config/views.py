@@ -167,7 +167,9 @@ def graph_data(request):
             factor_list.append({'name': factor.name, 'children': signature_list, 'type': 'factor', 'tsx_id': factor.tsx_id, 'view_url': factor.get_absolute_url(),
                           'create_url': get_sub_create_url('factor', project.tsx_id, factor.tsx_id),
                           'clone_url': get_clone_url('factor', project.tsx_id, factor.tsx_id),
-                          'edit_url': get_edit_url('factor', factor.tsx_id), 'editable': editable, 'self_editable': editable})
+                          'edit_url': get_edit_url('factor', factor.tsx_id), 'editable': editable, 'self_editable': editable,
+                          'subentities': [{'name' : 'Subfactors', 'is_modal': True,
+                            'view_url': reverse('assays:factor_subfactor_detail', kwargs={'facid': factor.tsx_id})}]})
         assay_count +=1
         assay_list.append({'name': assay.name, 'children': factor_list, 'type': 'assay', 'tsx_id': assay.tsx_id, 'view_url': assay.get_absolute_url(),
                           'create_url': get_sub_create_url('assay', project.tsx_id, assay.tsx_id),
