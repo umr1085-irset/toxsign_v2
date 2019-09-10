@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.views import generic
 from django.views.generic import CreateView, DetailView, ListView, RedirectView, UpdateView
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
 
 from guardian.mixins import PermissionRequiredMixin
 from django.template.loader import render_to_string
@@ -168,7 +169,7 @@ class CreateFactorView(PermissionRequiredMixin, CreateView):
 
 class CreateChemicalsubFactorView(PermissionRequiredMixin, CreateView):
     model = ChemicalsubFactor
-    template_name = 'assays/subfactor_create.html'
+    template_name = 'assays/subfactor_edit.html'
     form_class = ChemicalsubFactorCreateForm
     redirect_field_name="create"
     permission_required = 'change_project'
@@ -182,7 +183,6 @@ class CreateChemicalsubFactorView(PermissionRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
-        # Add in a QuerySet of all the books
         context['subfactor_name'] = "Chemical subfactor"
         return context
 
@@ -193,16 +193,33 @@ class CreateChemicalsubFactorView(PermissionRequiredMixin, CreateView):
         self.object.factor = self.factor
         return super(CreateChemicalsubFactorView, self).form_valid(form)
 
+class EditChemicalsubFactorView(PermissionRequiredMixin, UpdateView):
+    model = ChemicalsubFactor
+    template_name = 'assays/subfactor_create.html'
+    form_class = ChemicalsubFactorEditForm
+    redirect_field_name="edit"
+    permission_required = 'change_project'
+    login_url = "/unauthorized"
+
+    def get_permission_object(self):
+        self.subfactor = get_object_or_404(ChemicalsubFactor, id=self.kwargs['id'])
+        self.factor = self.subfactor.factor
+        project = self.factor.assay.project
+        return project
+
+    def get_object(self, queryset=None):
+        return self.subfactor
+
 def get_subfactors(request, facid):
 
     factor = get_object_or_404(Factor, tsx_id=facid)
     project = factor.assay.project
 
     if not check_view_permissions(request.user, project):
-        redirect('/unauthorized')
+        return redirect('/unauthorized')
 
     data = {}
-    context = {'factor': factor}
+    context = {'factor': factor, 'can_edit': check_edit_permissions(request.user, project)}
 
     data['html_form'] = render_to_string('assays/partial_subfactor_show.html',
         context,
@@ -210,3 +227,21 @@ def get_subfactors(request, facid):
     )
 
     return JsonResponse(data)
+
+def delete_subfactor(request, type, id):
+
+    if not request.user.is_authenticated:
+        return redirect('/unauthorized')
+
+    if type == "chemical":
+        subfactor = get_object_or_404(ChemicalsubFactor, id=id)
+
+    project = subfactor.factor.assay.project
+    factor = subfactor.factor
+
+    if not check_view_permissions(request.user, project):
+        return redirect('/unauthorized')
+
+    subfactor.delete()
+
+    return redirect(reverse("assays:factor_detail", kwargs={"facid": factor.tsx_id}))

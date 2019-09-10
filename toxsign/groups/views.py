@@ -36,7 +36,7 @@ def DetailView(request, grpid):
 def create_group(request):
 
     if not request.user.is_authenticated:
-        redirect('/unauthorized')
+        return redirect('/unauthorized')
 
     data = {}
     if request.method == 'POST':
@@ -66,7 +66,7 @@ def send_invitation(request, group_id):
     users = User.objects.exclude(Q(groups=group) | Q(notifications__group=group) | Q(username="AnonymousUser")).all()
 
     if not request.user == group.ownership.owner:
-         redirect('/unauthorized')
+         return redirect('/unauthorized')
 
     data = {}
     if request.method == 'POST':
@@ -105,7 +105,7 @@ def set_owner(request, group_id, new_owner_id):
     # Check user is owner
     # And target is not owner
     if not request.user == group.ownership.owner:
-         redirect('/unauthorized')
+         return redirect('/unauthorized')
 
     user = get_object_or_404(User, pk=new_owner_id)
     data = {}
@@ -133,11 +133,11 @@ def remove_user_from_group(request, group_id, user_to_remove_id):
     user = get_object_or_404(User, pk=user_to_remove_id)
 
     if not request.user == group.ownership.owner and not request.user == user:
-        redirect('/unauthorized')
+        return redirect('/unauthorized')
 
     if group.ownership.owner == user:
     # TODO: Give a proper error instead
-        redirect('/unauthorized')
+        return redirect('/unauthorized')
 
     data = dict()
     if request.method == 'POST':

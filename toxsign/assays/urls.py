@@ -11,4 +11,6 @@ urlpatterns = [
     path('assay/<str:assid>/', views.DetailAssayView, name='assay_detail'),
     path('edit/assay/<str:assid>/', views.EditAssayView.as_view(), name='assay_edit'),
     path('edit/factor/<str:facid>/', views.EditFactorView.as_view(), name='factor_edit'),
+    path('edit/subfactor/chemical/<int:id>', views.EditChemicalsubFactorView.as_view(), name='chemical_subfactor_edit'),
+    path('delete/subfactor/<str:type>/<int:id>', views.delete_subfactor, name='subfactor_delete'),
 ]

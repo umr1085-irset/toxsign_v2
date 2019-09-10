@@ -121,3 +121,11 @@ class ChemicalsubFactorCreateForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_method = 'POST'
         self.helper.add_input(Submit('save', 'Save'))
+
+class ChemicalsubFactorEditForm(ChemicalsubFactorCreateForm):
+
+    def __init__(self, *args, **kwargs):
+        super(ChemicalsubFactorCreateForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_method = 'POST'
+        self.helper.add_input(Submit('save', 'Save'))

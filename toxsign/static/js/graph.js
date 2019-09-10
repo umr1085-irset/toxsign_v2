@@ -173,24 +173,19 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 						   : (rectNode.height - rectNode.textMargin * 2)
 				})
 		   .append('xhtml').html(function(d) {
+                console.log(d.data.count_subentities);
 			    return '<div style="width: '
 					     + (rectNode.width - rectNode.textMargin * 2) + 'px; height: '
 					     + (rectNode.height - rectNode.textMargin * 2) + 'px;" class="node-text wordwrap">'
-						 + '<b> ' + d.data.tsx_id + '-' + d.data.name + '</b><br><br><i style="font-size:12px" class="'+ glyphicon[d.data.type]+ '"></i><br>'
+						 + '<b> ' + d.data.tsx_id + '-' + d.data.name + '</b>'
+                         + '<br><br><i style="font-size:12px" class="'+ glyphicon[d.data.type]+ '"></i><br>'
+                         + (d.data.count_subentities > 0 ? "<i>" + d.data.count_subentities + ' subentities</i>' : "")
 					     + '</div>';
        })
            .on('contextmenu', d3.contextMenu())
            .on('mouseover', tip.show)
            .on('mouseout', tip.hide);
 
-/*
-       .on('mouseover', function(d) {
-                $('.tooltip-box').css('visibility', 'hidden');
-                $('.tooltip-text').css('visibility', 'hidden');
-			    $('#nodeInfoID' + d.id).css('visibility', 'visible');
-			    $('#nodeInfoTextID' + d.id).css('visibility', 'visible');
-	   })
-*/
 
     // UPDATE
     var nodeUpdate = nodeEnter.merge(node);
