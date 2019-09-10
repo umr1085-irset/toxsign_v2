@@ -9,6 +9,9 @@ from crispy_forms.bootstrap import FormActions
 from toxsign.assays.models import Assay, Factor, ChemicalsubFactor
 from toxsign.ontologies.models import Cell, CellLine, Chemical, Species, Tissue
 
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+
 
 class AssayCreateForm(forms.ModelForm):
 
@@ -121,6 +124,22 @@ class ChemicalsubFactorCreateForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_method = 'POST'
         self.helper.add_input(Submit('save', 'Save'))
+
+    def is_valid(self):
+        valid = super(ChemicalsubFactorCreateForm, self).is_valid()
+
+        if not valid:
+            return valid
+
+        if not self.cleaned_data['chemical'] and not self.cleaned_data['chemical_slug']:
+            self.add_error("chemical", ValidationError(_('Please select either a chemical or a chemical slug'), code='invalid'))
+            return False
+
+        return True
+
+
+
+
 
 class ChemicalsubFactorEditForm(ChemicalsubFactorCreateForm):
 

@@ -11,3 +11,7 @@ def test_assay_model():
 def test_factor_model():
     factor = FactorFactory.create(name='my_factor')
     assert factor.name == 'my_factor'
+
+def test_chemical_subfactor_model():
+    subfactor = ChemicalsubFactorFactory.create(chemical_slug="Methamphetamines")
+    assert subfactor.chemical_slug == "Methamphetamines"
