@@ -1,10 +1,16 @@
 from django import forms
+
+from django.forms.models import inlineformset_factory
+
 from dal import autocomplete
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout
 from crispy_forms.bootstrap import FormActions
-from toxsign.assays.models import Assay, Factor
+from toxsign.assays.models import Assay, Factor, ChemicalsubFactor
 from toxsign.ontologies.models import Cell, CellLine, Chemical, Species, Tissue
+
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 
 class AssayCreateForm(forms.ModelForm):
@@ -69,12 +75,6 @@ class AssayEditForm(AssayCreateForm):
 
 class FactorCreateForm(forms.ModelForm):
 
-    chemical = forms.ModelChoiceField(
-                    queryset=Chemical.objects.all(),
-                    required=False,
-                    widget=autocomplete.ModelSelect2(url='/ontologies/chemical-autocomplete')
-                    )
-
     class Meta:
         model = Factor
         exclude = ("tsx_id", "created_at", "created_by", "updated_at", )
@@ -91,16 +91,6 @@ class FactorCreateForm(forms.ModelForm):
 
         if self.factor:
             self.fields['name'].initial = self.factor.name
-            self.fields['chemical'].initial = self.factor.chemical
-            self.fields['chemical_slug'].initial = self.factor.chemical_slug
-            self.fields['factor_type'].initial = self.factor.factor_type
-            self.fields['route'].initial = self.factor.route
-            self.fields['vehicule'].initial = self.factor.vehicule
-            self.fields['dose_value'].initial = self.factor.dose_value
-            self.fields['dose_unit'].initial = self.factor.dose_unit
-            self.fields['exposure_time'].initial = self.factor.exposure_time
-            self.fields['exposure_frequencie'].initial = self.factor.exposure_frequencie
-            self.fields['additional_info'].initial = self.factor.additional_info
             self.fields['assay'].initial = self.factor.assay
 
         self.helper = FormHelper(self)
@@ -113,6 +103,48 @@ class FactorEditForm(FactorCreateForm):
         self.assays = kwargs.pop('assay')
         super(FactorCreateForm, self).__init__(*args, **kwargs)
         self.fields['assay'].queryset = self.assays
+        self.helper = FormHelper(self)
+        self.helper.form_method = 'POST'
+        self.helper.add_input(Submit('save', 'Save'))
+
+class ChemicalsubFactorCreateForm(forms.ModelForm):
+
+    chemical = forms.ModelChoiceField(
+                    queryset=Chemical.objects.all(),
+                    required=False,
+                    widget=autocomplete.ModelSelect2(url='/ontologies/chemical-autocomplete')
+                    )
+
+    class Meta:
+        model = ChemicalsubFactor
+        exclude = ("created_at", "created_by", "updated_at", "factor", )
+
+    def __init__(self, *args, **kwargs):
+        super(ChemicalsubFactorCreateForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'POST'
+        self.helper.add_input(Submit('save', 'Save'))
+
+    def is_valid(self):
+        valid = super(ChemicalsubFactorCreateForm, self).is_valid()
+
+        if not valid:
+            return valid
+
+        if not self.cleaned_data['chemical'] and not self.cleaned_data['chemical_slug']:
+            self.add_error("chemical", ValidationError(_('Please select either a chemical or a chemical slug'), code='invalid'))
+            return False
+
+        return True
+
+
+
+
+
+class ChemicalsubFactorEditForm(ChemicalsubFactorCreateForm):
+
+    def __init__(self, *args, **kwargs):
+        super(ChemicalsubFactorCreateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_method = 'POST'
         self.helper.add_input(Submit('save', 'Save'))

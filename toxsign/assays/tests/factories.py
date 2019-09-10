@@ -1,5 +1,5 @@
 from factory import DjangoModelFactory, Faker, SubFactory
-from toxsign.assays.models import Assay, Factor
+from toxsign.assays.models import Assay, Factor, ChemicalsubFactor
 from toxsign.projects.tests.factories import ProjectFactory
 from toxsign.users.tests.factories import UserFactory
 from toxsign.projects.tests.factories import ProjectFactory
@@ -29,9 +29,16 @@ class FactorFactory(DjangoModelFactory):
     name = Faker("name")
     tsx_id = Faker("first_name")
     created_by = SubFactory(UserFactory)
+    assay = SubFactory('toxsign.assays.tests.factories.AssayFactory')
+    # No status?
+    class Meta:
+        model = Factor
+
+class ChemicalsubFactorFactory(DjangoModelFactory):
+
+    created_by = SubFactory(UserFactory)
     chemical = SubFactory(ChemicalFactory)
     chemical_slug = Faker("first_name")
-    factor_type = 'BIOLOGICAL'
     route = Faker("first_name")
     vehicule = Faker("first_name")
     dose_value = Faker("pyfloat")
@@ -39,7 +46,7 @@ class FactorFactory(DjangoModelFactory):
     exposure_time = Faker("pyfloat")
     exposure_frequencie = Faker("first_name")
     additional_info = Faker("text")
-    assay = SubFactory('toxsign.assays.tests.factories.AssayFactory')
+    factor = SubFactory('toxsign.assays.tests.factories.FactorFactory')
     # No status?
     class Meta:
-        model = Factor
+        model = ChemicalsubFactor

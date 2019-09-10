@@ -116,7 +116,7 @@ def dismiss_notification(request, notification_id):
     notification = Notification.objects.get(id=notification_id)
 
     if not request.user == notification.user:
-        redirect('/unauthorized')
+        return redirect('/unauthorized')
 
     data = dict()
     if request.method == 'POST':
@@ -138,10 +138,10 @@ def accept_group_invitation(request, notification_id):
     if not notification.group:
         # Need a better redirection, though this should not happen
         notification.delete()
-        redirect('/unauthorized')
+        return redirect('/unauthorized')
 
     if not request.user == notification.user:
-        redirect('/unauthorized')
+        return redirect('/unauthorized')
 
     if not request.user in notification.group.user_set.all():
         notification.group.user_set.add(request.user)

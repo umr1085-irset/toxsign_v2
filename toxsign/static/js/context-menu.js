@@ -1,5 +1,20 @@
 d3.contextMenu = function (openCallback) {
 
+    var loadForm = function (url) {
+        $.ajax({
+            url: url,
+            type: 'get',
+            dataType: 'json',
+            beforeSend: function () {
+                $("#modal-group").modal("show");
+            },
+            success: function (data) {
+                $("#modal-group .modal-content").html(data.html_form);
+            }
+        });
+        return false;
+    };
+
     // create the div element that will hold the context menu
     d3.selectAll('.d3-context-menu').data([1])
         .enter()
@@ -22,6 +37,23 @@ d3.contextMenu = function (openCallback) {
             }
           },
         ];
+
+        if ('subentities' in data.data){
+            for(var i = 0; i < data.data.subentities.length; i++){
+                let dict = {title: "View " + data.data.subentities[i].name};
+                let path = data.data.subentities[i].view_url;
+                if(data.data.subentities[i].is_modal){
+                    dict['action'] = function(elm, d, i) {
+                        loadForm(path);
+                    }
+                } else {
+                    dict['action'] = function(elm, d, i) {
+                        window.location.assign(path);
+                    }
+                }
+                menu.push(dict);
+            }
+        }
 
         if (data.data.editable){
 

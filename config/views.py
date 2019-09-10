@@ -167,7 +167,10 @@ def graph_data(request):
             factor_list.append({'name': factor.name, 'children': signature_list, 'type': 'factor', 'tsx_id': factor.tsx_id, 'view_url': factor.get_absolute_url(),
                           'create_url': get_sub_create_url('factor', project.tsx_id, factor.tsx_id),
                           'clone_url': get_clone_url('factor', project.tsx_id, factor.tsx_id),
-                          'edit_url': get_edit_url('factor', factor.tsx_id), 'editable': editable, 'self_editable': editable})
+                          'edit_url': get_edit_url('factor', factor.tsx_id), 'editable': editable, 'self_editable': editable,
+                          'count_subentities': count_subentities(factor, 'factor'),
+                          'subentities': [{'name' : 'subfactors', 'is_modal': True,
+                            'view_url': reverse('assays:factor_subfactor_detail', kwargs={'facid': factor.tsx_id})}]})
         assay_count +=1
         assay_list.append({'name': assay.name, 'children': factor_list, 'type': 'assay', 'tsx_id': assay.tsx_id, 'view_url': assay.get_absolute_url(),
                           'create_url': get_sub_create_url('assay', project.tsx_id, assay.tsx_id),
@@ -389,3 +392,10 @@ def generate_query(search_terms):
                 else:
                     query = query | new_query
     return query
+
+def count_subentities(entity, entity_type):
+    # Might use it for other entity types later on
+    count = 0
+    if entity_type == "factor":
+        count += entity.chemical_subfactor_of.count()
+    return count
