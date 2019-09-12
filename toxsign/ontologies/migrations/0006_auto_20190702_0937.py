@@ -5,7 +5,9 @@ from django_elasticsearch_dsl.registries import registry
 import toxsign.ontologies.models as onto_models
 
 import csv
+import pronto
 import os
+import requests
 import time
 
 ontology_models = {
@@ -18,104 +20,103 @@ ontology_models = {
     'specie': 'Species',
     'tissue': 'Tissue'
 }
-# Need to index after adding all ontologies instead of after each one (maybe?)
-def import_data(apps, schema_editor):
-    if os.getenv("ONTOLOGY_DATA_FOLDER"):
-        dir = os.getenv("ONTOLOGY_DATA_FOLDER").replace('"','').replace("'",'')
-        if os.path.isdir(dir) and os.listdir(dir):
-            for file in os.scandir(dir):
-                filename = file.name.split(".")[0]
-                if file.is_file() and filename in ontology_models:
-                    print("Importing file {} in model {}".format(file.name, ontology_models[filename]))
-                    model = apps.get_model('ontologies', ontology_models[filename])
-                    load_data(model, file.path)
-                    # Need to get current model name, it does not work with apps.get_model
-                    onto_model = getattr(onto_models, ontology_models[filename])
-                    # Rebuild indexes
-                    for index in registry.get_indices():
-                        if index.exists():
-                            index.delete()
-                        index.create()
-                    # Populate indexes
-                    for doc in registry.get_documents():
-                        qs = doc().get_queryset()
-                        doc().update(qs)
-                else:
-                    print("Ignoring {} : either not a file, or not a recognized model name.".format(file.name))
-        else:
-            print("The folder {} was not found, or is empty. Skipping migration".format(os.getenv("ONTOLOGY_DATA_FOLDER")))
-    else:
-        print("No ONTOLOGY_DATA_FOLDER variable set. Skipping migration")
 
-def load_data(model, data_file):
-    completed = False
-    obsoletes = []
-    start = time.time()
-    treated_ontologies = {}
-    while not completed:
-        skipped = []
-        total = 0
-        added = 0
-        with open(data_file, 'r') as line:
-            tsv = csv.reader(line, delimiter='\t')
-            for row in tsv:
-                total += 1
-                # Weird case: ancestors but no parents -> Skip and log
-                if row[5] and not row[4]:
-                    if row[0] not in obsoletes:
-                        obsoletes.append(row[0])
-                        added +=1
-                # If not parent and not treated, insert row
-                elif row[0] not in treated_ontologies and not row[4]:
-                    id = insert_data(model, row, treated_ontologies)
-                    treated_ontologies[row[0]] = id
-                    added += 1
-                # If parent & parent was treated
-                elif row[0] not in treated_ontologies and parents_treated(row, treated_ontologies):
-                    id = insert_data(model, row, treated_ontologies)
-                    treated_ontologies[row[0]] = id
-                    added += 1
-                elif row[0] not in treated_ontologies:
-                    skipped.append(row[0])
-            if added == 0:
-                # Nothing was added. Perhaps some issue in the file. Break
-                print("Breaking because nothing was added")
-                completed = True
-            # If we treated everything, break out
-            if len(treated_ontologies) == total:
-                completed = True
-    stop = time.time()
-    print("{} rows inserted in {}s. {} skipped (obsoletes). {} skipped (malformed?)".format(len(treated_ontologies), stop-start, len(obsoletes), len(skipped)))
-    if obsoletes:
-        print("Obsoletes IDs")
-        for obs in obsoletes:
-            print(obs)
-    if skipped:
-        print("Malformed(?) IDs")
-        for mal in skipped:
-            print(mal)
+def process_ontology(ontology, model, parent_id="", ancestor_id_list=[], start=False, processed = []):
 
-def insert_data(model, row, treated_ontologies):
+    if not ontology.id:
+        return processed
+    # Only process first rank ontology (to avoid starting the tree in the middle)
+    if start and ontology.parents:
+        # In case one parent is children or whatever
+        # Might be a better way for Thing..
+        if not all([parent in ontology.children for parent in ontology.parents]) and not all([parent.id == "Thing" for parent in ontology.parents]):
+            return processed
+
+    if ontology.id in processed:
+        # If multiple parents, we only parsed one branch, but the object still exist
+        # Add new parent and new ancestors
+        if len(ontology.parents) > 1:
+            object = model.objects.get(onto_id=ontology.id)
+            if parent_id:
+                object.as_parent.set(parent_id)
+            if ancestor_id_list:
+                object.as_ancestor.set(ancestor_id_list)
+        return processed
+
+    id = ontology.id
+    name = ontology.name if ontology.name else ontology.id
+
+    if ontology.synonyms:
+        synonyms = ",".join([synonym.desc for synonym in ontology.synonyms])
+
+    object = model.objects.create(onto_id=id, name=name, synonyms=synonyms)
+    if parent_id:
+        object.as_parent.set(parent_id)
+    if ancestor_id_list:
+        object.as_ancestor.set(ancestor_id_list)
+
+    # Add parents & ancestors id here
+    # Recursive loop to scale down the tree
+    ancestor_id_list.append(object.id)
+    processed.append(ontology.id)
+
+    for child in ontology.children:
+        processed = process_ontology(child, model, object.id, ancestor_id_list, processed=processed)
+    return processed
+
+def download_ontology(onto, lock):
+    url = onto['url']
+    path = onto['path']
+    model = onto['model']
+
+    if not os.path.exists(path):
+        r = requests.get(url, stream=True)
+        if r.status_code == 200:
+            with open(path, 'wb') as f:
+                for chunk in r:
+                    f.write(chunk)
+    lock.acquire()
+    if not os.path.exists(path):
+        print("Error : file not found " + path)
+        print("Skipping")
+        lock.release()
     try:
-        object = model.objects.create(onto_id=row[0], name=row[2], synonyms=row[3])
-        if row[4]:
-            parent = [treated_ontologies[name] for name in row[4].split("|")]
-            object.as_parent.set(parent)
-        if row[5]:
-            ancestors = [treated_ontologies[name] for name in row[5].split("|")]
-            object.as_ancestor.set(ancestors)
-        return object.id
+        print("Processing onto " + path)
+        processed = []
+        start = time.time()
+        ontologies = pronto.Ontology(path)
+        for ontology in ontologies:
+            processed = process_ontology(ontology, model, start=True, processed=processed)
+        end = time.time()
+        print("Time:")
+        print(end - start)
+        print(len(ontologies) - len(processed))
     except Exception as e:
-        raise Exception(" ".join(row))
+        print(e)
+    finally:
+        lock.release()
 
-def parents_treated(row, treated_ontologies):
-    if row[4]:
-        parents = row[4].split("|")
-        return all([parent in treated_ontologies for parent in parents])
-    else:
-        return True
+def launch_import(apps, schema_editor):
+    start = time.time()
+    lock = Lock()
+    url_list = []
+    with open('TOXsIgN_ontologies.csv', 'r') as line:
+        next(line)
+        tsv = csv.reader(line)
+        for row in tsv:
+            if row[3] == 'owl' or row[3] == 'obo':
+                model = apps.get_model('ontologies', ontology_models[row[2]])
+                url_list.append({"url": row[1], "path": row[4]}, "model": model)
+    procs = []
+    for onto in url_list:
+        p = Process(target=download_ontology, args=(onto, lock))
+        p.start()
+        procs.append(p)
 
-
+    for proc in procs:
+        proc.join()
+    stop = time.time()
+    print(stop-start)
 
 class Migration(migrations.Migration):
 
@@ -127,5 +128,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-	migrations.RunPython(import_data),
+	migrations.RunPython(launch_import),
     ]
