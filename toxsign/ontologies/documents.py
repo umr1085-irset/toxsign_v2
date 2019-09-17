@@ -5,10 +5,7 @@ from toxsign.ontologies.models import *
 @registry.register_document
 class BiologicalDocument(Document):
 
-    as_ancestor = fields.NestedField(properties={
-        'name': fields.TextField(),
-        'synonyms': fields.TextField()
-    })
+    onto_id = fields.KeywordField()
 
     class Index:
         # Name of the Elasticsearch index
@@ -25,25 +22,14 @@ class BiologicalDocument(Document):
             'id',
             'name',
             'synonyms',
-            'onto_id',
+            'as_children',
         ]
 
-    def get_queryset(self):
-        return super(BiologicalDocument, self).get_queryset().prefetch_related(
-            'as_ancestor'
-        )
-
-    def get_instances_from_related(self, related_instance):
-        if isinstance(related_instance, Biological):
-            return related_instance.as_grandson.all()
 
 @registry.register_document
 class CellLineDocument(Document):
 
-    as_ancestor = fields.NestedField(properties={
-        'name': fields.TextField(),
-        'synonyms': fields.TextField()
-    })
+    onto_id = fields.KeywordField()
 
     class Index:
         # Name of the Elasticsearch index
@@ -60,52 +46,14 @@ class CellLineDocument(Document):
             'id',
             'name',
             'synonyms',
-            'onto_id',
+            'as_children',
         ]
 
-@registry.register_document
-class CellLineDocument(Document):
-
-    as_ancestor = fields.NestedField(properties={
-        'name': fields.TextField(),
-        'synonyms': fields.TextField()
-    })
-
-    class Index:
-        # Name of the Elasticsearch index
-        name = 'celllines'
-        # See Elasticsearch Indices API reference for available settings
-        settings = {'number_of_shards': 1,
-                    'number_of_replicas': 0}
-
-    class Django:
-        model = CellLine # The model associated with this Document
-
-        # The fields of the model you want to be indexed in Elasticsearch
-        fields = [
-            'id',
-            'name',
-            'synonyms',
-            'onto_id',
-        ]
-
-
-    def get_queryset(self):
-        return super(CellLineDocument, self).get_queryset().prefetch_related(
-            'as_ancestor'
-        )
-
-    def get_instances_from_related(self, related_instance):
-        if isinstance(related_instance, CellLine):
-            return related_instance.as_grandson.all()
 
 @registry.register_document
 class CellDocument(Document):
 
-    as_ancestor = fields.NestedField(properties={
-        'name': fields.TextField(),
-        'synonyms': fields.TextField()
-    })
+    onto_id = fields.KeywordField()
 
     class Index:
         # Name of the Elasticsearch index
@@ -122,27 +70,14 @@ class CellDocument(Document):
             'id',
             'name',
             'synonyms',
-            'onto_id',
+            'as_children',
         ]
 
-
-
-    def get_queryset(self):
-        return super(CellDocument, self).get_queryset().prefetch_related(
-            'as_ancestor'
-        )
-
-    def get_instances_from_related(self, related_instance):
-        if isinstance(related_instance, Cell):
-            return related_instance.as_grandson.all()
 
 @registry.register_document
 class ChemicalDocument(Document):
 
-    as_ancestor = fields.NestedField(properties={
-        'name': fields.TextField(),
-        'synonyms': fields.TextField()
-    })
+    onto_id = fields.KeywordField()
 
     class Index:
         # Name of the Elasticsearch index
@@ -159,28 +94,14 @@ class ChemicalDocument(Document):
             'id',
             'name',
             'synonyms',
-            'onto_id',
+            'as_children',
         ]
 
-
-
-    def get_queryset(self):
-        return super(ChemicalDocument, self).get_queryset().prefetch_related(
-            'as_ancestor'
-        )
-
-    def get_instances_from_related(self, related_instance):
-        if isinstance(related_instance, Chemical):
-            return related_instance.as_grandson.all()
 
 @registry.register_document
 class DiseaseDocument(Document):
 
-    as_ancestor = fields.NestedField(properties={
-        'id': fields.TextField(),
-        'name': fields.TextField(),
-        'synonyms': fields.TextField()
-    })
+    onto_id = fields.KeywordField()
 
     class Index:
         # Name of the Elasticsearch index
@@ -197,27 +118,13 @@ class DiseaseDocument(Document):
             'id',
             'name',
             'synonyms',
-            'onto_id',
+            'as_children',
         ]
-
-
-
-    def get_queryset(self):
-        return super(DiseaseDocument, self).get_queryset().prefetch_related(
-            'as_ancestor'
-        )
-
-    def get_instances_from_related(self, related_instance):
-        if isinstance(related_instance, Disease):
-            return related_instance.as_grandson.all()
 
 @registry.register_document
 class ExperimentDocument(Document):
 
-    as_ancestor = fields.NestedField(properties={
-        'name': fields.TextField(),
-        'synonyms': fields.TextField()
-    })
+    onto_id = fields.KeywordField()
 
     class Index:
         # Name of the Elasticsearch index
@@ -234,27 +141,13 @@ class ExperimentDocument(Document):
             'id',
             'name',
             'synonyms',
-            'onto_id',
+            'as_children',
         ]
-
-
-
-    def get_queryset(self):
-        return super(ExperimentDocument, self).get_queryset().prefetch_related(
-            'as_ancestor'
-        )
-
-    def get_instances_from_related(self, related_instance):
-        if isinstance(related_instance, Experiment):
-            return related_instance.as_grandson.all()
 
 @registry.register_document
 class SpeciesDocument(Document):
 
-    as_ancestor = fields.NestedField(properties={
-        'name': fields.TextField(),
-        'synonyms': fields.TextField()
-    })
+    onto_id = fields.KeywordField()
 
     class Index:
         # Name of the Elasticsearch index
@@ -271,27 +164,14 @@ class SpeciesDocument(Document):
             'id',
             'name',
             'synonyms',
-            'onto_id',
+            'as_children',
         ]
 
-
-
-    def get_queryset(self):
-        return super(SpeciesDocument, self).get_queryset().prefetch_related(
-            'as_ancestor'
-        )
-
-    def get_instances_from_related(self, related_instance):
-        if isinstance(related_instance, Species):
-            return related_instance.as_grandson.all()
 
 @registry.register_document
 class TissueDocument(Document):
 
-    as_ancestor = fields.NestedField(properties={
-        'name': fields.TextField(),
-        'synonyms': fields.TextField()
-    })
+    onto_id = fields.KeywordField()
 
     class Index:
         # Name of the Elasticsearch index
@@ -308,16 +188,5 @@ class TissueDocument(Document):
             'id',
             'name',
             'synonyms',
-            'onto_id',
+            'as_children',
         ]
-
-
-
-    def get_queryset(self):
-        return super(TissueDocument, self).get_queryset().prefetch_related(
-            'as_ancestor'
-        )
-
-    def get_instances_from_related(self, related_instance):
-        if isinstance(related_instance, Tissue):
-            return related_instance.as_grandson.all()

@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('assays', '0006_remove_assay_status'),
-        ('ontologies', '0006_auto_20190702_0937'),
+        ('ontologies', '0007_auto_20190913_0724'),
     ]
 
     operations = [
