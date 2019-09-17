@@ -360,7 +360,7 @@ def generate_query(search_terms):
         "chemical": ChemicalDocument,
         "disease": DiseaseDocument,
         "experiment": ExperimentDocument,
-        "species": SpeciesDocument,
+        "organism": SpeciesDocument,
         "tissue": TissueDocument
     }
 
