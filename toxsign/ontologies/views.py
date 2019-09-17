@@ -81,9 +81,9 @@ def DetailView(request):
                 if value:
                     model = getattr(ontologymodels, field)
                     object = model.objects.get(id=value)
-                    dict['html'] = "<p><b>Pathology name : </b>{}</p>".format(object.name)
+                    dict['html'] = "<p><b>Ontology name : </b>{}</p>".format(object.name)
                     dict['html'] +="<p><b>Ontology ID : </b>{}</p>".format(object.onto_id)
-                    dict['html'] +="<p><b>Synonyms : </b>{}</p>".format(object.synonyms.replace('|', ','))
+                    dict['html'] +="<p><b>Synonyms : </b>{}</p>".format(object.synonyms)
         return JsonResponse(dict)
 
     else:
