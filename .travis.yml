@@ -4,7 +4,7 @@ python:
 services:
   - docker
 install:
-  - docker-compose -f local_test.yml up -d 
+  - docker-compose -f test.yml up -d 
   - sleep 60
 script:
-  - docker-compose -f local_test.yml run -e DATABASE_URL django pytest
+  - docker-compose -f test.yml run -e DATABASE_URL django pytest
