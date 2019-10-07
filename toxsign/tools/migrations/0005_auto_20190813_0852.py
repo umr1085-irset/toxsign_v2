@@ -23,8 +23,8 @@ def populate_default_tools(apps, schema_editor):
         status = "DEVELOPPMENT",
         link = "ontologies:search",
     )
-    onto_search_tool.icon.save("Ontology.svg", File(open("/app/testing_data/Ontology.svg", "rb")), save=True)
-    onto_search_tool.visuel.save("Ontology.svg", File(open("/app/testing_data/Ontology.svg", "rb")), save=True)
+    onto_search_tool.icon.save("Ontology.svg", File(open("/app/loading_data/images/Ontology.svg", "rb")), save=True)
+    onto_search_tool.visuel.save("Ontology.svg", File(open("/app/loading_data/images/Ontology.svg", "rb")), save=True)
     onto_search_tool.save()
     onto_search_tool.tags.add(search_tag)
     onto_search_tool.save()
@@ -39,8 +39,8 @@ def populate_default_tools(apps, schema_editor):
         link = "advanced_search",
     )
 
-    advanced_search_tool.icon.save("advanced_search.jpg", File(open("/app/testing_data/advanced_search.jpg", "rb")), save=True)
-    advanced_search_tool.visuel.save("advanced_search.jpg", File(open("/app/testing_data/advanced_search.jpg", "rb")), save=True)
+    advanced_search_tool.icon.save("advanced_search.jpg", File(open("/app/loading_data/images/advanced_search.jpg", "rb")), save=True)
+    advanced_search_tool.visuel.save("advanced_search.jpg", File(open("/app/loading_data/images/advanced_search.jpg", "rb")), save=True)
     advanced_search_tool.save()
     advanced_search_tool.tags.add(search_tag)
     advanced_search_tool.save()

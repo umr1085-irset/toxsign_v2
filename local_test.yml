@@ -16,10 +16,8 @@ services:
     volumes:
       - .:/app
     env_file:
-      - ./.envs/.local/.django
-      - ./.envs/.local/.postgres
-    environment:
-        - ONTOLOGY_DATA_FOLDER="/app/testing_data/"
+      - ./.envs/.test/.django
+      - ./.envs/.test/.postgres
     ports:
       - "8000:8000"
     command: /start
@@ -33,7 +31,7 @@ services:
       - local_postgres_data:/var/lib/postgresql/data
       - local_postgres_data_backups:/backups
     env_file:
-      - ./.envs/.local/.postgres
+      - ./.envs/.test/.postgres
 
   mailhog:
     image: mailhog/mailhog:v1.0.0

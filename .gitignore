@@ -277,3 +277,5 @@ toxsign/media/
 .env
 .envs/*
 !.envs/.local/
+
+loading_data/ontologies/TOXsIgN_ontologies.csv

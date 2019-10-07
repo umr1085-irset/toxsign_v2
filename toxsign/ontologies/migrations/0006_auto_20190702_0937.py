@@ -89,14 +89,25 @@ def temp_download_ontology(onto, lock):
         lock.release()
 
 def launch_import(apps, schema_editor):
+    # Do not populate in testing environment
+    if os.environ.get("MODE") == "TEST":
+        print("Testing environment, skipping ontologies loading")
+        return
+
+    if not os.path.exists("/app/loading_data/ontologies/TOXsIgN_ontologies.csv"):
+        print("Not TOXsIgN_ontologies.csv file found. Skipping...")
+
     start = time.time()
     # Maybe a lock for each table insead of just one?
     lock = Lock()
     url_list = []
-    with open('/app/testing_data/ontologies/TOXsIgN_ontologies.csv', 'r') as line:
+    with open('/app/loading_data/ontologies/TOXsIgN_ontologies.csv', 'r') as line:
         next(line)
         tsv = csv.reader(line)
         for row in tsv:
+            if not len(row) == 6:
+                print("Malformed row : incorrect argument number : " + len(tsv))
+                continue
             if row[3] == 'owl' or row[3] == 'obo':
                 model = apps.get_model('ontologies', ontology_models[row[2]])
                 url_list.append({"url": row[1], "path": row[4], "model": model, "location": row[5]})
@@ -121,5 +132,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-	migrations.RunPython(launch_import),
+	    migrations.RunPython(launch_import),
     ]
