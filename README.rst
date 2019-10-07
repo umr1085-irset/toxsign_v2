@@ -13,6 +13,22 @@ The TOXicogenomic sIgNature (TOXsIgN) is a user-friendly and cross-species resou
 
 :License: MIT
 
+Ontologies
+--------
+
+Currently, 8 ontologies types are available : Biological, Cell, CellLine, Chemical, Disease, Experiment, Species, Tissue
+There is an autmated script that will download and add a list of ontologies in the database.
+
+A TOXsIgN_ontologies.csv.example in available in loading_data/ontologies. It need to be filled out and  copied to loading_data/ontologies/TOXsIgN_ontologies.csv
+
+Columns are : 
+
+* Name of the ontology
+* Url where the ontology can be downloaded if remote. The data must be available with a get request, so the access key must be included in the url (url?apikey=XXXXXX)
+* Ontology type (needs to be in [biological, cell, cellline, chemical, disease, experiment, species, tissue])
+* Format (only owl and obo are supported for now)
+* Local path : Path where the file will be downloaded, or where the local file can be found. Must be a path visible from inside the docker (so /app/***/***)
+* Where the file can be found (remote or local). If set to remote, and there are no file on the specified path, the script will attempt to download it using the url column.
 
 Settings
 --------
