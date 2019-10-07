@@ -32,5 +32,3 @@ pytest-django==3.4.8  # https://github.com/pytest-dev/pytest-django
 
 xlrd==1.2.0
 Cython==0.29.13
-numpy==1.16.0
-pandas==0.23.4

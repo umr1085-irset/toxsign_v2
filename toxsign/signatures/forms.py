@@ -14,17 +14,17 @@ class SignatureCreateForm(forms.ModelForm):
     cell_line = forms.ModelMultipleChoiceField(
                 queryset=CellLine.objects.all(),
                 required=False,
-                widget=autocomplete.ModelSelect2(url='/ontologies/cellline-autocomplete', attrs={'data-minimum-input-length': 3})
+                widget=autocomplete.ModelSelect2Multiple(url='/ontologies/cellline-autocomplete', attrs={'data-minimum-input-length': 3})
               )
     cell = forms.ModelMultipleChoiceField(
                 queryset=Cell.objects.all(),
                 required=False,
-                widget=autocomplete.ModelSelect2(url='/ontologies/cell-autocomplete', attrs={'data-minimum-input-length': 3})
+                widget=autocomplete.ModelSelect2Multiple(url='/ontologies/cell-autocomplete', attrs={'data-minimum-input-length': 3})
               )
     chemical = forms.ModelMultipleChoiceField(
                 queryset=Chemical.objects.all(),
                 required=False,
-                widget=autocomplete.ModelSelect2(url='/ontologies/chemical-autocomplete', attrs={'data-minimum-input-length': 3})
+                widget=autocomplete.ModelSelect2Multiple(url='/ontologies/chemical-autocomplete', attrs={'data-minimum-input-length': 3})
               )
     disease = forms.ModelMultipleChoiceField(
                 queryset=Disease.objects.all(),
@@ -34,17 +34,17 @@ class SignatureCreateForm(forms.ModelForm):
     technology = forms.ModelMultipleChoiceField(
                 queryset=Experiment.objects.all(),
                 required=False,
-                widget=autocomplete.ModelSelect2(url='/ontologies/experiment-autocomplete', attrs={'data-minimum-input-length': 3})
+                widget=autocomplete.ModelSelect2Multiple(url='/ontologies/experiment-autocomplete', attrs={'data-minimum-input-length': 3})
               )
     organism = forms.ModelMultipleChoiceField(
                 queryset=Species.objects.all(),
                 required=False,
-                widget=autocomplete.ModelSelect2(url='/ontologies/species-autocomplete', attrs={'data-minimum-input-length': 3})
+                widget=autocomplete.ModelSelect2Multiple(url='/ontologies/species-autocomplete', attrs={'data-minimum-input-length': 3})
               )
     tissue = forms.ModelMultipleChoiceField(
                 queryset=Tissue.objects.all(),
                 required=False,
-                widget=autocomplete.ModelSelect2(url='/ontologies/tissue-autocomplete', attrs={'data-minimum-input-length': 3})
+                widget=autocomplete.ModelSelect2Multiple(url='/ontologies/tissue-autocomplete', attrs={'data-minimum-input-length': 3})
               )
 
     class Meta:

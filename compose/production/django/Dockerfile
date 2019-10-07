@@ -1,5 +1,5 @@
 
-FROM python:3.6-alpine
+FROM nickgryg/alpine-pandas
 
 ENV PYTHONUNBUFFERED 1
 

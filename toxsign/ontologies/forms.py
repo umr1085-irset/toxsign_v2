@@ -87,7 +87,7 @@ class SpeciesForm(forms.Form):
     Species = forms.ModelChoiceField(
                 queryset=Species.objects.all(),
                 required=False,
-                widget=autocomplete.ModelSelect2(url='/ontologies/species-autocomplete', attrs={'data-minimum-input-length': 3, 'onchange': 'get_details("Species_id");'})
+                widget=autocomplete.ModelSelect2(url='/ontologies/species-autocomplete', attrs={'data-minimum-input-length': 3, 'onchange': 'get_details("Species-id");'})
               )
     def __init__(self, *args, **kwargs):
         super(SpeciesForm, self).__init__(*args, **kwargs)

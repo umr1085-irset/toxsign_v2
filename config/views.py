@@ -27,7 +27,6 @@ from django.template.loader import render_to_string
 from . import forms
 from django.http import JsonResponse
 
-
 def HomeView(request):
         context = {}
         return render(request, 'pages/home.html',context)
@@ -36,7 +35,7 @@ def autocompleteModel(request):
     query = request.GET.get('q')
 
     try:
-        # Wildcard for search
+        # Wildcard for search (not optimal)
         query = "*" + query + "*"
         if request.user.is_authenticated:
             groups = [group.id for group in request.user.groups.all()]
@@ -355,15 +354,25 @@ def generate_query(search_terms):
 
     # Need a dict to link the fields to the correct document
     documentDict = {
+        "biological": BiologicalDocument,
+        "cellline": CellLineDocument,
+        "cell": CellDocument,
+        "chemical": ChemicalDocument,
         "disease": DiseaseDocument,
+        "experiment": ExperimentDocument,
+        "organism": SpeciesDocument,
+        "tissue": TissueDocument
     }
+
     for index, item in enumerate(search_terms):
             # TODO : Refactor
             if index == 0:
                 # Couldn't make double nested query work, so first query the correct ontologies, then query the correct signatures
                 if item['is_ontology']:
                     if item['ontology_options']['search_type'] == "CHILDREN":
-                        onto_query = Q_es('nested', path="as_ancestor", query=Q_es("match", as_ancestor__id=item['ontology_options']['id'])) | Q_es("match", id=item['ontology_options']['id'])
+                        q = Q_es("match", id=item['ontology_options']['id'])
+                        children_list =  [ontology.as_children for ontology in documentDict[item['arg_type']].search().query(q)][0].split(",")
+                        onto_query = q | Q_es("terms", onto_id=children_list)
                     else:
                         onto_query = Q_es("match", id=item['ontology_options']['id'])
 
@@ -376,7 +385,9 @@ def generate_query(search_terms):
             else:
                 if item['is_ontology']:
                     if item['ontology_options']['search_type'] == "CHILDREN":
-                        onto_query = Q_es('nested', path="as_ancestor", query=Q_es("match", as_ancestor__id=item['ontology_options']['id'])) | Q_es("match", id=item['ontology_options']['id'])
+                        q = Q_es("match", id=item['ontology_options']['id'])
+                        children_list =  [ontology.as_children for ontology in documentDict[item['arg_type']].search().query(q)][0].split(",")
+                        onto_query = q | Q_es("terms", onto_id=children_list)
                     else:
                         onto_query = Q_es("match", id=item['ontology_options']['id'])
 

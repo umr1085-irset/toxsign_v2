@@ -23,11 +23,11 @@
                                 <p>{{ tool.short_description}}</p>
                             </div>
                             <div class="col-md-2 my-auto">
-                                <button class="btn btn-outline-light btn-sm float-right" data-toggle="collapse" data-target="#{{tool.id}}">More info <i class="fas fa-chevron-down"></i></button>
+                                <button class="btn btn-outline-light btn-sm float-right" type="button" data-toggle="collapse" data-target="#tool-{{tool.id}}">More info <i class="fas fa-chevron-down"></i></button>
                             </div>
                         </div>
                     </div>
-                     <div class="collapse" id="{{tool.id}}">
+                     <div class="collapse" id="tool-{{tool.id}}">
                         <div class="card-body bg-light">
                             <div class="row align-items-center">
                                 <div class="col-md-3">

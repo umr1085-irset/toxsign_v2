@@ -45,7 +45,7 @@ class SignatureSearchForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(SignatureSearchForm, self).__init__(*args, **kwargs)
 
-        self.entity_fields = ['name', 'tsx_id', 'disease']
+        self.entity_fields = ['name', 'tsx_id', 'disease', 'organism']
         choices = (('', 'Select a field'),)
 
         for field in self.entity_fields:
@@ -58,6 +58,11 @@ class SignatureSearchForm(forms.Form):
                                     queryset=Disease.objects.all(),
                                     required=False,
                                     widget=autocomplete.ModelSelect2(url='/ontologies/disease-autocomplete', attrs={'data-minimum-input-length': 3})
+                                )
+        self.fields["organism"] = forms.ModelChoiceField(
+                                    queryset=Species.objects.all(),
+                                    required=False,
+                                    widget=autocomplete.ModelSelect2(url='/ontologies/species-autocomplete', attrs={'data-minimum-input-length': 3})
                                 )
         self.fields["onto_type"] = forms.ChoiceField(choices=(("SOLO","Term only"),("CHILDREN","Include children"),))
 
@@ -74,6 +79,7 @@ class SignatureSearchForm(forms.Form):
             Div('field', id="id_field_wrapper"),
             Div('value', style="display:none", id="id_value_wrapper"),
             Div('disease', style="display:none", id="id_disease_ontology_wrapper"),
+            Div('organism', style="display:none", id="id_organism_ontology_wrapper"),
             Div('onto_type', style="display:none", id="id_onto_type_wrapper"),
             Div(HTML("<button class='btn btn-primary' id='add_argument'><i class='fas fa-plus'></i></button>"), style="text-align:center;"),
         )

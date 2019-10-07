@@ -23,6 +23,10 @@ class SignatureDocument(Document):
         'id': fields.TextField(),
     })
 
+    organism = fields.NestedField(properties={
+        'id': fields.TextField(),
+    })
+
     tsx_id = fields.KeywordField()
 
     class Index:
