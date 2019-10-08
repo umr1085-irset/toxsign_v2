@@ -42,6 +42,7 @@ urlpatterns = [
     path("signatures/", include("toxsign.signatures.urls", namespace="signatures")),
     path("tools/", include("toxsign.tools.urls", namespace="tools")),
     path("jobs/", include("toxsign.jobs.urls", namespace="jobs")),
+    path("genes", include("toxsign.genes.urls", namespace="genes")),
     path("accounts/", include("allauth.urls")),
     path("ontologies/", include("toxsign.ontologies.urls", namespace="ontologies")),
     # Your stuff: custom urls includes go here
