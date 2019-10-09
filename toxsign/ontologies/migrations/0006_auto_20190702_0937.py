@@ -119,6 +119,15 @@ def launch_import(apps, schema_editor):
 
     for proc in procs:
         proc.join()
+    for index in registry.get_indices():
+        if index.exists():
+            index.delete()
+        index.create()
+        # Populate indexes
+        for doc in registry.get_documents():
+            qs = doc().get_queryset()
+            doc().update(qs)
+
     stop = time.time()
     print(stop-start)
 

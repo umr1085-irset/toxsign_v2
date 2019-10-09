@@ -29,10 +29,11 @@ class Migration(migrations.Migration):
             migrations.AddField(
                 model_name=ontology,
                 name='name',
-                field=models.TextField(verbose_name='Ontology name'),
+                field=models.CharField(max_length=200),
             ),
             migrations.RemoveField(
                 model_name=ontology,
                 name='as_parent',
             )
         ]
+
