@@ -35,10 +35,12 @@ class SignatureAdmin(admin.ModelAdmin):
         'interrogated_gene_file_path',
         'additional_file_path',
         'gene_id',
+        'expression_values',
+        'expression_values_file',
     ]}),
     ]
-    autocomplete_fields = ['disease']
     list_display = ['name', 'created_at', 'updated_at']
+    autocomplete_fields = ['disease','organism','cell', 'tissue', 'cell', 'cell_line', 'technology', 'chemical']
     search_fields = ['name']
 
 admin.site.register(Signature, SignatureAdmin)
