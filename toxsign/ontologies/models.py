@@ -8,7 +8,7 @@ from django.conf import settings
 
 
 class Biological(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.TextField(verbose_name='Ontology name')
     synonyms =  models.TextField("Synonyms", blank=True, default="")
     onto_id = models.CharField(max_length=200)
     as_children =  models.TextField("Children", blank=True, default="") #all parents
@@ -17,7 +17,7 @@ class Biological(models.Model):
         return self.name
 
 class CellLine(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.TextField(verbose_name='Ontology name')
     synonyms =  models.TextField("Synonyms", blank=True, default="")
     onto_id = models.CharField(max_length=200)
     as_children =  models.TextField("Children", blank=True, default="") #all parents
@@ -26,7 +26,7 @@ class CellLine(models.Model):
         return self.name
 
 class Cell(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.TextField(verbose_name='Ontology name')
     synonyms =  models.TextField("Synonyms", blank=True, default="")
     onto_id = models.CharField(max_length=200)
     as_children =  models.TextField("Children", blank=True, default="") #all parents
@@ -35,7 +35,7 @@ class Cell(models.Model):
         return self.name
 
 class Chemical(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.TextField(verbose_name='Ontology name')
     synonyms =  models.TextField("Synonyms", blank=True, default="")
     onto_id = models.CharField(max_length=200)
     as_children =  models.TextField("Children", blank=True, default="") #all parents
@@ -44,7 +44,7 @@ class Chemical(models.Model):
         return self.name
 
 class Disease(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.TextField(verbose_name='Ontology name')
     synonyms =  models.TextField("Synonyms", blank=True, default="")
     onto_id = models.CharField(max_length=200)
     as_children =  models.TextField("Children", blank=True, default="") #all parents
@@ -53,7 +53,7 @@ class Disease(models.Model):
         return self.name
 
 class Experiment(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.TextField(verbose_name='Ontology name')
     synonyms =  models.TextField("Synonyms", blank=True, default="")
     onto_id = models.CharField(max_length=200)
     as_children =  models.TextField("Children", blank=True, default="") #all parents
@@ -62,7 +62,7 @@ class Experiment(models.Model):
         return self.name
 
 class Species(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.TextField(verbose_name='Ontology name')
     synonyms =  models.TextField("Synonyms", blank=True, default="")
     onto_id = models.CharField(max_length=200)
     as_children =  models.TextField("Children", blank=True, default="") #all parents
@@ -71,7 +71,7 @@ class Species(models.Model):
         return self.name
 
 class Tissue(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.TextField(verbose_name='Ontology name')
     synonyms =  models.TextField("Synonyms", blank=True, default="")
     onto_id = models.CharField(max_length=200)
     as_children =  models.TextField("Children", blank=True, default="") #all parents

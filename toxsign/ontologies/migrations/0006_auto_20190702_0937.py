@@ -124,9 +124,9 @@ def launch_import(apps, schema_editor):
             index.delete()
         index.create()
         # Populate indexes
-        for doc in registry.get_documents():
-            qs = doc().get_queryset()
-            doc().update(qs)
+    for doc in registry.get_documents():
+        qs = doc().get_queryset()
+        doc().update(qs)
 
     stop = time.time()
     print(stop-start)
@@ -135,7 +135,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('ontologies', '0007_auto_20190913_0724'),
-        ('signatures', '0004_auto_20190723_0815_squashed_0005_auto_20190801_0815'),
+        ('signatures', '0006_signature_expression_values_file'),
         ('assays', '0006_remove_assay_status'),
         ('projects', '0007_auto_20190905_1324'),
     ]

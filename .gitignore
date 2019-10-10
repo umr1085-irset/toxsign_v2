@@ -278,4 +278,5 @@ toxsign/media/
 .envs/*
 !.envs/.local/
 
-loading_data/ontologies/TOXsIgN_ontologies.csv
+loading_data/ontologies/*
+!loading_data/ontologies/TOXsIgN_ontologies.csv.example
