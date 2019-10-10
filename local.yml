@@ -33,6 +33,11 @@ services:
     env_file:
       - ./.envs/.local/.postgres
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.0
+    environment:
+        - discovery.type=single-node
+
   mailhog:
     image: mailhog/mailhog:v1.0.0
     ports:
