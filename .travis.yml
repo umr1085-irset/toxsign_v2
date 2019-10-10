@@ -7,5 +7,5 @@ install:
   - docker-compose -f test.yml up -d 
   - sleep 60
 script:
-  - docker ps -a 
+  - docker-compose -f test.yml logs django
   - docker-compose -f test.yml run -e DATABASE_URL django pytest
