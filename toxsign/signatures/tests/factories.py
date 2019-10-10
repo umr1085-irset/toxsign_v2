@@ -21,17 +21,14 @@ class SignatureFactory(DjangoModelFactory):
     factor = SubFactory(FactorFactory)
     chemical_slug = Faker("text", max_nb_chars=100)
     technology_slug = Faker("text", max_nb_chars=100)
-    platform = Faker("text")
+    platform = Faker("text", max_nb_chars=100)
     control_sample_number = Faker("pyfloat")
     treated_sample_number = Faker("pyfloat")
     pvalue = Faker("pyfloat")
     cutoff = Faker("pyfloat")
     statistical_processing = Faker("text")
-    up_gene_file_path = Faker("text", max_nb_chars=400)
-    down_gene_file_path = Faker("text", max_nb_chars=400)
-    interrogated_gene_file_path = Faker("text", max_nb_chars=400)
-    additional_file_path = Faker("text", max_nb_chars=400)
     gene_id = "ENTREZ"
+    
 
     class Meta:
         model = Signature
