@@ -50,7 +50,7 @@ def populate_default_tools(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tools', '0004_auto_20190812_1432'),
+        ('tools', '0006_auto_20191010_0751'),
     ]
 
     operations = [

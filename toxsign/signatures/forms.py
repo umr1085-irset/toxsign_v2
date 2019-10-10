@@ -49,7 +49,7 @@ class SignatureCreateForm(forms.ModelForm):
 
     class Meta:
         model = Signature
-        exclude = ("tsx_id", "created_at", "created_by", "updated_at", )
+        exclude = ("tsx_id", "created_at", "created_by", "updated_at", "expression_values", "expression_values_file")
 
     def __init__(self, *args, **kwargs):
         # Too many fields to copy....

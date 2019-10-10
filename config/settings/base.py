@@ -90,6 +90,7 @@ LOCAL_APPS = [
     "toxsign.jobs.apps.JobsAppConfig",
     "toxsign.tools.apps.ToolsAppConfig",
     "toxsign.signatures.apps.SignaturesAppConfig",
+    "toxsign.genes.apps.GenesAppConfig",
     "toxsign.groups.apps.GroupsAppConfig"
     # Your stuff: custom apps go here
 ]

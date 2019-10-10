@@ -19,11 +19,11 @@ RUN apk update \
 COPY ./requirements /requirements
 RUN pip install -r /requirements/test.txt
 
-COPY ./compose/production/django/entrypoint /entrypoint
+COPY ./compose/test/django/entrypoint /entrypoint
 RUN sed -i 's/\r//' /entrypoint
 RUN chmod +x /entrypoint
 
-COPY ./compose/local/django/start /start
+COPY ./compose/test/django/start /start
 RUN sed -i 's/\r//' /start
 RUN chmod +x /start
 

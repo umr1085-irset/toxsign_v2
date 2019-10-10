@@ -76,7 +76,7 @@ def create_job(title, output, owner, task_id):
 @app.task
 def print_command_line(tool_id, args):
     tool = Tool.objects.get(id=tool_id)
-    string = "Command line : {} {} {} ".format(tool.command_line, tool.path, tool.script_name)
+    string = "Command line : {} {} {} ".format(tool.script_file)
     for argument in tool.arguments.all():
         if argument.label in args:
             string += "{} {} ".format(argument.parameter, str(args[argument.label]))
