@@ -1,9 +1,5 @@
 version: '3'
 
-volumes:
-  local_postgres_data: {}
-  local_postgres_data_backups: {}
-
 services:
   django: &django
     build:
@@ -27,9 +23,6 @@ services:
       context: .
       dockerfile: ./compose/production/postgres/Dockerfile
     image: toxsign_production_postgres
-    volumes:
-      - local_postgres_data:/var/lib/postgresql/data
-      - local_postgres_data_backups:/backups
     env_file:
       - ./.envs/.test/.postgres
 
