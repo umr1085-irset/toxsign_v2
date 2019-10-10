@@ -18,7 +18,7 @@ class default_form(forms.Form):
         super(default_form, self).__init__(*args, **kwargs)
 
         if self.projects:
-            self.signatures = Signature.objects.filter(factor__assay__study__project__in=self.projects)
+            self.signatures = Signature.objects.filter(factor__assay__project__in=self.projects)
         else:
             self.signatures = Signature.objects.all()
 
