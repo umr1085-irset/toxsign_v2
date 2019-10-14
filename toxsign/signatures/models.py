@@ -11,7 +11,6 @@ import shutil
 import time
 
 from django.core.files import File
-from toxsign.projects.models import Project
 from toxsign.assays.models import Factor, Assay
 from toxsign.genes.models import Gene
 from toxsign.ontologies.models import Biological, Cell, CellLine, Chemical, Disease, Experiment, Species, Tissue
@@ -150,7 +149,7 @@ def index_genes(signature_id):
     shutil.move(signature.up_gene_file_path.path, new_unix_path + "up_genes.txt")
     shutil.move(signature.down_gene_file_path.path, new_unix_path + "down_genes.txt")
     shutil.move(signature.interrogated_gene_file_path.path, new_unix_path + "all_genes.txt")
-    shutil.move(signature.expression_values_file.path, new_unix_path + "processed_genes.txt")
+    shutil.move(signature.expression_values_file.path, new_unix_path + signature.tsx_id + ".sign")
 
     signature.up_gene_file_path.name = new_path + "up_genes.txt"
     signature.down_gene_file_path.name = new_path + "down_genes.txt"
@@ -158,9 +157,9 @@ def index_genes(signature_id):
 
     gene_dict = generate_values(signature)
     signature.expression_values = gene_dict
-    write_gene_file(gene_dict, new_unix_path + "processed_genes.txt")
-    signature.expression_values_file.name = new_path + "processed_genes.txt"
-
+    write_gene_file(gene_dict, new_unix_path + signature.tsx_id + ".sign")
+    signature.expression_values_file.name = new_path + signature.tsx_id + ".sign"
+    signature.save()
 
 def generate_values(signature):
     # Starts from scratch
@@ -223,6 +222,6 @@ def write_gene_file(gene_values, path):
 
     file = open(path, "w")
     for key, value in gene_values.items():
-        file.write("{}\t{}\t{}\t".format(key, value["value"], value["homolog_id"]))
+        file.write("{}\t{}\t{}\n".format(key, value["value"], value["homolog_id"]))
     file.close()
 
