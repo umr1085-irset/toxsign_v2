@@ -66,7 +66,7 @@ class Project(models.Model):
         change_permission_owner(self)
         # if status was changed to public. What if it went from public to private?
         if self.initial_status != self.status and self.status == "PUBLIC":
-            change_status.delay()
+            change_status.delay(self.id)
 
 
 # Need to add some checks (or catch exception) in case there is a disconnect between existing perm and groups
@@ -112,7 +112,7 @@ def change_permission_owner(self):
 
 
 @app.task(bind=True)
-def change_status(self):
+def change_status(self, project_id):
     # Import here to avoid cyclical import
     from toxsign.signatures.models import Signature
     temp_dir_path = "/app/tools/job_dir/temp/" + self.request.id + "/"
@@ -120,8 +120,16 @@ def change_status(self):
     if os.path.exists(temp_dir_path):
         print("Folder {} already exists: stopping..".format(temp_dir_path))
 
-    os.mkdir(temp_dir_path)
+    # Should test if this project has signature. No point in recalculating if nothing is new
+    project_sig = Signature.objects.filter(factor__assay__project__id=project_id)
+    if not project_sig.exists():
+        return
+
     public_sigs = Signature.objects.filter(factor__assay__project__status="PUBLIC")
+    if not public_sigs.exists():
+        return
+
+    os.mkdir(temp_dir_path)
 
     for sig in public_sigs:
         if sig.expression_values_file:
