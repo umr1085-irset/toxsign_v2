@@ -11,9 +11,8 @@ class ProjectCreateForm(forms.ModelForm):
 
     class Meta:
         model = Project
-        fields = ["name", "status", "read_groups", "edit_groups", "description", "experimental_design", "project_type", "results", "superproject"]
+        fields = ["name", "read_groups", "edit_groups", "description", "experimental_design", "project_type", "results", "superproject"]
         labels = {
-            "status": "Visibility of the project and related entities",
             "read_groups": "Groups with viewing permissions",
             "edit_groups": "Groups with editing permissions",
             "superproject": "Link this project to a superproject you own"
@@ -35,7 +34,6 @@ class ProjectCreateForm(forms.ModelForm):
 
         if self.project:
             self.fields['name'].initial = self.project.name
-            self.fields['status'].initial = self.project.status
             self.fields['description'].initial = self.project.description
 
             if all([group in groups for group in self.project.read_groups.all()]):
@@ -59,11 +57,10 @@ class ProjectCreateForm(forms.ModelForm):
         if not valid:
             return valid
 
-        if self.cleaned_data['status'] == 'PRIVATE':
-            for edit_group in self.cleaned_data['edit_groups']:
-                if edit_group not in self.cleaned_data['read_groups']:
-                    self.add_error("edit_groups", ValidationError(_('Projects with editing rights must also have reading rights'), code='invalid'))
-                    return False
+        for edit_group in self.cleaned_data['edit_groups']:
+            if edit_group not in self.cleaned_data['read_groups']:
+                self.add_error("edit_groups", ValidationError(_('Projects with editing rights must also have reading rights'), code='invalid'))
+                return False
         return True
 
 class ProjectEditForm(ProjectCreateForm):
