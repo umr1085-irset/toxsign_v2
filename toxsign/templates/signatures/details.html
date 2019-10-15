@@ -26,6 +26,42 @@
         <div class="text-style card-body">
           <div class="tab-content card">
             <div class="text-center card-header">
+              Signature information
+            </div>
+            <div class="text-style card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <p><b>Owner</b> : {{signature.created_by.username}}</p>
+                </div>
+                <div class="col-md-6">
+                  <p><b>Signature type</b> : {{signature.signature_type}}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-content card">
+            <div class="text-center card-header">
+              Biological information
+            </div>
+            <div class="text-style card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <p><b>Organism</b> : {{signature.organism}}</p>
+                  <p><b>Experimental type</b> : {{signature.exp_type}}</p>
+                  <p><b>Cell</b> : {{signature.cell}}</p>
+                  <p><b>Cell_line</b> : {{signature.cell_line}}</p>
+                </div>
+                <div class="col-md-6">
+                  <p><b>Developmental stage</b> : {{signature.dev_stage}}</p>
+                  <p><b>Generation</b> : {{signature.generation}}</p>
+                  <p><b>Sex</b> : {{signature.sex_type}}</p>
+                  <p><b>Tissue</b> : {{signature.tissue}}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-content card">
+            <div class="text-center card-header">
               <p>Subfactors</p>
               <ul class="nav nav-tabs card-header-tabs">
                 <li class="nav-item">
@@ -67,6 +103,33 @@
                 </div>
               </div>
             </div>
+          <div class="tab-content card">
+            <div class="text-center card-header">
+              Genomic signature information
+            </div>
+            <div class="text-style card-body">
+              <p><b>Technology used : </b> :
+                {% if signature.technology %}
+                {{signature.technology}}
+                {% else %}
+                {{signature.technology_slug}}
+                {% endif %}
+              </p>
+              <p><b>Platform : </b> : {{signature.platform}}</p>
+            </div>
+          </div>
+          <div class="tab-content card">
+            <div class="text-center card-header">
+              Statistical information
+            </div>
+            <div class="text-style card-body">
+              <p><b>Statistical processing : </b> : {{signature.statistical_processing}}</p>
+              <p><b>Control samples</b> : {{signature.control_sample_number}}</p>
+              <p><b>Treated samples</b> : {{signature.treated_sample_number}}</p>
+              <p><b>Pvalue Cutoff</b> : {{signature.pvalue}}</p>
+              <p><b>FC Cutoff</b> : {{signature.cutoff}}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
