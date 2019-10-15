@@ -26,9 +26,12 @@ from toxsign.projects.views import check_view_permissions
 from toxsign.tools.models import Tool, Category
 import toxsign.tools.forms as forms
 from toxsign.jobs.models import Job
+from toxsign.signatures.models import Signature
 
 from django.conf import settings
 from toxsign.taskapp.celery import app
+
+
 
 from time import sleep
 # Create your views here.
@@ -49,8 +52,14 @@ def DetailView(request, toolid):
     form_function = getattr(forms, tool.form_name)
     data = dict()
     if request.method == 'POST':
-            data = request.POST
+            #data = request.POST
             # Do something here with the args
+            data = {}
+            # Hacky hacky: We need to pass the values, but request.POST will only contain string when passed to a function. Meaning lists will be converted to the last element
+            # So we call getlist on all arguments, to convert them as list
+            for key in request.POST:
+                if not key == "csrfmiddlewaretoken" and not key == "save":
+                    data[key] = request.POST.getlist(key)
             task = print_command_line.delay(tool.id, data)
             create_job("test", "/bla", request.user, task.id)
             return(redirect(reverse("jobs:running_jobs")))
@@ -76,8 +85,35 @@ def create_job(title, output, owner, task_id):
 @app.task
 def print_command_line(tool_id, args):
     tool = Tool.objects.get(id=tool_id)
-    string = "Command line : {} {} {} ".format(tool.script_file)
+    string = "{} ".format(tool.script_file)
     for argument in tool.arguments.all():
         if argument.label in args:
-            string += "{} {} ".format(argument.parameter, str(args[argument.label]))
+            if argument.argument_type.type == "Signature":
+                string += args_to_string(argument.parameter, args[argument.label], Signature, "expression_values_file", True)
+            else:
+                string += args_to_string(argument.parameter, args[argument.label])
     print(string)
+
+def args_to_string(parameter, value_list, model=None, field=None, is_file=False):
+    string = ""
+    # If model, get the entities
+    if model:
+        # We can access foreign key fields with the field__value syntax, but not for fileField..
+        # SO we have to query the whole thing, and call getattr twice
+        if is_file:
+            values = model.objects.filter(id__in=value_list)
+            for value in values:
+                string += "{} {} ".format(parameter, getattr(getattr(value,field), "path"))
+        else:
+            values = model.objects.filter(id__in=value_list).values(field)
+            for value in values:
+                string += "{} {} ".format(parameter, value[field])
+    else:
+        for value in value_list:
+            string += "{} {}".format(parameter, value)
+
+    return string
+
+
+
+

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+. /opt/conda/etc/profile.d/conda.sh
+
+conda info --envs | grep 'condaR_TCL' &> /dev/null
+
+if [[ $? -eq 1 ]]; then
+    conda create -y -n condaR_TCL R=3.5.1 tk
+fi
+
