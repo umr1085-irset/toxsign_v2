@@ -19,13 +19,14 @@ def DetailView(request, sigid):
 
     signature = get_object_or_404(Signature, tsx_id=sigid)
     factor = signature.factor
+    chem_subfactors = factor.chemical_subfactor_of.all()
     assay = factor.assay
     project = assay.project
 
     if not check_view_permissions(request.user, project):
         return redirect('/unauthorized')
 
-    return render(request, 'signatures/details.html', {'project': project, 'assay': assay, 'factor': factor, 'signature': signature})
+    return render(request, 'signatures/details.html', {'project': project, 'assay': assay, 'factor': factor, 'chem_subfactors': chem_subfactors, 'signature': signature})
 
 class EditSignatureView(PermissionRequiredMixin, UpdateView):
     permission_required = 'change_project'
