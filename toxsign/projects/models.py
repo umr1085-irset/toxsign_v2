@@ -14,7 +14,8 @@ import os
 import shutil
 
 from toxsign.superprojects.models import Superproject
-from toxsign.taskapp.celery import app
+from toxsign.scripts.data import change_status
+
 
 class Project(models.Model):
     AVAILABLE_STATUS = (
@@ -109,33 +110,3 @@ def change_permission_owner(self):
     for permission in owner_permissions:
         if permission not in user_permissions:
             assign_perm(permission, self.created_by, self)
-
-
-@app.task(bind=True)
-def change_status(self, project_id):
-    # Import here to avoid cyclical import
-    from toxsign.signatures.models import Signature
-    temp_dir_path = "/app/tools/job_dir/temp/" + self.request.id + "/"
-
-    if os.path.exists(temp_dir_path):
-        print("Folder {} already exists: stopping..".format(temp_dir_path))
-
-    # Should test if this project has signature. No point in recalculating if nothing is new
-    project_sig = Signature.objects.filter(factor__assay__project__id=project_id)
-    if not project_sig.exists():
-        return
-
-    public_sigs = Signature.objects.filter(factor__assay__project__status="PUBLIC")
-    if not public_sigs.exists():
-        return
-
-    os.mkdir(temp_dir_path)
-
-    for sig in public_sigs:
-        if sig.expression_values_file:
-            shutil.copy2(sig.expression_values_file.path, temp_dir_path)
-    if os.path.exists("/app/tools/admin_data/public.RData"):
-        shutil.copy2("/app/tools/admin_data/public.RData", temp_dir_path + "public.RData.old")
-
-    # Need to check the result...
-    subprocess.run(['/bin/bash', '/app/tools/make_public/make_public.sh', temp_dir_path])
