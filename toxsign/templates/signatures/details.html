@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static i18n %}
+{% load custom %}
 
 {% block content %}
 <script src="https://d3js.org/d3.v5.min.js"></script>
@@ -7,7 +8,7 @@
 <link href="{% static 'css/graph.css' %}" rel="stylesheet">
 <script src="{% static 'js/graph.js' %}"></script>
 <script src="{% static 'js/context-menu.js' %}"></script>
-    <div class="container-fluid">
+    <div class="container">
       <div class="tab-content card" style="text-align:center;">
         <div class="tab-pane active text-style card-body">
           <div id='graph'></div>
@@ -19,34 +20,150 @@
         </div>
       </div>
       <br>
-      <div class="row">
-        <div class="col-md-3 ">
-          <div class="list-group ">
-              <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action">Project</a>
-              <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Assay</a>
-              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Factor</a>
-              <a href="#tab4" data-toggle="tab" class="list-group-item list-group-item-action active">Signature</a>
-            </div>
+      <div class="tab-content card">
+        <div class="text-center card-header">
+            <h2>{{ signature.tsx_id }} - {{ signature.name }}</h2>
         </div>
-        <div class="col-md-9">
-            <div class="tab-content card">
-              <div class="tab-pane text-style card-body" id="tab1">
-                <h2><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a> - {{ project.name }}</h2>
-                <p>{{ project.description }}</p>
-              </div>
-              <div class="tab-pane text-style card-body" id="tab2">
-                <h2><a href="{% url 'assays:assay_detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{ assay.name }}</h2>
-                <hr>
-              </div>
-              <div class="tab-pane text-style card-body" id="tab3">
-                <h2><a href="{% url 'assays:factor_detail' factor.tsx_id %}">{{ factor.tsx_id }}</a> - {{ factor.name }}</h2>
-                <hr>
-              </div>
-              <div class="tab-pane active text-style card-body" id="tab4">
-                  <h2>{{ signature.tsx_id }} - {{ signature.name }}</h2>
-                  <hr>
+        <div class="text-style card-body">
+          <div class="tab-content card">
+            <div class="text-center card-header">
+              Signature information
+            </div>
+            <div class="text-style card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <p><b>Owner</b> : {{signature.created_by.username}}</p><br>
+                </div>
+                <div class="col-md-6">
+                  <p><b>Signature type</b> : {{signature.get_signature_type_display}}</p><br>
+                </div>
               </div>
             </div>
+          </div>
+          <br>
+          <div class="tab-content card">
+            <div class="text-center card-header">
+              Biological information
+            </div>
+            <div class="text-style card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <p><b>Organism</b> : {% onto_value signature.organism "m2m" %}</p><br>
+                  <p><b>Experimental type</b> : {{ signature.exp_type }}</p><br>
+                  <p><b>Cell</b> : {% onto_value signature.cell "m2m" %}</p><br>
+                  <p><b>Cell_line</b> : {% onto_value signature.cell_line "m2m" %}</p><br>
+                </div>
+                <div class="col-md-6">
+                  <p><b>Developmental stage</b> : {{signature.dev_stage}}</p><br>
+                  <p><b>Generation</b> : {{signature.generation}}</p><br>
+                  <p><b>Sex</b> : {{signature.get_sex_type_display}}</p><br>
+                  <p><b>Tissue</b> : {% onto_value signature.tissue "m2m" %}</p><br>
+                </div>
+              </div>
+            </div>
+          </div>
+          <br>
+          <div class="tab-content card">
+            <div class="text-center card-header">
+              <p>Subfactors</p>
+              <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item">
+                  <a href="" data-target="#chemical" data-toggle="tab" class="nav-link active">Chemical</a>
+                </li>
+                <li class="nav-item">
+                  <a href="" data-target="#biological" data-toggle="tab" class="nav-link">Biological</a>
+                </li>
+                <li class="nav-item">
+                  <a href="" data-target="#physical" data-toggle="tab" class="nav-link">Physical</a>
+                </li>
+              </ul>
+            </div>
+            <div class="text-style card-body">
+              <div class="tab-content">
+                <div class="tab-pane active" id="chemical">
+                  <p>Chemical subfactors :</p>
+                  <hr>
+                  {% if not chem_subfactors.count %}
+                    <p>There are no chemical subfactors linked to this signature</p>
+                  {% else %}
+                  <table class="table table-hover">
+                    <thead>
+                      <tr style="text-align:center;">
+                        <th scope="col">Chemical</th>
+                        <th scope="col">Vehicule</th>
+                        <th scope="col">Route</th>
+                        <th scope="col">Dose</th>
+                        <th scope="col">Exposure duration</th>
+                        <th scope="col">Exposure frequency</th>
+                        <th scope="col">Additional information</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for chemical in chem_subfactors %}
+                      <tr style="text-align:center;" >
+                        <td>{% onto_value chemical.chemical "foreign" chemical.chemical_slug %}</td>                    
+                        <td>{{chemical.vehicule}}</td>                    
+                        <td>{{chemical.route}}</td>                    
+                        <td>{{chemical.dose_value}} {{chemical.dose_unit}}</td>                    
+                        <td>{{chemical.exposure_time}}</td>                    
+                        <td>{{chemical.exposure_frequencie}}</td>                    
+                        <td>{{chemical.additional_info}}</td>                    
+                      </tr>
+                      {% endfor %}  
+                    </tbody>
+                </table>
+                {% endif %}
+                </div>
+                <div class="tab-pane" id="biological">
+                  <p>Biological subfactors : </p>
+                  <hr>
+                  <p>There are no biological subfactors linked to this factor</p>
+                </div>
+                <div class="tab-pane" id="physical">
+                  <p>Physical subfactors : </p>
+                  <hr>
+                  <p>There are no physical subfactors linked to this factor</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <br>
+          <div class="tab-content card">
+            <div class="text-center card-header">
+              Genomic signature information
+            </div>
+            <div class="text-style card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <p><b>Technology used </b> :
+                  {% onto_value signature.technology "m2m" signature.technology_slug %}
+                  </p>
+                </div>
+                <div class="col-md-6">
+                    <p><b>Platform</b> : {{signature.platform}}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <br>
+          <div class="tab-content card">
+            <div class="text-center card-header">
+              Statistical information
+            </div>
+            <div class="text-style card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <p><b>Control samples</b> : {{signature.control_sample_number}}</p><br>
+                  <p><b>Treated samples</b> : {{signature.treated_sample_number}}</p><br>
+                </div>
+                <div class="col-md-6">
+                  <p><b>Pvalue Cutoff</b> : {{signature.pvalue}}</p><br>
+                  <p><b>FC Cutoff</b> : {{signature.cutoff}}</p><br>
+                </div>
+              </div>
+              <p><b>Statistical processing</b> : {{signature.statistical_processing}}</p><br>
+            </div>
+          </div>
         </div>
       </div>
     </div>
