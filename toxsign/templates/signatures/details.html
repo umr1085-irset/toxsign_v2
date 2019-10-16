@@ -48,16 +48,16 @@
             <div class="text-style card-body">
               <div class="row">
                 <div class="col-md-6">
-                  <p><b>Organism</b> : {{signature.organism | onto_value}}</p><br>
-                  <p><b>Experimental type</b> : {{signature.exp_type}}</p><br>
-                  <p><b>Cell</b> : {{signature.cell | onto_value }}</p><br>
-                  <p><b>Cell_line</b> : {{signature.cell_line | onto_value }}</p><br>
+                  <p><b>Organism</b> : {% onto_value signature.organism "m2m" %}</p><br>
+                  <p><b>Experimental type</b> : {{ signature.exp_type }}</p><br>
+                  <p><b>Cell</b> : {% onto_value signature.cell "m2m" %}</p><br>
+                  <p><b>Cell_line</b> : {% onto_value signature.cell_line "m2m" %}</p><br>
                 </div>
                 <div class="col-md-6">
                   <p><b>Developmental stage</b> : {{signature.dev_stage}}</p><br>
                   <p><b>Generation</b> : {{signature.generation}}</p><br>
                   <p><b>Sex</b> : {{signature.get_sex_type_display}}</p><br>
-                  <p><b>Tissue</b> : {{signature.tissue | onto_value }}</p><br>
+                  <p><b>Tissue</b> : {% onto_value signature.tissue "m2m" %}</p><br>
                 </div>
               </div>
             </div>
@@ -101,7 +101,7 @@
                     <tbody>
                       {% for chemical in chem_subfactors %}
                       <tr style="text-align:center;" >
-                        <td>{% if chemical.chemical %}{{chemical.chemical | title}}{% else %}{{chemical.chemical_slug}}{% endif %}</td>                    
+                        <td>{% onto_value chemical.chemical "foreign" chemical.chemical_slug %}</td>                    
                         <td>{{chemical.vehicule}}</td>                    
                         <td>{{chemical.route}}</td>                    
                         <td>{{chemical.dose_value}} {{chemical.dose_unit}}</td>                    
@@ -136,11 +136,7 @@
               <div class="row">
                 <div class="col-md-6">
                   <p><b>Technology used </b> :
-                  {% if signature.technology.exists %}
-                  {{signature.technology}}
-                  {% else %}
-                  {{signature.technology_slug}}
-                  {% endif %}
+                  {% onto_value signature.technology "m2m" signature.technology_slug %}
                   </p>
                 </div>
                 <div class="col-md-6">

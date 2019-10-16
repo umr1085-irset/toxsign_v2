@@ -178,7 +178,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 					     + (rectNode.height - rectNode.textMargin * 2) + 'px;" class="node-text wordwrap">'
 						 + '<b> ' + d.data.tsx_id + '-' + d.data.name + '</b>'
                          + '<br><br><i style="font-size:12px" class="'+ glyphicon[d.data.type]+ '"></i><br>'
-                         + (d.data.type == "factor" && d.data.count_subentities > 0 ? "<i>" + d.data.count_subentities + ' subfactor(s)</i>' : "")
+                         + get_subentities(d.data.type, d.data.count_subentities)
 					     + '</div>';
        })
            .on('contextmenu', d3.contextMenu())
@@ -283,7 +283,6 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
             return 'M' + p[0] + 'C' + p[1] + ' ' + p[2] + ' ' + p[3];
     };
 
-
     // Toggle children on click.
     function click(d) {
       if (d.children) {
@@ -337,3 +336,18 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
     }
 
 }
+
+    function get_subentities(type, count){
+        if(type == "factor"){
+            console.log("ok");
+            if (count > 0){
+                return "<i>" +  count + " subfactor(s)</i>"
+            }
+            else {
+                return "<i>0 subfactors</i>"
+            }
+        } else {
+            return "";
+        }
+    }
+

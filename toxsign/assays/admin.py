@@ -52,6 +52,7 @@ class  ChemicalsubFactorAdmin(admin.ModelAdmin):
             'additional_info',
         ]}),
     ]
+    autocomplete_fields = ['chemical']
     list_display = ['created_at', 'updated_at']
 
 admin.site.register(Assay, AssayAdmin)
