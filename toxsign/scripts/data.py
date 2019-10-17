@@ -8,6 +8,10 @@ import gzip
 import subprocess
 
 from toxsign.taskapp.celery import app
+from django.conf import settings
+from toxsign.genes.models import Gene
+
+
 
 @app.task
 def index_genes(signature_id):
@@ -46,6 +50,7 @@ def change_status(self, project_id):
 
     if os.path.exists(temp_dir_path):
         print("Folder {} already exists: stopping..".format(temp_dir_path))
+        return
 
     # Should test if this project has signature. No point in recalculating if nothing is new
     project_sig = Signature.objects.filter(factor__assay__project__id=project_id)
@@ -162,6 +167,7 @@ def _prepare_values(values, file, gene_type):
 
     if gene_type == "ENTREZ":
         for gene in Gene.objects.filter(gene_id__in=genes).values('gene_id', 'homolog_id'):
+            processed_genes.add(gene['gene_id'])
             values[gene['gene_id']] = {'value': 0, 'homolog_id': gene['homolog_id']}
         for missing_gene in genes - processed_genes:
             values[missing_gene] = {'value': 0, 'homolog_id': 'NA'}
