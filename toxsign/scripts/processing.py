@@ -23,7 +23,7 @@ class TaskFailure(Exception):
    pass
 
 @app.task(bind=True)
-def run_distance(signature_id, user_id=None):
+def run_distance(self, signature_id, user_id=None):
 
     dt = datetime.datetime.utcnow()
     ztime = time.mktime(dt.timetuple())
@@ -49,7 +49,7 @@ def run_distance(signature_id, user_id=None):
         signatures = Signature.objects.filter(factor__assay__project__in=accessible_projects)
 
     selected_signature = Signature.objects.get(id=signature_id)
-    temp_dir_path = _prepare_temp_folder(task_id, selected_signature, signatures)
+    temp_dir_path = _prepare_temp_folder(task_id, selected_signature, additional_signatures=signatures, add_RData=True)
 
     if not temp_dir_path:
         logger.exception("Temp directory with this task id ({}) already exists. Stopping..".format(task_id))
@@ -61,7 +61,40 @@ def run_distance(signature_id, user_id=None):
     print(run.stdout.decode())
     print(run.stderr.decode())
 
-def _prepare_temp_folder(request_id, signature, additional_signatures):
+@app.task(bind=True)
+def run_enrich(self, signature_id, user_id=None):
+
+    dt = datetime.datetime.utcnow()
+    ztime = time.mktime(dt.timetuple())
+    task_id = self.request.id + "_" + str(ztime)
+
+    # Does it work with no rData file? Using only provided signatures?
+    if not os.path.exists("/app/tools/admin_data/annotation"):
+        logger.exception("No annotation file. Stopping..")
+        raise TaskFailure('No annotation file')
+
+    job_dir_path = "/app/tools/job_dir/results/" + task_id + "/"
+
+    if os.path.exists(job_dir_path):
+        logger.exception("Result directory {} already exists. Stopping.".format(task_id))
+        raise TaskFailure('Result directory already exists')
+
+    os.mkdir(job_dir_path)
+    selected_signature = Signature.objects.get(id=signature_id)
+
+    temp_dir_path = _prepare_temp_folder(task_id, selected_signature, additional_signatures=[], add_Homolog=True)
+
+    if not temp_dir_path:
+        logger.exception("Temp directory with this task id ({}) already exists. Stopping..".format(task_id))
+        raise TaskFailure('test')
+
+
+    run = subprocess.run(['/bin/bash', '/app/tools/run_enrich/run_enrich.sh', temp_dir_path, job_dir_path, temp_dir_path + selected_signature.tsx_id + ".sign"], capture_output=True)
+    logger.info(run.stdout.decode())
+    print(run.stdout.decode())
+    print(run.stderr.decode())
+
+def _prepare_temp_folder(request_id, signature, additional_signatures=[], add_RData=False, add_Homolog=False):
 
     temp_dir_path =  "/app/tools/job_dir/temp/" + request_id + "/"
 
@@ -75,7 +108,10 @@ def _prepare_temp_folder(request_id, signature, additional_signatures):
     for sig in additional_signatures:
         shutil.copy2(sig.expression_values_file.path, temp_dir_path)
 
-    shutil.copy2('/app/tools/admin_data/public.RData', temp_dir_path)
+    if add_RData:
+        shutil.copy2('/app/tools/admin_data/public.RData', temp_dir_path)
+    if add_Homolog:
+        shutil.copy2('/app/tools/admin_data/annotation', temp_dir_path)
 
     return temp_dir_path
 

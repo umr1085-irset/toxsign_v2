@@ -146,7 +146,7 @@ def _extract_values(values, file, gene_type, expression_value=None):
             gene_id = line.strip()
             # Shoud not happen, but just in case
             if not gene_id in values:
-                values[gene_id] = {'value': expression_value, 'homolog_id': 'NA'}
+                values[gene_id] = {'value': expression_value, 'homolog_id': 'NA', 'gene_name':"NA", 'in_base': 0}
             else:
                 values[gene_id]['value'] = expression_value
 
@@ -166,18 +166,18 @@ def _prepare_values(values, file, gene_type):
             genes.add(gene_id)
 
     if gene_type == "ENTREZ":
-        for gene in Gene.objects.filter(gene_id__in=genes).values('gene_id', 'homolog_id'):
+        for gene in Gene.objects.filter(gene_id__in=genes).values('gene_id', 'homolog_id', 'symbol'):
             processed_genes.add(gene['gene_id'])
-            values[gene['gene_id']] = {'value': 0, 'homolog_id': gene['homolog_id']}
+            values[gene['gene_id']] = {'value': 0, 'homolog_id': gene['homolog_id'], 'gene_name': gene['symbol'], 'in_base': 1}
         for missing_gene in genes - processed_genes:
-            values[missing_gene] = {'value': 0, 'homolog_id': 'NA'}
+            values[missing_gene] = {'value': 0, 'homolog_id': 'NA', 'gene_name':"NA", 'in_base': 0}
 
     else:
-        for gene in Gene.objects.filter(ensembl_id__in=genes).values('ensembl_id', 'homolog_id'):
+        for gene in Gene.objects.filter(ensembl_id__in=genes).values('ensembl_id', 'homolog_id', 'symbol'):
             processed_genes.add(gene['ensembl_id'])
-            values[gene['ensembl_id']] = {'value': 0, 'homolog_id': gene['homolog_id']}
+            values[gene['ensembl_id']] = {'value': 0, 'homolog_id': gene['homolog_id'], 'gene_name': gene['symbol'], 'in_base': 1}
         for missing_gene in genes - processed_genes:
-            values[missing_gene] = {'value': 0, 'homolog_id': 'NA'}
+            values[missing_gene] = {'value': 0, 'homolog_id': 'NA', 'gene_name':"NA", 'in_base': 0}
 
     return values
 
@@ -185,7 +185,7 @@ def _write_gene_file(gene_values, path):
 
     file = open(path, "w")
     for key, value in gene_values.items():
-        file.write("{}\t{}\t{}\n".format(key, value["value"], value["homolog_id"]))
+        file.write("{}\t{}\t{}\t{}\t{}\n".format(key, value["gene_name"], value["homolog_id"], value["in_base"], value["value"]))
     file.close()
 
 
