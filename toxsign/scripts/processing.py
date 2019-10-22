@@ -22,13 +22,12 @@ logger = get_task_logger(__name__)
 class TaskFailure(Exception):
    pass
 
-#@app.task(bind=True)
+@app.task(bind=True)
 def run_distance(signature_id, user_id=None):
 
     dt = datetime.datetime.utcnow()
     ztime = time.mktime(dt.timetuple())
-#    task_id = self.request.id + "_" + str(ztime)
-    task_id = "156446546" + "_" + str(ztime)
+    task_id = self.request.id + "_" + str(ztime)
 
     # Does it work with no rData file? Using only provided signatures?
     if not os.path.exists("/app/tools/admin_data/public.RData"):
