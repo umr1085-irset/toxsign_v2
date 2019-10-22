@@ -37,7 +37,7 @@ HGIDs <- HGIDs[which(is.na(HGIDs)==FALSE)]
 #--------------------------------------------#
 
 #--------------------------------------------#
-signmatrix <- signmatrix[setdiff(rownames(signmatrix),Sign.Names),]
+signmatrix <- signmatrix[setdiff(rownames(signmatrix),Sign.Names),, drop=F]
 #--------------------------------------------#
 
 #--------------------------------------------#
