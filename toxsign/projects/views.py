@@ -68,9 +68,9 @@ class CreateProjectView(LoginRequiredMixin, CreateView):
         self.object.created_by = get_user(self.request)
         return super(CreateProjectView, self).form_valid(form)
 
-def check_view_permissions(user, project):
+def check_view_permissions(user, project, strict=False):
     has_access = False
-    if project.status == "PUBLIC":
+    if project.status == "PUBLIC" and not strict:
         has_access = True
     elif user.is_superuser:
         has_access = True
