@@ -3,77 +3,117 @@
 
 
 {% block content %}
-    <div class="container-fluid">
-        <h2>Help, tutorials and FAQ</h2>
-        <h3>Let's start with some definitions</h3>
-        <p>TOXsIgN is a new multi-species public repository for toxicogenomic signatures... but wait a second, what is a "toxicogenomic signature"?<br>
-        <i><b>[Toxicogenomics signature]:</b>  the description of -omics (e.g. transcriptomics, proteomics, epigenomics) effects on individuals or their descendants, after exposure to single or combined environmental factors, including chemical (e.g. pesticides, plasticizers, drugs, endocrine disruptors), physical (e.g. radiations, temperature) or biological (e.g. pathogens, parasites) factors. When using transcriptomic technologies, the corresponding signature is the set of genes whose expression is known to be positively or negatively altered after an exposure to these factors.</i>
-        </p>
-
-        <h3>Why should I submit my toxicological signatures to TOXsIgN?</h3>
-
-        <p>Considerable worries have recently been raised regarding the lack of reproducibility of biomedical research, and more particularly in the field of toxicology. Funding agencies, such as the National Institutes of Health (NIH), share this concern and discuss ways to enhance reproducibility in environmental sciences by notably providing greater transparency of data, including negative findings or contradictory data that should also be adopted more widely in peer-reviewed journals. Journals and public funding agencies have thus begun to make public availability of raw and analyzed data a condition for publication or funding, respectively.</p>
-
-        <p>In addition, we believe that it is also a matter of give and take. Making toxicogenomic signatures data available to the community: i) on one hand, it will facilitate data comparison and the development of innovative tools;
-            and, ii) on the other hand, it will make your toxicological studies and publications more visible (as investigators will be able to compare their own signature data with yours) and it will thus boost citations of your scientific articles.</p>
-
-
-        <h3>Is TOXsIgN intended to replace existing toxicological databases?</h3>
-        <p>This repository is not intended either to archive raw data, as GEO and ArrayExpress do, or to replace existing toxicogenomics databases such as <a href="http://ctdbase.org/">CTD</a>, <a href="http://www.lincsproject.org/">LINCS</a>,
-            <a href="http://www.dixa-fp7.eu/">diXa</a> and <a href="https://tools.niehs.nih.gov/cebs3/ui/">CEBS</a>, but rather to complement these resources by acting as
-            a distribution hub of toxicogenomic signatures directly submitted by scientists of the community. In addition to serving as a public archive, TOXsIgN also intends to become a warehouse
-            for toxicogenomics and predictive toxicology tools. Its modular design will facilitate the implementation of tools leaning on the deposited signatures that will help investigators analyze, predict and prioritize the toxicological effects
-            of environmental factors.</p>
-
-
-
-        <h3>How is data organized in the TOXsIgN repository?</h3>
-        <p>The TOXsIgN database is organized in a four-layer architecture (Project > Assay > Factor > Signature) associated with a unique identifier that can be reported in submitted manuscripts, like the raw data identifiers from <a href="https://www.ncbi.nlm.nih.gov/geo/">GEO</a>
-        or <a href="https://www.ebi.ac.uk/arrayexpress/">ArrayExpress</a>. The project layer (associated with an identifier with the “TSP” prefix) covers one or several studies (or subprojects, “TSE” prefix) addressing specific questions.
-        Each study in turn is associated with at least one assay (“TST” prefix) that assesses the exposure of a given study model (e.g., cell culture, living animal, human population) to at least one
-        chemical (e.g., pesticide, plasticizer, drug, or endocrine disruptor), physical (e.g., type of radia-tion or temperature) or biological (e.g., pathogen or parasite) agent at a given dose and for a given time of exposure.
-        Specific outcomes are extracted for each assay in the form of toxicogenomic signatures (“TSS” prefix), i.e., the set of over- and underexpressed genes. Importantly, this organization is compatible with mixtures and transgenerational studies.</p>
-
-
-        <h3>As far as molecular and "omics" signatures are concerned, what types of database entries are suitable?</h3>
-        <p>In its current state, TOXsIgN is a gene-centric repository that only accepts NCBI Entrez Gene identifiers (IDs) for molecular and "omics" signatures.
-        This restriction has one major advantage: it allows users to perform cross-technology and cross-species comparison of toxicogenomic signatures. As reliable and consistent gene ID conversion is a complex problem.
-        Because reliable and consistent identifier conversion is a complex problem, toxicogenomic signatures should be converted to Entrez Gene IDs from up-to-date resources before being submitted in TOXsIgN (<a href = "http://ailun.stanford.edu/">AILUN</a>, <a href= "https://david.ncifcrf.gov/conversion.jsp">DAVID</a> or <a href="http://www.uniprot.org/uploadlists/">UniProt</a>).
-        For experiments with Affymetrix GeneChip technologies, it is highly recommended that users normalize their raw data (CEL files) with the <a href="http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/CDF_download.asp">BRAINARRAY custom Chip Description Files (CDF</a> so that intensity values are not summarized for each probe set but directly for each Entrez gene ID (Dai et al., 2005).
-        </p>
-
-        <h3>May I submit large datasets such as DrugMatrix or Open TG-GATEs?</h3>
-        <p>In its current state, bulk submissions of large datasets (e.g. toxicogenomic signatures for hundreds of environmental factors) is not yet incorporated in TOXsIgN.
-        Nevertheless, the TOXsIgN team will be pleased to help you submit your toxicogenomic signatures. Do not hesitate to contact us!</p>
-
-
-        <h3>How to submit toxicological signatures in TOXsIgN?</h3>
-        <p>In a quick and easy submission procedure, investigators will record all required information in a dedicated Excel template. This file embeds one tab for each layer (Project, Study, Assay, and Signature) and it integrates a dozen landmark controlled
-        vocabularies (ontologies) allowing scientists to describe their toxicogenomic studies and their outcomes with precision. Once uploaded, the TOXsIgN webserver performs an initial evaluation of the Excel template to identify:
-        i) “critical errors” about essential information that may not have been properly completed (such as the project title) and could therefore prevent the project upload;
-        ii) “warnings” for important but not essential missing information (such as a PubMed identifier); and, iii) “information” for any other data not appropriately completed (such as additional information).
-        If the system detects no “critical error”, it next invites the user to upload the associated toxicogenomic signatures. Each signature comprises three one-column text files specifying:
-        i) all interrogated genes; ii) significantly overexpressed genes; and iii) underex-pressed genes.</p>
-
-        <h3>How to change the project status from Private to Public?</h3>
-        <p>By default, each submitted project and its related signatures are tagged with a “private” status meaning that only authorized users (the owner but also coauthors) can access the uploaded data. At this stage, information can still be modified simply by uploading an updated version of the Excel template.
-        A button is available on the web interface for each project to request the TOXsIgN administrators to change the project status from private to public. If “warnings” are still detected, this demand is rejected.
-        The administrators will then help the investigators make the necessary modifications to change the status. Full instructions and examples of the submission procedure are provided in the <a href="#/tutorial">tutorial section</a>.</p>
-
-
-        <h3>How to download the Excel template</h3>
-        <p>The latest release of the Excel template document for uploading signatures in the repository and all ontologies (OBO files) used in TOXsIgN are available in a dedicated web page accessible
-        through the <a href="#/downloads">Download</a> tab on the main interface.</p>
-
-        <h3>How to query the database using the TOXsIgN search engine?</h3>
-        <p>A powerful search engine is implemented to access all public information within TOXsIgN. Users can thus interrogate the database ac-cording to many distinct fields, such as environmental factors, organisms, tissues, and technologies.
-        They can also easily make more advanced queries by using ontologies to describe toxicogenomic signatures.</p>
-
-        <h3>How to share the toxicogenomic tools I developed with the community?</h3>
-
-        <p>Several toxicogenomic tools are already available in the warehouse and others are currently being developed in our lab. If you want to make a contribution to TOXsIgN by sharing your own developed tools, please feel free to contact us
-        and we will do our best to help you integrate this new module in the web interface</p>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                 <h2>Help, tutorials and FAQ</h2>
+            </div>
+        </div>
+        <div class="row my-5">
+            <div class="col-md-8 mb-5">
+                 <h2>Let's start with some definitions</h2>
+                 <hr>
+                 <p>TOXsIgN is a new multi-species public repository for toxicogenomic signatures... but wait a second, what is a "toxicogenomic signature"?<br>
+                <i><b>[Toxicogenomics signature]:</b>  the description of -omics (e.g. transcriptomics, proteomics, epigenomics) effects on individuals or their descendants, after exposure to single or combined environmental factors, including chemical (e.g. pesticides, plasticizers, drugs, endocrine disruptors), physical (e.g. radiations, temperature) or biological (e.g. pathogens, parasites) factors. When using transcriptomic technologies, the corresponding signature is the set of genes whose expression is known to be positively or negatively altered after an exposure to these factors.</i>
+                </p>
+            </div>
         </div>
 
+        <div class="row my-5">
+            <div class="col-md-8 mb-5">
+                <h2>Why should I submit my toxicological signatures to TOXsIgN?</h2>
+                <hr>
+                <p>Considerable worries have recently been raised regarding the lack of reproducibility of biomedical research, and more particularly in the field of toxicology. Funding agencies, such as the National Institutes of Health (NIH), share this concern and discuss ways to enhance reproducibility in environmental sciences by notably providing greater transparency of data, including negative findings or contradictory data that should also be adopted more widely in peer-reviewed journals. Journals and public funding agencies have thus begun to make public availability of raw and analyzed data a condition for publication or funding, respectively.</p>
+                <p>In addition, we believe that it is also a matter of give and take. Making toxicogenomic signatures data available to the community: i) on one hand, it will facilitate data comparison and the development of innovative tools;
+                and, ii) on the other hand, it will make your toxicological studies and publications more visible (as investigators will be able to compare their own signature data with yours) and it will thus boost citations of your scientific articles.</p>
+            </div>
+        </div>
+
+        <div class="row my-5">
+            <div class="col-md-8 mb-5">
+                <h2>Is TOXsIgN intended to replace existing toxicological databases?</h2>
+                <hr>
+                <p>This repository is not intended either to archive raw data, as GEO and ArrayExpress do, or to replace existing toxicogenomics databases such as <a href="http://ctdbase.org/">CTD</a>, <a href="http://www.lincsproject.org/">LINCS</a>,
+                <a href="http://www.dixa-fp7.eu/">diXa</a> and <a href="https://tools.niehs.nih.gov/cebs3/ui/">CEBS</a>, but rather to complement these resources by acting as
+                a distribution hub of toxicogenomic signatures directly submitted by scientists of the community. In addition to serving as a public archive, TOXsIgN also intends to become a warehouse
+                for toxicogenomics and predictive toxicology tools. Its modular design will facilitate the implementation of tools leaning on the deposited signatures that will help investigators analyze, predict and prioritize the toxicological effects
+                of environmental factors.</p>
+            </div>
+        </div>
+
+        <div class="row my-5">
+            <div class="col-md-8 mb-5">
+                <h2>How is data organized in the TOXsIgN repository?</h2>
+                <hr>
+                <p>This repository is not intended either to archive raw data, as GEO and ArrayExpress do, or to replace existing toxicogenomics databases such as <a href="http://ctdbase.org/">CTD</a>, <a href="http://www.lincsproject.org/">LINCS</a>,
+                <p>The TOXsIgN database is organized in a four-layer architecture (Project > Assay > Factor > Signature) associated with a unique identifier that can be reported in submitted manuscripts, like the raw data identifiers from <a href="https://www.ncbi.nlm.nih.gov/geo/">GEO</a>
+                or <a href="https://www.ebi.ac.uk/arrayexpress/">ArrayExpress</a>. The project layer (associated with an identifier with the “TSP” prefix) covers one or several studies (or subprojects, “TSE” prefix) addressing specific questions.
+                Each study in turn is associated with at least one assay (“TST” prefix) that assesses the exposure of a given study model (e.g., cell culture, living animal, human population) to at least one
+                chemical (e.g., pesticide, plasticizer, drug, or endocrine disruptor), physical (e.g., type of radia-tion or temperature) or biological (e.g., pathogen or parasite) agent at a given dose and for a given time of exposure.
+                Specific outcomes are extracted for each assay in the form of toxicogenomic signatures (“TSS” prefix), i.e., the set of over- and underexpressed genes. Importantly, this organization is compatible with mixtures and transgenerational studies.</p>
+            </div>
+        </div>
+
+        <div class="row my-5">
+            <div class="col-md-8 mb-5">
+                <h2>As far as molecular and "omics" signatures are concerned, what types of database entries are suitable?</h2>
+                <hr>
+                <p>In its current state, TOXsIgN is a gene-centric repository that only accepts NCBI Entrez Gene identifiers (IDs) for molecular and "omics" signatures.
+                This restriction has one major advantage: it allows users to perform cross-technology and cross-species comparison of toxicogenomic signatures. As reliable and consistent gene ID conversion is a complex problem.
+                Because reliable and consistent identifier conversion is a complex problem, toxicogenomic signatures should be converted to Entrez Gene IDs from up-to-date resources before being submitted in TOXsIgN (<a href = "http://ailun.stanford.edu/">AILUN</a>, <a href= "https://david.ncifcrf.gov/conversion.jsp">DAVID</a> or <a href="http://www.uniprot.org/uploadlists/">UniProt</a>).
+                For experiments with Affymetrix GeneChip technologies, it is highly recommended that users normalize their raw data (CEL files) with the <a href="http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/CDF_download.asp">BRAINARRAY custom Chip Description Files (CDF</a> so that intensity values are not summarized for each probe set but directly for each Entrez gene ID (Dai et al., 2005).
+                </p>
+            </div>
+        </div>
+
+         <div class="row my-5">
+            <div class="col-md-8 mb-5">
+                <h2>May I submit large datasets such as DrugMatrix or Open TG-GATEs?</h2>
+                <hr>
+                <p>In its current state, bulk submissions of large datasets (e.g. toxicogenomic signatures for hundreds of environmental factors) is not yet incorporated in TOXsIgN.
+                Nevertheless, the TOXsIgN team will be pleased to help you submit your toxicogenomic signatures. Do not hesitate to contact us!</p>
+            </div>
+        </div>
+       
+       <div class="row my-5">
+            <div class="col-md-8 mb-5">
+                <h2>How to submit toxicological signatures in TOXsIgN?</h2>
+                <hr>
+                <p>In a quick and easy submission procedure, investigators will record all required information in a dedicated Excel template. This file embeds one tab for each layer (Project, Study, Assay, and Signature) and it integrates a dozen landmark controlled
+                vocabularies (ontologies) allowing scientists to describe their toxicogenomic studies and their outcomes with precision. Once uploaded, the TOXsIgN webserver performs an initial evaluation of the Excel template to identify:
+                i) “critical errors” about essential information that may not have been properly completed (such as the project title) and could therefore prevent the project upload;
+                ii) “warnings” for important but not essential missing information (such as a PubMed identifier); and, iii) “information” for any other data not appropriately completed (such as additional information).
+                If the system detects no “critical error”, it next invites the user to upload the associated toxicogenomic signatures. Each signature comprises three one-column text files specifying:
+                i) all interrogated genes; ii) significantly overexpressed genes; and iii) underex-pressed genes.</p>
+            </div>
+        </div>
+
+        <div class="row my-5">
+            <div class="col-md-8 mb-5">
+                <h2>How to change the project status from Private to Public?</h2>
+                <hr>
+                <p>By default, each submitted project and its related signatures are tagged with a “private” status meaning that only authorized users (the owner but also coauthors) can access the uploaded data. At this stage, information can still be modified simply by uploading an updated version of the Excel template.
+                A button is available on the web interface for each project to request the TOXsIgN administrators to change the project status from private to public. If “warnings” are still detected, this demand is rejected.
+                The administrators will then help the investigators make the necessary modifications to change the status. Full instructions and examples of the submission procedure are provided in the <a href="#/tutorial">tutorial section</a>.</p>
+            </div>
+        </div>
+
+        <div class="row my-5">
+            <div class="col-md-8 mb-5">
+                <h2>How to query the database using the TOXsIgN search engine?</h2>
+                <hr>
+                <p>A powerful search engine is implemented to access all public information within TOXsIgN. Users can thus interrogate the database ac-cording to many distinct fields, such as environmental factors, organisms, tissues, and technologies.
+                They can also easily make more advanced queries by using ontologies to describe toxicogenomic signatures.</p>
+            </div>
+        </div>
+
+        <div class="row my-5">
+            <div class="col-md-8 mb-5">
+                <h2>How to share the toxicogenomic tools I developed with the community?</h2>
+                <hr>
+                 <p>Several toxicogenomic tools are already available in the warehouse and others are currently being developed in our lab. If you want to make a contribution to TOXsIgN by sharing your own developed tools, please feel free to contact us
+                    and we will do our best to help you integrate this new module in the web interface</p>
+            </div>
+        </div>
     </div>
 {% endblock %}

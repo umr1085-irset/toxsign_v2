@@ -2,84 +2,48 @@
 {% load static i18n %}
 {% load account socialaccount %}
 {% load crispy_forms_tags %}
-{% block content %}
-    <!-- Page Content -->
-    <div class="container-fluid">
 
-        <!-- Heading Row -->
-        <div class="row align-items-center my-5">
-        <div class="col-lg-7">
-            <img class="img-fluid rounded mb-4 mb-lg-0" src="http://placehold.it/900x400" alt="">
+{% block content %}
+    <!-- Header -->
+    <header class="bg-success py-5 mb-5">
+        <div class="container h-100">
+        <div class="row h-100 align-items-center">
+            <div class="col-lg-12">
+            <h1 class="display-4 text-white mt-5 mb-2">Welcome to TOXsIgN</h1>
+            <p class="lead mb-5 text-white">The TOXicogenomic sIgNature (TOXsIgN) is a user-friendly and cross-species resource that supports online submission, storage, and retrieval of TOXicogenomic sIgNatures.</p>
+             <form class="form-inline my-6 my-lg-0" id="search" method="GET" action='{% url "search" %}'>
+                    <input type='text' class="form-control col-md-6" name='q' placeholder="Search signature" value='{{ request.GET.q }}' id='intry'>
+                    <button type="submit" class="btn btn-outline-light col-md-2">Search</button>
+            </form>
+            </div>
         </div>
-        <!-- /.col-lg-8 -->
-        <div class="col-lg-5">
-            <h1 class="font-weight-light">Welcome to TOXsIgN</h1>
-            <p>The TOXicogenomic sIgNature (TOXsIgN) is a user-friendly and cross-species resource that supports online submission, storage, and retrieval of TOXicogenomic sIgNatures. TOXsIgN aims at complementing existing resources by acting as a distribution hub for the community.
+        </div>
+    </header>
+
+
+    <!-- Page Content -->
+    <div class="container">
+        
+        <!-- Heading Row -->
+        <div class="row my-5">
+            <div class="col-md-8 mb-5">
+                <h2>What is TOXsIgN</h2>
+                <hr>
+                <p>TOXsIgN aims at complementing existing resources by acting as a distribution hub for the community.
             One of its unique features is its ability to archive heterogeneous data. TOXsIgN thus allows users to upload lists of genes positively (overexpressed for transcriptomic assays) affected and negatively (underexpressed) affected from distinct –omics experiments
             (e.g., transcriptomics, proteomics, or epigenomics). It also provides users with a working environment containing a powerful search engine as well as bioinformatics/biostatistics modules that enable cross-species and cross-technology signature comparisons
             or enrichment analyses. TOXsIgN is thus intended to serve as a warehouse for toxicogenomics and predictive toxicology tools simultaneously based on and able to analyze the overall set of signatures deposited by the community.</p>
-            <small>[Toxicogenomic signature]: the description of -omics (e.g. transcriptomics, proteomics, epigenomics) effects on individuals or their descendants, after exposure to single or combined environmental factors, including chemical, physical or biological factors.</small>
-        </div>
-        <!-- /.col-md-4 -->
-        </div>
-        <!-- /.row -->
-
-        <!-- Call to Action Well -->
-        <div class="card text-white bg-secondary my-5 py-4 text-center">
-        <div class="card-body">
-            <form class="form-inline" id="search" method="GET" action='{% url "search" %}'>
-                    <input type='text' class="form-control col-md-10" name='q' placeholder="Enter Search Keyword" value='{{ request.GET.q }}' id='intry'>
-                    <button type="submit" class="btn btn-primary col-md-2">Search</button>
-            </form>
-        </div>
-        </div>
-
-        <!-- Content Row -->
-        <div class="row">
-        <div class="col-md-4 mb-5">
-            <div class="card h-100">
-            <div class="card-body">
-                <h2 class="card-title">Last updates</h2>
-                <p class="card-text">TO DO</p>
+                <small>[Toxicogenomic signature]: the description of -omics (e.g. transcriptomics, proteomics, epigenomics) effects on individuals or their descendants, after exposure to single or combined environmental factors, including chemical, physical or biological factors.</small>
             </div>
-            <div class="card-footer">
-                <a href="" class="btn btn-primary btn-sm">Browse</a>
+            <!-- /.col-md-8 -->
+            <div class="col-md-4 mb-5">
+                <h2>Tools and Access</h2>
+                <hr>
+                <p>TOXsIgN provides a powerful <a href ="#/query">search engine</a> to access and query the repository.<br></p>
+                <p>The <a href="#/tools">TOXsIgN warehouse</a> for toxicogenomics and predictive toxicology tools.<br></p>
+                <a href="#" class="btn btn-outline-info btn-sm">View tools</a>
             </div>
-            </div>
-        </div>
-        <!-- /.col-md-4 -->
-        <div class="col-md-4 mb-5">
-            <div class="card h-100">
-            <div class="card-body">
-                <h2 class="card-title">Links</h2>
-                <p class="card-text">
-                Detailed information on how to use TOXsIgN, how to interpret the search results, how to submit a toxicogenomic signature can be found in the  <a href="#/help">Help</a> and/or <a href="#/tutorial">Tutorial</a> section.<br>
-                Find out more about the Research Institute for Environmental and Occupational Health (<a href="https://www.irset.org/">IRSET</a>).
-                </p>
-            </div>
-            <div class="card-footer">
-                <a href="{% url 'help' %}" class="btn btn-primary btn-sm">FAQ</a>
-            </div>
-            </div>
-        </div>
-        <!-- /.col-md-4 -->
-        <div class="col-md-4 mb-5">
-            <div class="card h-100">
-            <div class="card-body">
-                <h2 class="card-title">Tools and Access</h2>
-                <p class="card-text">
-                    TOXsIgN provides a powerful <a href ="#/query">search engine</a> to access and query the repository.<br>
-                    The <a href="#/tools">TOXsIgN warehouse</a> for toxicogenomics and predictive toxicology tools.<br>
-                    HTTP access: data can be downloaded directly from the <a href="http://toxsign.genouest.org/public/">HTTP site</a>.
-                </p>
-            </div>
-            <div class="card-footer">
-                <a href="#" class="btn btn-primary btn-sm">View tools</a>
-            </div>
-            </div>
-        </div>
-        <!-- /.col-md-4 -->
-
+            <!-- /.col-md-4 -->
         </div>
         <!-- /.row -->
 

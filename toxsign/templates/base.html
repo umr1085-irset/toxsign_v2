@@ -34,11 +34,18 @@
     {% endblock %}
 
   </head>
+  <style>
+    #masthead {
+	-webkit-box-shadow: 0 2px 4px -1px rgba(0,0,0,0.25);
+	-moz-box-shadow: 0 2px 4px -1px rgba(0,0,0,0.25);
+	box-shadow: 0 2px 4px -1px rgba(0,0,0,0.25);
+}
+  </style>
 
   <body>
 
-    <div class="mb-1">
-      <nav class="navbar navbar-expand-md navbar-light bg-light">
+    <div class="mb-1" id="masthead">
+      <nav class="navbar navbar-expand-md navbar-light bg-white">
         <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -72,9 +79,9 @@
               </div>
             </li>
             <li>
-                <form class="form-inline" id="search" method="GET" action='{% url "search" %}'>
-                    <input type='text' class="form-control" name='q' placeholder="Enter Search Keyword" value='{{ request.GET.q }}' id='intry'>
-                    <button type="submit" class="btn btn-primary">Search</button>
+                <form class="form-inline my-2 my-lg-0" id="search" method="GET" action='{% url "search" %}'>
+                    <input type='text' class="form-control mr-sm-2" name='q' placeholder="Enter Search Keyword" value='{{ request.GET.q }}' id='intry'>
+                    <button type="submit" class="btn btn-outline-success my-2 my-sm-0">Search</button>
                 </form>
             </li>
             <li class="nav-item">
@@ -120,7 +127,7 @@
 
     </div>
 
-    <div class="container-fluid">
+    <div class="container-fluid" style="margin-bottom:50px;margin-top:50px;">
 
       <div class="alert alert-info alert-dismissible fade show" role="alert" style="margin-top:15px; text-align:center;">
         The team behind TOXsIgN has invested considerable time, resources, and effort into collecting, curating, processing, developing, and maintaining this web resource.<br> Please follow the citation guidelines if you are using it.
@@ -147,7 +154,7 @@
     </div> <!-- /container -->
 
     <!-- Footer -->
-    <footer class="page-footer bg-dark text-white">
+    <footer class="page-footer bg-dark text-white fixed-bottom ">
 
       <!-- Copyright -->
       <div class="footer-copyright text-center py-3">© 2019 Copyright:

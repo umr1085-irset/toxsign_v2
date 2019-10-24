@@ -14,7 +14,7 @@ from toxsign.genes.models import Gene
 
 def download_datafiles():
 
-    dirpath = tempfile.mkdtemp()
+    dirpath = '/app/loading_data/genes/'
     urls = ["ftp://ftp.ncbi.nih.gov/gene/DATA/gene2ensembl.gz","ftp://ftp.ncbi.nih.gov/gene/DATA/gene_info.gz","ftp://ftp.ncbi.nih.gov/pub/HomoloGene/build68/homologene.data"]
     for url in urls :
         file_name = url.split('/')[-1]
@@ -85,10 +85,9 @@ def concat_files(dirpath, use_dl=False, file_list=[]):
                     if GeneID not in dData_organized :
                         dData_organized[GeneID] = {'tax_id':tax_id,'symbol':symbol,'synonyms':synonyms,'description':description,'homologene':'NA','ensembl':'NA'}
         fGene_info.close()
-    except IOError as e:
+    except Exception as e:
         print("args: ", e.args)
         print("errno: ", e.errno)
-        print("filename: ", e.filename)
         print("strerror: ", e.strerror)
 
     #Add Ensembl ID informations
@@ -192,5 +191,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(setup)
+        #migrations.RunPython(setup)
     ]
