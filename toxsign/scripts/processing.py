@@ -14,6 +14,8 @@ from toxsign.taskapp.celery import app
 from toxsign.projects.views import check_view_permissions
 from toxsign.projects.models import Project
 from toxsign.signatures.models import Signature
+from toxsign.jobs.models import Job
+from toxsign.users.models import User
 
 from celery.utils.log import get_task_logger
 
@@ -45,7 +47,8 @@ def run_distance(self, signature_id, user_id=None):
     # If is logged, get all available (private one) signs to him
     signatures = []
     if user_id:
-        accessible_projects = [project for project in Project.objects.all() if check_view_permissions(user_id, project, strict=True)]
+        user = User.objects.get(id=user_id)
+        accessible_projects = [project for project in Project.objects.all() if check_view_permissions(user, project, strict=True)]
         signatures = Signature.objects.filter(factor__assay__project__in=accessible_projects)
 
     selected_signature = Signature.objects.get(id=signature_id)
@@ -55,14 +58,29 @@ def run_distance(self, signature_id, user_id=None):
         logger.exception("Temp directory with this task id ({}) already exists. Stopping..".format(task_id))
         raise TaskFailure('test')
 
-
     run = subprocess.run(['/bin/bash', '/app/tools/run_dist/run_dist.sh', temp_dir_path, job_dir_path, temp_dir_path + selected_signature.tsx_id + ".sign"], capture_output=True)
     logger.info(run.stdout.decode())
-    print(run.stdout.decode())
-    print(run.stderr.decode())
+
+    if not run.returncode == 0:
+        logger.exception(run.stderr.decode())
+        raise TaskFailure('Error running bash script')
+
+    # Update job with results
+    results = {
+        'files': [
+            job_dir_path + 'signature.dist'
+        ],
+        'args': {
+            'signature_id': signature_id
+        }
+    }
+
+    current_job = Job.objects.get(celery_task_id=self.request.id)
+    current_job.results = results
+    current_job.save()
 
 @app.task(bind=True)
-def run_enrich(self, signature_id, user_id=None):
+def run_enrich(self, signature_id):
 
     dt = datetime.datetime.utcnow()
     ztime = time.mktime(dt.timetuple())
@@ -91,8 +109,24 @@ def run_enrich(self, signature_id, user_id=None):
 
     run = subprocess.run(['/bin/bash', '/app/tools/run_enrich/run_enrich.sh', temp_dir_path, job_dir_path, temp_dir_path + selected_signature.tsx_id + ".sign"], capture_output=True)
     logger.info(run.stdout.decode())
-    print(run.stdout.decode())
-    print(run.stderr.decode())
+
+    if not run.returncode == 0:
+        logger.exception(run.stderr.decode())
+        raise TaskFailure('Error running bash script')
+
+    # Update job with results
+    results = {
+        'files': [
+            job_dir_path + 'signature.enr'
+        ],
+        'args': {
+            'signature_id': signature_id
+        }
+    }
+
+    current_job = Job.objects.get(celery_task_id=self.request.id)
+    current_job.results = results
+    current_job.save()
 
 def _prepare_temp_folder(request_id, signature, additional_signatures=[], add_RData=False, add_Homolog=False):
 

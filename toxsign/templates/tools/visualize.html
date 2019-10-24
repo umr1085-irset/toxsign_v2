@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+
+{% block content %}
+<div class="container">
+    {% for sig in sigs %}
+        {{sig}}
+        <br>
+    {% endfor %}
+    {% if sigs %}
+                <nav aria-label="Page navigation example">
+                  <ul class="pagination">
+                    {% if sigs.has_previous %}
+                      <li class="page-item"><a class="page-link" href="?superprojects={{ sigs.previous_page_number }}">&laquo;</a></li>
+                    {% else %}
+                      <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
+                    {% endif %}
+                    {% for i in sigs.paginator.page_range %}
+                      {% if sigs.number == i %}
+                        <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
+                      {% else %}
+                        <li class="page-item"><a class="page-link" href="?superprojects={{ i }}">{{ i }}</a></li>
+                      {% endif %}
+                    {% endfor %}
+                    {% if sigs.has_next %}
+                      <li class="page-item"><a class="page-link" href="?superprojects={{ sigs.next_page_number }}">&raquo;</a></li>
+                    {% else %}
+                      <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
+                    {% endif %}
+                  </ul>
+                </nav>
+                {% endif %}
+</div>
+{% endblock %}
+

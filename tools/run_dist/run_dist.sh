@@ -5,6 +5,8 @@
 # 2) A results folder
 # 3) A path to the signature to be compared
 
+set -e
+
 # Source env first
 
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
@@ -21,7 +23,6 @@ SIGNATURE="$3"
 
 . /opt/conda/etc/profile.d/conda.sh
 conda activate condaR_TCL
-
 
 Rscript "$CURRENT_DIR""/create_signmatrix4distance.R" "$TEMP_DIR" "$TEMP_DIR""public.RData" "$TEMP_DIR""signature_matrix.RData"
 Rscript "$CURRENT_DIR""/distance4signatures.R" "$SIGNATURE" "$TEMP_DIR""signature_matrix.RData" "$TEMP_DIR""signature.dist"

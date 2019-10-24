@@ -8,11 +8,14 @@ from datetime import datetime
 # Populate with default tools (ontologies..)
 
 def populate_default_tools(apps, schema_editor):
-    search_category = Category(name='Search tools', description='Tools used to search through entities on this website')
-    search_category.save()
 
-    search_tag = Tag(word='Search', slug='search', created_at=datetime.now())
-    search_tag.save()
+    search_category = _create_category(name='Search tools', description='Tools used to search through entities on this website')
+    compare_category = _create_category(name='Comparison tools', description='Tools used to make comparisons between signatures')
+    analyze_category = _create_category(name='Analysis tools', description='Tools used to analyze signatures')
+
+    search_tag = _create_tag(word='Search', slug='search')
+    compare_tag = _create_tag(word='Compare', slug='compare')
+    analyze_tag = _create_tag(word='Analyze', slug='analyze')
 
     onto_search_tool = Tool(
         name = 'Browse ontologies',
@@ -45,12 +48,54 @@ def populate_default_tools(apps, schema_editor):
     advanced_search_tool.tags.add(search_tag)
     advanced_search_tool.save()
 
+    run_distance_tool = Tool(
+        name = 'Signature enrichment analysis',
+        type = "LOCAL",
+        category = compare_category,
+        short_description = "Compare a selected toxicogenomic signature to the overall set of public signatures",
+        description = "The signature enrichment analysis module allows users to compare a selected toxicogenomic signatures to the overall set of signatures deposited by the community using a distance analysis approach (based on the Euclidean distance and the correlation coefficient).",
+        status = "DEVELOPPMENT",
+        link = "tools:run_dist",
+    )
+
+    run_distance_tool.icon.save("advanced_search.jpg", File(open("/app/loading_data/images/advanced_search.jpg", "rb")), save=True)
+    run_distance_tool.visuel.save("advanced_search.jpg", File(open("/app/loading_data/images/advanced_search.jpg", "rb")), save=True)
+    run_distance_tool.save()
+    run_distance_tool.tags.add(compare_tag)
+    run_distance_tool.save()
+
+    run_enrichment_tool = Tool(
+        name = 'Functional enrichment analysis',
+        type = "LOCAL",
+        category = analyze_category,
+        short_description = "Identify biologicals processes associated with a signature",
+        description = "The functional enrichment analysis allows users to identify biological processes, molecular functions, cellular components and phenotypes significantly associated to a selected signature.",
+        status = "DEVELOPPMENT",
+        link = "tools:run_enrich",
+    )
+
+    run_enrichment_tool.icon.save("advanced_search.jpg", File(open("/app/loading_data/images/advanced_search.jpg", "rb")), save=True)
+    run_enrichment_tool.visuel.save("advanced_search.jpg", File(open("/app/loading_data/images/advanced_search.jpg", "rb")), save=True)
+    run_enrichment_tool.save()
+    run_enrichment_tool.tags.add(analyze_tag)
+    run_enrichment_tool.save()
+
+
+def _create_category(name, description):
+    category = Category(name=name, description=description)
+    category.save()
+    return category
+
+def _create_tag(word, slug):
+    tag = Tag(word=word, slug=slug, created_at=datetime.now())
+    tag.save()
+    return tag
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tools', '0006_auto_20191010_0751'),
+        ('tools', '0007_auto_20191023_1058'),
     ]
 
     operations = [

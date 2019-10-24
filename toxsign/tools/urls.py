@@ -6,7 +6,9 @@ app_name = 'tools'
 urlpatterns = [
     # ex: /tools/
     path('', views.IndexView.as_view(), name='index'),
-    # ex: /tools/5/
-    # the 'name' value as called by the {% url %} template tag
+    path('dist/results/<int:job_id>', views.distance_analysis_results, name='run_dist_results'),
+    path('enrich/results/<int:job_id>', views.functional_analysis_results, name='run_enrich_results'),
+    path('dist/', views.distance_analysis_tool, name='run_dist'),
+    path('enrich/', views.functional_analysis_tool, name='run_enrich'),
     path('<int:toolid>/', views.DetailView, name='detail'),
 ]

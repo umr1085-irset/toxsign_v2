@@ -15,6 +15,7 @@ if (exists("signmatrix") == FALSE) {
 cat(dim(signmatrix))
 #--------------------------------------------#
 New.Data <- matrix(NA,ncol=12,nrow=nrow(signmatrix))
+colnames(New.Data) <- c("Signature", "r", "R", "n", "N", "Ratio", "Pvalue", "AdjustedPValue", "Zscore", "EuclideanDistance", "CorrelationDistance", "HomologeneIds")
 rownames(New.Data) <- rownames(signmatrix)
 Sign.In.values <- as.double(signmatrix[Sign.In.Name,])
 for (Sign.Name in rownames(signmatrix)) {
@@ -67,7 +68,7 @@ New.Data <- New.Data[sort(as.double(New.Data[,8]),decreasing=FALSE,index.return=
 #--------------------------------------------#
 
 #--------------------------------------------#
-write.table(gsub("^ +","",New.Data),file=Out.File,row.names=FALSE,col.names=FALSE,sep="\t",quote=FALSE)
+write.table(gsub("^ +","",New.Data),file=Out.File,row.names=FALSE,col.names=TRUE,sep="\t",quote=FALSE)
 #--------------------------------------------#
 
 quit()

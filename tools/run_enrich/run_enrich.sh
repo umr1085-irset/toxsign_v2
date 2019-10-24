@@ -5,6 +5,8 @@
 # 2) A results folder
 # 3) A path to the signature to be compared
 
+set -e
+
 # Source env first
 
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
