@@ -141,5 +141,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-	    migrations.RunPython(launch_import),
+	    #migrations.RunPython(launch_import),
     ]

@@ -7,7 +7,7 @@
     <link href="{% static 'css/graph.css' %}" rel="stylesheet">
     <script src="{% static 'js/graph.js' %}"></script>
     <script src="{% static 'js/context-menu.js' %}"></script>
-    <div class="container-fluid">
+    <div class="container">
       <div class="tab-content card" style="text-align:center;">
         <div class="tab-pane active text-style card-body">
           <div id='graph'></div>
@@ -20,59 +20,82 @@
       </div>
       <br>
       <div class="row">
-        <div class="col-md-3 ">
-          <div class="list-group ">
-              <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action active">Project</a>
-              <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Assays ({{ assays|length }})</a>
-              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Factors ({{ factors|length }})</a>
-              <a href="#tab4" data-toggle="tab" class="list-group-item list-group-item-action">Signatures ({{ signatures|length }})</a>
-            </div>
-        </div>
-        <div class="col-md-9">
-            <div class="tab-content card">
-              <div class="tab-pane active text-style card-body" id="tab1">
-                <h2>{{ project.tsx_id }} - {{ project.name }}</h2>
-                <p>{{ project.description }}</p>
+          <div class="col-md-12 mb-5">
+                <h2>{{ project.tsx_id }} - {{ project.name }} 
+                
+                {% if project.status == "PUBLIC" %}<span class="badge badge-pill badge-success">Public</span>{% endif %}
+                {% if project.status == "PENDING" %}<span class="badge badge-pill badge-secondary">Pending</span>{% endif %}
+                {% if project.status == "PRIVATE" %}<span class="badge badge-pill badge-dark">Private</span>{% endif %}
+                
+                </h2>
                 <hr>
-              </div>
-              <div class="tab-pane text-style card-body" id="tab2">
-                <h2> List of assays related to this project : </h2>
-                {% if not assays %}
-                  <p> No assays are related to this project. To create one, please use the project screen.</p>
-                {% endif %}
-                {% for assay in assays %}
-                  <h2><a href="{% url 'assays:assay_detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{ assay.name }}</h2>
-                  <hr>
-                {% endfor %}
-              </div>
-              <div class="tab-pane text-style card-body" id="tab3">
-                <h2> List of factors related to this project : </h2>
-                {% if not factors %}
-                  <p> No Factors are related to this project. To create one, please use the assay screen.</p>
-                {% endif %}
-                {% for factor in factors %}
-                  <h2><a href="{% url 'assays:factor_detail' factor.tsx_id %}">{{ factor.tsx_id }}</a> - {{ factor.name }}</h2>
-                  <hr>
-                {% endfor %}
-              </div>
-              <div class="tab-pane text-style card-body" id="tab4">
-                <h2> List of signatures related to this project : </h2>
-                {% if not signatures %}
-                  <p> No signatures are related to this project. To create one, please use the factor screen.</p>
-                {% endif %}
-                {% for signature in signatures %}
-                  <h2><a href="{% url 'signatures:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{ signature.name }}</h2>
-                  <hr>
-                {% endfor %}
-              </div>
+                <p>{% if project.description %} {{ project.description }} {% else %} No description provided {% endif %}</p>
+          </div>
+      </div>
+      
+     
+      <div class="row my-5">
+          <div class="col-md-6 mb-5">
+                <h2>
+                  {% if project.project_type == "INTERVENTIONAL" %} <span class="badge badge-primary">Interventional</span>{% endif %}
+                  {% if project.project_type == "OBSERVATIONAL" %} <span class="badge badge-success">Observational</span>{% endif %}
+                  Experimental design
+                </h2>
+                <hr>
+                <p>{% if project.experimental_design %} {{ project.experimental_design }} {% else %} No experimental design provided {% endif %}</p>
+          </div>
+          <div class="col-md-6 mb-5">
+                <h2>Results</h2>
+                <hr>
+                <p>{% if project.results %} {{ project.results }} {% else %} No results provided {% endif %}</p>
+          </div>
+      </div>
+
+      {% if project.created_by == request.user%}
+        <div class="row my-5">
+            <div class="col-md-8 mb-5">
+                  <h2>Authorization</h2>
+                  <table class="table">
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th scope="row">Read group</th>
+                        <td>{{ project.read_groups }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Edit group</th>
+                        <td>{{ project.edit_groups }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+            </div>
+            <div class="col-md-4 mb-5">
+                  <h2>Information</h2>
+                  <table class="table">
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th scope="row">Owner</th>
+                        <td>{{ project.created_by }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Creation date</th>
+                        <td>{{ project.created_at }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Last update</th>
+                        <td>{{ project.updated_at }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
             </div>
         </div>
+      {% endif %}
+  </div>
+  <div class="modal fade" id="modal-group">
+      <div class="modal-dialog modal-lg">
+          <div class="modal-content"></div>
       </div>
-    </div>
-    <div class="modal fade" id="modal-group">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content"></div>
-        </div>
-    </div>
+  </div>
 
 {% endblock %}
