@@ -95,18 +95,25 @@ def distance_analysis_results(request, job_id):
     df = pd.read_csv(file_path, sep="\t", encoding="latin1")
     #df[df.Ratio.gt(0.5)]
     df = df.drop(columns=['HomologeneIds'])
-    table_content = df.to_html(classes=["table","table-bordered","table-striped"], justify='center')
+    columns = list(df.columns)
+    # table_content = df.to_html(classes=["table","table-bordered","table-striped"], justify='center')
+    asc = request.GET.get('asc')
+    if asc:
+        df  = df.sort_values(by=[asc])
+    desc = request.GET.get('desc')
+    if desc:
+        df  = df.sort_values(by=[desc], ascending=False)
+
     paginator = Paginator(df.apply(lambda df: df.values,axis=1),10)
-    page = request.GET.get('sigs')
+    page = request.GET.get('page')
     try:
         sigs = paginator.page(page)
     except PageNotAnInteger:
         sigs = paginator.page(1)
     except EmptyPage:
         sigs = paginator.page(paginator.num_pages)
-    
 
-    context = {'sigs': sigs}
+    context = {'sigs': sigs, 'columns': columns}
     return render(request, 'tools/visualize.html', context)
 
 

@@ -1,18 +1,90 @@
 {% extends "base.html" %}
+{% load static i18n %}
 {% load crispy_forms_tags %}
-
+{% load custom %}
 
 {% block content %}
 <div class="container">
-    {% for sig in sigs %}
-        {{sig}}
-        <br>
-    {% endfor %}
-    {% if sigs %}
+  
+  <div class="tab-content card">
+    <div class="text-style card-header"> Add filters (optional) </div>
+     <div class="text-style card-body">
+        <form id="filter_form">
+            <div class="form-row">
+            <div class="form-group col-md-4">
+            <label for="filter_type"> Filter on </label>
+            <select id="filter_type" name="type" class="form-control">
+                <option value="pval">Pvalue</option>
+                <option value="apval">Adjusted Pvalue (Benjamini-Hochberg)</option>
+                <option value="n">n</option>
+                <option value="r">r</option>
+            </select>
+            </div>
+            <div class="form-group col-md-4">
+            <label for="filter_adjust"> Adjust </label>
+            <select id="filter_adjust" name="adjust" class="form-control">
+                <option value="lesser">Less than</option>
+                <option value="greater">Greater than</option>
+            </select>
+            </div>
+            <div class="form-group col-md-4">
+            <label for="filter_number"> Threshold </label>
+            <input id="filter_number" type="number" name="value" value="0.01" class="form-control" step="0.01">
+            </div>
+            </div>
+        </form>
+        <div style="text-align:center;">
+            <button id="filter_button" class="btn btn-primary"> Add filter</button>
+        </div>
+     </div>
+  </div>
+  <br>
+   <div id="id_filters" style="display:none;">
+   <div class="tab-content card">
+    <div class="text-style card-header"> Selected Filters </div>
+    <div class="text-style card-body" style="text-align:center;">
+        <div id="selected_filters"></div>
+    </div>
+    </div>
+    <br>
+   </div>
+   <div style="text-align:center;">
+     <button id="results_button"class="btn btn-primary">Show results</button>
+   </div>
+  <br>
+  <div class="tab-content card">
+    <div class="text-style card-header"> Results </div>
+    <div class="text-style card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr style="text-align:center;">
+                        {% for column in columns %}
+                        <th scope="col"><a href="?{% url_replace 'filter' column %}">{{column}}</a> {% get_arrow column %}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody id="table">
+                    {% for sig in sigs %}
+                    <tr>
+                        {% for col in sig %}
+                        {% if forloop.counter == 1  %}
+                            <td>{{ col }}</td>
+                        {% elif forloop.counter == 6 %}
+                            <td>{% widthratio col 1 100 %} %</td>
+                        {% else %}
+                            <td>{{ col |floatformat:-3}}</td>
+                        {% endif %}
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if sigs %}
                 <nav aria-label="Page navigation example">
                   <ul class="pagination">
                     {% if sigs.has_previous %}
-                      <li class="page-item"><a class="page-link" href="?superprojects={{ sigs.previous_page_number }}">&laquo;</a></li>
+                      <li class="page-item"><a class="page-link" href="?{% url_replace 'page' paginator.previous_page_number %}">&laquo;</a></li>
                     {% else %}
                       <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
                     {% endif %}
@@ -20,17 +92,23 @@
                       {% if sigs.number == i %}
                         <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
                       {% else %}
-                        <li class="page-item"><a class="page-link" href="?superprojects={{ i }}">{{ i }}</a></li>
+                        <li class="page-item"><a class="page-link" href="?{% url_replace 'page' i %}">{{ i }}</a></li>
                       {% endif %}
                     {% endfor %}
                     {% if sigs.has_next %}
-                      <li class="page-item"><a class="page-link" href="?superprojects={{ sigs.next_page_number }}">&raquo;</a></li>
+                      <li class="page-item"><a class="page-link" href="?{% url_replace 'page' paginator.next_page_number %}">&raquo;</a></li>
                     {% else %}
                       <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
                     {% endif %}
                   </ul>
                 </nav>
-                {% endif %}
+            {% endif %}
+    </div>
+  </div>
 </div>
 {% endblock %}
 
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static 'js/tools_results.js' %}"></script>
+{% endblock %}
