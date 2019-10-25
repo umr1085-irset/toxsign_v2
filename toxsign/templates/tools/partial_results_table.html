@@ -8,7 +8,7 @@
       <thead>
         <tr style="text-align:center;">
           {% for column, param in columns.items %}
-            <th scope="col"><a class="order-action" action="order", target="{{column}}">{{column}}</a> {% get_arrow param.filter %}</th>
+            <th scope="col"><button type="button" class="btn btn-link btn-sm order-action" action="order" target="{{column}}">{{column}} {% get_arrow param.filter %}</button></th>
           {% endfor %}
         </tr>
       </thead>
@@ -33,19 +33,19 @@
   <nav aria-label="Page navigation example">
     <ul class="pagination">
       {% if sigs.has_previous %}
-        <li class="page-item page-action"><a class="page-link" target="{{sigs.previous_page_number}}">&laquo;</a></li>
+        <li class="page-item"><a class="page-link page-action" target="{{sigs.previous_page_number}}">&laquo;</a></li>
       {% else %}
         <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
       {% endif %}
       {% for i in sigs.paginator.page_range %}
         {% if sigs.number == i %}
-          <li class="page-item active page-action"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
+          <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
         {% else %}
-          <li class="page-item"><a class="page-link" target="{{i}}">{{ i }}</a></li>
+          <li class="page-item"><a class="page-link page-action" target="{{i}}">{{ i }}</a></li>
         {% endif %}
       {% endfor %}
       {% if sigs.has_next %}
-        <li class="page-item page-action"><a class="page-link" target="{{sigs.next_page_number}}">&raquo;</a></li>
+        <li class="page-item"><a class="page-link page-action" target="{{sigs.next_page_number}}">&raquo;</a></li>
       {% else %}
         <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
       {% endif %}
@@ -55,11 +55,21 @@
 {% endblock %}
 
 {% block javascript %}
-    {{ block.super }}
     <script>
+      {% if sigs.number %}
       var current_page = {{sigs.number}};
-      var current_order = {{current_filter}};
-      var current_order_type = {{current_filter_type}};
+      {% else %}
+      var current_page = 1;
+      {% endif %}
+      {% if current_order %}
+      var current_order = "{{current_order}}";
+      {% else %}
+      var current_order = "";
+      {% endif %}
+      {% if current_order_type %}
+      var current_order_type = "{{current_order_type}}";
+      {% else %}
+      var current_order_type = "";
+      {% endif %}
     </script>
-    <script src="{% static 'js/tools_results.js' %}"></script>
 {% endblock %}

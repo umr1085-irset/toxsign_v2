@@ -53,6 +53,6 @@ def get_arrow(value):
     arrow = ""
     if value == "asc":
         arrow="<i class='fas fa-arrow-up'></i>"
-    elif value == "desc"
+    elif value == "desc":
         arrow="<i class='fas fa-arrow-down'></i>"
     return format_html(arrow)

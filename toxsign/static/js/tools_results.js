@@ -31,10 +31,10 @@ $(function () {
         return false;
     };
 
-    var show_results = function (page="", ordered_column="", order="") {
+    var show_results = function (request_page="", ordered_column="", order="") {
         var url = $("#filter_form").attr("data-url");
         var token = $("input[name=csrfmiddlewaretoken]").val();
-        var data = {page: page, ordered_column: ordered_column, order:order, terms: JSON.stringify(filter_params), csrfmiddlewaretoken: token};
+        var data = {request_page: request_page, ordered_column: ordered_column, order:order, terms: JSON.stringify(filter_params), csrfmiddlewaretoken: token};
         $.ajax({
             url: url,
             data: data,
@@ -81,8 +81,8 @@ $(function () {
         if (current_order_type == "desc") {
           order = "asc";
         }
-      show_results(current_page, col_name, order);
       }
+      show_results(current_page, col_name, order);
     }
 
     var paginate = function(){
@@ -94,7 +94,9 @@ $(function () {
     $('#filter_button').on('click', add_param);
     $('#id_filters').on('click','.remove_arg', remove_param);
     $('#id_filters').on('click','.clear_terms', full_form_clear);
-    $('#results_button').on('click', show_results);
+    $('#results_button').on('click', function(data){
+        show_results();
+    });
     $('#id_results').on('click', ".order-action", order);
     $('#id_results').on('click', ".page-action", paginate);
 });

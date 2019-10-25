@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, json
 from datetime import datetime
 
 from django.http import HttpResponseRedirect
@@ -86,7 +86,7 @@ def distance_analysis_results(request, job_id):
     if not job.created_by == request.user:
         return redirect('/unauthorized')
 
-    return render(request, 'tools/visualize.html', {})
+    return render(request, 'tools/visualize.html', {'job': job})
 
 def distance_analysis_table(request, job_id):
         # Due to potential complexity in arguments (multiples filters), we pass it as a POST instead of GET
@@ -102,32 +102,48 @@ def distance_analysis_table(request, job_id):
         if not os.path.exists(file_path):
             # What do do?
             pass
-        # Should do this in separate function to allow ajax calls
+
         df = pd.read_csv(file_path, sep="\t", encoding="latin1")
-        #df[df.Ratio.gt(0.5)]
+
         df = df.drop(columns=['HomologeneIds'])
+        filters = json.loads(request.POST['terms'])
+        for filter in filters:
+            try:
+                value = float(filter['filter_number'])
+            except:
+                continue
+
+            column_name = filter['filter_type']
+            # Don't trust user input
+            if column_name not in df.columns:
+                continue
+
+            if filter['filter_adjust'] == 'lt':
+                df = df[df[column_name].lt(value)]
+            elif filter['filter_adjust'] == 'gt':
+                df = df[df[column_name].gt(value)]
+
         column_dict = {}
-        current_order = ""
-        current_order_type = ""
+        current_order = None
+        current_order_type = None
         for column in df.columns:
-            column_dict[column]={"filter": "}
-        # table_content = df.to_html(classes=["table","table-bordered","table-striped"], justify='center')
+            column_dict[column]={"filter": ""}
         request_ordered_column = request.POST.get('ordered_column')
         if request_ordered_column:
             request_order = request.POST.get('order', "")
-            if request_ordered_column == "asc":
-                df  = df.sort_values(by=[asc])
-                column_dict[asc]['filter'] = 'asc'
-                current_order = asc
-                current_order_type= "asc"
-            elif request_ordered_column == "desc":
-                df  = df.sort_values(by=[desc], ascending=False)
-                column_dict[asc]['filter'] = 'desc'
-                current_order = desc
+            if request_order == "asc":
+                df  = df.sort_values(by=[request_ordered_column])
+                column_dict[request_ordered_column]['filter'] = 'asc'
+                current_order = request_ordered_column
+                current_order_type = "asc"
+            elif request_order == "desc":
+                df  = df.sort_values(by=[request_ordered_column], ascending=False)
+                column_dict[request_ordered_column]['filter'] = 'desc'
+                current_order = request_ordered_column
                 current_order_type= "desc"
 
         paginator = Paginator(df.apply(lambda df: df.values,axis=1),10)
-        page = request.POST.get('page')
+        page = request.POST.get('request_page')
         try:
             sigs = paginator.page(page)
         except PageNotAnInteger:
@@ -136,7 +152,7 @@ def distance_analysis_table(request, job_id):
             sigs = paginator.page(paginator.num_pages)
 
         context = {'sigs': sigs, 'columns': column_dict, 'current_order':current_order, 'current_order_type':current_order_type, 'job': job}
-        data['table'] = render_to_string(request, 'tools/partial_results_table.html', context, request=request)
+        data = {'table' : render_to_string('tools/partial_results_table.html', context, request=request)}
         return JsonResponse(data)
 
 def functional_analysis_tool(request):

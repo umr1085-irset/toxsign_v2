@@ -9,14 +9,14 @@
   <div class="tab-content card">
     <div class="text-style card-header"> Add filters (optional) </div>
      <div class="text-style card-body">
-        <form id="filter_form" data-url="{% url 'run_dist_results_table' job.id %}">
+        <form id="filter_form" data-url="{% url 'tools:run_dist_table' job.id %}">
             {% csrf_token %}
             <div class="form-row">
             <div class="form-group col-md-4">
             <label for="filter_type"> Filter on </label>
             <select id="filter_type" name="type" class="form-control">
-                <option value="pval">Pvalue</option>
-                <option value="apval">Adjusted Pvalue (Benjamini-Hochberg)</option>
+                <option value="Pvalue">Pvalue</option>
+                <option value="AdjustedPValue">Adjusted Pvalue (Benjamini-Hochberg)</option>
                 <option value="n">n</option>
                 <option value="r">r</option>
             </select>
@@ -24,8 +24,8 @@
             <div class="form-group col-md-4">
             <label for="filter_adjust"> Adjust </label>
             <select id="filter_adjust" name="adjust" class="form-control">
-                <option value="lesser">Less than</option>
-                <option value="greater">Greater than</option>
+                <option value="lt">Less than</option>
+                <option value="gt">Greater than</option>
             </select>
             </div>
             <div class="form-group col-md-4">
