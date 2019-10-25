@@ -21,24 +21,10 @@ from django.urls import reverse_lazy
 from toxsign.jobs.models import Job
 from celery.result import AsyncResult
 
-# Create your views here.
-class IndexView(LoginRequiredMixin, generic.ListView):
-    template_name = 'analyse/index.html'
-    context_object_name = 'latest_analyse_list'
-
-    def get_queryset(self):
-        """
-        Return the last five published questions (not including those set to be
-        published in the future).
-        """
-        return Job.objects.filter(
-            created_at__lte=timezone.now()
-        ).order_by('-created_at')[:5]
-
 def DetailView(request, pk):
     job = get_object_or_404(Job, pk=pk)
     file_list = []
-    
+
     for file in os.listdir(job.output):
         table_content=''
         info = os.path.splitext(file)
@@ -68,7 +54,7 @@ def DownloadView(request, pk, file_name):
 class RunningJobsView(LoginRequiredMixin, generic.ListView):
     model = Job
     template_name = 'jobs/running_jobs.html'
-    
+
     def get_context_data(self, **kwargs):
         context = super(RunningJobsView, self).get_context_data(**kwargs)
         context['jobs_list'] = Job.objects.filter(created_by__exact=self.request.user.id)
