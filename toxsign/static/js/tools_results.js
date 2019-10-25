@@ -31,25 +31,24 @@ $(function () {
         return false;
     };
 
-    var show_results = function () {
-        var url = window.location.href.split(/[?#]/)[0];
-        var entity_type = $("#entity_select").val();
-        if(filter_params.length >0){
-            url += "?";
-            var string= ""
-            for (i=0; i < filter_params.length; i++){
-                string += `filter=${filter_params[i]['filter_type']},${filter_params[i]['filter_adjust']},${filter_params[i]['filter_number']}&`
+    var show_results = function (page="", ordered_column="", order="") {
+        var url = $("#filter_form").attr("data-url");
+        var token = $("input[name=csrfmiddlewaretoken]").val();
+        var data = {page: page, ordered_column: ordered_column, order:order, terms: JSON.stringify(filter_params), csrfmiddlewaretoken: token};
+        $.ajax({
+            url: url,
+            data: data,
+            type: 'post',
+            dataType: 'json',
+            success: function (response) {
+                $("#id_results").html(response.table);
             }
-            string = encodeURI(string.slice(0, -1));
-            url += string;
-        }
-        window.location.href = url;
+        });
         return false;
     };
 
     var get_button = function(arg_number){
         return `<button class='btn btn-link btn-xs remove_arg' arg_value='${arg_number}'><i class='fas fa-trash'></i></button>`;
-
     }
 
     var fill_html = function(){
@@ -75,10 +74,27 @@ $(function () {
         $('#filter_form').trigger("reset");
     }
 
+    var order = function(){
+      var col_name = $(this).attr("target");
+      var order = "desc";
+      if (col_name == current_order){
+        if (current_order_type == "desc") {
+          order = "asc";
+        }
+      show_results(current_page, col_name, order);
+      }
+    }
+
+    var paginate = function(){
+      var next_page = $(this).attr("target");
+      show_results(next_page, current_order, current_order_type);
+    }
+
   /* Binding */
     $('#filter_button').on('click', add_param);
     $('#id_filters').on('click','.remove_arg', remove_param);
     $('#id_filters').on('click','.clear_terms', full_form_clear);
     $('#results_button').on('click', show_results);
+    $('#id_results').on('click', ".order-action", order);
+    $('#id_results').on('click', ".page-action", paginate);
 });
-

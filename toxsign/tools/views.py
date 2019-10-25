@@ -21,6 +21,7 @@ import pandas as pd
 
 from celery.result import AsyncResult
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.template.loader import render_to_string
 
 from guardian.shortcuts import get_objects_for_user
 from toxsign.projects.models import Project
@@ -85,37 +86,58 @@ def distance_analysis_results(request, job_id):
     if not job.created_by == request.user:
         return redirect('/unauthorized')
 
-    file_path = job.results['files'][0]
-    selected_signature_id = job.results['args']['signature_id']
+    return render(request, 'tools/visualize.html', {})
 
-    if not os.path.exists(file_path):
-        # What do do?
-        pass
-    # Should do this in separate function to allow ajax calls
-    df = pd.read_csv(file_path, sep="\t", encoding="latin1")
-    #df[df.Ratio.gt(0.5)]
-    df = df.drop(columns=['HomologeneIds'])
-    columns = list(df.columns)
-    # table_content = df.to_html(classes=["table","table-bordered","table-striped"], justify='center')
-    asc = request.GET.get('asc')
-    if asc:
-        df  = df.sort_values(by=[asc])
-    desc = request.GET.get('desc')
-    if desc:
-        df  = df.sort_values(by=[desc], ascending=False)
+def distance_analysis_table(request, job_id):
+        # Due to potential complexity in arguments (multiples filters), we pass it as a POST instead of GET
+        if not request.method == 'POST':
+            return JsonResponse({})
+        job = get_object_or_404(Job, id=job_id)
+        if not job.created_by == request.user:
+            return JsonResponse({})
 
-    paginator = Paginator(df.apply(lambda df: df.values,axis=1),10)
-    page = request.GET.get('page')
-    try:
-        sigs = paginator.page(page)
-    except PageNotAnInteger:
-        sigs = paginator.page(1)
-    except EmptyPage:
-        sigs = paginator.page(paginator.num_pages)
+        file_path = job.results['files'][0]
+        selected_signature_id = job.results['args']['signature_id']
 
-    context = {'sigs': sigs, 'columns': columns}
-    return render(request, 'tools/visualize.html', context)
+        if not os.path.exists(file_path):
+            # What do do?
+            pass
+        # Should do this in separate function to allow ajax calls
+        df = pd.read_csv(file_path, sep="\t", encoding="latin1")
+        #df[df.Ratio.gt(0.5)]
+        df = df.drop(columns=['HomologeneIds'])
+        column_dict = {}
+        current_order = ""
+        current_order_type = ""
+        for column in df.columns:
+            column_dict[column]={"filter": "}
+        # table_content = df.to_html(classes=["table","table-bordered","table-striped"], justify='center')
+        request_ordered_column = request.POST.get('ordered_column')
+        if request_ordered_column:
+            request_order = request.POST.get('order', "")
+            if request_ordered_column == "asc":
+                df  = df.sort_values(by=[asc])
+                column_dict[asc]['filter'] = 'asc'
+                current_order = asc
+                current_order_type= "asc"
+            elif request_ordered_column == "desc":
+                df  = df.sort_values(by=[desc], ascending=False)
+                column_dict[asc]['filter'] = 'desc'
+                current_order = desc
+                current_order_type= "desc"
 
+        paginator = Paginator(df.apply(lambda df: df.values,axis=1),10)
+        page = request.POST.get('page')
+        try:
+            sigs = paginator.page(page)
+        except PageNotAnInteger:
+            sigs = paginator.page(1)
+        except EmptyPage:
+            sigs = paginator.page(paginator.num_pages)
+
+        context = {'sigs': sigs, 'columns': column_dict, 'current_order':current_order, 'current_order_type':current_order_type, 'job': job}
+        data['table'] = render_to_string(request, 'tools/partial_results_table.html', context, request=request)
+        return JsonResponse(data)
 
 def functional_analysis_tool(request):
 

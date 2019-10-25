@@ -48,14 +48,11 @@ def url_replace(context, field, value):
 
     return dict_.urlencode()
 
-@register.simple_tag(takes_context=True)
-def get_arrow(context, column):
-    request = context['request']
-    dict_ = request.GET.copy()
+@register.simple_tag()
+def get_arrow(value):
     arrow = ""
-    if 'asc' in dict_ and dict_['asc'] == column:
+    if value == "asc":
         arrow="<i class='fas fa-arrow-up'></i>"
-    elif 'desc' in dict_ and dict_['desc'] == column:
+    elif value == "desc"
         arrow="<i class='fas fa-arrow-down'></i>"
     return format_html(arrow)
-
