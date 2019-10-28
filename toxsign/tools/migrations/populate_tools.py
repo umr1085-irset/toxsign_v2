@@ -56,6 +56,7 @@ def populate_default_tools(apps, schema_editor):
         description = "The signature enrichment analysis module allows users to compare a selected toxicogenomic signatures to the overall set of signatures deposited by the community using a distance analysis approach (based on the Euclidean distance and the correlation coefficient).",
         status = "DEVELOPPMENT",
         link = "tools:run_dist",
+        custom_result_link = "tools:run_dist_results"
     )
 
     run_distance_tool.icon.save("advanced_search.jpg", File(open("/app/loading_data/images/advanced_search.jpg", "rb")), save=True)
@@ -72,6 +73,7 @@ def populate_default_tools(apps, schema_editor):
         description = "The functional enrichment analysis allows users to identify biological processes, molecular functions, cellular components and phenotypes significantly associated to a selected signature.",
         status = "DEVELOPPMENT",
         link = "tools:run_enrich",
+        custom_result_link = "tools:run_enrich_results"
     )
 
     run_enrichment_tool.icon.save("advanced_search.jpg", File(open("/app/loading_data/images/advanced_search.jpg", "rb")), save=True)
