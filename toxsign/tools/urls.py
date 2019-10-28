@@ -9,7 +9,8 @@ urlpatterns = [
     path('dist/results/<int:job_id>', views.distance_analysis_results, name='run_dist_results'),
     path('dist/results/<int:job_id>/table', views.distance_analysis_table, name='run_dist_table'),
     path('enrich/results/<int:job_id>', views.functional_analysis_results, name='run_enrich_results'),
+    path('enrich/results/<int:job_id>/table', views.functional_analysis_full_table, name='run_enrich_table_full'),
+    path('enrich/results/<int:job_id>/table/<str:type>', views.functional_analysis_partial_table, name='run_enrich_table_partial'),
     path('dist/', views.distance_analysis_tool, name='run_dist'),
     path('enrich/', views.functional_analysis_tool, name='run_enrich'),
-    path('<int:toolid>/', views.DetailView, name='detail'),
 ]

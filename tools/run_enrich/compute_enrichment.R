@@ -11,6 +11,7 @@ print("PrepEnrichment.File loaded!")
 
 #--------------------------------------------#
 New.Data <- matrix(ncol=10,nrow=nrow(Data))
+colnames(New.Data) <- c("Status", "Term", "r", "R", "n", "N", "Ratio", "Pvalue", "AdjustedPValue", "HomologeneIds")
 New.Data[,1:6] <- Data[,1:6]
 New.Data[,10] <- Data[,7]
 #--------------------------------------------#
@@ -38,6 +39,6 @@ New.Data <- New.Data[sort(as.double(New.Data[,8]),index.return=TRUE,decreasing=F
 #--------------------------------------------#
 
 #--------------------------------------------#
-write.table(gsub("^ +","",New.Data),file=Out.File,row.names=FALSE,col.names=FALSE,sep="\t",quote=FALSE)
+write.table(gsub("^ +","",New.Data),file=Out.File,row.names=FALSE,col.names=TRUE,sep="\t",quote=FALSE)
 #--------------------------------------------#
 quit()
