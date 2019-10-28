@@ -12,7 +12,7 @@
         <a href="" data-target="#Process-id" data-toggle="tab" class="nav-link active">Biological process</a>
       </li>
       <li class="nav-item">
-        <a href="" data-target="#Component-id" data-toggle="tab" class="nav-link">Cellular component/a>
+        <a href="" data-target="#Component-id" data-toggle="tab" class="nav-link">Cellular component</a>
       </li>
       <li class="nav-item">
         <a href="" data-target="#Function-id" data-toggle="tab" class="nav-link">Molecular function</a>
@@ -25,13 +25,13 @@
   <div class="text-style card-body">
     <div class="tab-content">
       {% for type, table in data.items %}
-      <div class="tab-pane active" id="{{type}}-id" data-url="{% url 'tools:run_enrich_table_partial' job.id type %}">
+      <div class="tab-pane {% if forloop.counter == 1 %} active {% endif %}" id="{{type}}-id" data-url="{% url 'tools:run_enrich_table_partial' job.id type %}">
         <div class="table-responsive">
             <table class="table">
               <thead>
                 <tr style="text-align:center;">
                   {% for column, param in columns.items %}
-                    <th scope="col"><button type="button" class="btn btn-link btn-sm order-action" type="type" action="order" target="{{column}}">{{column}} {% get_arrow param.filter %}</button></th>
+                    <th scope="col"><button type="button" class="btn btn-link btn-sm order-action" data-type="{{type}}" action="order" target="{{column}}">{{column}} {% get_arrow param.filter %}</button></th>
                   {% endfor %}
                 </tr>
               </thead>
@@ -56,7 +56,7 @@
           <nav aria-label="Page navigation example">
             <ul class="pagination">
               {% if table.has_previous %}
-                <li class="page-item"><a class="page-link page-action" type="type" target="{{table.previous_page_number}}">&laquo;</a></li>
+                <li class="page-item"><a class="page-link page-action" data-type="{{type}}" target="{{table.previous_page_number}}">&laquo;</a></li>
               {% else %}
                 <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
               {% endif %}
@@ -64,11 +64,11 @@
                 {% if table.number == i %}
                   <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
                 {% else %}
-                  <li class="page-item"><a class="page-link page-action" type="type" target="{{i}}">{{ i }}</a></li>
+                  <li class="page-item"><a class="page-link page-action" data-type="{{type}}" target="{{i}}">{{ i }}</a></li>
                 {% endif %}
               {% endfor %}
               {% if table.has_next %}
-                <li class="page-item"><a class="page-link page-action" type="type" target="{{table.next_page_number}}">&raquo;</a></li>
+                <li class="page-item"><a class="page-link page-action" data-type="{{type}}" target="{{table.next_page_number}}">&raquo;</a></li>
               {% else %}
                 <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
               {% endif %}
@@ -84,14 +84,14 @@
 
 {% block javascript %}
     <script>
-      current_state = {};
+      var current_state = {};
+
       {% for type in data %}
-        tab_status = {
+        current_state["{{type}}"] = {
           current_page: 1,
           current_order: "",
           current_order_type: ""
-        }
-        current_state[type] = tab_status;
+        };
       {% endfor %}
     </script>
 {% endblock %}

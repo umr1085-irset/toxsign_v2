@@ -11,7 +11,7 @@ print("PrepEnrichment.File loaded!")
 
 #--------------------------------------------#
 New.Data <- matrix(ncol=10,nrow=nrow(Data))
-colnames(New.Data) <- c("Status", "Term", "r", "R", "n", "N", "Ratio", "Pvalue", "AdjustedPValue", "HomologeneIds")
+colnames(New.Data) <- c("Type", "Term", "r", "R", "n", "N", "Ratio", "Pvalue", "AdjustedPValue", "HomologeneIds")
 New.Data[,1:6] <- Data[,1:6]
 New.Data[,10] <- Data[,7]
 #--------------------------------------------#

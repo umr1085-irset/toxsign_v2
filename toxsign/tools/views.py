@@ -142,6 +142,7 @@ def distance_analysis_table(request, job_id):
                 current_order = request_ordered_column
                 current_order_type= "desc"
 
+        page = request.POST.get('request_page')
         sigs =_paginate_table(df, page)
         context = {'sigs': sigs, 'columns': column_dict, 'current_order':current_order, 'current_order_type':current_order_type, 'job': job}
         data = {'table' : render_to_string('tools/partial_distance_results_table.html', context, request=request)}
@@ -309,6 +310,8 @@ def functional_analysis_partial_table(request, job_id, type):
             'table': table,
             'columns': column_dict,
             'type': type,
+            'current_order':current_order,
+            'current_order_type':current_order_type,
             'job': job
         }
         data = {'table' : render_to_string('tools/partial_enrich_single_table.html', context, request=request)}

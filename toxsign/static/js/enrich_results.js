@@ -47,7 +47,7 @@ $(function () {
         return false;
     };
 
-    var load_partial = function (type, request_page, ordered_column, order) {
+    var load_partial = function (request_page, ordered_column, order, type) {
         var url = $("#" + type + "-id").attr("data-url");
         var token = $("input[name=csrfmiddlewaretoken]").val();
         var data = {request_page: request_page, ordered_column: ordered_column, order:order, terms: JSON.stringify(filter_params), csrfmiddlewaretoken: token};
@@ -92,25 +92,25 @@ $(function () {
 
     var order = function(){
       var col_name = $(this).attr("target");
-      var type = $(this).attr("type");
-      var current_page = current_state["type"]["current_page"]
-      var current_order = current_state["type"]["current_order"]
-      var current_order_type = current_state["type"]["current_order_type"]
+      var type = $(this).attr("data-type");
+      var current_page = current_state[type]["current_page"]
+      var current_order = current_state[type]["current_order"]
+      var current_order_type = current_state[type]["current_order_type"]
       var order = "desc";
       if (col_name == current_order){
         if (current_order_type == "desc") {
           order = "asc";
         }
       }
-      show_results(current_page, col_name, order, type);
+      load_partial(current_page, col_name, order, type);
     }
 
     var paginate = function(){
       var next_page = $(this).attr("target");
-      var type = $(this).attr("type");
-      var current_order = current_state["type"]["current_order"]
-      var current_order_type = current_state["type"]["current_order_type"]
-      show_results(next_page, current_order, current_order_type, type);
+      var type = $(this).attr("data-type");
+      var current_order = current_state[type]["current_order"]
+      var current_order_type = current_state[type]["current_order_type"]
+      load_partial(next_page, current_order, current_order_type, type);
     }
 
   /* Binding */
