@@ -43,7 +43,7 @@ $(function () {
             dataType: 'json',
             success: function (response) {
                 // Setup current_state variable
-                for (i=0; i < response.types; i++){
+                for (i=0; i < response.types.length; i++){
                   current_state[response.types[i]] = { current_page: 1, current_order: "", current_order_type: ""};
                 }
                 $("#id_results").html(response.table);
