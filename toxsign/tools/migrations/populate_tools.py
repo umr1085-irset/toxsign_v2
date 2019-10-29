@@ -3,6 +3,7 @@
 from django.db import migrations
 from django.core.files import File
 from toxsign.tools.models import Category, Tag, Tool
+from toxsign.scripts.setup import setup_tools_env, setup_homolog_data
 from datetime import datetime
 
 # Populate with default tools (ontologies..)
@@ -81,6 +82,10 @@ def populate_default_tools(apps, schema_editor):
     run_enrichment_tool.save()
     run_enrichment_tool.tags.add(analyze_tag)
     run_enrichment_tool.save()
+
+    if not os.environ.get("MODE") == "TEST":
+        setup_tools_env.delay()
+        setup_homolog_data.delay()
 
 
 def _create_category(name, description):
