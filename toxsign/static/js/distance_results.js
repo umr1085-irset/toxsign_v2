@@ -44,9 +44,9 @@ $(function () {
             type: 'post',
             dataType: 'json',
             success: function (response) {
-                var current_page = response.current_page;
-                var current_order = response.current_order;
-                var current_order_type = response.current_order_type;
+                current_page = response.current_page;
+                current_order = response.current_order;
+                current_order_type = response.current_order_type;
                 $("#id_results").html(response.table);
             }
         });
