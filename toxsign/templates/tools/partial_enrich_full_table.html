@@ -81,17 +81,3 @@
   </div>
 </div>
 {% endblock %}
-
-{% block javascript %}
-    <script>
-      var current_state = {};
-
-      {% for type in data %}
-        current_state["{{type}}"] = {
-          current_page: 1,
-          current_order: "",
-          current_order_type: ""
-        };
-      {% endfor %}
-    </script>
-{% endblock %}

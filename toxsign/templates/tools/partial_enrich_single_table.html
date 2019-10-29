@@ -53,23 +53,3 @@
   </nav>
 {% endif %}
 {% endblock %}
-
-{% block javascript %}
-    <script>
-      {% if table.number %}
-      current_state["{{type}}"]["current_page"] = {{table.number}};
-      {% else %}
-      current_state["{{type}}"]["current_page"] = 1;
-      {% endif %}
-      {% if current_order %}
-      current_state["{{type}}"]["current_order"] = "{{current_order}}";
-      {% else %}
-      current_state["{{type}}"]["current_order"] = "";
-      {% endif %}
-      {% if current_order_type %}
-      current_state["{{type}}"]["current_order_type"] = "{{current_order_type}}";
-      {% else %}
-      current_state["{{type}}"]["current_order_type"] = "";
-      {% endif %}
-    </script>
-{% endblock %}

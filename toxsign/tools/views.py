@@ -240,7 +240,10 @@ def functional_analysis_full_table(request, job_id):
             'columns': column_dict,
             'job': job
         }
-        data = {'table' : render_to_string('tools/partial_enrich_full_table.html', context, request=request)}
+        data = {
+            'table' : render_to_string('tools/partial_enrich_full_table.html', context, request=request),
+            'types': ['Process','Component','Function', 'Phenotype']
+        }
         return JsonResponse(data)
 
 def functional_analysis_partial_table(request, job_id, type):
@@ -304,17 +307,21 @@ def functional_analysis_partial_table(request, job_id, type):
                 current_order_type= "desc"
 
         page = request.POST.get('request_page')
-        table = process_table = _paginate_table(df[df.Type == type].drop(columns=['Type']), page)
+        table = _paginate_table(df[df.Type == type].drop(columns=['Type']), page)
 
         context = {
             'table': table,
             'columns': column_dict,
             'type': type,
-            'current_order':current_order,
-            'current_order_type':current_order_type,
             'job': job
         }
-        data = {'table' : render_to_string('tools/partial_enrich_single_table.html', context, request=request)}
+        data = {
+            'table' : render_to_string('tools/partial_enrich_single_table.html', context, request=request),
+            'type': type,
+            'current_order': current_order,
+            'current_order_type': current_order_type,
+            'current_page': table.number
+        }
         return JsonResponse(data)
 
 def prediction_tool(request):
