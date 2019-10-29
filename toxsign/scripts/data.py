@@ -30,6 +30,9 @@ def setup_files(signature_id, index_files=False, need_move_files=False):
 
     signature.save()
 
+    if index_files and signature.factor.assay.project.status == "PUBLIC":
+        change_status.delay(signature.factor.assay.project.id)
+
 def index_genes(signature, new_path, new_unix_path):
 
     shutil.move(signature.up_gene_file_path.path, new_unix_path + "up_genes.txt")
