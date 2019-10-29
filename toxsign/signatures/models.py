@@ -5,6 +5,7 @@ from django.db import models
 from django.contrib.auth.models import  User, Group
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
+from django.dispatch import receiver
 
 import os
 import shutil
@@ -18,6 +19,8 @@ from toxsign.ontologies.models import Biological, Cell, CellLine, Chemical, Dise
 import tempfile
 from django.db.models import Q
 from toxsign.taskapp.celery import app
+
+from toxsign.scripts.data import setup_files
 
 class Signature(models.Model):
     DEVELOPPMENTAL_STAGE = (
@@ -114,6 +117,7 @@ class Signature(models.Model):
         self.__old_up = self.up_gene_file_path
         self.__old_down = self.down_gene_file_path
         self.__old_all = self.interrogated_gene_file_path
+        self.__old_add = self.additional_file_path
 
     # Override save method to auto increment tsx_id
     def save(self, *args, **kwargs):
@@ -127,101 +131,30 @@ class Signature(models.Model):
         if not self.tsx_id:
             self.tsx_id = "TSS" + str(self.id)
         super(Signature, self).save()
-        # If file change
+
+        file_changed = False
+        need_index = False
+
+        if self.__old_add != self.additional_file_path:
+            file_changed = True
+
         if not index and (self.__old_up != self.up_gene_file_path or self.__old_down != self.down_gene_file_path or self.__old_all != self.interrogated_gene_file_path):
-            index_genes.delay(self.id)
+            need_index = True
+
+        if file_changed or need_index:
+            setup_files.delay(self.id, need_index, file_changed)
+
         self.__old_up = self.up_gene_file_path
         self.__old_down = self.down_gene_file_path
         self.__old_all = self.interrogated_gene_file_path
+        self.__old_add = self.additional_file_path
 
+@receiver(models.signals.post_delete, sender=Signature)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    # Delete the folder
+    if(instance.expression_values_file):
+        folder_path = os.path.dirname(instance.expression_values_file.path)
+        if os.path.exists(folder_path):
+            shutil.rmtree(folder_path)
 
-@app.task
-def index_genes(signature_id):
-    # Make sure the data is properly saved
-    time.sleep(10)
-    signature = Signature.objects.get(id=signature_id)
-    # Moves files to proper folder
-    new_path = "files/{}/{}/{}/{}/".format(signature.factor.assay.project.tsx_id, signature.factor.assay.tsx_id, signature.factor.tsx_id, signature.tsx_id)
-    new_unix_path = settings.MEDIA_ROOT + "/" + new_path
-
-    if not os.path.exists(new_unix_path):
-        os.makedirs(new_unix_path)
-    shutil.move(signature.up_gene_file_path.path, new_unix_path + "up_genes.txt")
-    shutil.move(signature.down_gene_file_path.path, new_unix_path + "down_genes.txt")
-    shutil.move(signature.interrogated_gene_file_path.path, new_unix_path + "all_genes.txt")
-    shutil.move(signature.expression_values_file.path, new_unix_path + signature.tsx_id + ".sign")
-
-    signature.up_gene_file_path.name = new_path + "up_genes.txt"
-    signature.down_gene_file_path.name = new_path + "down_genes.txt"
-    signature.interrogated_gene_file_path.name = new_path + "all_genes.txt"
-
-    gene_dict = generate_values(signature)
-    signature.expression_values = gene_dict
-    write_gene_file(gene_dict, new_unix_path + signature.tsx_id + ".sign")
-    signature.expression_values_file.name = new_path + signature.tsx_id + ".sign"
-    signature.save()
-
-def generate_values(signature):
-    # Starts from scratch
-    values = {}
-    gene_type = signature.gene_id
-    # Starts with interrogated file to get them all (we will upload them later)
-    if signature.interrogated_gene_file_path:
-        values = prepare_values(values, signature.interrogated_gene_file_path.path, gene_type)
-    if signature.up_gene_file_path:
-        values = extract_values(values, signature.up_gene_file_path.path, gene_type, "1")
-    if signature.down_gene_file_path:
-        values = extract_values(values, signature.down_gene_file_path.path, gene_type, "-1")
-    return values
-
-def extract_values(values, file, gene_type, expression_value=None):
-
-    genes = set()
-    if not os.path.exists(file):
-        return values
-    with open(file, 'r') as f:
-        for line in f:
-            gene_id = line.strip()
-            # Shoud not happen, but just in case
-            if not gene_id in values:
-                values[gene_id] = {'value': expression_value, 'homolog_id': 'NA'}
-            else:
-                values[gene_id]['value'] = expression_value
-
-    return values
-
-def prepare_values(values, file, gene_type):
-
-    genes = set()
-    processed_genes = set()
-
-    if not os.path.exists(file):
-        return values
-
-    with open(file, 'r') as f:
-        for line in f:
-            gene_id = line.strip()
-            genes.add(gene_id)
-
-    if gene_type == "ENTREZ":
-        for gene in Gene.objects.filter(gene_id__in=genes).values('gene_id', 'homolog_id'):
-            values[gene['gene_id']] = {'value': 0, 'homolog_id': gene['homolog_id']}
-        for missing_gene in genes - processed_genes:
-            values[missing_gene] = {'value': 0, 'homolog_id': 'NA'}
-
-    else:
-        for gene in Gene.objects.filter(ensembl_id__in=genes).values('ensembl_id', 'homolog_id'):
-            processed_genes.add(gene['ensembl_id'])
-            values[gene['ensembl_id']] = {'value': 0, 'homolog_id': gene['homolog_id']}
-        for missing_gene in genes - processed_genes:
-            values[missing_gene] = {'value': 0, 'homolog_id': 'NA'}
-
-    return values
-
-def write_gene_file(gene_values, path):
-
-    file = open(path, "w")
-    for key, value in gene_values.items():
-        file.write("{}\t{}\t{}\n".format(key, value["value"], value["homolog_id"]))
-    file.close()
 

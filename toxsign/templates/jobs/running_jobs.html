@@ -14,7 +14,7 @@
                 <th scope="col">Created at</th>
                 <th scope="col">Tool</th>
                 <th scope="col">Status</th>
-                <th scope="col">Delete</th>
+                <th scope="col">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -26,7 +26,12 @@
                         <td>{{ job.updated_at }}</td>
                         <td>{{ job.running_tool }}</td>
                         <td>{{ job.status }}</td>
-                        <td><a  href="{% url 'jobs:delete_job' job.id %}" class="btn btn-outline-danger">Delete</a></td>
+                        <td>  
+                            {% if job.running_tool.custom_result_link %}
+                                <a href="{% url job.running_tool.custom_result_link job.id %}" class="btn btn-success">View results</a>
+                            {% endif %}
+                            <a href="{% url 'jobs:delete_job' job.id %}" class="btn btn-outline-danger">Delete</a> 
+                        </td>
                     </tr>
                 {% endfor%}
             </tbody>

@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.contrib.auth.models import  User, Group
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.contrib.postgres.fields import JSONField
 from django.apps import apps
 
 # Create your models here.
@@ -55,6 +56,7 @@ class Tool(models.Model):
     link = models.CharField(max_length=200,  blank=True, null=True)
     form_name = models.CharField(max_length=100, default='default_form', blank=True, null=True)
     script_file = models.CharField(max_length=250, blank=True, null=True)
+    custom_result_link = models.CharField(max_length=250, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated_at = models.DateTimeField(auto_now=True, null=True, verbose_name=("user"))
     updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_updated_by')

@@ -6,7 +6,6 @@ app_name = 'jobs'
 # Define urls here
 urlpatterns = [
     # ex: /jobs/
-    path('', views.IndexView.as_view(), name='index'),
     path('running_jobs/', views.RunningJobsView.as_view(), name='running_jobs'),
     path('delete_job/<int:pk>', views.Delete_job, name='delete_job'),
     # ex: /jobs/5/
