@@ -5,6 +5,7 @@ from django.db import models
 from django.contrib.auth.models import  User, Group
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
+from django.dispatch import receiver
 
 import os
 import shutil
@@ -19,7 +20,7 @@ import tempfile
 from django.db.models import Q
 from toxsign.taskapp.celery import app
 
-from toxsign.scripts.data import index_genes
+from toxsign.scripts.data import setup_files
 
 class Signature(models.Model):
     DEVELOPPMENTAL_STAGE = (
@@ -116,6 +117,7 @@ class Signature(models.Model):
         self.__old_up = self.up_gene_file_path
         self.__old_down = self.down_gene_file_path
         self.__old_all = self.interrogated_gene_file_path
+        self.__old_add = self.additional_file_path
 
     # Override save method to auto increment tsx_id
     def save(self, *args, **kwargs):
@@ -129,9 +131,30 @@ class Signature(models.Model):
         if not self.tsx_id:
             self.tsx_id = "TSS" + str(self.id)
         super(Signature, self).save()
-        # If file change
+
+        file_changed = False
+        need_index = False
+
+        if self.__old_add != self.additional_file_path:
+            file_changed = True
+
         if not index and (self.__old_up != self.up_gene_file_path or self.__old_down != self.down_gene_file_path or self.__old_all != self.interrogated_gene_file_path):
-            index_genes.delay(self.id)
+            need_index = True
+
+        if file_changed or need_index:
+            setup_files.delay(self.id, need_index, file_changed)
+
         self.__old_up = self.up_gene_file_path
         self.__old_down = self.down_gene_file_path
         self.__old_all = self.interrogated_gene_file_path
+        self.__old_add = self.additional_file_path
+
+@receiver(models.signals.post_delete, sender=Signature)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    # Delete the folder
+    if(instance.expression_values_file):
+        folder_path = os.path.dirname(instance.expression_values_file.path)
+        if os.path.exists(folder_path):
+            shutil.rmtree(folder_path)
+
+

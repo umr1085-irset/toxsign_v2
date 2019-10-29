@@ -352,3 +352,5 @@ def _paginate_table(dataframe, page):
     except EmptyPage:
         result = paginator.page(paginator.num_pages)
     return result
+
+

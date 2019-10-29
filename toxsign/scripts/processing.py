@@ -70,6 +70,7 @@ def run_distance(self, signature_id, user_id=None):
         'files': [
             job_dir_path + 'signature.dist'
         ],
+        'job_folder': job_dir_path,
         'args': {
             'signature_id': signature_id
         }
@@ -119,6 +120,7 @@ def run_enrich(self, signature_id):
         'files': [
             job_dir_path + 'signature.enr'
         ],
+        'job_folder': job_dir_path,
         'args': {
             'signature_id': signature_id
         }

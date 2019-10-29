@@ -1,10 +1,12 @@
-import datetime
+import datetime, shutil, os
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import  User, Group
 from django.conf import settings
 from toxsign.tools.models import Tool
 from django.contrib.postgres.fields import JSONField
+from django.dispatch import receiver
+
 
 # Create your models here.
 class Job(models.Model):
@@ -29,3 +31,9 @@ class Job(models.Model):
     results = JSONField(null=True, blank=True, default=dict)
     def __str__(self):
         return self.title
+
+@receiver(models.signals.post_delete, sender=Job)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    if instance.results and instance.results['job_folder']:
+        if os.path.exists(instance.results['job_folder']):
+            shutil.rmtree(instance.results['job_folder'])

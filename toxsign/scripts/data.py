@@ -12,20 +12,26 @@ from django.conf import settings
 from toxsign.genes.models import Gene
 
 
-
 @app.task
-def index_genes(signature_id):
-    # Keep import in function to avoid cyclical import
+def setup_files(signature_id, index_files=False, need_move_files=False):
     from toxsign.signatures.models import Signature
-    # Make sure the data is properly saved
     time.sleep(10)
     signature = Signature.objects.get(id=signature_id)
-    # Moves files to proper folder
     new_path = "files/{}/{}/{}/{}/".format(signature.factor.assay.project.tsx_id, signature.factor.assay.tsx_id, signature.factor.tsx_id, signature.tsx_id)
     new_unix_path = settings.MEDIA_ROOT + "/" + new_path
-
     if not os.path.exists(new_unix_path):
         os.makedirs(new_unix_path)
+
+    if index_files:
+        signature = index_genes(signature, new_path, new_unix_path)
+
+    if need_move_files:
+        signature = move_files(signature, new_path, new_unix_path)
+
+    signature.save()
+
+def index_genes(signature, new_path, new_unix_path):
+
     shutil.move(signature.up_gene_file_path.path, new_unix_path + "up_genes.txt")
     shutil.move(signature.down_gene_file_path.path, new_unix_path + "down_genes.txt")
     shutil.move(signature.interrogated_gene_file_path.path, new_unix_path + "all_genes.txt")
@@ -39,7 +45,13 @@ def index_genes(signature_id):
     signature.expression_values = gene_dict
     _write_gene_file(gene_dict, new_unix_path + signature.tsx_id + ".sign")
     signature.expression_values_file.name = new_path + signature.tsx_id + ".sign"
-    signature.save()
+    return signature
+
+def move_files(signature, new_path, new_unix_path):
+
+    shutil.move(signature.additional_file_path.path, new_unix_path + "additional.txt")
+    signature.additional_file_path.name = new_path + "additional.txt"
+    return signature
 
 @app.task(bind=True)
 def change_status(self, project_id):
