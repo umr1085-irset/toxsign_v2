@@ -5,6 +5,7 @@ from django.core.files import File
 from toxsign.tools.models import Category, Tag, Tool
 from toxsign.scripts.setup import setup_tools_env, setup_homolog_data
 from datetime import datetime
+import os
 
 # Populate with default tools (ontologies..)
 
