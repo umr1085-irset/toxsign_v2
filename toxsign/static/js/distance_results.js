@@ -1,6 +1,9 @@
 $(function () {
 
   var filter_params = [];
+  var current_page = 1;
+  var current_order = "";
+  var current_order_type = "";
 
   /* Functions */
 
@@ -41,6 +44,9 @@ $(function () {
             type: 'post',
             dataType: 'json',
             success: function (response) {
+                var current_page = response.current_page;
+                var current_order = response.current_order;
+                var current_order_type = response.current_order_type;
                 $("#id_results").html(response.table);
             }
         });

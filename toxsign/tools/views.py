@@ -124,8 +124,8 @@ def distance_analysis_table(request, job_id):
                 df = df[df[column_name].gt(value)]
 
         column_dict = {}
-        current_order = None
-        current_order_type = None
+        current_order = ""
+        current_order_type = ""
         for column in df.columns:
             column_dict[column]={"filter": ""}
         request_ordered_column = request.POST.get('ordered_column')
@@ -145,7 +145,12 @@ def distance_analysis_table(request, job_id):
         page = request.POST.get('request_page')
         sigs =_paginate_table(df, page)
         context = {'sigs': sigs, 'columns': column_dict, 'current_order':current_order, 'current_order_type':current_order_type, 'job': job}
-        data = {'table' : render_to_string('tools/partial_distance_results_table.html', context, request=request)}
+        data = {
+            'table' : render_to_string('tools/partial_distance_results_table.html', context, request=request),
+            'current_order': current_order,
+            'current_order_type': current_order_type,
+            'current_page': sigs.number
+        }
         return JsonResponse(data)
 
 def functional_analysis_tool(request):
@@ -285,8 +290,8 @@ def functional_analysis_partial_table(request, job_id, type):
                 df = df[df[column_name].gt(value)]
 
         column_dict = {}
-        current_order = None
-        current_order_type = None
+        current_order = ""
+        current_order_type = ""
 
         for column in df.columns:
             if not column == "Type":

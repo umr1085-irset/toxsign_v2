@@ -53,23 +53,3 @@
   </nav>
 {% endif %}
 {% endblock %}
-
-{% block javascript %}
-    <script>
-      {% if sigs.number %}
-      var current_page = {{sigs.number}};
-      {% else %}
-      var current_page = 1;
-      {% endif %}
-      {% if current_order %}
-      var current_order = "{{current_order}}";
-      {% else %}
-      var current_order = "";
-      {% endif %}
-      {% if current_order_type %}
-      var current_order_type = "{{current_order_type}}";
-      {% else %}
-      var current_order_type = "";
-      {% endif %}
-    </script>
-{% endblock %}
