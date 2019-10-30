@@ -25,6 +25,7 @@ class TaskFailure(Exception):
 @app.task(bind=True)
 def run_distance(self, signature_id, user_id=None):
     from toxsign.users.models import User
+    from toxsign.scripts.processing import zip_results
     dt = datetime.datetime.utcnow()
     ztime = time.mktime(dt.timetuple())
     task_id = self.request.id + "_" + str(ztime)
@@ -82,7 +83,7 @@ def run_distance(self, signature_id, user_id=None):
 
 @app.task(bind=True)
 def run_enrich(self, signature_id):
-
+    from toxsign.scripts.processing import zip_results
     dt = datetime.datetime.utcnow()
     ztime = time.mktime(dt.timetuple())
     task_id = self.request.id + "_" + str(ztime)

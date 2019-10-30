@@ -111,7 +111,7 @@ $(function () {
           order = "asc";
         }
       }
-      load_partial(current_page, col_name, order, type);
+      load_partial(current_page, col_name, order, search_value, type);
     }
 
     var paginate = function(){
@@ -120,7 +120,7 @@ $(function () {
       var current_order = current_state[type]["current_order"]
       var current_order_type = current_state[type]["current_order_type"]
       var search_value = current_state[type]["search_value"];
-      load_partial(next_page, current_order, current_order_type, type);
+      load_partial(next_page, current_order, current_order_type, search_value, type);
     }
 
     var filter = function(){
