@@ -15,6 +15,8 @@ from toxsign.genes.models import Gene
 @app.task
 def setup_files(signature_id, index_files=False, need_move_files=False):
     from toxsign.signatures.models import Signature
+    from .processing import zip_results
+
     time.sleep(10)
     signature = Signature.objects.get(id=signature_id)
     new_path = "files/{}/{}/{}/{}/".format(signature.factor.assay.project.tsx_id, signature.factor.assay.tsx_id, signature.factor.tsx_id, signature.tsx_id)
@@ -29,6 +31,8 @@ def setup_files(signature_id, index_files=False, need_move_files=False):
         signature = move_files(signature, new_path, new_unix_path)
 
     signature.save()
+
+    zip_results(new_path)
 
     if index_files and signature.factor.assay.project.status == "PUBLIC":
         change_status.delay(signature.factor.assay.project.id)

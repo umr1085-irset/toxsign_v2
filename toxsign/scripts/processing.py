@@ -3,7 +3,6 @@ import shutil
 import time
 import tempfile
 from urllib.request import urlopen
-from zipfile import ZipFile
 import gzip
 import subprocess
 import datetime
@@ -15,7 +14,6 @@ from toxsign.projects.views import check_view_permissions
 from toxsign.projects.models import Project
 from toxsign.signatures.models import Signature
 from toxsign.jobs.models import Job
-from toxsign.users.models import User
 
 from celery.utils.log import get_task_logger
 
@@ -26,7 +24,8 @@ class TaskFailure(Exception):
 
 @app.task(bind=True)
 def run_distance(self, signature_id, user_id=None):
-
+    from toxsign.users.models import User
+    from toxsign.scripts.processing import zip_results
     dt = datetime.datetime.utcnow()
     ztime = time.mktime(dt.timetuple())
     task_id = self.request.id + "_" + str(ztime)
@@ -65,12 +64,14 @@ def run_distance(self, signature_id, user_id=None):
         logger.exception(run.stderr.decode())
         raise TaskFailure('Error running bash script')
 
+    zip_path = zip_results(job_dir_path)
     # Update job with results
     results = {
         'files': [
             job_dir_path + 'signature.dist'
         ],
         'job_folder': job_dir_path,
+        'archive': zip_path,
         'args': {
             'signature_id': signature_id
         }
@@ -82,7 +83,7 @@ def run_distance(self, signature_id, user_id=None):
 
 @app.task(bind=True)
 def run_enrich(self, signature_id):
-
+    from toxsign.scripts.processing import zip_results
     dt = datetime.datetime.utcnow()
     ztime = time.mktime(dt.timetuple())
     task_id = self.request.id + "_" + str(ztime)
@@ -116,15 +117,19 @@ def run_enrich(self, signature_id):
         raise TaskFailure('Error running bash script')
 
     # Update job with results
+    zip_path = _zip_results(job_dir_path)
+
     results = {
         'files': [
             job_dir_path + 'signature.enr'
         ],
         'job_folder': job_dir_path,
+        'archive': zip_path,
         'args': {
             'signature_id': signature_id
         }
     }
+
 
     current_job = Job.objects.get(celery_task_id=self.request.id)
     current_job.results = results
@@ -151,7 +156,12 @@ def _prepare_temp_folder(request_id, signature, additional_signatures=[], add_RD
 
     return temp_dir_path
 
+def zip_results(path_to_folder, archive_name="archive"):
+    if os.path.exists(path_to_folder + '/archive.zip'):
+        os.remove(path_to_folder + '/{}.zip'.format(archive))
 
+    with tempfile.TemporaryDirectory() as dirpath:
+        archive_temp_path = shutil.make_archive(dirpath + '/' + archive_name, 'zip', path_to_folder)
+        archive_path = shutil.move(archive_temp_path, path_to_folder)
 
-
-
+    return archive_path
