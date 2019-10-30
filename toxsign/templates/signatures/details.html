@@ -20,157 +20,264 @@
         </div>
       </div>
       <br>
-      <div class="tab-content card">
-        <div class="text-center card-header">
-            <h2>{{ signature.tsx_id }} - {{ signature.name }}</h2>
-        </div>
-        <div class="text-style card-body">
-          <div class="tab-content card">
-            <div class="text-center card-header">
-              Signature information
-            </div>
-            <div class="text-style card-body">
-              <div class="row">
-                <div class="col-md-6">
-                  <p><b>Owner</b> : {{signature.created_by.username}}</p><br>
-                </div>
-                <div class="col-md-6">
-                  <p><b>Signature type</b> : {{signature.get_signature_type_display}}</p><br>
-                </div>
-              </div>
-            </div>
+      <div class="row">
+          <div class="col-md-12">
+                <h2>
+                {{ signature.tsx_id }} - {{ signature.name }} 
+                {% if project.status == "PUBLIC" %}<span class="badge badge-pill badge-success">Public</span>{% endif %}
+                {% if project.status == "PENDING" %}<span class="badge badge-pill badge-secondary">Pending</span>{% endif %}
+                {% if project.status == "PRIVATE" %}<span class="badge badge-pill badge-dark">Private</span>{% endif %}
+                {% if project.project_type == "INTERVENTIONAL" %} <span class="badge badge-primary">Interventional</span>{% endif %}
+                {% if project.project_type == "OBSERVATIONAL" %} <span class="badge badge-success">Observational</span>{% endif %}
+                {% if factor.chemical_subfactor_of.count > 1 %} <span class="badge badge-warning">Mixture</span>{% endif %}
+                </h2>
+                <hr>
           </div>
-          <br>
-          <div class="tab-content card">
-            <div class="text-center card-header">
-              Biological information
-            </div>
-            <div class="text-style card-body">
-              <div class="row">
-                <div class="col-md-6">
-                  <p><b>Organism</b> : {% onto_value signature.organism "m2m" %}</p><br>
-                  <p><b>Experimental type</b> : {{ signature.exp_type }}</p><br>
-                  <p><b>Cell</b> : {% onto_value signature.cell "m2m" %}</p><br>
-                  <p><b>Cell_line</b> : {% onto_value signature.cell_line "m2m" %}</p><br>
-                </div>
-                <div class="col-md-6">
-                  <p><b>Developmental stage</b> : {{signature.dev_stage}}</p><br>
-                  <p><b>Generation</b> : {{signature.generation}}</p><br>
-                  <p><b>Sex</b> : {{signature.get_sex_type_display}}</p><br>
-                  <p><b>Tissue</b> : {% onto_value signature.tissue "m2m" %}</p><br>
-                </div>
-              </div>
-            </div>
-          </div>
-          <br>
-          <div class="tab-content card">
-            <div class="text-center card-header">
-              <p>Subfactors</p>
-              <ul class="nav nav-tabs card-header-tabs">
-                <li class="nav-item">
-                  <a href="" data-target="#chemical" data-toggle="tab" class="nav-link active">Chemical</a>
-                </li>
-                <li class="nav-item">
-                  <a href="" data-target="#biological" data-toggle="tab" class="nav-link">Biological</a>
-                </li>
-                <li class="nav-item">
-                  <a href="" data-target="#physical" data-toggle="tab" class="nav-link">Physical</a>
-                </li>
-              </ul>
-            </div>
-            <div class="text-style card-body">
-              <div class="tab-content">
-                <div class="tab-pane active" id="chemical">
-                  <p>Chemical subfactors :</p>
-                  <hr>
-                  {% if not chem_subfactors.count %}
-                    <p>There are no chemical subfactors linked to this signature</p>
-                  {% else %}
-                  <table class="table table-hover">
-                    <thead>
-                      <tr style="text-align:center;">
-                        <th scope="col">Chemical</th>
-                        <th scope="col">Vehicule</th>
-                        <th scope="col">Route</th>
-                        <th scope="col">Dose</th>
-                        <th scope="col">Exposure duration</th>
-                        <th scope="col">Exposure frequency</th>
-                        <th scope="col">Additional information</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {% for chemical in chem_subfactors %}
-                      <tr style="text-align:center;" >
-                        <td>{% onto_value chemical.chemical "foreign" chemical.chemical_slug %}</td>                    
-                        <td>{{chemical.vehicule}}</td>                    
-                        <td>{{chemical.route}}</td>                    
-                        <td>{{chemical.dose_value}} {{chemical.dose_unit}}</td>                    
-                        <td>{{chemical.exposure_time}}</td>                    
-                        <td>{{chemical.exposure_frequencie}}</td>                    
-                        <td>{{chemical.additional_info}}</td>                    
-                      </tr>
-                      {% endfor %}  
-                    </tbody>
-                </table>
+      </div>
+      <div class="row my-5">
+          <div class="col-md-6 mb-5">
+            <h2>Summary</h2>
+            <table class="table">
+              <tbody>
+                <tr>
+                  <th scope="row">Organism</th>
+                  <td>
+                    {% onto_value signature.organism "m2m" as organism %}
+                    {% if organism == "Homo sapiens" %} <img src="{% static 'images/species/Homo_sapiens.png' %}" width="50px" height="50px">{% endif %}
+                    {% if organism == "Canis familiaris" %} <img src="{% static 'images/species/Canis_familiaris.png' %}" width="50px" height="50px">{% endif %}
+                    {% if organism == "Danio rerio" %} <img src="{% static 'images/species/Danio_rerio.png' %}" width="50px" height="50px">{% endif %}
+                    {% if organism == "Drosophila melanogaster" %} <img src="{% static 'images/species/Drosophila_melanogaster.png' %}" width="50px" height="50px">{% endif %}
+                    {% if organism == "Macaca mulatta" %} <img src="{% static 'images/species/Macaca_mulatta.png' %}" width="50px" height="50px">{% endif %}
+                    {% if organism == "Mus musculus" %} <img src="{% static 'images/species/Mus_musculus.png' %}" width="50px" height="50px">{% endif %}
+                    {% if organism == "Rattus norvegicus" %} <img src="{% static 'images/species/Rattus_norvegicus.png' %}" width="50px" height="50px">{% endif %}
+                    {% if organism == "Sus scrofa" %} <img src="{% static 'images/species/Sus_scrofa.png' %}" width="50px" height="50px">{% endif %}
+                  </td>
+                  <td>{% onto_value signature.organism "m2m" %}</td>
+                </tr>
+                {% if signature.tissue %}
+                  <tr>
+                    <th scope="row">Tissue</th>
+                    <td>
+                      {% onto_value signature.tissue "m2m" as tissue %}
+                      {% if tissue == "Liver" %} <img src="{% static 'images/organs/png/028-liver.png' %}" width="50px" height="50px">{% endif %}
+                      {% if tissue == "Kidney" %} <img src="{% static 'images/organs/png/008-kidneys-1.png' %}" width="50px" height="50px">{% endif %}
+                      {% if tissue == "Brain" %} <img src="{% static 'images/organs/png/002-brain.png' %}" width="50px" height="50px">{% endif %}
+                      {% if tissue == "Lungs" %} <img src="{% static 'images/organs/png/003-lungs.png' %}" width="50px" height="50px">{% endif %}
+                      {% if tissue == "Bladder" %} <img src="{% static 'images/organs/png/006-bladder.png' %}" width="50px" height="50px">{% endif %}
+                      {% if tissue == "Testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px">{% endif %}
+                      {% if tissue == "Heard" %} <img src="{% static 'images/organs/png/023-heart.png' %}" width="50px" height="50px">{% endif %}
+                      {% if tissue == "Testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px">{% endif %}
+                      {% if tissue == "Ovary" %} <img src="{% static 'images/organs/png/024-uterus.png' %}" width="50px" height="50px">{% endif %}
+                      {% if tissue == "Stomach" %} <img src="{% static 'images/organs/png/029-stomach.png' %}">{% endif %}
+                      {% if tissue == "Intestine" %} <img src="{% static 'images/organs/png/027-intestine.png' %}" width="50px" height="50px">{% endif %}
+                    </td>
+                    <td>{% onto_value signature.tissue "m2m" %}</td>
+                  </tr>
                 {% endif %}
-                </div>
-                <div class="tab-pane" id="biological">
-                  <p>Biological subfactors : </p>
-                  <hr>
-                  <p>There are no biological subfactors linked to this factor</p>
-                </div>
-                <div class="tab-pane" id="physical">
-                  <p>Physical subfactors : </p>
-                  <hr>
-                  <p>There are no physical subfactors linked to this factor</p>
-                </div>
-              </div>
-            </div>
+                {% onto_value signature.cell "m2m" as cell%}
+                {% if cell != "None" %}
+                  <tr><th scope="row">Cell</th><td><img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px"></td><td>{% onto_value signature.cell "m2m" %}</td></tr>
+                {% endif %}
+                {% onto_value signature.cell_line "m2m" as cell_line%}
+                {% if cell_line != "None" %}
+                  <tr><th scope="row">Cell line</th><td><img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px"></td><td>{% onto_value signature.cell_line "m2m" %}</td></tr>
+                {% endif %}
+              </tbody>
+            </table>
           </div>
-          <br>
-          <div class="tab-content card">
-            <div class="text-center card-header">
-              Genomic signature information
-            </div>
-            <div class="text-style card-body">
-              <div class="row">
-                <div class="col-md-6">
-                  <p><b>Technology used </b> :
-                  {% onto_value signature.technology "m2m" signature.technology_slug %}
-                  </p>
-                </div>
-                <div class="col-md-6">
-                    <p><b>Platform</b> : {{signature.platform}}</p>
-                </div>
-              </div>
-            </div>
+          <div class="col-md-6 mb-5">
+                <h2>Characteristics</h2>
+                <table class="table">
+                  <tbody>
+                    {% if signature.exp_type %}<tr><th scope="row">Experimental type</th><td>{{ assay.get_exp_type_display }}</td></tr>{% endif %}
+                    {% if signature.sex_type %}<tr><th scope="row">Sex</th><td>{{ assay.get_sex_type_display }}</td></tr>{% endif %}
+                    {% if signature.generation %}<tr><th scope="row">Generation</th><td>{{ assay.get_generation_display }}</td></tr>{% endif %}
+                    {% if signature.dev_stage %}<tr><th scope="row">Developmental stage</th><td>{{ assay.get_dev_stage_display }}</td></tr>{% endif %}
+                    {% if signature.sex_type %}<tr><th scope="row">Sex</th><td>{{ assay.get_sex_type_display }}</td></tr>{% endif %}
+                  </tbody>
+                </table>
           </div>
-          <br>
-          <div class="tab-content card">
-            <div class="text-center card-header">
-              Statistical information
-            </div>
-            <div class="text-style card-body">
-              <div class="row">
-                <div class="col-md-6">
-                  <p><b>Control samples</b> : {{signature.control_sample_number}}</p><br>
-                  <p><b>Treated samples</b> : {{signature.treated_sample_number}}</p><br>
+      </div>
+
+      <h2>Associated Factors</h2>
+      <div class="row">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a href="" data-target="#chemical" data-toggle="tab" class="nav-link active">Chemical ({{factor.chemical_subfactor_of.count}})</a>
+            </li>
+            <li class="nav-item">
+                <a href="" data-target="#biological" data-toggle="tab" class="nav-link">Biological (soon)</a>
+            </li>
+            <li class="nav-item">
+                <a href="" data-target="#physical" data-toggle="tab" class="nav-link">Physical (soon)</a>
+            </li>
+        </ul>
+        <div class="tab-content p-b-3" style="margin-top:20px;">
+            <div class="tab-pane active" id="chemical">
+              {% if not factor.chemical_subfactor_of.count %}
+                  <div class="row my-5">
+                    <div class="col-md-8 mb-5">
+                      <p>No chemical subfactors linked to this factor</p>
+                    </div>
+                  </div>
+              {% endif %}
+              {% for chemical in factor.chemical_subfactor_of.all %}
+                <div class="row my-5">
+                  <div class="col-md-8 mb-5">
+                    <h2><i class="fas fa-flask"></i> Chemical factor n° {{ forloop.counter }}</h2>
+                    <table class="table">
+                      <tbody>
+                        <tr>
+                          <th scope="row">Chemical</th> 
+                          <td>{% if chemical.chemical %}{{chemical.chemical.name}}{% else %}{{chemical.chemical_slug}}{% endif %}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Route</th> 
+                          <td>{% if chemical.route %}{{chemical.route}}{% else %} No route provided {% endif %}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Vehicule</th> 
+                          <td>{% if chemical.route %}{{chemical.vehicule}}{% else %} No vehicule provided {% endif %}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Dose</th> 
+                          <td>{% if chemical.dose_value %}{{chemical.dose_value}} {{chemical.dose_unit}}{% else %} No dose provided {% endif %}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Exposure time</th> 
+                          <td>{% if chemical.exposure_time %}{{chemical.exposure_time}} hours {% else %} No exposure time provided {% endif %}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Exposure frequencies</th> 
+                          <td>{% if chemical.exposure_frequencie %}{{chemical.exposure_frequencie}} {% else %} No exposure frequencies provided {% endif %}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="col-md-4 mb-5">
+                    <h2>Additional information</h2>
+                    <hr>
+                    {% if chemical.additional_info %} {{ chemical.additional_info }} {% else %} No additional information provided {% endif %}
+                  </div>
                 </div>
-                <div class="col-md-6">
-                  <p><b>Pvalue Cutoff</b> : {{signature.pvalue}}</p><br>
-                  <p><b>FC Cutoff</b> : {{signature.cutoff}}</p><br>
-                </div>
-              </div>
-              <p><b>Statistical processing</b> : {{signature.statistical_processing}}</p><br>
+              {% endfor %}
             </div>
-          </div>
+            <div class="tab-pane" id="biological">
+                <div class="row my-5">
+                  <div class="col-md-12 mb-5">
+                    <p>No biological subfactors linked to this factor</p>
+                  </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="physical">
+                <div class="row my-5">
+                  <div class="col-md-12 mb-5">
+                    <p>No physical subfactors linked to this factor</p>
+                  </div>
+                </div>
+            </div>
         </div>
       </div>
-    </div>
-    <div class="modal fade" id="modal-group">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content"></div>
+      <div class="row my-5">
+          <div class="col-md-4 mb-5">
+                <h2>Genomic signature information</h2>
+                <table class="table">
+                  <tbody>
+                    <tr>
+                      <th scope="row">Technology used</th>
+                      <td>
+                        {% onto_value signature.technology "m2m" signature.technology_slug %}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Platform</th>
+                      <td>
+                        {{signature.platform}}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+          </div>
+          <div class="col-md-8 mb-5">
+                <h2>Statistical information</h2>
+                <table class="table">
+                  <tbody>
+                    <tr>
+                      <th scope="row">Control samples</th>
+                      <td>{{signature.control_sample_number}}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Treated samples</th>
+                      <td>{{signature.treated_sample_number}}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Pvalue Cutoff</th>
+                      <td>{{signature.pvalue}}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">FC Cutoff</th>
+                      <td>{{signature.cutoff}}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Statistical processing</th>
+                      <td>{{signature.statistical_processing}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+          </div>
+      </div>
+      {% if project.created_by == request.user%}
+        <div class="row my-5">
+            <div class="col-md-8 mb-5">
+                  <h2>Authorization</h2>
+                  <table class="table">
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th scope="row">Read group</th>
+                        <td>
+                          {% for read in project.read_groups.all %}
+                            <span>{{ read }}</span>
+                          {% endfor %}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Edit group</th>
+                        <td>
+                          {% for edit in project.edit_groups.all %}
+                            <span>{{ edit }}</span>
+                          {% endfor %}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+            </div>
+            <div class="col-md-4 mb-5">
+                  <h2>Information</h2>
+                  <table class="table">
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th scope="row">Owner</th>
+                        <td>{{ factor.created_by }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Creation date</th>
+                        <td>{{ factor.created_at }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Last update</th>
+                        <td>{{ factor.updated_at }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+            </div>
         </div>
-    </div>
+      {% endif %}
+      <div class="modal fade" id="modal-group">
+          <div class="modal-dialog modal-lg">
+              <div class="modal-content"></div>
+          </div>
+      </div>
 
 {% endblock %}
