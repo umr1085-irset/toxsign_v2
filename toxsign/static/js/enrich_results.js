@@ -44,7 +44,7 @@ $(function () {
             success: function (response) {
                 // Setup current_state variable
                 for (i=0; i < response.types.length; i++){
-                  current_state[response.types[i]] = { current_page: 1, current_order: "", current_order_type: ""};
+                  current_state[response.types[i]] = { current_page: 1, current_order: "", current_order_type: "", search_value: ""};
                 }
                 $("#id_results").html(response.table);
             }
@@ -52,17 +52,17 @@ $(function () {
         return false;
     };
 
-    var load_partial = function (request_page, ordered_column, order, type) {
+    var load_partial = function (request_page, ordered_column, order, search_value, type) {
         var url = $("#" + type + "-id").attr("data-url");
         var token = $("input[name=csrfmiddlewaretoken]").val();
-        var data = {request_page: request_page, ordered_column: ordered_column, order:order, terms: JSON.stringify(filter_params), csrfmiddlewaretoken: token};
+        var data = {request_page: request_page, ordered_column: ordered_column, order:order, search_value: search_value, terms: JSON.stringify(filter_params), csrfmiddlewaretoken: token};
         $.ajax({
             url: url,
             data: data,
             type: 'post',
             dataType: 'json',
             success: function (response) {
-                current_state[response.type] = { current_page: response.current_page, current_order: response.current_order, current_order_type: response.current_order_type};
+                current_state[response.type] = { current_page: response.current_page, current_order: response.current_order, current_order_type: response.current_order_type, search_value: response.search_value};
                 $("#" + type + "-id").html(response.table);
             }
         });
@@ -99,9 +99,10 @@ $(function () {
     var order = function(){
       var col_name = $(this).attr("target");
       var type = $(this).attr("data-type");
-      var current_page = current_state[type]["current_page"]
-      var current_order = current_state[type]["current_order"]
-      var current_order_type = current_state[type]["current_order_type"]
+      var current_page = current_state[type]["current_page"];
+      var current_order = current_state[type]["current_order"];
+      var current_order_type = current_state[type]["current_order_type"];
+      var search_value = current_state[type]["search_value"];
       var order = "desc";
       if (col_name == current_order){
         if (current_order_type == "desc") {
@@ -116,7 +117,20 @@ $(function () {
       var type = $(this).attr("data-type");
       var current_order = current_state[type]["current_order"]
       var current_order_type = current_state[type]["current_order_type"]
+      var search_value = current_state[type]["search_value"];
       load_partial(next_page, current_order, current_order_type, type);
+    }
+
+    var filter = function(){
+        var search_value = $(this).val();
+        if(search_value.length > 2){
+            var type = $(this).attr("data-type");
+            var current_order = current_state[type]["current_order"];
+            var current_order_type = current_state[type]["current_order_type"];
+            var current_page = current_state[type]["current_page"];
+            load_partial(current_page, current_order, current_order_type, search_value, type);
+            $(this).focus();
+        }
     }
 
   /* Binding */
@@ -126,4 +140,5 @@ $(function () {
     $('#results_button').on('click', load_full);
     $('#id_results').on('click', ".order-action", order);
     $('#id_results').on('click', ".page-action", paginate);
+    $('#id_results').on('keyup', ".term_select", filter);
 });

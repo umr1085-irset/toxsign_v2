@@ -143,7 +143,7 @@ def distance_analysis_table(request, job_id):
                 current_order_type= "desc"
 
         page = request.POST.get('request_page')
-        sigs =_paginate_table(df, page)
+        sigs =_paginate_table(df, page, 15)
         context = {'sigs': sigs, 'columns': column_dict, 'current_order':current_order, 'current_order_type':current_order_type, 'job': job}
         data = {
             'table' : render_to_string('tools/partial_distance_results_table.html', context, request=request),
@@ -229,10 +229,10 @@ def functional_analysis_full_table(request, job_id):
             if not column == "Type":
                 column_dict[column]={"filter": ""}
 
-        process_table = _paginate_table(df[df.Type == "Process"].drop(columns=['Type']), None)
-        component_table = _paginate_table(df[df.Type == "Component"].drop(columns=['Type']), None)
-        phenotype_table= _paginate_table(df[df.Type == "Phenotype"].drop(columns=['Type']), None)
-        function_table= _paginate_table(df[df.Type == "Function"].drop(columns=['Type']), None)
+        process_table = _paginate_table(df[df.Type == "Process"].drop(columns=['Type']), None, 15)
+        component_table = _paginate_table(df[df.Type == "Component"].drop(columns=['Type']), None, 15)
+        phenotype_table= _paginate_table(df[df.Type == "Phenotype"].drop(columns=['Type']), None, 15)
+        function_table= _paginate_table(df[df.Type == "Function"].drop(columns=['Type']), None, 15)
 
         data = {
             'Process': process_table,
@@ -293,6 +293,10 @@ def functional_analysis_partial_table(request, job_id, type):
         current_order = ""
         current_order_type = ""
 
+        search_value = request.POST.get('search_value')
+        if search_value:
+            df = df[df['Term'].str.contains(search_value)]
+
         for column in df.columns:
             if not column == "Type":
                 column_dict[column]={"filter": ""}
@@ -312,17 +316,19 @@ def functional_analysis_partial_table(request, job_id, type):
                 current_order_type= "desc"
 
         page = request.POST.get('request_page')
-        table = _paginate_table(df[df.Type == type].drop(columns=['Type']), page)
+        table = _paginate_table(df[df.Type == type].drop(columns=['Type']), page, 15)
 
         context = {
             'table': table,
             'columns': column_dict,
+            'search_value': search_value,
             'type': type,
             'job': job
         }
         data = {
             'table' : render_to_string('tools/partial_enrich_single_table.html', context, request=request),
             'type': type,
+            'search_value': search_value,
             'current_order': current_order,
             'current_order_type': current_order_type,
             'current_page': table.number
@@ -343,8 +349,8 @@ def _create_job(title, owner, task_id, tool):
         )
     job.save()
 
-def _paginate_table(dataframe, page):
-    paginator = Paginator(dataframe.apply(lambda df: df.values,axis=1),10)
+def _paginate_table(dataframe, page, max_size=10):
+    paginator = Paginator(dataframe.apply(lambda df: df.values,axis=1), max_size)
     try:
         result = paginator.page(page)
     except PageNotAnInteger:

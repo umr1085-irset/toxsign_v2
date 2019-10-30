@@ -1,3 +1,5 @@
+import json, os
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, render
@@ -8,13 +10,14 @@ from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.conf import settings
 
-import json
 
 from toxsign.superprojects.models import Superproject
 from toxsign.assays.models import Assay, Factor
 from toxsign.projects.models import Project
 from toxsign.signatures.models import Signature
+from toxsign.jobs.models import Job
 from toxsign.projects.views import check_view_permissions, check_edit_permissions
 
 from toxsign.superprojects.documents import SuperprojectDocument
@@ -26,10 +29,48 @@ from elasticsearch_dsl import Q as Q_es
 from django.template.loader import render_to_string
 from . import forms
 from django.http import JsonResponse
+from django.http import FileResponse
 
 def HomeView(request):
         context = {}
         return render(request, 'pages/home.html',context)
+
+def download_signature(request, sigid):
+    from toxsign.scripts.processing import zip_results
+    sig = get_object_or_404(Signature, tsx_id=sigid)
+    if not check_view_permissions(request.user, sig.factor.assay.project):
+        return redirect('/unauthorized')
+
+    sig_folder = "{}/files/{}/{}/{}/{}/".format(settings.MEDIA_ROOT, sig.factor.assay.project.tsx_id, sig.factor.assay.tsx_id, sig.factor.tsx_id, sig.tsx_id)
+    if not os.path.exists(sig_folder + 'archive.zip'):
+        zip_results(sig_folder)
+
+    response = FileResponse(open(sig_folder +'archive.zip', 'rb'))
+    response['Content-Type'] = "application/zip"
+    response['Content-Disposition'] = 'attachment; filename={}_archive.zip'.format(sig.tsx_id)
+    response['Content-Transfer-Encoding'] = "binary"
+    response['Content-Length'] = os.path.getsize(sig_folder +'archive.zip')
+
+    return response
+
+
+def download_job_result(request, jobid):
+    from toxsign.scripts.processing import zip_results
+    job = get_object_or_404(Job, id=jobid)
+    if not job.created_by == request.user:
+         return redirect('/unauthorized')
+
+    if not job.results or not 'archive' in job.results or not job.results['archive']:
+        return redirect('/unauthorized')
+
+    archive_file = job.results['archive']
+    response = FileResponse(open(archive_file, 'rb'))
+    response['Content-Type'] = "application/zip"
+    response['Content-Disposition'] = 'attachment; filename=job_{}_results.zip'.format(job.title)
+    response['Content-Transfer-Encoding'] = "binary"
+    response['Content-Length'] = os.path.getsize(archive_file)
+
+    return response
 
 def autocompleteModel(request):
     query = request.GET.get('q')

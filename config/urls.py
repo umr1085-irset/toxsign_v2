@@ -21,9 +21,8 @@ urlpatterns = [
     path(
         "statistics/", TemplateView.as_view(template_name="pages/statistics.html"), name="statistics"
     ),
-    path(
-        "download/", TemplateView.as_view(template_name="pages/download.html"), name="download"
-    ),
+    path("download/signature/<str:sigid>", views.download_signature, name="download_sig"),
+    path("download/job/<int:jobid>", views.download_job_result, name="download_job"),
     path(
         "help/", TemplateView.as_view(template_name="pages/help.html"), name="help"
     ),

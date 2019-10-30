@@ -34,6 +34,6 @@ class Job(models.Model):
 
 @receiver(models.signals.post_delete, sender=Job)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
-    if instance.results and instance.results['job_folder']:
+    if instance.results and 'job_folder' in instance.results and instance.results['job_folder']:
         if os.path.exists(instance.results['job_folder']):
             shutil.rmtree(instance.results['job_folder'])
