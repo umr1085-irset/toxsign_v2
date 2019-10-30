@@ -61,12 +61,6 @@ class EditAssayView(PermissionRequiredMixin, UpdateView):
         #return Assay.objects.get(tsx_id=self.kwargs['assid'])
         return self.assay
 
-    def get_form_kwargs(self):
-        kwargs = super(EditAssayView, self).get_form_kwargs()
-        projects = self.project
-        kwargs.update({'project': projects})
-        return kwargs
-
 class EditFactorView(PermissionRequiredMixin, UpdateView):
     permission_required = 'change_project'
 
