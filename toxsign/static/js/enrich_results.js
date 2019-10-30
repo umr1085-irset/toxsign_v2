@@ -63,7 +63,9 @@ $(function () {
             dataType: 'json',
             success: function (response) {
                 current_state[response.type] = { current_page: response.current_page, current_order: response.current_order, current_order_type: response.current_order_type, search_value: response.search_value};
-                $("#" + type + "-id").html(response.table);
+                $("#" + type + "-table").html(response.table);
+                $("#" + type + "-columns").html(response.columns);
+                $("#" + type + "-paginate").html(response.paginate);
             }
         });
         return false;

@@ -3,69 +3,17 @@
 {% load custom %}
 
 {% block content %}
-<div class="table-responsive">
-    <table class="table">
-      <thead>
-        <tr style="text-align:center;">
-          {% for column, param in columns.items %}
-            <th scope="col"><button type="button" class="btn btn-link btn-sm order-action" data-type="{{type}}" action="order" target="{{column}}">{{column}} {% get_arrow param.filter %}</button></th>
-          {% endfor %}
-        </tr>
-        <tr>
-          <th>
-            <input data-type="{{type}}" class="term_select" type="text" size="50" name="" value="{{search_value}}">
-          </th>
-        </tr>
-      </thead>
-      <tbody id="table">
-        {% for row in table %}
-          <tr>
-            {% for col in row %}
-              {% if forloop.counter == 1  %}
-                <td>{{ col }}</td>
-              {% elif forloop.counter == 6 %}
-                <td>{% widthratio col 1 100 %} %</td>
-              {% else %}
-                <td>{{ col |floatformat:-3}}</td>
-              {% endif %}
-            {% endfor %}
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-</div>
-{% if table %}
-  <nav aria-label="Page navigation example">
-    <p>Showing results {{table.start_index}} - {{table.end_index}} out of {{table.paginator.count}}</p>
-    <ul class="pagination">
-      {% if table.has_previous %}
-        <li class="page-item"><a class="page-link page-action" data-type="{{type}}" target="1">&laquo;</a></li>
+  {% for row in table %}
+  <tr>
+    {% for col in row %}
+      {% if forloop.counter == 1  %}
+        <td>{{ col }}</td>
+      {% elif forloop.counter == 6 %}
+        <td>{% widthratio col 1 100 %} %</td>
       {% else %}
-        <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
+        <td>{{ col |floatformat:-3}}</td>
       {% endif %}
-    
-      {% if table.number|add:'-4' > 1 %}
-        <li class="page-item"><a class="page-link page-action" data-type="{{type}}" target="{{ table.number|add:'-5' }}">&hellip;</a></li>
-      {% endif %}
-
-      {% for i in table.paginator.page_range %}
-        {% if table.number == i %}
-          <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
-        {% elif i > table.number|add:'-5' and i < table.number|add:'5' %}
-          <li class="page-item"><a class="page-link page-action" data-type="{{type}}" target="{{i}}">{{ i }}</a></li>
-        {% endif %}
-      {% endfor %}
-
-      {% if table.paginator.num_pages > table.number|add:'4' %}
-        <li class="page-item"><a class="page-link page-action" data-type="{{type}}" target="{{ table.number|add:'5' }}">&hellip;</a></li>
-      {% endif %}
-
-      {% if table.has_next %}
-        <li class="page-item"><a class="page-link page-action" data-type="{{type}}" target="{{table.paginator.num_pages}}">&raquo;</a></li>
-      {% else %}
-        <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
-      {% endif %}
-    </ul>
-  </nav>
-{% endif %}
+    {% endfor %}
+  </tr>
+  {% endfor %}
 {% endblock %}

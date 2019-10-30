@@ -327,6 +327,8 @@ def functional_analysis_partial_table(request, job_id, type):
         }
         data = {
             'table' : render_to_string('tools/partial_enrich_single_table.html', context, request=request),
+            'columns': render_to_string('tools/partial_enrich_single_columns.html', context, request=request),
+            'paginate': render_to_string('tools/partial_enrich_single_paginate.html', context, request=request),
             'type': type,
             'search_value': search_value,
             'current_order': current_order,
@@ -358,5 +360,3 @@ def _paginate_table(dataframe, page, max_size=10):
     except EmptyPage:
         result = paginator.page(paginator.num_pages)
     return result
-
-
