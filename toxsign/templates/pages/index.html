@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static i18n %}
+{% load custom %}
 
 {% block content %}
     <div class="container">
@@ -48,11 +49,29 @@
               <div class="tab-pane text-style card-body" id="tab2">
                 {% for project in project_list %}
                     <h3><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a> - {{project.name}}</h3>
-                    <p><b>Owner : </b>{{ project.created_by }} - {{ project.created_at }}</p>
-                    <p><b>Description : </b>{{project.description}}</p>
-                    {% if project.superproject %}
-                    <p><b>Superproject : </b><a href="{% url 'superprojects:detail' project.superproject.tsx_id %}">{{project.superproject.tsx_id}} - {{project.superproject.name}}</a></p>
-                    {% endif %}
+
+                    <table class="table">
+                      <tbody>
+                        <tr>
+                          <td>
+                            {% if project.status == "PUBLIC" %}<span class="badge badge-pill badge-success">Public</span>{% endif %}
+                            {% if project.status == "PENDING" %}<span class="badge badge-pill badge-secondary">Pending</span>{% endif %}
+                            {% if project.status == "PRIVATE" %}<span class="badge badge-pill badge-dark">Private</span>{% endif %}
+                            {% if project.project_type == "INTERVENTIONAL" %} <span class="badge badge-primary">Interventional</span>{% endif %}
+                            {% if project.project_type == "OBSERVATIONAL" %} <span class="badge badge-success">Observational</span>{% endif %}
+                          <td>
+                          <td>
+                            {% if project.description %} {{ project.description }} {% else %} No description provided {% endif %}
+                          </td>
+                          <td>
+                            {{ project.created_by }}
+                          </td>
+                          <td>
+                            {{ project.created_at }}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                     <hr>
                 {% endfor %}
                 {% if project_list %}
@@ -81,10 +100,71 @@
               </div>
               <div class="tab-pane text-style card-body" id="tab3">
                 {% for assay in assay_list %}
-                      <h3><a href="{% url 'assays:assay_detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{assay.name}}</h3>
-                      <p><b>Owner : </b>{{ assay.created_by }} - {{ assay.created_at }}</p>
-                      <p><b>Organism : </b>{{assay.organism}}</p>
-                      <hr>
+                      <h3><a href="{% url 'assays:assay_detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{assay.name}}                      </h3>
+                      
+                      <table class="table text-center">
+                        <thead>
+                          <tr>
+                            <th></th>
+                            {% if assay.organism.name %}<th scope="col">Organism</th>{% endif %}
+                            {% if assay.tissue.name %}<th scope="col">Tissue</th>{% endif %}
+                            {% if assay.cell %}<th scope="col">Cell</th>{% endif %}
+                            {% if assay.cell_line%}<th scope="col">Cell line</th>{% endif %}
+                            {% if assay.sex_type%}<th scope="col">Sex</th>{% endif %}
+                            {% if assay.dev_stage%}<th scope="col">Stage</th>{% endif %}
+                            <th scope="col">Owner</th>
+                            <th scope="col">Creation date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>
+                              {% if assay.project.status == "PUBLIC" %}<span class="badge badge-pill badge-success">Public</span>{% endif %}
+                              {% if assay.project.status == "PENDING" %}<span class="badge badge-pill badge-secondary">Pending</span>{% endif %}
+                              {% if assay.project.status == "PRIVATE" %}<span class="badge badge-pill badge-dark">Private</span>{% endif %}
+                            </td>
+                            <td>
+                              {% if assay.organism.name == "Homo sapiens" %} <img src="{% static 'images/species/Homo_sapiens.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.organism.name}}">{% endif %}
+                              {% if assay.organism.name == "Canis familiaris" %} <img src="{% static 'images/species/Canis_familiaris.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.organism.name}}">{% endif %}
+                              {% if assay.organism.name == "Danio rerio" %} <img src="{% static 'images/species/Danio_rerio.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.organism.name}}">{% endif %}
+                              {% if assay.organism.name == "Drosophila melanogaster" %} <img src="{% static 'images/species/Drosophila_melanogaster.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.organism.name}}">{% endif %}
+                              {% if assay.organism.name == "Macaca mulatta" %} <img src="{% static 'images/species/Macaca_mulatta.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.organism.name}}">{% endif %}
+                              {% if assay.organism.name == "Mus musculus" %} <img src="{% static 'images/species/Mus_musculus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.organism.name}}">{% endif %}
+                              {% if assay.organism.name == "Rattus norvegicus" %} <img src="{% static 'images/species/Rattus_norvegicus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.organism.name}}">{% endif %}
+                              {% if assay.organism.name == "Sus scrofa" %} <img src="{% static 'images/species/Sus_scrofa.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.organism.name}}">{% endif %}
+                            </td>
+                            <td>
+                              {% if assay.tissue.name == "Liver" %} <img src="{% static 'images/organs/png/028-liver.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.tissue.name}}">{% endif %}
+                              {% if assay.tissue.name == "Kidney" %} <img src="{% static 'images/organs/png/008-kidneys-1.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.tissue.name}}">{% endif %}
+                              {% if assay.tissue.name == "Brain" %} <img src="{% static 'images/organs/png/002-brain.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.tissue.name}}">{% endif %}
+                              {% if assay.tissue.name == "Lungs" %} <img src="{% static 'images/organs/png/003-lungs.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.tissue.name}}">{% endif %}
+                              {% if assay.tissue.name == "Bladder" %} <img src="{% static 'images/organs/png/006-bladder.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.tissue.name}}">{% endif %}
+                              {% if assay.tissue.name == "Testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.tissue.name}}">{% endif %}
+                              {% if assay.tissue.name == "Heard" %} <img src="{% static 'images/organs/png/023-heart.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.tissue.name}}">{% endif %}
+                              {% if assay.tissue.name == "Testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.tissue.name}}">{% endif %}
+                              {% if assay.tissue.name == "Ovary" %} <img src="{% static 'images/organs/png/024-uterus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.tissue.name}}">{% endif %}
+                              {% if assay.tissue.name == "Stomach" %} <img src="{% static 'images/organs/png/029-stomach.png' %}" data-toggle="tooltip" data-placement="top" title="{{assay.tissue.name}}">{% endif %}
+                              {% if assay.tissue.name == "Intestine" %} <img src="{% static 'images/organs/png/027-intestine.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.tissue.name}}">{% endif %}
+                            </td>
+                            <td>
+                              {% if assay.cell %}
+                                <img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.cell}}">
+                              {% endif %}
+                              {% if assay.cell_line %}
+                                <img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.cell_line}}">
+                              {% endif %}
+                            </td>
+                            {% if assay.sex_type %}<td>{{ assay.get_sex_type_display }}</td>{% endif %}
+                            {% if assay.dev_stage %}<td>{{ assay.get_dev_stage_display }}</td>{% endif %}
+                            <td>
+                              {{ assay.created_by }}
+                            </td>
+                            <td>
+                              {{ assay.created_at }}
+                            </td>
+                          </tr>
+                        </tbody>
+                    </table>
                   {% endfor %}
                   {% if assay_list %}
                   <nav aria-label="Page navigation example">
@@ -112,10 +192,78 @@
               </div>
               <div class="tab-pane text-style card-body" id="tab4">
                 {% for signature in signature_list %}
-                      <h3><a href="{% url 'signatures:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{signature.name}}</h3>
-                      <p><b>Owner : </b>{{ signature.created_by }} - {{ signature.created_at }}</p>
-                      <p><b>Type : </b>{{signature.signature_type | lower | capfirst}}</p>
-                      <p><b>Organism : </b>{{signature.organism}}</p>
+                      <h3><a href="{% url 'signatures:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{signature.name}}
+                      
+                      {% onto_value signature.organism "m2m" as organism %}
+                      {% onto_value signature.tissue "m2m" as tissue %}
+                      {% onto_value signature.cell "m2m" as cell%}
+                      {% onto_value signature.cell_line "m2m" as cell_line%}
+                      </h3>
+                      <table class="table text-center">
+                        <thead>
+                          <tr>
+                            <th></th>
+                            {% if organism %}<th scope="col">Organism</th>{% endif %}
+                            {% if tissue %}<th scope="col">Tissue</th>{% endif %}
+                            {% if cell != "None"%}<th scope="col">Cell</th>{% endif %}
+                            {% if cell_line != "None"%}<th scope="col">Cell line</th>{% endif %}
+                            {% if signature.sex_type %}<th scope="col">Sex</th>{% endif %}
+                            {% if signature.dev_stage %}<th scope="col">Stage</th>{% endif %}
+                            <th scope="col">Owner</th>
+                            <th scope="col">Creation date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>
+                              {% if signature.project.status == "PUBLIC" %}<span class="badge badge-pill badge-success">Public</span>{% endif %}
+                              {% if signature.project.status == "PENDING" %}<span class="badge badge-pill badge-secondary">Pending</span>{% endif %}
+                              {% if signature.project.status == "PRIVATE" %}<span class="badge badge-pill badge-dark">Private</span>{% endif %}
+                              {% if signature.signature_type == "GENOMICS" %}<span class="badge badge-pill badge-danger">Genomics</span>{% endif %}
+                              {% if signature.signature_type == "METABOLOMICS" %}<span class="badge badge-pill badge-info">Metabolomics</span>{% endif %}
+                            </td>
+                            <td>
+                              {% if organism == "Homo sapiens" %} <img src="{% static 'images/species/Homo_sapiens.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                              {% if organism == "Canis familiaris" %} <img src="{% static 'images/species/Canis_familiaris.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                              {% if organism == "Danio rerio" %} <img src="{% static 'images/species/Danio_rerio.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                              {% if organism == "Drosophila melanogaster" %} <img src="{% static 'images/species/Drosophila_melanogaster.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                              {% if organism == "Macaca mulatta" %} <img src="{% static 'images/species/Macaca_mulatta.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                              {% if organism == "Mus musculus" %} <img src="{% static 'images/species/Mus_musculus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                              {% if organism == "Rattus norvegicus" %} <img src="{% static 'images/species/Rattus_norvegicus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                              {% if organism == "Sus scrofa" %} <img src="{% static 'images/species/Sus_scrofa.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                            </td>
+                            <td>
+                              {% if tissue == "Liver" %} <img src="{% static 'images/organs/png/028-liver.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                              {% if tissue == "Kidney" %} <img src="{% static 'images/organs/png/008-kidneys-1.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                              {% if tissue == "Brain" %} <img src="{% static 'images/organs/png/002-brain.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                              {% if tissue == "Lungs" %} <img src="{% static 'images/organs/png/003-lungs.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                              {% if tissue == "Bladder" %} <img src="{% static 'images/organs/png/006-bladder.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                              {% if tissue == "Testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                              {% if tissue == "Heard" %} <img src="{% static 'images/organs/png/023-heart.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                              {% if tissue == "Testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                              {% if tissue == "Ovary" %} <img src="{% static 'images/organs/png/024-uterus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                              {% if tissue == "Stomach" %} <img src="{% static 'images/organs/png/029-stomach.png' %}" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                              {% if tissue == "Intestine" %} <img src="{% static 'images/organs/png/027-intestine.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                            </td>
+                            <td>
+                              {% if cell != "None" %}
+                                <img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{cell}}">
+                              {% endif %}
+                              {% if cell_line != "None" %}
+                                <img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{cell_line}}">
+                              {% endif %}
+                            </td>
+                            {% if signature.sex_type %}<td>{{ signature.get_sex_type_display }}</td>{% endif %}
+                            {% if signature.dev_stage %}<td>{{ signature.get_dev_stage_display }}</td>{% endif %}
+                            <td>
+                              {{ signature.created_by }}
+                            </td>
+                            <td>
+                              {{ signature.created_at }}
+                            </td>
+                          </tr>
+                        </tbody>
+                    </table>
                       <hr>
                   {% endfor %}
                   {% if signature_list %}
@@ -147,5 +295,12 @@
       </div>
 
     </div>
-
+{% endblock %}
+{% block javascript %}
+  {{block.super}}
+  <script>
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+      })
+    </script>
 {% endblock %}
