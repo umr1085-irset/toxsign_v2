@@ -8,6 +8,7 @@
 <link href="{% static 'css/graph.css' %}" rel="stylesheet">
 <script src="{% static 'js/graph.js' %}"></script>
 <script src="{% static 'js/context-menu.js' %}"></script>
+
     <div class="container">
       <div class="tab-content card" style="text-align:center;">
         <div class="tab-pane active text-style card-body">
@@ -23,13 +24,15 @@
       <div class="row">
           <div class="col-md-12">
                 <h2>
-                {{ signature.tsx_id }} - {{ signature.name }} 
+                {{ signature.tsx_id }} - {{ signature.name }} <br>
                 {% if project.status == "PUBLIC" %}<span class="badge badge-pill badge-success">Public</span>{% endif %}
                 {% if project.status == "PENDING" %}<span class="badge badge-pill badge-secondary">Pending</span>{% endif %}
                 {% if project.status == "PRIVATE" %}<span class="badge badge-pill badge-dark">Private</span>{% endif %}
                 {% if project.project_type == "INTERVENTIONAL" %} <span class="badge badge-primary">Interventional</span>{% endif %}
                 {% if project.project_type == "OBSERVATIONAL" %} <span class="badge badge-success">Observational</span>{% endif %}
                 {% if factor.chemical_subfactor_of.count > 1 %} <span class="badge badge-warning">Mixture</span>{% endif %}
+                {% if signature.signature_type == "GENOMICS" %}<span class="badge badge-pill badge-danger">Genomics</span>{% endif %}
+                {% if signature.signature_type == "METABOLOMICS" %}<span class="badge badge-pill badge-info">Metabolomics</span>{% endif %}
                 </h2>
                 <hr>
           </div>
@@ -89,13 +92,57 @@
                 <h2>Characteristics</h2>
                 <table class="table">
                   <tbody>
-                    {% if signature.exp_type %}<tr><th scope="row">Experimental type</th><td>{{ assay.get_exp_type_display }}</td></tr>{% endif %}
-                    {% if signature.sex_type %}<tr><th scope="row">Sex</th><td>{{ assay.get_sex_type_display }}</td></tr>{% endif %}
-                    {% if signature.generation %}<tr><th scope="row">Generation</th><td>{{ assay.get_generation_display }}</td></tr>{% endif %}
-                    {% if signature.dev_stage %}<tr><th scope="row">Developmental stage</th><td>{{ assay.get_dev_stage_display }}</td></tr>{% endif %}
-                    {% if signature.sex_type %}<tr><th scope="row">Sex</th><td>{{ assay.get_sex_type_display }}</td></tr>{% endif %}
+                    {% if signature.exp_type %}<tr><th scope="row">Experimental type</th><td>{{ signature.get_exp_type_display }}</td></tr>{% endif %}
+                    {% if signature.sex_type %}<tr><th scope="row">Sex</th><td>{{ signature.get_sex_type_display }}</td></tr>{% endif %}
+                    {% if signature.generation %}<tr><th scope="row">Generation</th><td>{{ signature.get_generation_display }}</td></tr>{% endif %}
+                    {% if signature.dev_stage %}<tr><th scope="row">Developmental stage</th><td>{{ signature.get_dev_stage_display }}</td></tr>{% endif %}
+                    {% if signature.sex_type %}<tr><th scope="row">Sex</th><td>{{ signature.get_sex_type_display }}</td></tr>{% endif %}
                   </tbody>
                 </table>
+          </div>
+      </div>
+       <div class="row my-5">
+          <div class="col-md-8 mb-5">
+            <h2>Toxicogenomic signature</h2>
+            <table class="table">
+              <tbody>
+                {% if signature.up_gene_file_path %}
+                  <tr>
+                    <th scope="row">Upregulated genes file</th>
+                    <td>{{signature.up_gene_file_path.name}}</td>
+                  </tr>
+                {% endif %}
+                {% if signature.down_gene_file_path %}
+                  <tr>
+                    <th scope="row">Downnregulated genes file</th>
+                    <td>{{signature.down_gene_file_path}}</td>
+                  </tr>
+                {% endif %}
+                {% if signature.interrogated_gene_file_path %}
+                  <tr>
+                    <th scope="row">Interrogated genes file</th>
+                    <td>{{signature.interrogated_gene_file_path}}</td>
+                  </tr>
+                {% endif %}
+                {% if signature.expression_values_file %}
+                  <tr>
+                    <th scope="row">Gene expression file</th>
+                    <td>{{signature.expression_values_file}}</td>
+                  </tr>
+                {% endif %}
+                {% if signature.additional_file_path %}
+                  <tr>
+                    <th scope="row">Additional file</th>
+                    <td>{{signature.additional_file_path}}</td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+          <div class="col-md-4 mb-5">
+            <h2>Overview</h2>
+            <hr>
+            <canvas id="myChart"></canvas>
           </div>
       </div>
 
@@ -106,10 +153,10 @@
                 <a href="" data-target="#chemical" data-toggle="tab" class="nav-link active">Chemical ({{factor.chemical_subfactor_of.count}})</a>
             </li>
             <li class="nav-item">
-                <a href="" data-target="#biological" data-toggle="tab" class="nav-link">Biological (soon)</a>
+                <a href="" data-target="#biological" data-toggle="tab" class="nav-link disabled">Biological</a>
             </li>
             <li class="nav-item">
-                <a href="" data-target="#physical" data-toggle="tab" class="nav-link">Physical (soon)</a>
+                <a href="" data-target="#physical" data-toggle="tab" class="nav-link disabled">Physical</a>
             </li>
         </ul>
         <div class="tab-content p-b-3" style="margin-top:20px;">
@@ -121,46 +168,41 @@
                     </div>
                   </div>
               {% endif %}
-              {% for chemical in factor.chemical_subfactor_of.all %}
-                <div class="row my-5">
-                  <div class="col-md-8 mb-5">
-                    <h2><i class="fas fa-flask"></i> Chemical factor n° {{ forloop.counter }}</h2>
-                    <table class="table">
-                      <tbody>
-                        <tr>
-                          <th scope="row">Chemical</th> 
-                          <td>{% if chemical.chemical %}{{chemical.chemical.name}}{% else %}{{chemical.chemical_slug}}{% endif %}</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">Route</th> 
-                          <td>{% if chemical.route %}{{chemical.route}}{% else %} No route provided {% endif %}</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">Vehicule</th> 
-                          <td>{% if chemical.route %}{{chemical.vehicule}}{% else %} No vehicule provided {% endif %}</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">Dose</th> 
-                          <td>{% if chemical.dose_value %}{{chemical.dose_value}} {{chemical.dose_unit}}{% else %} No dose provided {% endif %}</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">Exposure time</th> 
-                          <td>{% if chemical.exposure_time %}{{chemical.exposure_time}} hours {% else %} No exposure time provided {% endif %}</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">Exposure frequencies</th> 
-                          <td>{% if chemical.exposure_frequencie %}{{chemical.exposure_frequencie}} {% else %} No exposure frequencies provided {% endif %}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <div class="col-md-4 mb-5">
-                    <h2>Additional information</h2>
-                    <hr>
-                    {% if chemical.additional_info %} {{ chemical.additional_info }} {% else %} No additional information provided {% endif %}
-                  </div>
-                </div>
-              {% endfor %}
+              <div class="row my-5">
+                {% for chemical in factor.chemical_subfactor_of.all %}
+                    <div class="col-md-6 mb-5">
+                      <h2><i class="fas fa-flask"></i> Chemical factor n° {{ forloop.counter }}</h2>
+                      <table class="table">
+                        <tbody>
+                          <tr>
+                            <th scope="row">Chemical</th> 
+                            <td>{% if chemical.chemical %}{{chemical.chemical.name}}{% else %}{{chemical.chemical_slug}}{% endif %}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row">Route</th> 
+                            <td>{% if chemical.route %}{{chemical.route}}{% else %} No route provided {% endif %}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row">Vehicule</th> 
+                            <td>{% if chemical.route %}{{chemical.vehicule}}{% else %} No vehicule provided {% endif %}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row">Dose</th> 
+                            <td>{% if chemical.dose_value %}{{chemical.dose_value}} {{chemical.dose_unit}}{% else %} No dose provided {% endif %}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row">Exposure time</th> 
+                            <td>{% if chemical.exposure_time %}{{chemical.exposure_time}} hours {% else %} No exposure time provided {% endif %}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row">Exposure frequencies</th> 
+                            <td>{% if chemical.exposure_frequencie %}{{chemical.exposure_frequencie}} {% else %} No exposure frequencies provided {% endif %}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                {% endfor %}
+              </div>
             </div>
             <div class="tab-pane" id="biological">
                 <div class="row my-5">
@@ -281,3 +323,32 @@
       </div>
 
 {% endblock %}
+{% block javascript %}
+  {{ block.super }}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+  <script>
+    var label = ["up-regulated","down-regulated"];
+    var values = [439,321];
+    var myDoughnutChart = new Chart("myChart", {
+        type: 'doughnut',
+        data: {
+          labels:label,
+          datasets:[
+            {
+              label:"Signature overview",
+              data:values,
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+              ],
+              borderColor: [
+                  'rgba(255, 99, 132, 1)',
+                  'rgba(54, 162, 235, 1)',
+              ],
+              borderWidth: 1
+            }
+          ]
+        },
+    });
+  </script>
+{% endblock%}
