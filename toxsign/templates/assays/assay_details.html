@@ -7,7 +7,7 @@
 <link href="{% static 'css/graph.css' %}" rel="stylesheet">
 <script src="{% static 'js/graph.js' %}"></script>
 <script src="{% static 'js/context-menu.js' %}"></script>
-    <div class="container-fluid">
+    <div class="container">
       <div class="tab-content card" style="text-align:center;">
         <div class="tab-pane active text-style card-body">
           <div id='graph'></div>
@@ -20,50 +20,146 @@
       </div>
       <br>
       <div class="row">
-        <div class="col-md-3 ">
-          <div class="list-group ">
-              <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action">Project</a>
-              <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action active">Assay</a>
-              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Factors ({{ factors|length }})</a>
-              <a href="#tab4" data-toggle="tab" class="list-group-item list-group-item-action">Signatures ({{ signatures|length }})</a>
-            </div>
-        </div>
-        <div class="col-md-9">
-            <div class="tab-content card">
-              <div class="tab-pane text-style card-body" id="tab1">
-                <h2><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a> - {{ project.name }}</h2>
-                <p>{{ project.description }}</p>
-              </div>
-              <div class="tab-pane active text-style card-body" id="tab2">
-                <h2>{{ assay.tsx_id }} - {{ assay.name }}</h2>
-              </div>
-              <div class="tab-pane text-style card-body" id="tab3">
-                <h2> List of factors related to this assay : </h2>
-                {% if not factors %}
-                  <p> No factors are related to this assay</p>
-                {% endif %}
-                {% for factor in factors %}
-                  <p><a href="{% url 'assays:factor_detail' factor.tsx_id %}"> {{factor.tsx_id}}</a> - {{factor.name}}</p>
-                  <hr>
-                {% endfor %}
-                <br>
-                <a class="btn btn-large btn-info" href="{% url 'assays:factor_create' project.tsx_id %}?selected={{assay.tsx_id}}">
-                  <i class="fa fa-plus-circle"></i> New factor
-                </a>
-              </div>
-              <div class="tab-pane text-style card-body" id="tab4">
-                <h2> List of signatures related to this assay : </h2>
-                {% if not signatures %}
-                  <p> No signatures are related to this project.</p>
-                {% endif %}
-                {% for signature in signatures %}
-                  <h2><a href="{% url 'signatures:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{ signature.name }}</h2>
-                  <hr>
-                {% endfor %}
-              </div>
-            </div>
-        </div>
+          <div class="col-md-12">
+                <h2>{{ assay.tsx_id }} - {{ assay.name }} 
+                
+                {% if project.status == "PUBLIC" %}<span class="badge badge-pill badge-success">Public</span>{% endif %}
+                {% if project.status == "PENDING" %}<span class="badge badge-pill badge-secondary">Pending</span>{% endif %}
+                {% if project.status == "PRIVATE" %}<span class="badge badge-pill badge-dark">Private</span>{% endif %}
+                {% if project.project_type == "INTERVENTIONAL" %} <span class="badge badge-primary">Interventional</span>{% endif %}
+                {% if project.project_type == "OBSERVATIONAL" %} <span class="badge badge-success">Observational</span>{% endif %}
+                
+                </h2>
+                <hr>
+          </div>
       </div>
+      <div class="row my-5">
+          <div class="col-md-6 mb-5">
+            <h2>Summary</h2>
+            <table class="table">
+              <tbody>
+                <tr>
+                  <th scope="row">Organism</th>
+                  <td>
+                    {% if assay.organism.name == "Homo sapiens" %} <img src="{% static 'images/species/Homo_sapiens.png' %}" width="50px" height="50px">{% endif %}
+                    {% if assay.organism.name == "Canis familiaris" %} <img src="{% static 'images/species/Canis_familiaris.png' %}" width="50px" height="50px">{% endif %}
+                    {% if assay.organism.name == "Danio rerio" %} <img src="{% static 'images/species/Danio_rerio.png' %}" width="50px" height="50px">{% endif %}
+                    {% if assay.organism.name == "Drosophila melanogaster" %} <img src="{% static 'images/species/Drosophila_melanogaster.png' %}" width="50px" height="50px">{% endif %}
+                    {% if assay.organism.name == "Macaca mulatta" %} <img src="{% static 'images/species/Macaca_mulatta.png' %}" width="50px" height="50px">{% endif %}
+                    {% if assay.organism.name == "Mus musculus" %} <img src="{% static 'images/species/Mus_musculus.png' %}" width="50px" height="50px">{% endif %}
+                    {% if assay.organism.name == "Rattus norvegicus" %} <img src="{% static 'images/species/Rattus_norvegicus.png' %}" width="50px" height="50px">{% endif %}
+                    {% if assay.organism.name == "Sus scrofa" %} <img src="{% static 'images/species/Sus_scrofa.png' %}" width="50px" height="50px">{% endif %}
+                  </td>
+                  <td>{{ assay.organism.name }}</td>
+                </tr>
+                {% if assay.tissue %}
+                  <tr>
+                    <th scope="row">Tissue</th>
+                    <td>
+                      {% if assay.tissue.name == "Liver" %} <img src="{% static 'images/organs/png/028-liver.png' %}" width="50px" height="50px">{% endif %}
+                      {% if assay.tissue.name == "Kidney" %} <img src="{% static 'images/organs/png/008-kidneys-1.png' %}" width="50px" height="50px">{% endif %}
+                      {% if assay.tissue.name == "Brain" %} <img src="{% static 'images/organs/png/002-brain.png' %}" width="50px" height="50px">{% endif %}
+                      {% if assay.tissue.name == "Lungs" %} <img src="{% static 'images/organs/png/003-lungs.png' %}" width="50px" height="50px">{% endif %}
+                      {% if assay.tissue.name == "Bladder" %} <img src="{% static 'images/organs/png/006-bladder.png' %}" width="50px" height="50px">{% endif %}
+                      {% if assay.tissue.name == "Testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px">{% endif %}
+                      {% if assay.tissue.name == "Heard" %} <img src="{% static 'images/organs/png/023-heart.png' %}" width="50px" height="50px">{% endif %}
+                      {% if assay.tissue.name == "Testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px">{% endif %}
+                      {% if assay.tissue.name == "Ovary" %} <img src="{% static 'images/organs/png/024-uterus.png' %}" width="50px" height="50px">{% endif %}
+                      {% if assay.tissue.name == "Stomach" %} <img src="{% static 'images/organs/png/029-stomach.png' %}">{% endif %}
+                      {% if assay.tissue.name == "Intestine" %} <img src="{% static 'images/organs/png/027-intestine.png' %}" width="50px" height="50px">{% endif %}
+                    </td>
+                    <td>{{assay.tissue.name}}</td>
+                  </tr>
+                {% endif %}
+                {% if assay.cell %}
+                  <tr><th scope="row">Cell</th><td><img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px"></td><td>{{assay.cell}}</td></tr>
+                {% endif %}
+                {% if assay.cell_line %}
+                  <tr><th scope="row">Cell line</th><td><img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px"></td><td>{{assay.cell_line}}</td></tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+          <div class="col-md-6 mb-5">
+                <h2>Characteristics</h2>
+                <table class="table">
+                  <tbody>
+                    {% if assay.exp_type %}<tr><th scope="row">Experimental type</th><td>{{ assay.get_exp_type_display }}</td></tr>{% endif %}
+                    {% if assay.sex_type %}<tr><th scope="row">Sex</th><td>{{ assay.get_sex_type_display }}</td></tr>{% endif %}
+                    {% if assay.generation %}<tr><th scope="row">Generation</th><td>{{ assay.get_generation_display }}</td></tr>{% endif %}
+                    {% if assay.dev_stage %}<tr><th scope="row">Developmental stage</th><td>{{ assay.get_dev_stage_display }}</td></tr>{% endif %}
+                    {% if assay.sex_type %}<tr><th scope="row">Sex</th><td>{{ assay.get_sex_type_display }}</td></tr>{% endif %}
+                  </tbody>
+                </table>
+          </div>
+      </div>
+      <div class="row my-5">
+          <div class="col-md-6 mb-5">
+                <h2>
+                  Experimental design
+                </h2>
+                <hr>
+                <p>{% if assay.experimental_design %} {{ assay.experimental_design }} {% else %} No experimental design provided {% endif %}</p>
+          </div>
+          <div class="col-md-6 mb-5">
+                <h2>Additional information</h2>
+                <hr>
+                <p>{% if assay.additional_info %} {{ assay.additional_info }} {% else %} No additional information provided {% endif %}</p>
+          </div>
+      </div>
+
+      {% if project.created_by == request.user%}
+        <div class="row my-5">
+            <div class="col-md-8 mb-5">
+                  <h2>Authorization</h2>
+                  <table class="table">
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th scope="row">Read group</th>
+                        <td>
+                          {% for read in project.read_groups.all %}
+                            <span>{{ read }}</span>
+                          {% endfor %}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Edit group</th>
+                        <td>
+                          {% for edit in project.edit_groups.all %}
+                            <span>{{ edit }}</span>
+                          {% endfor %}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+            </div>
+            <div class="col-md-4 mb-5">
+                  <h2>Information</h2>
+                  <table class="table">
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th scope="row">Owner</th>
+                        <td>{{ assay.created_by }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Creation date</th>
+                        <td>{{ assay.created_at }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Last update</th>
+                        <td>{{ assay.updated_at }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+            </div>
+        </div>
+      {% endif %}
+
+      
+      
+
     </div>
     <div class="modal fade" id="modal-group">
         <div class="modal-dialog modal-lg">

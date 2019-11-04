@@ -60,11 +60,19 @@
                     <tbody>
                       <tr>
                         <th scope="row">Read group</th>
-                        <td>{{ project.read_groups }}</td>
+                        <td>
+                          {% for read in project.read_groups.all %}
+                            <span>{{ read }}</span>
+                          {% endfor %}
+                        </td>
                       </tr>
                       <tr>
                         <th scope="row">Edit group</th>
-                        <td>{{ project.edit_groups }}</td>
+                        <td>
+                          {% for edit in project.edit_groups.all %}
+                            <span>{{ edit }}</span>
+                          {% endfor %}
+                        </td>
                       </tr>
                     </tbody>
                   </table>

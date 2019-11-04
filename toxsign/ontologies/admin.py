@@ -6,7 +6,7 @@ from toxsign.ontologies.models import Biological, Cell, CellLine, Chemical, Dise
 
 class OntoAdmin(admin.ModelAdmin):
     fieldsets = [
-        (None,               {'fields': ['name', 'onto_id', 'synonyms', 'as_parent', 'as_ancestor']}),
+        (None,               {'fields': ['name', 'onto_id', 'synonyms', 'as_children']}),
     ]
     list_display = ['name', 'onto_id']
     search_fields = ['name', 'onto_id']
