@@ -30,6 +30,9 @@
                             {% if job.running_tool.custom_result_link %}
                                 <a href="{% url job.running_tool.custom_result_link job.id %}" class="btn btn-success">View results</a>
                             {% endif %}
+                            {% if  "archive" in job.results %}
+                                <a href="{% url 'download_job' job.id %}" class="btn btn-info">Download</a>
+                            {% endif %}
                             <a href="{% url 'jobs:delete_job' job.id %}" class="btn btn-outline-danger">Delete</a> 
                         </td>
                     </tr>
