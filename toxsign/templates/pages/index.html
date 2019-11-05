@@ -194,10 +194,10 @@
                 {% for signature in signature_list %}
                       <h3><a href="{% url 'signatures:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{signature.name}}
                       
-                      {% onto_value signature.organism "m2m" as organism %}
-                      {% onto_value signature.tissue "m2m" as tissue %}
-                      {% onto_value signature.cell "m2m" as cell%}
-                      {% onto_value signature.cell_line "m2m" as cell_line%}
+                      {% onto_value signature.organism as organism %}
+                      {% onto_value signature.tissue as tissue %}
+                      {% onto_value signature.cell as cell%}
+                      {% onto_value signature.cell_line as cell_line%}
                       </h3>
                       <table class="table text-center">
                         <thead>

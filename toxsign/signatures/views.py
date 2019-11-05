@@ -95,3 +95,6 @@ class CreateSignatureView(PermissionRequiredMixin, CreateView):
         self.object = form.save(commit=False)
         self.object.created_by = get_user(self.request)
         return super(CreateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('jobs:running_jobs')

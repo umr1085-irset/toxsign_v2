@@ -11,45 +11,45 @@ from toxsign.ontologies.models import *
 
 class SignatureCreateForm(forms.ModelForm):
 
-    cell_line = forms.ModelMultipleChoiceField(
+    cell_line = forms.ModelChoiceField(
                 queryset=CellLine.objects.all(),
                 required=False,
-                widget=autocomplete.ModelSelect2Multiple(url='/ontologies/cellline-autocomplete', attrs={'data-minimum-input-length': 3})
+                widget=autocomplete.ModelSelect2(url='/ontologies/cellline-autocomplete', attrs={'data-minimum-input-length': 3})
               )
-    cell = forms.ModelMultipleChoiceField(
+    cell = forms.ModelChoiceField(
                 queryset=Cell.objects.all(),
                 required=False,
-                widget=autocomplete.ModelSelect2Multiple(url='/ontologies/cell-autocomplete', attrs={'data-minimum-input-length': 3})
+                widget=autocomplete.ModelSelect2(url='/ontologies/cell-autocomplete', attrs={'data-minimum-input-length': 3})
               )
-    chemical = forms.ModelMultipleChoiceField(
+    chemical = forms.ModelChoiceField(
                 queryset=Chemical.objects.all(),
                 required=False,
-                widget=autocomplete.ModelSelect2Multiple(url='/ontologies/chemical-autocomplete', attrs={'data-minimum-input-length': 3})
+                widget=autocomplete.ModelSelect2(url='/ontologies/chemical-autocomplete', attrs={'data-minimum-input-length': 3})
               )
-    disease = forms.ModelMultipleChoiceField(
+    disease = forms.ModelChoiceField(
                 queryset=Disease.objects.all(),
                 required=False,
-                widget=autocomplete.ModelSelect2Multiple(url='/ontologies/disease-autocomplete', attrs={'data-minimum-input-length': 3})
+                widget=autocomplete.ModelSelect2(url='/ontologies/disease-autocomplete', attrs={'data-minimum-input-length': 3})
               )
-    technology = forms.ModelMultipleChoiceField(
+    technology = forms.ModelChoiceField(
                 queryset=Experiment.objects.all(),
                 required=False,
-                widget=autocomplete.ModelSelect2Multiple(url='/ontologies/experiment-autocomplete', attrs={'data-minimum-input-length': 3})
+                widget=autocomplete.ModelSelect2(url='/ontologies/experiment-autocomplete', attrs={'data-minimum-input-length': 3})
               )
-    organism = forms.ModelMultipleChoiceField(
+    organism = forms.ModelChoiceField(
                 queryset=Species.objects.all(),
                 required=False,
-                widget=autocomplete.ModelSelect2Multiple(url='/ontologies/species-autocomplete', attrs={'data-minimum-input-length': 3})
+                widget=autocomplete.ModelSelect2(url='/ontologies/species-autocomplete', attrs={'data-minimum-input-length': 3})
               )
-    tissue = forms.ModelMultipleChoiceField(
+    tissue = forms.ModelChoiceField(
                 queryset=Tissue.objects.all(),
                 required=False,
-                widget=autocomplete.ModelSelect2Multiple(url='/ontologies/tissue-autocomplete', attrs={'data-minimum-input-length': 3})
+                widget=autocomplete.ModelSelect2(url='/ontologies/tissue-autocomplete', attrs={'data-minimum-input-length': 3})
               )
 
     class Meta:
         model = Signature
-        exclude = ("tsx_id", "created_at", "created_by", "updated_at", "expression_values", "expression_values_file")
+        exclude = ("tsx_id", "created_at", "created_by", "updated_at", "expression_values", "expression_values_file", "up_gene_number", "down_gene_number", "interrogated_gene_number")
 
     def __init__(self, *args, **kwargs):
         # Too many fields to copy....

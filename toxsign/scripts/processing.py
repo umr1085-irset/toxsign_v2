@@ -157,8 +157,8 @@ def _prepare_temp_folder(request_id, signature, additional_signatures=[], add_RD
     return temp_dir_path
 
 def zip_results(path_to_folder, archive_name="archive"):
-    if os.path.exists(path_to_folder + '/archive.zip'):
-        os.remove(path_to_folder + '/{}.zip'.format(archive))
+    if os.path.exists(path_to_folder + '/{}.zip'.format(archive_name)):
+        os.remove(path_to_folder + '/{}.zip'.format(archive_name))
 
     with tempfile.TemporaryDirectory() as dirpath:
         archive_temp_path = shutil.make_archive(dirpath + '/' + archive_name, 'zip', path_to_folder)

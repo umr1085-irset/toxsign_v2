@@ -6,6 +6,7 @@ from toxsign.ontologies.models import *
 class BiologicalDocument(Document):
 
     onto_id = fields.KeywordField()
+    name = fields.KeywordField()
 
     class Index:
         # Name of the Elasticsearch index
@@ -20,7 +21,6 @@ class BiologicalDocument(Document):
         # The fields of the model you want to be indexed in Elasticsearch
         fields = [
             'id',
-            'name',
             'synonyms',
             'as_children',
         ]
@@ -30,6 +30,7 @@ class BiologicalDocument(Document):
 class CellLineDocument(Document):
 
     onto_id = fields.KeywordField()
+    name = fields.KeywordField()
 
     class Index:
         # Name of the Elasticsearch index
@@ -44,7 +45,6 @@ class CellLineDocument(Document):
         # The fields of the model you want to be indexed in Elasticsearch
         fields = [
             'id',
-            'name',
             'synonyms',
             'as_children',
         ]
@@ -54,6 +54,7 @@ class CellLineDocument(Document):
 class CellDocument(Document):
 
     onto_id = fields.KeywordField()
+    name = fields.KeywordField()
 
     class Index:
         # Name of the Elasticsearch index
@@ -68,7 +69,6 @@ class CellDocument(Document):
         # The fields of the model you want to be indexed in Elasticsearch
         fields = [
             'id',
-            'name',
             'synonyms',
             'as_children',
         ]
@@ -78,6 +78,7 @@ class CellDocument(Document):
 class ChemicalDocument(Document):
 
     onto_id = fields.KeywordField()
+    name = fields.KeywordField()
 
     class Index:
         # Name of the Elasticsearch index
@@ -92,7 +93,6 @@ class ChemicalDocument(Document):
         # The fields of the model you want to be indexed in Elasticsearch
         fields = [
             'id',
-            'name',
             'synonyms',
             'as_children',
         ]
@@ -102,6 +102,7 @@ class ChemicalDocument(Document):
 class DiseaseDocument(Document):
 
     onto_id = fields.KeywordField()
+    name = fields.KeywordField()
 
     class Index:
         # Name of the Elasticsearch index
@@ -116,7 +117,6 @@ class DiseaseDocument(Document):
         # The fields of the model you want to be indexed in Elasticsearch
         fields = [
             'id',
-            'name',
             'synonyms',
             'as_children',
         ]
@@ -125,6 +125,7 @@ class DiseaseDocument(Document):
 class ExperimentDocument(Document):
 
     onto_id = fields.KeywordField()
+    name = fields.KeywordField()
 
     class Index:
         # Name of the Elasticsearch index
@@ -139,7 +140,6 @@ class ExperimentDocument(Document):
         # The fields of the model you want to be indexed in Elasticsearch
         fields = [
             'id',
-            'name',
             'synonyms',
             'as_children',
         ]
@@ -148,6 +148,7 @@ class ExperimentDocument(Document):
 class SpeciesDocument(Document):
 
     onto_id = fields.KeywordField()
+    name = fields.KeywordField()
 
     class Index:
         # Name of the Elasticsearch index
@@ -162,7 +163,6 @@ class SpeciesDocument(Document):
         # The fields of the model you want to be indexed in Elasticsearch
         fields = [
             'id',
-            'name',
             'synonyms',
             'as_children',
         ]
@@ -172,6 +172,7 @@ class SpeciesDocument(Document):
 class TissueDocument(Document):
 
     onto_id = fields.KeywordField()
+    name = fields.KeywordField()
 
     class Index:
         # Name of the Elasticsearch index
@@ -186,7 +187,6 @@ class TissueDocument(Document):
         # The fields of the model you want to be indexed in Elasticsearch
         fields = [
             'id',
-            'name',
             'synonyms',
             'as_children',
         ]

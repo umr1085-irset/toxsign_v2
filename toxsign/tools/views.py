@@ -341,13 +341,14 @@ def prediction_tool(request):
     pass
 
 
-def _create_job(title, owner, task_id, tool):
+def _create_job(title, owner, task_id, tool, type="TOOL"):
     # Add checks?
     job = Job(
             title = title,
             created_by = owner,
             celery_task_id = task_id,
-            running_tool = tool
+            running_tool = tool,
+            type = type
         )
     job.save()
 
