@@ -13,16 +13,16 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='signature',
             name='down_gene_number',
-            field=models.IntegerField(blank=True, default=None, null=True),
+            field=models.IntegerField(blank=True, default=0, null=True),
         ),
         migrations.AddField(
             model_name='signature',
             name='interrogated_gene_number',
-            field=models.IntegerField(blank=True, default=None, null=True),
+            field=models.IntegerField(blank=True, default=0, null=True),
         ),
         migrations.AddField(
             model_name='signature',
             name='up_gene_number',
-            field=models.IntegerField(blank=True, default=None, null=True),
+            field=models.IntegerField(blank=True, default=0, null=True),
         ),
     ]
