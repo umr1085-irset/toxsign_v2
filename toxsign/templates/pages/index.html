@@ -24,34 +24,7 @@
                 {% endfor %}
                 {% if superproject_list %}
                 {% with table=superproject_list type="superprojects" %}
-                <nav aria-label="Page navigation example">
-                    <p>Showing results {{table.start_index}} - {{table.end_index}} out of {{table.paginator.count}}</p>
-                    <ul class="pagination">
-                    {% if table.has_previous %}
-                    <li class="page-item"><a class="page-link page-action" href="?{{type}}=1">&laquo;</a></li>
-                    {% else %}
-                    <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
-                    {% endif %}
-                    {% if table.number|add:'-4' > 1 %}
-                    <li class="page-item"><a class="page-link page-action" href="?{{type}}={{ table.number|add:'-5' }}">&hellip;</a></li>
-                    {% endif %}
-                    {% for i in table.paginator.page_range %}
-                        {% if table.number == i %}
-                            <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
-                        {% elif i > table.number|add:'-5' and i < table.number|add:'5' %}
-                            <li class="page-item"><a class="page-link page-action" href="?{{type}}={{i}}">{{ i }}</a></li>
-                        {% endif %}
-                    {% endfor %}
-                    {% if table.paginator.num_pages > table.number|add:'4' %}
-                        <li class="page-item"><a class="page-link page-action" href="?{{type}}={{ table.number|add:'5' }}">&hellip;</a></li>
-                    {% endif %}
-                    {% if table.has_next %}
-                        <li class="page-item"><a class="page-link page-action" href="?{{type}}={{table.paginator.num_pages}}">&raquo;</a></li>
-                    {% else %}
-                        <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
-                    {% endif %}
-                    </ul>
-                </nav>
+                {% include "pages/paginate.html" %}
                 {% endwith %}
                 {% endif %}
               </div>
@@ -85,34 +58,7 @@
                 {% endfor %}
                 {% if project_list %}
                 {% with table=project_list type="projects" %}
-                <nav aria-label="Page navigation example">
-                    <p>Showing results {{table.start_index}} - {{table.end_index}} out of {{table.paginator.count}}</p>
-                    <ul class="pagination">
-                    {% if table.has_previous %}
-                    <li class="page-item"><a class="page-link page-action" href="?{{type}}=1">&laquo;</a></li>
-                    {% else %}
-                    <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
-                    {% endif %}
-                    {% if table.number|add:'-4' > 1 %}
-                    <li class="page-item"><a class="page-link page-action" href="?{{type}}={{ table.number|add:'-5' }}">&hellip;</a></li>
-                    {% endif %}
-                    {% for i in table.paginator.page_range %}
-                        {% if table.number == i %}
-                            <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
-                        {% elif i > table.number|add:'-5' and i < table.number|add:'5' %}
-                            <li class="page-item"><a class="page-link page-action" href="?{{type}}={{i}}">{{ i }}</a></li>
-                        {% endif %}
-                    {% endfor %}
-                    {% if table.paginator.num_pages > table.number|add:'4' %}
-                        <li class="page-item"><a class="page-link page-action" href="?{{type}}={{ table.number|add:'5' }}">&hellip;</a></li>
-                    {% endif %}
-                    {% if table.has_next %}
-                        <li class="page-item"><a class="page-link page-action" href="?{{type}}={{table.paginator.num_pages}}">&raquo;</a></li>
-                    {% else %}
-                        <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
-                    {% endif %}
-                    </ul>
-                </nav>
+                {% include "pages/paginate.html" %}
                 {% endwith %}
                 {% endif %}
               </div>
@@ -186,34 +132,7 @@
                   {% endfor %}
                   {% if assay_list %}
                 {% with table=assay_list type="assays" %}
-                <nav aria-label="Page navigation example">
-                    <p>Showing results {{table.start_index}} - {{table.end_index}} out of {{table.paginator.count}}</p>
-                    <ul class="pagination">
-                    {% if table.has_previous %}
-                    <li class="page-item"><a class="page-link page-action" href="?{{type}}=1">&laquo;</a></li>
-                    {% else %}
-                    <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
-                    {% endif %}
-                    {% if table.number|add:'-4' > 1 %}
-                    <li class="page-item"><a class="page-link page-action" href="?{{type}}={{ table.number|add:'-5' }}">&hellip;</a></li>
-                    {% endif %}
-                    {% for i in table.paginator.page_range %}
-                        {% if table.number == i %}
-                            <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
-                        {% elif i > table.number|add:'-5' and i < table.number|add:'5' %}
-                            <li class="page-item"><a class="page-link page-action" href="?{{type}}={{i}}">{{ i }}</a></li>
-                        {% endif %}
-                    {% endfor %}
-                    {% if table.paginator.num_pages > table.number|add:'4' %}
-                        <li class="page-item"><a class="page-link page-action" href="?{{type}}={{ table.number|add:'5' }}">&hellip;</a></li>
-                    {% endif %}
-                    {% if table.has_next %}
-                        <li class="page-item"><a class="page-link page-action" href="?{{type}}={{table.paginator.num_pages}}">&raquo;</a></li>
-                    {% else %}
-                        <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
-                    {% endif %}
-                    </ul>
-                </nav>
+                {% include "pages/paginate.html" %}
                 {% endwith %}
                 {% endif %}
               </div>
@@ -295,34 +214,7 @@
                   {% endfor %}
                   {% if signature_list %}
                 {% with table=signature_list type="signatures" %}
-                <nav aria-label="Page navigation example">
-                    <p>Showing results {{table.start_index}} - {{table.end_index}} out of {{table.paginator.count}}</p>
-                    <ul class="pagination">
-                    {% if table.has_previous %}
-                    <li class="page-item"><a class="page-link page-action" href="?{{type}}=1">&laquo;</a></li>
-                    {% else %}
-                    <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
-                    {% endif %}
-                    {% if table.number|add:'-4' > 1 %}
-                    <li class="page-item"><a class="page-link page-action" href="?{{type}}={{ table.number|add:'-5' }}">&hellip;</a></li>
-                    {% endif %}
-                    {% for i in table.paginator.page_range %}
-                        {% if table.number == i %}
-                            <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
-                        {% elif i > table.number|add:'-5' and i < table.number|add:'5' %}
-                            <li class="page-item"><a class="page-link page-action" href="?{{type}}={{i}}">{{ i }}</a></li>
-                        {% endif %}
-                    {% endfor %}
-                    {% if table.paginator.num_pages > table.number|add:'4' %}
-                        <li class="page-item"><a class="page-link page-action" href="?{{type}}={{ table.number|add:'5' }}">&hellip;</a></li>
-                    {% endif %}
-                    {% if table.has_next %}
-                        <li class="page-item"><a class="page-link page-action" href="?{{type}}={{table.paginator.num_pages}}">&raquo;</a></li>
-                    {% else %}
-                        <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
-                    {% endif %}
-                    </ul>
-                </nav>
+                {% include "pages/paginate.html" %}
                 {% endwith %}
                   {% endif %}
               </div>
