@@ -9,7 +9,7 @@ from django.views import generic
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, Page
 from django.conf import settings
 
 
@@ -22,6 +22,7 @@ from toxsign.projects.views import check_view_permissions, check_edit_permission
 
 from toxsign.superprojects.documents import SuperprojectDocument
 from toxsign.projects.documents import ProjectDocument
+from toxsign.assays.documents import AssayDocument
 from toxsign.signatures.documents import SignatureDocument
 from toxsign.ontologies.documents import *
 from elasticsearch_dsl import Q as Q_es
@@ -30,6 +31,20 @@ from django.template.loader import render_to_string
 from . import forms
 from django.http import JsonResponse
 from django.http import FileResponse
+from django.utils.functional import LazyObject
+
+class SearchResults(LazyObject):
+    def __init__(self, search_object):
+        self._wrapped = search_object
+
+    def __len__(self):
+        return self._wrapped.count()
+
+    def __getitem__(self, index):
+        search_results = self._wrapped[index]
+        if isinstance(index, slice):
+            search_results = list(search_results)
+        return search_results
 
 def HomeView(request):
         context = {}
@@ -234,76 +249,44 @@ def index(request):
     projects = []
     assays = []
     signatures = []
+    is_active = {'superproject': "", 'project': "", 'assay': "", 'signature': ""}
 
-    # TODO (Maybe?) -> Show index from elasticsearch : need fallback
-    # Below : tentative implementation for projects and studies
+    if request.GET.get('projects'):
+        is_active['project'] = "active"
+    elif request.GET.get('projects'):
+        is_active['assay'] = "active"
+    elif request.GET.get('projects'):
+        is_active['signature'] = "active"
+    else:
+        is_active['superproject']
 
-    #  !!!!! WARNING: 'terms' query does not work on tsx_id fields (it works on id fields) !!!!!
+    if request.user.is_authenticated:
+        groups = [group.id for group in request.user.groups.all()]
+        q = Q_es("match", created_by__username=request.user.username)  | Q_es("match", status="PUBLIC") | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
+    else:
+        q = Q_es("match", status="PUBLIC")
 
-    #if request.user.is_authenticated:
-    #    groups = [group.id for group in request.user.groups.all()]
-    #    q = Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups)) | Q_es("match", status="PUBLIC")
-    #else:
-    #    q = Q_es("match", status="PUBLIC")
-        # Should use ES for pagination..
-        # Need to convert it to list for it to work with paginator...
-    #project_list =  ProjectDocument.search().query(q).scan()
-    #project_id_list = []
-    #for project in project_list:
-    #    projects.append(project)
-    #    project_id_list.append(project.id)
-    #q = Q_es("terms", project__id=project_id_list)
-    #studies = StudyDocument().search().query(q).scan()
-    #studies = [study for study in studies]
+    allowed_projects =  ProjectDocument.search().query(q)
+    projects = paginate(allowed_projects, request.GET.get('projects'), 5, True)
+    # Limit all query to theses projects
+    allowed_projects_id_list = [project.id for project in allowed_projects]
 
-    for project in all_projects:
-        if check_view_permissions(request.user, project):
-                # Might be better to loop around than to request.
-            projects.append(project)
-            assays = assays + [ assay for assay in Assay.objects.filter(project=project)]
-            signatures = signatures + [ signature for signature in Signature.objects.filter(factor__assay__project=project)]
+    # Now do the queries
+    superprojects = SuperprojectDocument.search()
+    assays = AssayDocument.search().filter("terms", project__id=allowed_projects_id_list)
+    signatures = SignatureDocument.search().filter("terms", factor__assay__project__id=allowed_projects_id_list)
+    # This search in all fields.. might be too much. Might need to restrict to fields we actually show on the search page..
 
-    paginator = Paginator(superprojects, 5)
-    page = request.GET.get('superprojects')
-    try:
-        superprojects = paginator.page(page)
-    except PageNotAnInteger:
-        superprojects = paginator.page(1)
-    except EmptyPage:
-        superprojects = paginator.page(paginator.num_pages)
-
-    paginator = Paginator(projects, 5)
-    page = request.GET.get('projects')
-    try:
-        projects = paginator.page(page)
-    except PageNotAnInteger:
-        projects = paginator.page(1)
-    except EmptyPage:
-        projects = paginator.page(paginator.num_pages)
-
-    paginator = Paginator(assays, 6)
-    page = request.GET.get('assays')
-    try:
-        assays = paginator.page(page)
-    except PageNotAnInteger:
-        assays = paginator.page(1)
-    except EmptyPage:
-        assays = paginator.page(paginator.num_pages)
-
-    paginator = Paginator(signatures, 6)
-    page = request.GET.get('signatures')
-    try:
-        signatures = paginator.page(page)
-    except PageNotAnInteger:
-        signatures = paginator.page(1)
-    except EmptyPage:
-        signatures = paginator.page(paginator.num_pages)
+    superprojects = paginate(superprojects, request.GET.get('superprojects'), 5, True)
+    assays = paginate(assays, request.GET.get('assays'), 5, True)
+    signatures = paginate(signatures, request.GET.get('signatures'), 5, True)
 
     context = {
         'superproject_list': superprojects,
         'project_list': projects,
         'assay_list': assays,
         'signature_list': signatures,
+        "is_active": is_active
     }
 
     return render(request, 'pages/index.html', context)
@@ -451,3 +434,19 @@ def count_subentities(entity, entity_type):
     if entity_type == "factor":
         count += entity.chemical_subfactor_of.count()
     return count
+
+def paginate(values, query=None, count=5, is_ES=False):
+
+    if is_ES:
+        paginator = Paginator(SearchResults(values), count)
+    else:
+        paginator = Paginator(values, count)
+
+    try:
+        val = paginator.page(query)
+    except PageNotAnInteger:
+        val = paginator.page(1)
+    except EmptyPage:
+        val = paginator.page(paginator.num_pages)
+
+    return val
