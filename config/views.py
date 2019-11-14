@@ -94,12 +94,15 @@ def autocompleteModel(request):
         # Wildcard for search (not optimal)
         query = "*" + query + "*"
         if request.user.is_authenticated:
-            groups = [group.id for group in request.user.groups.all()]
-            q = Q_es("match", created_by__username=request.user.username)  | Q_es("match", status="PUBLIC") | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
+            if request.user.is_superuser:
+                q = Q_es()
+            else:
+                groups = [group.id for group in request.user.groups.all()]
+                q = Q_es("match", created_by__username=request.user.username)  | Q_es("match", status="PUBLIC") | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
         else:
             q = Q_es("match", status="PUBLIC")
 
-        allowed_projects =  ProjectDocument.search().query(q)
+        allowed_projects =  ProjectDocument.search().query(q).scan()
         # Limit all query to theses projects
         allowed_projects_id_list = [project.id for project in allowed_projects]
 
@@ -107,11 +110,11 @@ def autocompleteModel(request):
         results_superprojects = SuperprojectDocument.search()
         results_signatures = SignatureDocument.search().filter("terms", factor__assay__project__id=allowed_projects_id_list)
         # This search in all fields.. might be too much. Might need to restrict to fields we actually show on the search page..
-        q = Q_es("query_string", query=query)
+        q1 = Q_es("query_string", query=query)
 
-        results_superprojects = paginate(results_superprojects.filter(q), request.GET.get('superprojects'), 5, True)
-        results_projects = paginate(results_projects.filter(q), request.GET.get('projects'), 5, True)
-        results_signatures = paginate(results_signatures.filter(q), request.GET.get('signatures'), 5, True)
+        results_superprojects = paginate(results_superprojects.filter(q1), request.GET.get('superprojects'), 5, True)
+        results_projects = paginate(ProjectDocument.search().query(q & q1), request.GET.get('projects'), 5, True)
+        results_signatures = paginate(results_signatures.filter(q1), request.GET.get('signatures'), 5, True)
 
     # Fallback to DB search
     # Need to select the correct error I guess
@@ -124,10 +127,35 @@ def autocompleteModel(request):
         results_projects = paginate([project for project in results_projects if check_view_permissions(request.user, project)], request.GET.get('projects'), 5)
         results_signatures = paginate([sig for sig in results_signatures if check_view_permissions(request.user, sig.factor.assay.project)], request.GET.get('signatures'), 5)
 
+
+
+    is_active = {'superproject': "", 'project': "", 'signature': ""}
+    # If a specific page was requested,  set the related tab to active
+    if request.GET.get('projects') or request.GET.get('assays') or request.GET.get('signatures'):
+
+        if request.GET.get('projects'):
+            is_active['project'] = "active"
+        elif request.GET.get('superprojects'):
+            is_active['superproject'] = "active"
+        elif request.GET.get('signatures'):
+            is_active['signature'] = "active"
+    else:
+    # Set the first non empty tab to active (Else, superproject)
+        if results_superprojects.paginator.count:
+            is_active['superproject'] = "active"
+        elif results_projects.paginator.count:
+            is_active['project'] = "active"
+        elif results_signatures.paginator.count:
+            is_active['signature'] = "active"
+        else:
+            is_active['superproject'] = "active"
+
     results = {
         'superprojects' : results_superprojects,
         'projects': results_projects,
-        'signatures': results_signatures
+        'signatures': results_signatures,
+        'is_active': is_active,
+        'query': request.GET.get('q')
     }
     return render(request, 'pages/ajax_search.html', {'status': results})
 
@@ -229,37 +257,30 @@ def graph_data(request):
 
 def index(request):
 
-    is_active = {'superproject': "", 'project': "", 'assay': "", 'signature': ""}
-
-    if request.GET.get('projects'):
-        is_active['project'] = "active"
-    elif request.GET.get('projects'):
-        is_active['assay'] = "active"
-    elif request.GET.get('projects'):
-        is_active['signature'] = "active"
-    else:
-        is_active['superproject']
-
     try:
         if request.user.is_authenticated:
-            groups = [group.id for group in request.user.groups.all()]
-            q = Q_es("match", created_by__username=request.user.username)  | Q_es("match", status="PUBLIC") | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
+            if request.user.is_superuser:
+                q = Q_es()
+            else:
+                groups = [group.id for group in request.user.groups.all()]
+                q = Q_es("match", created_by__username=request.user.username)  | Q_es("match", status="PUBLIC") | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
         else:
             q = Q_es("match", status="PUBLIC")
 
-        allowed_projects =  ProjectDocument.search().query(q)
-        projects = paginate(allowed_projects, request.GET.get('projects'), 5, True)
+        allowed_projects =  ProjectDocument.search().query(q).scan()
         allowed_projects_id_list = [project.id for project in allowed_projects]
 
         superprojects = SuperprojectDocument.search()
         assays = AssayDocument.search().filter("terms", project__id=allowed_projects_id_list)
         signatures = SignatureDocument.search().filter("terms", factor__assay__project__id=allowed_projects_id_list)
 
+        # Since ES search objects are generators, we need to re-query them
+        projects = paginate(ProjectDocument.search().query(q), request.GET.get('projects'), 5, True)
         superprojects = paginate(superprojects, request.GET.get('superprojects'), 5, True)
         assays = paginate(assays, request.GET.get('assays'), 5, True)
         signatures = paginate(signatures, request.GET.get('signatures'), 5, True)
 
-    except:
+    except Exception as e:
         superprojects = Superproject.objects.all()
         all_projects = Project.objects.all().order_by('id')
         projects = []
@@ -276,6 +297,31 @@ def index(request):
         projects = paginate(projects, request.GET.get('projects'), 5)
         assays = paginate(assays, request.GET.get('assays'), 5)
         signatures = paginate(signatures, request.GET.get('signatures'), 5)
+
+    is_active = {'superproject': "", 'project': "", 'assay': "", 'signature': ""}
+    # If a specific page was requested,  set the related tab to active
+    if request.GET.get('projects') or request.GET.get('assays') or request.GET.get('signatures'):
+
+        if request.GET.get('projects'):
+            is_active['project'] = "active"
+        elif request.GET.get('assays'):
+            is_active['assay'] = "active"
+        elif request.GET.get('superprojects'):
+            is_active['superproject'] = "active"
+        elif request.GET.get('signatures'):
+            is_active['signature'] = "active"
+    else:
+    # Set the first non empty tab to active (Else, superproject)
+        if superprojects.paginator.count:
+            is_active['superproject'] = "active"
+        elif projects.paginator.count:
+            is_active['project'] = "active"
+        elif assays.paginator.count:
+            is_active['project'] = "active"
+        elif signatures.paginator.count:
+            is_active['signature'] = "active"
+        else:
+            is_active['superproject'] = "active"
 
     context = {
         'superproject_list': superprojects,
@@ -346,8 +392,11 @@ def search(request, model, document, entity, search_terms):
     try:
         # Wildcard for search
         if request.user.is_authenticated:
-            groups = [group.id for group in request.user.groups.all()]
-            q = Q_es("match", created_by__username=request.user.username)  | Q_es("match", status="PUBLIC") | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
+            if request.user.is_superuser:
+                q = Q_es()
+            else:
+                groups = [group.id for group in request.user.groups.all()]
+                q = Q_es("match", created_by__username=request.user.username)  | Q_es("match", status="PUBLIC") | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
         else:
             q = Q_es("match", status="PUBLIC")
 
