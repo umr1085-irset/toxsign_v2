@@ -30,16 +30,16 @@
                 </li>
                 {% if object == request.user %}
                 <li class="nav-item">
-                    <a href="" data-target="#notifications" data-toggle="tab" class="nav-link {{in_use.notification}}">Notifications ({{ notifications | length }})</a>
+                    <a href="" data-target="#notifications" data-toggle="tab" class="nav-link {{in_use.notification}}">Notifications ({{ notifications.paginator.count }})</a>
                 </li>
                 <li class="nav-item">
-                    <a href="" data-target="#groups" data-toggle="tab" class="nav-link">My groups  ({{ groups | length }})</a>
+                    <a href="" data-target="#groups" data-toggle="tab" class="nav-link">My groups  ({{ groups.paginator.count }})</a>
                 </li>
                 <li class="nav-item">
-                    <a href="" data-target="#superprojects" data-toggle="tab" class="nav-link {{in_use.project}}">My superprojects ({{ superprojects | length }})</a>
+                    <a href="" data-target="#superprojects" data-toggle="tab" class="nav-link {{in_use.superproject}}">My superprojects ({{ superprojects.paginator.count }})</a>
                 </li>
                 <li class="nav-item">
-                    <a href="" data-target="#project" data-toggle="tab" class="nav-link {{in_use.project}}">My projects ({{ projects | length }})</a>
+                    <a href="" data-target="#project" data-toggle="tab" class="nav-link {{in_use.project}}">My projects ({{ projects.paginator.count }})</a>
                 </li>
                 {% endif %}
             </ul>
@@ -121,6 +121,11 @@
                         {% endfor %}
                     </tbody>
                     </table>
+                    {% if notifications %}
+                    {% with table=notifications type="notifications" %}
+                    {% include "pages/paginate.html" %}
+                    {% endwith %}
+                    {% endif %}
                 </div>
                 </div>
                 <div class="tab-pane" id="groups">
@@ -148,6 +153,11 @@
                         {% endfor %}
                     </tbody>
                     </table>
+                    {% if groups %}
+                    {% with table=groups type="groups" %}
+                    {% include "pages/paginate.html" %}
+                    {% endwith %}
+                    {% endif %}
                 </div>
                 </div>
                 <div class="tab-pane {{in_use.superproject}}" id="superprojects">
@@ -177,27 +187,9 @@
                       </tbody>
                     </table>
                     {% if superprojects %}
-                      <nav aria-label="Page navigation example">
-                        <ul class="pagination">
-                          {% if superprojects.has_previous %}
-                            <li class="page-item"><a class="page-link" href="?superprojects={{ superprojects.previous_page_number }}">&laquo;</a></li>
-                          {% else %}
-                            <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
-                          {% endif %}
-                          {% for i in superprojects.paginator.page_range %}
-                            {% if superprojects.number == i %}
-                              <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
-                            {% else %}
-                              <li class="page-item"><a class="page-link" href="?superprojects={{ i }}">{{ i }}</a></li>
-                            {% endif %}
-                          {% endfor %}
-                          {% if superprojects.has_next %}
-                            <li class="page-item"><a class="page-link" href="?superprojects={{ superprojects.next_page_number }}">&raquo;</a></li>
-                          {% else %}
-                            <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
-                          {% endif %}
-                        </ul>
-                      </nav>
+                    {% with table=superprojects type="superprojects" %}
+                    {% include "pages/paginate.html" %}
+                    {% endwith %}
                     {% endif %}
                   </div>
                 </div>
@@ -234,27 +226,9 @@
                       </tbody>
                     </table>
                     {% if projects %}
-                      <nav aria-label="Page navigation example">
-                        <ul class="pagination">
-                          {% if projects.has_previous %}
-                            <li class="page-item"><a class="page-link" href="?projects={{ projects.previous_page_number }}">&laquo;</a></li>
-                          {% else %}
-                            <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
-                          {% endif %}
-                          {% for i in projects.paginator.page_range %}
-                            {% if projects.number == i %}
-                              <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
-                            {% else %}
-                              <li class="page-item"><a class="page-link" href="?projects={{ i }}">{{ i }}</a></li>
-                            {% endif %}
-                          {% endfor %}
-                          {% if projects.has_next %}
-                            <li class="page-item"><a class="page-link" href="?projects={{ projects.next_page_number }}">&raquo;</a></li>
-                          {% else %}
-                            <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
-                          {% endif %}
-                        </ul>
-                      </nav>
+                    {% with table=projects type="projects" %}
+                    {% include "pages/paginate.html" %}
+                    {% endwith %}
                     {% endif %}
                   </div>
                 </div>

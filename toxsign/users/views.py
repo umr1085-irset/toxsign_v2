@@ -12,6 +12,8 @@ from toxsign.superprojects.models import Superproject
 from toxsign.projects.models import Project
 from toxsign.projects.views import get_access_type, check_view_permissions
 from toxsign.users.models import Notification
+from config.views import paginate
+
 
 User = get_user_model()
 
@@ -26,12 +28,24 @@ class UserDetailView(LoginRequiredMixin, DetailView):
         context = super(UserDetailView, self).get_context_data(**kwargs)
         groups = self.request.user.groups.all()
         superprojects = Superproject.objects.filter(created_by=self.request.user)
-        projects = Project.objects.all().order_by('id')
 
-        context['groups'] = groups
-        context['superprojects'] = superprojects
-        context['notifications'] = Notification.objects.filter(user=self.request.user)
-        context['projects'] = [project for project in projects if check_view_permissions(self.request.user, project)]
+        try:
+
+            if request.user.is_superuser:
+                q = Q_es()
+            else:
+                groups = [group.id for group in request.user.groups.all()]
+                q = Q_es("match", created_by__username=request.user.username)  | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
+
+            projects =  paginate(ProjectDocument.search().query(q), self.request.GET.get('projects'), 5, True)
+
+        except:
+            projects = paginate([project for project in Project.objects.all() if check_view_permissions(self.request.user, project, True)], self.request.GET.get('projects'), 5)
+
+        context['groups'] = paginate(groups, self.request.GET.get('groups'), 5)
+        context['superprojects'] = paginate(superprojects, self.request.GET.get('superprojects'), 5)
+        context['notifications'] = paginate(Notification.objects.filter(user=self.request.user), self.request.GET.get('notifications'), 5)
+        context['projects'] = projects
 
         for group in context['groups']:
             group.members_number = group.user_set.count()
@@ -53,24 +67,6 @@ class UserDetailView(LoginRequiredMixin, DetailView):
             context['in_use']['superproject'] = 'active'
         else:
             context['in_use']['user'] = 'active'
-
-        paginator = Paginator(context['superprojects'], 5)
-        page = self.request.GET.get('superprojects')
-        try:
-            context['superprojects'] = paginator.page(page)
-        except PageNotAnInteger:
-            context['superprojects'] = paginator.page(1)
-        except EmptyPage:
-            context['superprojects'] = paginator.page(paginator.num_pages)
-
-        paginator = Paginator(context['projects'], 5)
-        page = self.request.GET.get('projects')
-        try:
-            context['projects'] = paginator.page(page)
-        except PageNotAnInteger:
-            context['projects'] = paginator.page(1)
-        except EmptyPage:
-            context['projects'] = paginator.page(paginator.num_pages)
 
         return context
 
