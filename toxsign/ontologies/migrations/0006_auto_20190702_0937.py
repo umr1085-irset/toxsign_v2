@@ -135,9 +135,9 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('ontologies', '0007_auto_20190913_0724'),
-        ('signatures', '0008_auto_20191104_0923'),
-        ('assays', '0007_create_chemical_subfactor'),
-        ('projects', '0008_auto_20191030_1635'),
+        ('signatures', '0010_signature_cell_line_slug'),
+        ('assays', '0010_assay_cell_line_slug'),
+        ('projects', '0010_auto_20191112_0949_squashed_0011_auto_20191112_0951'),
     ]
 
     operations = [

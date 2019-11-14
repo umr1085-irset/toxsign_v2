@@ -268,14 +268,11 @@ def index(request):
 
     allowed_projects =  ProjectDocument.search().query(q)
     projects = paginate(allowed_projects, request.GET.get('projects'), 5, True)
-    # Limit all query to theses projects
     allowed_projects_id_list = [project.id for project in allowed_projects]
 
-    # Now do the queries
     superprojects = SuperprojectDocument.search()
     assays = AssayDocument.search().filter("terms", project__id=allowed_projects_id_list)
     signatures = SignatureDocument.search().filter("terms", factor__assay__project__id=allowed_projects_id_list)
-    # This search in all fields.. might be too much. Might need to restrict to fields we actually show on the search page..
 
     superprojects = paginate(superprojects, request.GET.get('superprojects'), 5, True)
     assays = paginate(assays, request.GET.get('assays'), 5, True)

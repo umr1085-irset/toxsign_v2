@@ -38,6 +38,7 @@ class Signature(models.Model):
         ("OTHER", "Other"),
     )
     GENERATION = (
+        ('NA', 'NA'),
         ('F0', 'F0'),
         ('F1', 'F1'),
         ('F2', 'F2'),
@@ -88,24 +89,25 @@ class Signature(models.Model):
     tissue = models.ForeignKey(Tissue, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_used_in')
     cell = models.ForeignKey(Cell, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_used_in')
     cell_line = models.ForeignKey(CellLine, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_used_in')
+    cell_line_slug = models.CharField(max_length=200, blank=True, null=True)
     chemical = models.ForeignKey(Chemical, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_used_in')
     chemical_slug = models.CharField(max_length=200, blank=True, null=True)
     disease = models.ForeignKey(Disease, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_used_in')
     technology = models.ForeignKey(Experiment, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_used_in')
     technology_slug = models.CharField(max_length=200, blank=True, null=True)
     platform = models.CharField(max_length=200, blank=True, null=True)
-    control_sample_number = models.FloatField(null=True, blank=True, default=None)
-    treated_sample_number = models.FloatField(null=True, blank=True, default=None)
+    control_sample_number = models.IntegerField(null=True, blank=True, default=0)
+    treated_sample_number = models.IntegerField(null=True, blank=True, default=0)
     pvalue = models.FloatField(null=True, blank=True, default=None)
     cutoff = models.FloatField(null=True, blank=True, default=None)
     statistical_processing = models.TextField("Statistical processing", blank=True, null=True)
     # Might need to move them to a proper folder
     up_gene_file_path = models.FileField(upload_to='files/', blank=True)
-    up_gene_number = models.IntegerField(null=True, blank=True, default=None)
+    up_gene_number = models.IntegerField(null=True, blank=True, default=0)
     down_gene_file_path = models.FileField(upload_to='files/', blank=True)
-    down_gene_number = models.IntegerField(null=True, blank=True, default=None)
+    down_gene_number = models.IntegerField(null=True, blank=True, default=0)
     interrogated_gene_file_path = models.FileField(upload_to='files/', blank=True)
-    interrogated_gene_number = models.IntegerField(null=True, blank=True, default=None)
+    interrogated_gene_number = models.IntegerField(null=True, blank=True, default=0)
     additional_file_path = models.FileField(upload_to='files/', blank=True)
     gene_id = models.CharField(max_length=50, choices=GENE_ID, default="ENTREZ")
     expression_values = JSONField(null=True, blank=True, default=dict)

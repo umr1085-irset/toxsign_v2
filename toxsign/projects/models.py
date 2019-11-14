@@ -29,10 +29,10 @@ class Project(models.Model):
         ('OBSERVATIONAL', 'Observational'),
     )
 
-    name = models.CharField(max_length=200, unique=True)
+    name = models.CharField(max_length=200)
     tsx_id = models.CharField(max_length=200)
     pubmed_id = models.CharField(max_length=200, blank=True, null=True)
-    cross_link = models.CharField(max_length=250, blank=True, null=True)
+    cross_link = models.TextField("cross_link", blank=True, null=True)
     superproject = models.ForeignKey(Superproject, blank=True, null=True, on_delete=models.SET_NULL, related_name='project_of')
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_created_by')
@@ -40,10 +40,8 @@ class Project(models.Model):
     read_groups = models.ManyToManyField(Group, blank=True, related_name='read_access_to')
     edit_groups = models.ManyToManyField(Group, blank=True, related_name='edit_access_to')
     status = models.CharField(max_length=20, choices=AVAILABLE_STATUS, default="PRIVATE")
-    description = models.TextField("description", blank=True)
-    experimental_design = models.TextField("Experimental design", blank=True)
+    description = models.TextField("description", blank=True,null=True)
     project_type = models.CharField(max_length=50, choices=PROJECT_TYPE, default="INTERVENTIONAL")
-    results = models.TextField("Results", blank=True)
 
     class Meta:
         permissions = (('view_project', 'View project'),)
