@@ -9,7 +9,7 @@ from django.views import generic
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, Page
 from django.conf import settings
 
 
@@ -22,6 +22,7 @@ from toxsign.projects.views import check_view_permissions, check_edit_permission
 
 from toxsign.superprojects.documents import SuperprojectDocument
 from toxsign.projects.documents import ProjectDocument
+from toxsign.assays.documents import AssayDocument
 from toxsign.signatures.documents import SignatureDocument
 from toxsign.ontologies.documents import *
 from elasticsearch_dsl import Q as Q_es
@@ -30,6 +31,20 @@ from django.template.loader import render_to_string
 from . import forms
 from django.http import JsonResponse
 from django.http import FileResponse
+from django.utils.functional import LazyObject
+
+class SearchResults(LazyObject):
+    def __init__(self, search_object):
+        self._wrapped = search_object
+
+    def __len__(self):
+        return self._wrapped.count()
+
+    def __getitem__(self, index):
+        search_results = self._wrapped[index]
+        if isinstance(index, slice):
+            search_results = list(search_results)
+        return search_results
 
 def HomeView(request):
         context = {}
@@ -79,55 +94,68 @@ def autocompleteModel(request):
         # Wildcard for search (not optimal)
         query = "*" + query + "*"
         if request.user.is_authenticated:
-            groups = [group.id for group in request.user.groups.all()]
-            q = Q_es("match", created_by__username=request.user.username)  | Q_es("match", status="PUBLIC") | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
+            if request.user.is_superuser:
+                q = Q_es()
+            else:
+                groups = [group.id for group in request.user.groups.all()]
+                q = Q_es("match", created_by__username=request.user.username)  | Q_es("match", status="PUBLIC") | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
         else:
             q = Q_es("match", status="PUBLIC")
 
-        allowed_projects =  ProjectDocument.search().query(q)
+        allowed_projects =  ProjectDocument.search().query(q).scan()
         # Limit all query to theses projects
         allowed_projects_id_list = [project.id for project in allowed_projects]
 
         # Now do the queries
         results_superprojects = SuperprojectDocument.search()
-        results_projects = allowed_projects
         results_signatures = SignatureDocument.search().filter("terms", factor__assay__project__id=allowed_projects_id_list)
-
         # This search in all fields.. might be too much. Might need to restrict to fields we actually show on the search page..
-        q = Q_es("query_string", query=query)
+        q1 = Q_es("query_string", query=query)
 
-        results_superprojects = results_superprojects.filter(q)
-        superprojects_number = results_superprojects.count()
-        results_superprojects = results_superprojects.scan()
-        results_projects = results_projects.filter(q)
-        projects_number = results_projects.count()
-        results_projects = results_projects.scan()
-
-        results_signatures = results_signatures.filter(q)
-        signatures_number = results_signatures.count()
-        results_signatures = results_signatures.scan()
+        results_superprojects = paginate(results_superprojects.filter(q1), request.GET.get('superprojects'), 5, True)
+        results_projects = paginate(ProjectDocument.search().query(q & q1), request.GET.get('projects'), 5, True)
+        results_signatures = paginate(results_signatures.filter(q1), request.GET.get('signatures'), 5, True)
 
     # Fallback to DB search
     # Need to select the correct error I guess
     except Exception as e:
 
-        results_superprojects = Superproject.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query))
+        results_superprojects = paginate(Superproject.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query)), request.GET.get('superprojects'), 5)
         results_projects = Project.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query))
         results_signatures = Signature.objects.filter(Q(name__icontains=query) | Q(tsx_id__icontains=query))
 
-        results_projects = [project for project in results_projects if check_view_permissions(request.user, project)]
-        results_signatures = [sig for sig in results_signatures if check_view_permissions(request.user, sig.factor.assay.project)]
-        superprojects_number = len(results_superprojects)
-        projects_number =  len(results_projects)
-        signatures_number = len(results_signatures)
+        results_projects = paginate([project for project in results_projects if check_view_permissions(request.user, project)], request.GET.get('projects'), 5)
+        results_signatures = paginate([sig for sig in results_signatures if check_view_permissions(request.user, sig.factor.assay.project)], request.GET.get('signatures'), 5)
+
+
+
+    is_active = {'superproject': "", 'project': "", 'signature': ""}
+    # If a specific page was requested,  set the related tab to active
+    if request.GET.get('projects') or request.GET.get('assays') or request.GET.get('signatures'):
+
+        if request.GET.get('projects'):
+            is_active['project'] = "active"
+        elif request.GET.get('superprojects'):
+            is_active['superproject'] = "active"
+        elif request.GET.get('signatures'):
+            is_active['signature'] = "active"
+    else:
+    # Set the first non empty tab to active (Else, superproject)
+        if results_superprojects.paginator.count:
+            is_active['superproject'] = "active"
+        elif results_projects.paginator.count:
+            is_active['project'] = "active"
+        elif results_signatures.paginator.count:
+            is_active['signature'] = "active"
+        else:
+            is_active['superproject'] = "active"
 
     results = {
-        'superprojects_number' : superprojects_number,
-        'projects_number' : projects_number,
-        'signatures_number' : signatures_number,
         'superprojects' : results_superprojects,
         'projects': results_projects,
-        'signatures': results_signatures
+        'signatures': results_signatures,
+        'is_active': is_active,
+        'query': request.GET.get('q')
     }
     return render(request, 'pages/ajax_search.html', {'status': results})
 
@@ -229,81 +257,78 @@ def graph_data(request):
 
 def index(request):
 
-    superprojects = Superproject.objects.all()
-    all_projects = Project.objects.all().order_by('id')
-    projects = []
-    assays = []
-    signatures = []
+    try:
+        if request.user.is_authenticated:
+            if request.user.is_superuser:
+                q = Q_es()
+            else:
+                groups = [group.id for group in request.user.groups.all()]
+                q = Q_es("match", created_by__username=request.user.username)  | Q_es("match", status="PUBLIC") | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
+        else:
+            q = Q_es("match", status="PUBLIC")
 
-    # TODO (Maybe?) -> Show index from elasticsearch : need fallback
-    # Below : tentative implementation for projects and studies
+        allowed_projects =  ProjectDocument.search().query(q).scan()
+        allowed_projects_id_list = [project.id for project in allowed_projects]
 
-    #  !!!!! WARNING: 'terms' query does not work on tsx_id fields (it works on id fields) !!!!!
+        superprojects = SuperprojectDocument.search()
+        assays = AssayDocument.search().filter("terms", project__id=allowed_projects_id_list)
+        signatures = SignatureDocument.search().filter("terms", factor__assay__project__id=allowed_projects_id_list)
 
-    #if request.user.is_authenticated:
-    #    groups = [group.id for group in request.user.groups.all()]
-    #    q = Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups)) | Q_es("match", status="PUBLIC")
-    #else:
-    #    q = Q_es("match", status="PUBLIC")
-        # Should use ES for pagination..
-        # Need to convert it to list for it to work with paginator...
-    #project_list =  ProjectDocument.search().query(q).scan()
-    #project_id_list = []
-    #for project in project_list:
-    #    projects.append(project)
-    #    project_id_list.append(project.id)
-    #q = Q_es("terms", project__id=project_id_list)
-    #studies = StudyDocument().search().query(q).scan()
-    #studies = [study for study in studies]
+        # Since ES search objects are generators, we need to re-query them
+        projects = paginate(ProjectDocument.search().query(q), request.GET.get('projects'), 5, True)
+        superprojects = paginate(superprojects, request.GET.get('superprojects'), 5, True)
+        assays = paginate(assays, request.GET.get('assays'), 5, True)
+        signatures = paginate(signatures, request.GET.get('signatures'), 5, True)
 
-    for project in all_projects:
-        if check_view_permissions(request.user, project):
+    except Exception as e:
+        superprojects = Superproject.objects.all()
+        all_projects = Project.objects.all().order_by('id')
+        projects = []
+        assays = []
+        signatures = []
+        for project in all_projects:
+            if check_view_permissions(request.user, project):
                 # Might be better to loop around than to request.
-            projects.append(project)
+                projects.append(project)
             assays = assays + [ assay for assay in Assay.objects.filter(project=project)]
             signatures = signatures + [ signature for signature in Signature.objects.filter(factor__assay__project=project)]
 
-    paginator = Paginator(superprojects, 5)
-    page = request.GET.get('superprojects')
-    try:
-        superprojects = paginator.page(page)
-    except PageNotAnInteger:
-        superprojects = paginator.page(1)
-    except EmptyPage:
-        superprojects = paginator.page(paginator.num_pages)
+        superprojects = paginate(superprojects, request.GET.get('superprojects'), 5)
+        projects = paginate(projects, request.GET.get('projects'), 5)
+        assays = paginate(assays, request.GET.get('assays'), 5)
+        signatures = paginate(signatures, request.GET.get('signatures'), 5)
 
-    paginator = Paginator(projects, 5)
-    page = request.GET.get('projects')
-    try:
-        projects = paginator.page(page)
-    except PageNotAnInteger:
-        projects = paginator.page(1)
-    except EmptyPage:
-        projects = paginator.page(paginator.num_pages)
+    is_active = {'superproject': "", 'project': "", 'assay': "", 'signature': ""}
+    # If a specific page was requested,  set the related tab to active
+    if request.GET.get('projects') or request.GET.get('assays') or request.GET.get('signatures'):
 
-    paginator = Paginator(assays, 6)
-    page = request.GET.get('assays')
-    try:
-        assays = paginator.page(page)
-    except PageNotAnInteger:
-        assays = paginator.page(1)
-    except EmptyPage:
-        assays = paginator.page(paginator.num_pages)
-
-    paginator = Paginator(signatures, 6)
-    page = request.GET.get('signatures')
-    try:
-        signatures = paginator.page(page)
-    except PageNotAnInteger:
-        signatures = paginator.page(1)
-    except EmptyPage:
-        signatures = paginator.page(paginator.num_pages)
+        if request.GET.get('projects'):
+            is_active['project'] = "active"
+        elif request.GET.get('assays'):
+            is_active['assay'] = "active"
+        elif request.GET.get('superprojects'):
+            is_active['superproject'] = "active"
+        elif request.GET.get('signatures'):
+            is_active['signature'] = "active"
+    else:
+    # Set the first non empty tab to active (Else, superproject)
+        if superprojects.paginator.count:
+            is_active['superproject'] = "active"
+        elif projects.paginator.count:
+            is_active['project'] = "active"
+        elif assays.paginator.count:
+            is_active['project'] = "active"
+        elif signatures.paginator.count:
+            is_active['signature'] = "active"
+        else:
+            is_active['superproject'] = "active"
 
     context = {
         'superproject_list': superprojects,
         'project_list': projects,
         'assay_list': assays,
         'signature_list': signatures,
+        "is_active": is_active
     }
 
     return render(request, 'pages/index.html', context)
@@ -367,8 +392,11 @@ def search(request, model, document, entity, search_terms):
     try:
         # Wildcard for search
         if request.user.is_authenticated:
-            groups = [group.id for group in request.user.groups.all()]
-            q = Q_es("match", created_by__username=request.user.username)  | Q_es("match", status="PUBLIC") | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
+            if request.user.is_superuser:
+                q = Q_es()
+            else:
+                groups = [group.id for group in request.user.groups.all()]
+                q = Q_es("match", created_by__username=request.user.username)  | Q_es("match", status="PUBLIC") | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
         else:
             q = Q_es("match", status="PUBLIC")
 
@@ -451,3 +479,19 @@ def count_subentities(entity, entity_type):
     if entity_type == "factor":
         count += entity.chemical_subfactor_of.count()
     return count
+
+def paginate(values, query=None, count=5, is_ES=False):
+
+    if is_ES:
+        paginator = Paginator(SearchResults(values), count)
+    else:
+        paginator = Paginator(values, count)
+
+    try:
+        val = paginator.page(query)
+    except PageNotAnInteger:
+        val = paginator.page(1)
+    except EmptyPage:
+        val = paginator.page(paginator.num_pages)
+
+    return val

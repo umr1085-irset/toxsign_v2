@@ -15,10 +15,12 @@ from django.core.files import File
 from toxsign.assays.models import Factor, Assay
 from toxsign.genes.models import Gene
 from toxsign.ontologies.models import Biological, Cell, CellLine, Chemical, Disease, Experiment, Species, Tissue
+from toxsign.jobs.models import Job
 
 import tempfile
 from django.db.models import Q
 from toxsign.taskapp.celery import app
+
 
 from toxsign.scripts.data import setup_files
 
@@ -36,6 +38,7 @@ class Signature(models.Model):
         ("OTHER", "Other"),
     )
     GENERATION = (
+        ('NA', 'NA'),
         ('F0', 'F0'),
         ('F1', 'F1'),
         ('F2', 'F2'),
@@ -82,25 +85,29 @@ class Signature(models.Model):
     sex_type = models.CharField(max_length=10, choices=SEX_TYPE, default="MALE")
     exp_type = models.CharField(max_length=10, choices=EXPERIMENTAL_TYPE, default="NA")
     factor = models.ForeignKey(Factor, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_of_of')
-    organism = models.ManyToManyField(Species, blank=True, related_name='signature_used_in')
-    tissue = models.ManyToManyField(Tissue, blank=True, related_name='signature_used_in')
-    cell = models.ManyToManyField(Cell, blank=True, related_name='signature_used_in')
-    cell_line = models.ManyToManyField(CellLine, blank=True, related_name='signature_used_in')
-    chemical = models.ManyToManyField(Chemical, blank=True, related_name='signature_used_in')
+    organism = models.ForeignKey(Species, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_used_in')
+    tissue = models.ForeignKey(Tissue, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_used_in')
+    cell = models.ForeignKey(Cell, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_used_in')
+    cell_line = models.ForeignKey(CellLine, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_used_in')
+    cell_line_slug = models.CharField(max_length=200, blank=True, null=True)
+    chemical = models.ForeignKey(Chemical, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_used_in')
     chemical_slug = models.CharField(max_length=200, blank=True, null=True)
-    disease = models.ManyToManyField(Disease, blank=True, related_name='signature_used_in')
-    technology = models.ManyToManyField(Experiment, blank=True, related_name='signature_used_in')
+    disease = models.ForeignKey(Disease, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_used_in')
+    technology = models.ForeignKey(Experiment, blank=True, null=True, on_delete=models.CASCADE, related_name='signature_used_in')
     technology_slug = models.CharField(max_length=200, blank=True, null=True)
     platform = models.CharField(max_length=200, blank=True, null=True)
-    control_sample_number = models.FloatField(null=True, blank=True, default=None)
-    treated_sample_number = models.FloatField(null=True, blank=True, default=None)
+    control_sample_number = models.IntegerField(null=True, blank=True, default=0)
+    treated_sample_number = models.IntegerField(null=True, blank=True, default=0)
     pvalue = models.FloatField(null=True, blank=True, default=None)
     cutoff = models.FloatField(null=True, blank=True, default=None)
     statistical_processing = models.TextField("Statistical processing", blank=True, null=True)
     # Might need to move them to a proper folder
     up_gene_file_path = models.FileField(upload_to='files/', blank=True)
+    up_gene_number = models.IntegerField(null=True, blank=True, default=0)
     down_gene_file_path = models.FileField(upload_to='files/', blank=True)
+    down_gene_number = models.IntegerField(null=True, blank=True, default=0)
     interrogated_gene_file_path = models.FileField(upload_to='files/', blank=True)
+    interrogated_gene_number = models.IntegerField(null=True, blank=True, default=0)
     additional_file_path = models.FileField(upload_to='files/', blank=True)
     gene_id = models.CharField(max_length=50, choices=GENE_ID, default="ENTREZ")
     expression_values = JSONField(null=True, blank=True, default=dict)
@@ -142,7 +149,8 @@ class Signature(models.Model):
             need_index = True
 
         if file_changed or need_index:
-            setup_files.delay(self.id, need_index, file_changed)
+            task = setup_files.delay(self.id, need_index, file_changed)
+            Job(title="Signature processing", created_by=self.created_by, celery_task_id=task.id, type="SYSTEM").save()
 
         self.__old_up = self.up_gene_file_path
         self.__old_down = self.down_gene_file_path

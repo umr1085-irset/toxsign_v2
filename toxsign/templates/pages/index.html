@@ -7,46 +7,28 @@
         <div class="row">
         <div class="col-md-3 ">
           <div class="list-group ">
-              <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action active">Superprojects ({{ superproject_list|length }})</a>
-              <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Projects ({{ project_list|length }})</a>
-              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Assays ({{ assay_list|length }})</a>
-              <a href="#tab4" data-toggle="tab" class="list-group-item list-group-item-action">Signatures ({{ signature_list|length }})</a>
+              <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action {{is_active.superproject}}">Superprojects ({{ superproject_list.paginator.count }})</a>
+              <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action {{is_active.project}}">Projects ({{ project_list.paginator.count}})</a>
+              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action {{is_active.assay}}">Assays ({{ assay_list.paginator.count}})</a>
+              <a href="#tab4" data-toggle="tab" class="list-group-item list-group-item-action {{is_active.signature}}">Signatures ({{ signature_list.paginator.count}})</a>
           </div>
         </div>
         <div class="col-md-9">
             <div class="tab-content card">
-              <div class="tab-pane active text-style card-body" id="tab1">
+              <div class="tab-pane text-style card-body {{is_active.superproject}}" id="tab1">
                 {% for superproject in superproject_list %}
                     <h3><a href="{% url 'superprojects:detail' superproject.tsx_id %}">{{ superproject.tsx_id }}</a> - {{superproject.name}}</h3>
-                    <p><b>Owner : </b>{{ superproject.created_by }} - {{ superproject.created_at }}</p>
+                    <p><b>Owner : </b>{{ superproject.created_by.username }} - {{ superproject.created_at }}</p>
                     <p><b>Description : </b>{{superproject.description}}</p>
                     <hr>
                 {% endfor %}
                 {% if superproject_list %}
-                <nav aria-label="Page navigation example">
-                  <ul class="pagination">
-                    {% if superproject_list.has_previous %}
-                      <li class="page-item"><a class="page-link" href="?superprojects={{ superproject_list.previous_page_number }}">&laquo;</a></li>
-                    {% else %}
-                      <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
-                    {% endif %}
-                    {% for i in superproject_list.paginator.page_range %}
-                      {% if superproject_list.number == i %}
-                        <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
-                      {% else %}
-                        <li class="page-item"><a class="page-link" href="?superprojects={{ i }}">{{ i }}</a></li>
-                      {% endif %}
-                    {% endfor %}
-                    {% if superproject_list.has_next %}
-                      <li class="page-item"><a class="page-link" href="?superprojects={{ superproject_list.next_page_number }}">&raquo;</a></li>
-                    {% else %}
-                      <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
-                    {% endif %}
-                  </ul>
-                </nav>
+                {% with table=superproject_list type="superprojects" %}
+                {% include "pages/paginate.html" %}
+                {% endwith %}
                 {% endif %}
               </div>
-              <div class="tab-pane text-style card-body" id="tab2">
+              <div class="tab-pane text-style card-body {{is_active.project}}" id="tab2">
                 {% for project in project_list %}
                     <h3><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a> - {{project.name}}</h3>
 
@@ -64,7 +46,7 @@
                             {% if project.description %} {{ project.description }} {% else %} No description provided {% endif %}
                           </td>
                           <td>
-                            {{ project.created_by }}
+                            {{ project.created_by.username }}
                           </td>
                           <td>
                             {{ project.created_at }}
@@ -75,32 +57,14 @@
                     <hr>
                 {% endfor %}
                 {% if project_list %}
-                <nav aria-label="Page navigation example">
-                  <ul class="pagination">
-                    {% if project_list.has_previous %}
-                      <li class="page-item"><a class="page-link" href="?projects={{ project_list.previous_page_number }}">&laquo;</a></li>
-                    {% else %}
-                      <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
-                    {% endif %}
-                    {% for i in project_list.paginator.page_range %}
-                      {% if project_list.number == i %}
-                        <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
-                      {% else %}
-                        <li class="page-item"><a class="page-link" href="?projects={{ i }}">{{ i }}</a></li>
-                      {% endif %}
-                    {% endfor %}
-                    {% if project_list.has_next %}
-                      <li class="page-item"><a class="page-link" href="?projects={{ project_list.next_page_number }}">&raquo;</a></li>
-                    {% else %}
-                      <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
-                    {% endif %}
-                  </ul>
-                </nav>
+                {% with table=project_list type="projects" %}
+                {% include "pages/paginate.html" %}
+                {% endwith %}
                 {% endif %}
               </div>
-              <div class="tab-pane text-style card-body" id="tab3">
+              <div class="tab-pane text-style card-body {{is_active.assay}}" id="tab3">
                 {% for assay in assay_list %}
-                      <h3><a href="{% url 'assays:assay_detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{assay.name}}                      </h3>
+                      <h3><a href="{% url 'assays:assay_detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{assay.name}}</h3>
                       
                       <table class="table text-center">
                         <thead>
@@ -157,7 +121,7 @@
                             {% if assay.sex_type %}<td>{{ assay.get_sex_type_display }}</td>{% endif %}
                             {% if assay.dev_stage %}<td>{{ assay.get_dev_stage_display }}</td>{% endif %}
                             <td>
-                              {{ assay.created_by }}
+                              {{ assay.created_by.username }}
                             </td>
                             <td>
                               {{ assay.created_at }}
@@ -167,37 +131,19 @@
                     </table>
                   {% endfor %}
                   {% if assay_list %}
-                  <nav aria-label="Page navigation example">
-                    <ul class="pagination">
-                      {% if assay_list.has_previous %}
-                        <li class="page-item"><a class="page-link" href="?assays={{ assay_list.previous_page_number }}">&laquo;</a></li>
-                      {% else %}
-                        <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
-                      {% endif %}
-                      {% for i in assay_list.paginator.page_range %}
-                        {% if assay_list.number == i %}
-                          <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
-                        {% else %}
-                          <li class="page-item"><a class="page-link" href="?assays={{ i }}">{{ i }}</a></li>
-                        {% endif %}
-                      {% endfor %}
-                      {% if assay_list.has_next %}
-                        <li class="page-item"><a class="page-link" href="?assays={{ assay_list.next_page_number }}">&raquo;</a></li>
-                      {% else %}
-                        <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
-                      {% endif %}
-                    </ul>
-                </nav>
+                {% with table=assay_list type="assays" %}
+                {% include "pages/paginate.html" %}
+                {% endwith %}
                 {% endif %}
               </div>
-              <div class="tab-pane text-style card-body" id="tab4">
+              <div class="tab-pane text-style card-body {{is_active.signature}}" id="tab4">
                 {% for signature in signature_list %}
                       <h3><a href="{% url 'signatures:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{signature.name}}
                       
-                      {% onto_value signature.organism "m2m" as organism %}
-                      {% onto_value signature.tissue "m2m" as tissue %}
-                      {% onto_value signature.cell "m2m" as cell%}
-                      {% onto_value signature.cell_line "m2m" as cell_line%}
+                      {% onto_value signature.organism as organism %}
+                      {% onto_value signature.tissue as tissue %}
+                      {% onto_value signature.cell as cell%}
+                      {% onto_value signature.cell_line as cell_line%}
                       </h3>
                       <table class="table text-center">
                         <thead>
@@ -256,7 +202,7 @@
                             {% if signature.sex_type %}<td>{{ signature.get_sex_type_display }}</td>{% endif %}
                             {% if signature.dev_stage %}<td>{{ signature.get_dev_stage_display }}</td>{% endif %}
                             <td>
-                              {{ signature.created_by }}
+                              {{ signature.created_by.username }}
                             </td>
                             <td>
                               {{ signature.created_at }}
@@ -267,28 +213,10 @@
                       <hr>
                   {% endfor %}
                   {% if signature_list %}
-                  <nav aria-label="Page navigation example">
-                    <ul class="pagination">
-                      {% if signature_list.has_previous %}
-                        <li class="page-item"><a class="page-link" href="?signatures={{ signature_list.previous_page_number }}">&laquo;</a></li>
-                      {% else %}
-                        <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
-                      {% endif %}
-                      {% for i in signature_list.paginator.page_range %}
-                        {% if signature_list.number == i %}
-                          <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
-                        {% else %}
-                          <li class="page-item"><a class="page-link" href="?signatures={{ i }}">{{ i }}</a></li>
-                        {% endif %}
-                      {% endfor %}
-                      {% if signature_list.has_next %}
-                        <li class="page-item"><a class="page-link" href="?signatures={{ signature_list.next_page_number }}">&raquo;</a></li>
-                      {% else %}
-                        <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
-                      {% endif %}
-                    </ul>
-                </nav>
-                {% endif %}
+                {% with table=signature_list type="signatures" %}
+                {% include "pages/paginate.html" %}
+                {% endwith %}
+                  {% endif %}
               </div>
             </div>
         </div>

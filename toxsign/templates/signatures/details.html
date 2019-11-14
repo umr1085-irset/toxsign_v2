@@ -45,7 +45,7 @@
                 <tr>
                   <th scope="row">Organism</th>
                   <td>
-                    {% onto_value signature.organism "m2m" as organism %}
+                    {% onto_value signature.organism  as organism %}
                     {% if organism == "Homo sapiens" %} <img src="{% static 'images/species/Homo_sapiens.png' %}" width="50px" height="50px">{% endif %}
                     {% if organism == "Canis familiaris" %} <img src="{% static 'images/species/Canis_familiaris.png' %}" width="50px" height="50px">{% endif %}
                     {% if organism == "Danio rerio" %} <img src="{% static 'images/species/Danio_rerio.png' %}" width="50px" height="50px">{% endif %}
@@ -55,13 +55,13 @@
                     {% if organism == "Rattus norvegicus" %} <img src="{% static 'images/species/Rattus_norvegicus.png' %}" width="50px" height="50px">{% endif %}
                     {% if organism == "Sus scrofa" %} <img src="{% static 'images/species/Sus_scrofa.png' %}" width="50px" height="50px">{% endif %}
                   </td>
-                  <td>{% onto_value signature.organism "m2m" %}</td>
+                  <td>{% onto_value signature.organism  %}</td>
                 </tr>
                 {% if signature.tissue %}
                   <tr>
                     <th scope="row">Tissue</th>
                     <td>
-                      {% onto_value signature.tissue "m2m" as tissue %}
+                      {% onto_value signature.tissue  as tissue %}
                       {% if tissue == "Liver" %} <img src="{% static 'images/organs/png/028-liver.png' %}" width="50px" height="50px">{% endif %}
                       {% if tissue == "Kidney" %} <img src="{% static 'images/organs/png/008-kidneys-1.png' %}" width="50px" height="50px">{% endif %}
                       {% if tissue == "Brain" %} <img src="{% static 'images/organs/png/002-brain.png' %}" width="50px" height="50px">{% endif %}
@@ -74,16 +74,16 @@
                       {% if tissue == "Stomach" %} <img src="{% static 'images/organs/png/029-stomach.png' %}">{% endif %}
                       {% if tissue == "Intestine" %} <img src="{% static 'images/organs/png/027-intestine.png' %}" width="50px" height="50px">{% endif %}
                     </td>
-                    <td>{% onto_value signature.tissue "m2m" %}</td>
+                    <td>{% onto_value signature.tissue  %}</td>
                   </tr>
                 {% endif %}
-                {% onto_value signature.cell "m2m" as cell%}
+                {% onto_value signature.cell  as cell%}
                 {% if cell != "None" %}
-                  <tr><th scope="row">Cell</th><td><img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px"></td><td>{% onto_value signature.cell "m2m" %}</td></tr>
+                  <tr><th scope="row">Cell</th><td><img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px"></td><td>{% onto_value signature.cell  %}</td></tr>
                 {% endif %}
-                {% onto_value signature.cell_line "m2m" as cell_line%}
+                {% onto_value signature.cell_line  as cell_line%}
                 {% if cell_line != "None" %}
-                  <tr><th scope="row">Cell line</th><td><img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px"></td><td>{% onto_value signature.cell_line "m2m" %}</td></tr>
+                  <tr><th scope="row">Cell line</th><td><img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px"></td><td>{% onto_value signature.cell_line  %}</td></tr>
                 {% endif %}
               </tbody>
             </table>
@@ -228,7 +228,7 @@
                     <tr>
                       <th scope="row">Technology used</th>
                       <td>
-                        {% onto_value signature.technology "m2m" signature.technology_slug %}
+                        {% onto_value signature.technology  signature.technology_slug %}
                       </td>
                     </tr>
                     <tr>
@@ -327,8 +327,9 @@
   {{ block.super }}
   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
   <script>
+    {% if signature.up_gene_number and signature.down_gene_number %}
     var label = ["up-regulated","down-regulated"];
-    var values = [439,321];
+    var values = [{{signature.up_gene_number}},{{signature.down_gene_number}}];
     var myDoughnutChart = new Chart("myChart", {
         type: 'doughnut',
         data: {
@@ -350,5 +351,6 @@
           ]
         },
     });
+    {% endif %}
   </script>
 {% endblock%}

@@ -21,7 +21,7 @@
                 {% for job in jobs_list%}
                     <tr class="{% if job.status == 'SUCCESS' %} table-success {% endif %} {% if job.status == 'STARTED' %} table-warning {% endif %} {% if job.status == 'FAILURE' %} table-danger {% endif %}">
                         <th scope="row">{{ job.id }}</th>
-                        <td><a href="{% url 'jobs:results' job.id %}">{{ job.title }}</a></td>
+                        <td>{{ job.title }}</td>
                         <td>{{ job.created_by }}</td>
                         <td>{{ job.updated_at }}</td>
                         <td>{{ job.running_tool }}</td>
