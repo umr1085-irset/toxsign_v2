@@ -105,41 +105,26 @@ def autocompleteModel(request):
 
         # Now do the queries
         results_superprojects = SuperprojectDocument.search()
-        results_projects = allowed_projects
         results_signatures = SignatureDocument.search().filter("terms", factor__assay__project__id=allowed_projects_id_list)
-
         # This search in all fields.. might be too much. Might need to restrict to fields we actually show on the search page..
         q = Q_es("query_string", query=query)
 
-        results_superprojects = results_superprojects.filter(q)
-        superprojects_number = results_superprojects.count()
-        results_superprojects = results_superprojects.scan()
-        results_projects = results_projects.filter(q)
-        projects_number = results_projects.count()
-        results_projects = results_projects.scan()
-
-        results_signatures = results_signatures.filter(q)
-        signatures_number = results_signatures.count()
-        results_signatures = results_signatures.scan()
+        results_superprojects = paginate(results_superprojects.filter(q), request.GET.get('superprojects'), 5, True)
+        results_projects = paginate(results_projects.filter(q), request.GET.get('projects'), 5, True)
+        results_signatures = paginate(results_signatures.filter(q), request.GET.get('signatures'), 5, True)
 
     # Fallback to DB search
     # Need to select the correct error I guess
     except Exception as e:
 
-        results_superprojects = Superproject.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query))
+        results_superprojects = paginate(Superproject.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query)), request.GET.get('superprojects'), 5)
         results_projects = Project.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query))
         results_signatures = Signature.objects.filter(Q(name__icontains=query) | Q(tsx_id__icontains=query))
 
-        results_projects = [project for project in results_projects if check_view_permissions(request.user, project)]
-        results_signatures = [sig for sig in results_signatures if check_view_permissions(request.user, sig.factor.assay.project)]
-        superprojects_number = len(results_superprojects)
-        projects_number =  len(results_projects)
-        signatures_number = len(results_signatures)
+        results_projects = paginate([project for project in results_projects if check_view_permissions(request.user, project)], request.GET.get('projects'), 5)
+        results_signatures = paginate([sig for sig in results_signatures if check_view_permissions(request.user, sig.factor.assay.project)], request.GET.get('signatures'), 5)
 
     results = {
-        'superprojects_number' : superprojects_number,
-        'projects_number' : projects_number,
-        'signatures_number' : signatures_number,
         'superprojects' : results_superprojects,
         'projects': results_projects,
         'signatures': results_signatures
@@ -244,11 +229,6 @@ def graph_data(request):
 
 def index(request):
 
-    superprojects = Superproject.objects.all()
-    all_projects = Project.objects.all().order_by('id')
-    projects = []
-    assays = []
-    signatures = []
     is_active = {'superproject': "", 'project': "", 'assay': "", 'signature': ""}
 
     if request.GET.get('projects'):
@@ -260,23 +240,42 @@ def index(request):
     else:
         is_active['superproject']
 
-    if request.user.is_authenticated:
-        groups = [group.id for group in request.user.groups.all()]
-        q = Q_es("match", created_by__username=request.user.username)  | Q_es("match", status="PUBLIC") | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
-    else:
-        q = Q_es("match", status="PUBLIC")
+    try:
+        if request.user.is_authenticated:
+            groups = [group.id for group in request.user.groups.all()]
+            q = Q_es("match", created_by__username=request.user.username)  | Q_es("match", status="PUBLIC") | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
+        else:
+            q = Q_es("match", status="PUBLIC")
 
-    allowed_projects =  ProjectDocument.search().query(q)
-    projects = paginate(allowed_projects, request.GET.get('projects'), 5, True)
-    allowed_projects_id_list = [project.id for project in allowed_projects]
+        allowed_projects =  ProjectDocument.search().query(q)
+        projects = paginate(allowed_projects, request.GET.get('projects'), 5, True)
+        allowed_projects_id_list = [project.id for project in allowed_projects]
 
-    superprojects = SuperprojectDocument.search()
-    assays = AssayDocument.search().filter("terms", project__id=allowed_projects_id_list)
-    signatures = SignatureDocument.search().filter("terms", factor__assay__project__id=allowed_projects_id_list)
+        superprojects = SuperprojectDocument.search()
+        assays = AssayDocument.search().filter("terms", project__id=allowed_projects_id_list)
+        signatures = SignatureDocument.search().filter("terms", factor__assay__project__id=allowed_projects_id_list)
 
-    superprojects = paginate(superprojects, request.GET.get('superprojects'), 5, True)
-    assays = paginate(assays, request.GET.get('assays'), 5, True)
-    signatures = paginate(signatures, request.GET.get('signatures'), 5, True)
+        superprojects = paginate(superprojects, request.GET.get('superprojects'), 5, True)
+        assays = paginate(assays, request.GET.get('assays'), 5, True)
+        signatures = paginate(signatures, request.GET.get('signatures'), 5, True)
+
+    except:
+        superprojects = Superproject.objects.all()
+        all_projects = Project.objects.all().order_by('id')
+        projects = []
+        assays = []
+        signatures = []
+        for project in all_projects:
+            if check_view_permissions(request.user, project):
+                # Might be better to loop around than to request.
+                projects.append(project)
+            assays = assays + [ assay for assay in Assay.objects.filter(project=project)]
+            signatures = signatures + [ signature for signature in Signature.objects.filter(factor__assay__project=project)]
+
+        superprojects = paginate(superprojects, request.GET.get('superprojects'), 5)
+        projects = paginate(projects, request.GET.get('projects'), 5)
+        assays = paginate(assays, request.GET.get('assays'), 5)
+        signatures = paginate(signatures, request.GET.get('signatures'), 5)
 
     context = {
         'superproject_list': superprojects,
