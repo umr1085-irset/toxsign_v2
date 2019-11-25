@@ -98,6 +98,11 @@
                   </table>
             </div>
         </div>
+        {% if project.status == "PRIVATE" %}
+            <div style="text-align:center;" id="button-div">
+                <button type="button" data-url="{% url 'projects:project_publicize' project.tsx_id %}" class="btn btn-primary js-make-public">Public</button>            
+            </div>
+        {% endif %}
       {% endif %}
   </div>
   <div class="modal fade" id="modal-group">
@@ -106,4 +111,9 @@
       </div>
   </div>
 
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static 'js/project.js' %}"></script>
 {% endblock %}

@@ -96,6 +96,7 @@ def launch_import(apps, schema_editor):
 
     if not os.path.exists("/app/loading_data/ontologies/TOXsIgN_ontologies.csv"):
         print("Not TOXsIgN_ontologies.csv file found. Skipping...")
+        return
 
     start = time.time()
     # Maybe a lock for each table insead of just one?

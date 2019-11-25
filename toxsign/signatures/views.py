@@ -41,6 +41,8 @@ class EditSignatureView(PermissionRequiredMixin, UpdateView):
     def get_permission_object(self):
         self.signature = Signature.objects.get(tsx_id=self.kwargs['sigid'])
         self.project = self.signature.factor.assay.project
+        if self.project.status == "PUBLIC":
+            return redirect(reverse("projects:detail", kwargs={"prjid": self.project.tsx_id}))
         return self.project
 
     def get_object(self, queryset=None):
@@ -63,6 +65,8 @@ class CreateSignatureView(PermissionRequiredMixin, CreateView):
 
     def get_permission_object(self):
         self.project = Project.objects.get(tsx_id=self.kwargs['prjid'])
+        if self.project.status == "PUBLIC":
+            return redirect(reverse("projects:detail", kwargs={"prjid": self.project.tsx_id}))
         return self.project
 
     def get_form_kwargs(self):

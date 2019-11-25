@@ -334,6 +334,7 @@ def index(request):
     return render(request, 'pages/index.html', context)
 
 def get_sub_create_url(entity_type, prj_id, tsx_id):
+
     query = "?selected=" + tsx_id
 
     if entity_type == 'project':

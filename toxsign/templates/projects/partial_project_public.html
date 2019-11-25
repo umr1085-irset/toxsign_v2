@@ -1,0 +1,17 @@
+<form method="post" action="{% url 'projects:project_publicize' project.tsx_id %}" class="js-make-public-form">
+  {% csrf_token %}
+  <div class="modal-header">
+    <h4 class="modal-title">Publicize project</h4>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p class="lead">Publicize the project? The project will be set to public after an administrator reviewal.</p>
+    <p class="lead" style="color:red;"><b>Further editing of the project or its subentities will be disabled</b></p>
+  </div>
+  <div class="modal-footer">
+    <button type="submit" class="btn btn-danger">Publicize</button>
+    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+  </div>
+</form>
