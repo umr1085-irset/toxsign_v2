@@ -129,12 +129,15 @@ class Signature(models.Model):
     # Override save method to auto increment tsx_id
     def save(self, *args, **kwargs):
         index = kwargs.pop('index', False)
+        force = kwargs.pop('force', False)
         super(Signature, self).save(*args, **kwargs)
         # Hacky Hacky
         if not self.expression_values_file:
             temp_file = tempfile.TemporaryFile()
             self.expression_values_file.save("temp", File(temp_file), save=True)
             temp_file.close()
+            if os.path.exists(self.expression_values_file.path):
+                os.remove(self.expression_values_file.path)
         if not self.tsx_id:
             self.tsx_id = "TSS" + str(self.id)
         super(Signature, self).save()
@@ -146,6 +149,8 @@ class Signature(models.Model):
             file_changed = True
 
         if not index and (self.__old_up != self.up_gene_file_path or self.__old_down != self.down_gene_file_path or self.__old_all != self.interrogated_gene_file_path):
+            need_index = True
+        if force:
             need_index = True
 
         if file_changed or need_index:

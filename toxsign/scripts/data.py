@@ -48,7 +48,10 @@ def setup_files(self, signature_id, index_files=False, need_move_files=False):
     from .processing import zip_results
 
     time.sleep(10)
-    signature = Signature.objects.get(id=signature_id)
+    try:
+        signature = Signature.objects.get(id=signature_id)
+    except toxsign.signatures.models.DoesNotExist:
+        raise Exception("Signature with id {} was not found".format(signature_id))
 
     new_path = "files/{}/{}/{}/{}/".format(signature.factor.assay.project.tsx_id, signature.factor.assay.tsx_id, signature.factor.tsx_id, signature.tsx_id)
     new_unix_path = settings.MEDIA_ROOT + "/" + new_path
@@ -73,14 +76,13 @@ def index_genes(signature, new_path, new_unix_path):
     shutil.move(signature.up_gene_file_path.path, new_unix_path + "up_genes.txt")
     shutil.move(signature.down_gene_file_path.path, new_unix_path + "down_genes.txt")
     shutil.move(signature.interrogated_gene_file_path.path, new_unix_path + "all_genes.txt")
-    shutil.move(signature.expression_values_file.path, new_unix_path + signature.tsx_id + ".sign")
 
     signature.up_gene_file_path.name = new_path + "up_genes.txt"
     signature.down_gene_file_path.name = new_path + "down_genes.txt"
     signature.interrogated_gene_file_path.name = new_path + "all_genes.txt"
 
     gene_dict = _generate_values(signature)
-    signature.expression_values = gene_dict
+    signature.expression_values = _format_values(gene_dict)
     _write_gene_file(gene_dict, new_unix_path + signature.tsx_id + ".sign")
     signature.expression_values_file.name = new_path + signature.tsx_id + ".sign"
 
@@ -154,7 +156,7 @@ def _extract_values(values, file, gene_type, expression_value=None):
         return values
     with open(file, 'r') as f:
         for line in f:
-            gene_id = line.strip()
+            gene_id = line.split("\t")[0].strip()
             # Shoud not happen, but just in case
             if not gene_id in values:
                 values[gene_id] = {'value': expression_value, 'homolog_id': 'NA', 'gene_name':"NA", 'in_base': 0}
@@ -173,8 +175,9 @@ def _prepare_values(values, file, gene_type):
 
     with open(file, 'r') as f:
         for line in f:
-            gene_id = line.strip()
-            genes.add(gene_id)
+            gene_id = line.split("\t")[0].strip()
+            if gene_id:
+                genes.add(gene_id)
 
     if gene_type == "ENTREZ":
         for gene in Gene.objects.filter(gene_id__in=genes).values('gene_id', 'homolog_id', 'symbol'):
@@ -199,6 +202,15 @@ def _write_gene_file(gene_values, path):
         file.write("{}\t{}\t{}\t{}\t{}\n".format(key, value["gene_name"], value["homolog_id"], value["in_base"], value["value"]))
     file.close()
 
+def _format_values(gene_values):
+    val = {'up_genes': [], 'down_genes': []}
+
+    for key, value in gene_values.items():
+        if value["value"] == "1":
+            val['up_genes'].append(key)
+        elif value["value"] == "-1":
+            val['down_genes'].append(key)
+    return val
 
 def _download_datafiles(dest_dir, url_list, force=False):
 

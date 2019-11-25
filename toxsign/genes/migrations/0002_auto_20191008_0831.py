@@ -167,7 +167,6 @@ def insertCollections(genefile):
         Gene.objects.bulk_create(geneList)
         geneFile.close()
         print("File close")
-        shutil.rmtree(genefile[0])
 
     except IOError as e:
         print("args: ", e.args)
@@ -191,5 +190,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        #migrations.RunPython(setup)
+        migrations.RunPython(setup)
     ]

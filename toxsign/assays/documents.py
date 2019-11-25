@@ -39,7 +39,8 @@ class AssayDocument(Document):
     def get_queryset(self):
         """Not mandatory but to improve performance we can select related in one sql request"""
         return super(AssayDocument, self).get_queryset().select_related(
-            'project'
+            'project',
+            'created_by'
         )
 
     def get_instances_from_related(self, related_instance):
@@ -87,7 +88,8 @@ class FactorDocument(Document):
     def get_queryset(self):
         """Not mandatory but to improve performance we can select related in one sql request"""
         return super(FactorDocument, self).get_queryset().select_related(
-            'assay'
+            'assay__project',
+            'created_by'
         )
 
     def get_instances_from_related(self, related_instance):
