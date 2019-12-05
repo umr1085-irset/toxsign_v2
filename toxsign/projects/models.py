@@ -88,11 +88,11 @@ def update__permissions_write(sender, instance, action, **kwargs):
     if instance.edit_groups.all():
         if action == 'pre_remove':
             for group in instance.edit_groups.all():
-                if 'view_project' in get_group_perms(group, instance):
+                if 'change_project' in get_group_perms(group, instance):
                     remove_perm('change_project', group, instance)
         if action == 'post_add':
             for group in instance.edit_groups.all():
-                if 'view_project' not in get_group_perms(group, instance):
+                if 'change_project' not in get_group_perms(group, instance):
                     assign_perm('change_project', group, instance)
 
 def change_permission_owner(self):
