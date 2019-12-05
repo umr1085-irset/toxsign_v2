@@ -48,7 +48,7 @@ $(function () {
       dataType: 'json',
       success: function (data) {
         if (data.form_is_valid) {
-            window.location.href = correct_url();
+            window.location.href = data.redirect;
         }
       }
     });

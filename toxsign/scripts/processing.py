@@ -51,6 +51,11 @@ def run_distance(self, signature_id, user_id=None):
         signatures = Signature.objects.filter(factor__assay__project__in=accessible_projects)
 
     selected_signature = Signature.objects.get(id=signature_id)
+
+    if not selected_signature.expression_values_file:
+        logger.exception("Signature {} has no file associated.".format(selected_signature.tsx_id))
+        raise TaskFailure("Signature {} has no file associated.".format(selected_signature.tsx_id))
+
     temp_dir_path = _prepare_temp_folder(task_id, selected_signature, additional_signatures=signatures, add_RData=True)
 
     if not temp_dir_path:
@@ -102,6 +107,10 @@ def run_enrich(self, signature_id):
     os.mkdir(job_dir_path)
     selected_signature = Signature.objects.get(id=signature_id)
 
+    if not selected_signature.expression_values_file:
+        logger.exception("Signature {} has no file associated.".format(selected_signature.tsx_id))
+        raise TaskFailure("Signature {} has no file associated.".format(selected_signature.tsx_id))
+
     temp_dir_path = _prepare_temp_folder(task_id, selected_signature, additional_signatures=[], add_Homolog=True)
 
     if not temp_dir_path:
@@ -147,7 +156,8 @@ def _prepare_temp_folder(request_id, signature, additional_signatures=[], add_RD
 
     shutil.copy2(signature.expression_values_file.path, temp_dir_path)
     for sig in additional_signatures:
-        shutil.copy2(sig.expression_values_file.path, temp_dir_path)
+        if sig.expression_values_file:
+            shutil.copy2(sig.expression_values_file.path, temp_dir_path)
 
     if add_RData:
         shutil.copy2('/app/tools/admin_data/public.RData', temp_dir_path)
