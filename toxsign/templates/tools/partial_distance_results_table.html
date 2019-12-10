@@ -31,19 +31,26 @@
 </div>
 {% if sigs %}
   <nav aria-label="Page navigation example">
+    <p>Showing results {{sigs.start_index}} - {{sigs.end_index}} out of {{sigs.paginator.count}}</p>
     <ul class="pagination">
       {% if sigs.has_previous %}
         <li class="page-item"><a class="page-link page-action" target="{{sigs.previous_page_number}}">&laquo;</a></li>
       {% else %}
         <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
       {% endif %}
+      {% if sigs.number|add:'-4' > 1 %}
+        <li class="page-item"><a class="page-link page-action" target="{{ sigs.number|add:'-5' }}">&hellip;</a></li>
+      {% endif %}
       {% for i in sigs.paginator.page_range %}
         {% if sigs.number == i %}
           <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
-        {% else %}
-          <li class="page-item"><a class="page-link page-action" target="{{i}}">{{ i }}</a></li>
+        {% elif i > sigs.number|add:'-5' and i < sigs.number|add:'5' %}
+          <li class="page-item"><a class="page-link page-action" target="{{i}}"">{{ i }}</a></li>
         {% endif %}
       {% endfor %}
+      {% if sigs.paginator.num_pages > sigs.number|add:'4' %}
+         <li class="page-item"><a class="page-link page-action" target="{{ table.number|add:'5' }}">&hellip;</a></li>
+      {% endif %}
       {% if sigs.has_next %}
         <li class="page-item"><a class="page-link page-action" target="{{sigs.next_page_number}}">&raquo;</a></li>
       {% else %}

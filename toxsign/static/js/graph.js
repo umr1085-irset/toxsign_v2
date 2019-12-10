@@ -1,9 +1,6 @@
 // Set the dimensions and margins of the diagram
 function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 
-  console.log(max_Parallel);
-  console.log(max_Depth);
-
   var current_Entity;
 
   var textcolored = {
@@ -25,7 +22,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 
 
   var margin = {
-					top : 0,
+					top : 20,
 					right : 0,
 					bottom : 100,
 					left : 10
@@ -33,7 +30,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 
   var rectNode = { width : 140, height : 80, textMargin : 5 };
 
-  var height = max_Parallel * (rectNode.height + 20) + 50 - margin.left - margin.right;
+  var height = max_Parallel * (rectNode.height + 20) + 50 - margin.top - margin.bottom;
   var width = max_Depth * (rectNode.width * 1.5) + 100 - margin.top - margin.bottom;
 
 
@@ -71,13 +68,13 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
       isKeydownZoom = false;
 
   // declares a tree layout and assigns the size
-  var treemap = d3.tree().size([width, height]);
+  var treemap = d3.tree().size([height, width]);
   //var treemap = d3.tree().nodeSize([width, height]);
 
   // Assigns parent, children, height, depth
   root = d3.hierarchy(treeData, function(d) { return d.children; });
 
-  root.x0 = height / 2;
+  root.x0 = width / 2;
   root.y0 = 0;
 
 
@@ -125,6 +122,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
     breadthFirstTraversal(nodes, collision);
 
     nodes.forEach(function(d){
+      console.log(d.x +" " +d.y)
       d.y = d.depth * (rectNode.width * 1.5)
       // Force centering on center of node, not on corner
       //d.y = d.y + (rectNode.height/2)
@@ -301,8 +299,9 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 	  if (siblings) {
 		  for (var i = 0; i < siblings.length - 1; i++)
 		  {
-			  if (siblings[i + 1].x - (siblings[i].x + rectNode.height) < minPadding)
+			  if (siblings[i + 1].x - (siblings[i].x + rectNode.height) < minPadding){
 				  siblings[i + 1].x = siblings[i].x + rectNode.height + minPadding;
+              }
 		  }
 	  }
   }

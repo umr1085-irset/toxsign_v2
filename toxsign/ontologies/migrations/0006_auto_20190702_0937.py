@@ -139,6 +139,7 @@ class Migration(migrations.Migration):
         ('signatures', '0010_signature_cell_line_slug'),
         ('assays', '0010_assay_cell_line_slug'),
         ('projects', '0010_auto_20191112_0949_squashed_0011_auto_20191112_0951'),
+        ('users', '0006_notification_created_at'),
     ]
 
     operations = [

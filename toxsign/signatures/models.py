@@ -155,7 +155,8 @@ class Signature(models.Model):
 
         if file_changed or need_index:
             task = setup_files.delay(self.id, need_index, file_changed)
-            Job(title="Signature processing", created_by=self.created_by, celery_task_id=task.id, type="SYSTEM").save()
+            if not force:
+                Job(title="Signature processing", created_by=self.created_by, celery_task_id=task.id, type="SYSTEM").save()
 
         self.__old_up = self.up_gene_file_path
         self.__old_down = self.down_gene_file_path

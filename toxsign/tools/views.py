@@ -132,12 +132,22 @@ def distance_analysis_table(request, job_id):
         if request_ordered_column:
             request_order = request.POST.get('order', "")
             if request_order == "asc":
-                df  = df.sort_values(by=[request_ordered_column])
+                if request_ordered_column == "Signature":
+                    df['sort'] = df['Signature'].str.extract(r'TSS(\d+)', expand=False).astype(int)
+                    df  = df.sort_values(by=['sort'])
+                    df = df.drop('sort', axis=1)
+                else:
+                    df  = df.sort_values(by=[request_ordered_column])
                 column_dict[request_ordered_column]['filter'] = 'asc'
                 current_order = request_ordered_column
                 current_order_type = "asc"
             elif request_order == "desc":
-                df  = df.sort_values(by=[request_ordered_column], ascending=False)
+                if request_ordered_column == "Signature":
+                    df['sort'] = df['Signature'].str.extract(r'TSS(\d+)', expand=False).astype(int)
+                    df  = df.sort_values(by=['sort'], ascending=False)
+                    df = df.drop('sort', axis=1)
+                else:
+                    df  = df.sort_values(by=[request_ordered_column], ascending=False)
                 column_dict[request_ordered_column]['filter'] = 'desc'
                 current_order = request_ordered_column
                 current_order_type= "desc"

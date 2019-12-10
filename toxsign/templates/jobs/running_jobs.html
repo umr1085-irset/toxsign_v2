@@ -11,7 +11,7 @@
                 <th scope="col">#</th>
                 <th scope="col">Name</th>
                 <th scope="col">Created by</th>
-                <th scope="col">Created at</th>
+                <th scope="col">Updated at</th>
                 <th scope="col">Tool</th>
                 <th scope="col">Status</th>
                 <th scope="col">Action</th>
@@ -27,11 +27,16 @@
                         <td>{{ job.running_tool }}</td>
                         <td>{{ job.status }}</td>
                         <td>  
-                            {% if job.running_tool.custom_result_link %}
-                                <a href="{% url job.running_tool.custom_result_link job.id %}" class="btn btn-success">View results</a>
+                            {% if job.status == "SUCCESS" %}
+                                {% if job.running_tool.custom_result_link %}
+                                    <a href="{% url job.running_tool.custom_result_link job.id %}" class="btn btn-success">View results</a>
+                                {% endif %}
+                                {% if  "archive" in job.results %}
+                                    <a href="{% url 'download_job' job.id %}" class="btn btn-info">Download</a>
+                                {% endif %}
                             {% endif %}
-                            {% if  "archive" in job.results %}
-                                <a href="{% url 'download_job' job.id %}" class="btn btn-info">Download</a>
+                            {% if "error" in job.results %}
+                                <a class="btn btn-danger">Traceback</a>
                             {% endif %}
                             <a href="{% url 'jobs:delete_job' job.id %}" class="btn btn-outline-danger">Delete</a> 
                         </td>
@@ -39,6 +44,10 @@
                 {% endfor%}
             </tbody>
         </table>
-
+        {% if jobs_list %}
+        {% with table=jobs_list type="jobs" %}
+        {% include "pages/paginate.html" %}
+        {% endwith %}
+        {% endif %}
     </div>
 {% endblock %}
