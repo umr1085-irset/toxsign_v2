@@ -145,3 +145,15 @@ def accept_group_invitation(request, notification_id):
     notification.delete()
     data = {'form_is_valid': True, 'redirect': reverse("users:detail", kwargs={"username": request.user.username}) + "?notification=true"}
     return JsonResponse(data)
+
+def is_viewable(entity, user):
+    can_view = False
+
+    if user.is_authenticated:
+        if entity.created_by == user:
+            can_view = True
+    else:
+        if entity.created_by == None:
+            can_view = True
+
+    return can_view

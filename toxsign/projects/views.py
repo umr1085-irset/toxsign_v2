@@ -97,11 +97,11 @@ def publicize_project(request, prjid):
        )
     return JsonResponse(data)
 
-def check_view_permissions(user, project, strict=False):
+def check_view_permissions(user, project, strict=False, allow_superuser=True):
     has_access = False
     if project.status == "PUBLIC" and not strict:
         has_access = True
-    elif user.is_superuser:
+    elif allow_superuser and user.is_superuser:
         has_access = True
     elif user.is_authenticated and 'view_project' in get_perms(user, project):
         has_access = True

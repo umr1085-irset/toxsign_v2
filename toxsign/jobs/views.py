@@ -52,13 +52,16 @@ def DownloadView(request, pk, file_name):
         return response
 
 
-class RunningJobsView(LoginRequiredMixin, generic.ListView):
+class RunningJobsView(generic.ListView):
     model = Job
     template_name = 'jobs/running_jobs.html'
 
     def get_context_data(self, **kwargs):
         context = super(RunningJobsView, self).get_context_data(**kwargs)
-        jobs = Job.objects.filter(created_by__exact=self.request.user.id)
+        if self.request.user.is_authenticated:
+            jobs = Job.objects.filter(created_by__exact=self.request.user.id)
+        else:
+            jobs = Job.objects.filter(created_by=None)
         jobs = paginate(jobs, self.request.GET.get('jobs'), 10)
         for job in jobs:
             if job.status == "PENDING":

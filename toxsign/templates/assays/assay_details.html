@@ -41,14 +41,14 @@
                 <tr>
                   <th scope="row">Organism</th>
                   <td>
-                    {% if assay.organism.name == "Homo sapiens" %} <img src="{% static 'images/species/Homo_sapiens.png' %}" width="50px" height="50px">{% endif %}
-                    {% if assay.organism.name == "Canis familiaris" %} <img src="{% static 'images/species/Canis_familiaris.png' %}" width="50px" height="50px">{% endif %}
-                    {% if assay.organism.name == "Danio rerio" %} <img src="{% static 'images/species/Danio_rerio.png' %}" width="50px" height="50px">{% endif %}
-                    {% if assay.organism.name == "Drosophila melanogaster" %} <img src="{% static 'images/species/Drosophila_melanogaster.png' %}" width="50px" height="50px">{% endif %}
-                    {% if assay.organism.name == "Macaca mulatta" %} <img src="{% static 'images/species/Macaca_mulatta.png' %}" width="50px" height="50px">{% endif %}
-                    {% if assay.organism.name == "Mus musculus" %} <img src="{% static 'images/species/Mus_musculus.png' %}" width="50px" height="50px">{% endif %}
-                    {% if assay.organism.name == "Rattus norvegicus" %} <img src="{% static 'images/species/Rattus_norvegicus.png' %}" width="50px" height="50px">{% endif %}
-                    {% if assay.organism.name == "Sus scrofa" %} <img src="{% static 'images/species/Sus_scrofa.png' %}" width="50px" height="50px">{% endif %}
+                    {% if assay.organism.name == "Homo sapiens" %} <img src="{% static 'images/species/Homo_sapiens.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.organism.name}}">{% endif %}
+                    {% if assay.organism.name == "Canis familiaris" %} <img src="{% static 'images/species/Canis_familiaris.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.organism.name}}">{% endif %}
+                    {% if assay.organism.name == "Danio rerio" %} <img src="{% static 'images/species/Danio_rerio.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.organism.name}}">{% endif %}
+                    {% if assay.organism.name == "Drosophila melanogaster" %} <img src="{% static 'images/species/Drosophila_melanogaster.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.organism.name}}">{% endif %}
+                    {% if assay.organism.name == "Macaca mulatta" %} <img src="{% static 'images/species/Macaca_mulatta.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.organism.name}}">{% endif %}
+                    {% if assay.organism.name == "Mus musculus" %} <img src="{% static 'images/species/Mus_musculus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.organism.name}}">{% endif %}
+                    {% if assay.organism.name == "Rattus norvegicus" %} <img src="{% static 'images/species/Rattus_norvegicus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.organism.name}}">{% endif %}
+                    {% if assay.organism.name == "Sus scrofa" %} <img src="{% static 'images/species/Sus_scrofa.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.organism.name}}">{% endif %}
                   </td>
                   <td>{{ assay.organism.name }}</td>
                 </tr>
@@ -56,17 +56,16 @@
                   <tr>
                     <th scope="row">Tissue</th>
                     <td>
-                      {% if assay.tissue.name == "Liver" %} <img src="{% static 'images/organs/png/028-liver.png' %}" width="50px" height="50px">{% endif %}
-                      {% if assay.tissue.name == "Kidney" %} <img src="{% static 'images/organs/png/008-kidneys-1.png' %}" width="50px" height="50px">{% endif %}
-                      {% if assay.tissue.name == "Brain" %} <img src="{% static 'images/organs/png/002-brain.png' %}" width="50px" height="50px">{% endif %}
-                      {% if assay.tissue.name == "Lungs" %} <img src="{% static 'images/organs/png/003-lungs.png' %}" width="50px" height="50px">{% endif %}
-                      {% if assay.tissue.name == "Bladder" %} <img src="{% static 'images/organs/png/006-bladder.png' %}" width="50px" height="50px">{% endif %}
-                      {% if assay.tissue.name == "Testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px">{% endif %}
-                      {% if assay.tissue.name == "Heard" %} <img src="{% static 'images/organs/png/023-heart.png' %}" width="50px" height="50px">{% endif %}
-                      {% if assay.tissue.name == "Testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px">{% endif %}
-                      {% if assay.tissue.name == "Ovary" %} <img src="{% static 'images/organs/png/024-uterus.png' %}" width="50px" height="50px">{% endif %}
-                      {% if assay.tissue.name == "Stomach" %} <img src="{% static 'images/organs/png/029-stomach.png' %}">{% endif %}
-                      {% if assay.tissue.name == "Intestine" %} <img src="{% static 'images/organs/png/027-intestine.png' %}" width="50px" height="50px">{% endif %}
+                      {% if assay.tissue.name == "Liver" or assay.tissue.name == "liver" %} <img src="{% static 'images/organs/png/028-liver.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.tissue.name}}">{% endif %}
+                      {% if assay.tissue.name == "Kidney" or assay.tissue.name == "kidney" %} <img src="{% static 'images/organs/png/008-kidneys-1.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.tissue.name}}">{% endif %}
+                      {% if assay.tissue.name == "Brain" or assay.tissue.name == "brain" %} <img src="{% static 'images/organs/png/002-brain.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.tissue.name}}">{% endif %}
+                      {% if assay.tissue.name == "Lungs" or assay.tissue.name == "lungs" %} <img src="{% static 'images/organs/png/003-lungs.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.tissue.name}}">{% endif %}
+                      {% if assay.tissue.name == "Bladder" or assay.tissue.name == "bladder" %} <img src="{% static 'images/organs/png/006-bladder.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.tissue.name}}">{% endif %}
+                      {% if assay.tissue.name == "Testis" or assay.tissue.name == "testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.tissue.name}}">{% endif %}
+                      {% if assay.tissue.name == "Heart" or assay.tissue.name == "heart" %} <img src="{% static 'images/organs/png/023-heart.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.tissue.name}}">{% endif %}
+                      {% if assay.tissue.name == "Ovary" or assay.tissue.name == "ovary" %} <img src="{% static 'images/organs/png/024-uterus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.tissue.name}}">{% endif %}
+                      {% if assay.tissue.name == "Stomach" or assay.tissue.name == "stomach" %} <img src="{% static 'images/organs/png/029-stomach.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.tissue.name}}">{% endif %}
+                      {% if assay.tissue.name == "Intestine" or assay.tissue.name == "intestine" %} <img src="{% static 'images/organs/png/027-intestine.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.tissue.name}}">{% endif %}
                     </td>
                     <td>{{assay.tissue.name}}</td>
                   </tr>
@@ -167,4 +166,12 @@
         </div>
     </div>
 
+{% endblock %}
+{% block javascript %}
+  {{block.super}}
+  <script>
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+      })
+    </script>
 {% endblock %}
