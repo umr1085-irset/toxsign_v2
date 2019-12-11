@@ -46,14 +46,14 @@
                   <th scope="row">Organism</th>
                   <td>
                     {% onto_value signature.organism "m2m" as organism %}
-                    {% if organism == "Homo sapiens" %} <img src="{% static 'images/species/Homo_sapiens.png' %}" width="50px" height="50px">{% endif %}
-                    {% if organism == "Canis familiaris" %} <img src="{% static 'images/species/Canis_familiaris.png' %}" width="50px" height="50px">{% endif %}
-                    {% if organism == "Danio rerio" %} <img src="{% static 'images/species/Danio_rerio.png' %}" width="50px" height="50px">{% endif %}
-                    {% if organism == "Drosophila melanogaster" %} <img src="{% static 'images/species/Drosophila_melanogaster.png' %}" width="50px" height="50px">{% endif %}
-                    {% if organism == "Macaca mulatta" %} <img src="{% static 'images/species/Macaca_mulatta.png' %}" width="50px" height="50px">{% endif %}
-                    {% if organism == "Mus musculus" %} <img src="{% static 'images/species/Mus_musculus.png' %}" width="50px" height="50px">{% endif %}
-                    {% if organism == "Rattus norvegicus" %} <img src="{% static 'images/species/Rattus_norvegicus.png' %}" width="50px" height="50px">{% endif %}
-                    {% if organism == "Sus scrofa" %} <img src="{% static 'images/species/Sus_scrofa.png' %}" width="50px" height="50px">{% endif %}
+                    {% if organism == "Homo sapiens" %} <img src="{% static 'images/species/Homo_sapiens.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if organism == "Canis familiaris" %} <img src="{% static 'images/species/Canis_familiaris.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if organism == "Danio rerio" %} <img src="{% static 'images/species/Danio_rerio.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if organism == "Drosophila melanogaster" %} <img src="{% static 'images/species/Drosophila_melanogaster.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if organism == "Macaca mulatta" %} <img src="{% static 'images/species/Macaca_mulatta.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if organism == "Mus musculus" %} <img src="{% static 'images/species/Mus_musculus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if organism == "Rattus norvegicus" %} <img src="{% static 'images/species/Rattus_norvegicus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if organism == "Sus scrofa" %} <img src="{% static 'images/species/Sus_scrofa.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
                   </td>
                   <td>{% onto_value signature.organism "m2m" %}</td>
                 </tr>
@@ -62,17 +62,17 @@
                     <th scope="row">Tissue</th>
                     <td>
                       {% onto_value signature.tissue "m2m" as tissue %}
-                      {% if tissue == "Liver" %} <img src="{% static 'images/organs/png/028-liver.png' %}" width="50px" height="50px">{% endif %}
-                      {% if tissue == "Kidney" %} <img src="{% static 'images/organs/png/008-kidneys-1.png' %}" width="50px" height="50px">{% endif %}
-                      {% if tissue == "Brain" %} <img src="{% static 'images/organs/png/002-brain.png' %}" width="50px" height="50px">{% endif %}
-                      {% if tissue == "Lungs" %} <img src="{% static 'images/organs/png/003-lungs.png' %}" width="50px" height="50px">{% endif %}
-                      {% if tissue == "Bladder" %} <img src="{% static 'images/organs/png/006-bladder.png' %}" width="50px" height="50px">{% endif %}
-                      {% if tissue == "Testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px">{% endif %}
-                      {% if tissue == "Heard" %} <img src="{% static 'images/organs/png/023-heart.png' %}" width="50px" height="50px">{% endif %}
-                      {% if tissue == "Testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px">{% endif %}
-                      {% if tissue == "Ovary" %} <img src="{% static 'images/organs/png/024-uterus.png' %}" width="50px" height="50px">{% endif %}
-                      {% if tissue == "Stomach" %} <img src="{% static 'images/organs/png/029-stomach.png' %}">{% endif %}
-                      {% if tissue == "Intestine" %} <img src="{% static 'images/organs/png/027-intestine.png' %}" width="50px" height="50px">{% endif %}
+                      {% if tissue == "Liver" %} <img src="{% static 'images/organs/png/028-liver.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if tissue == "Kidney" %} <img src="{% static 'images/organs/png/008-kidneys-1.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if tissue == "Brain" %} <img src="{% static 'images/organs/png/002-brain.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if tissue == "Lungs" %} <img src="{% static 'images/organs/png/003-lungs.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if tissue == "Bladder" %} <img src="{% static 'images/organs/png/006-bladder.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if tissue == "Testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if tissue == "Heard" %} <img src="{% static 'images/organs/png/023-heart.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if tissue == "Testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if tissue == "Ovary" %} <img src="{% static 'images/organs/png/024-uterus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if tissue == "Stomach" %} <img src="{% static 'images/organs/png/029-stomach.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if tissue == "Intestine" %} <img src="{% static 'images/organs/png/027-intestine.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
                     </td>
                     <td>{% onto_value signature.tissue "m2m" %}</td>
                   </tr>
@@ -147,30 +147,31 @@
       </div>
 
       <h2>Associated Factors</h2>
+      
       <div class="row">
-        <ul class="nav nav-tabs">
-            <li class="nav-item">
-                <a href="" data-target="#chemical" data-toggle="tab" class="nav-link active">Chemical ({{factor.chemical_subfactor_of.count}})</a>
-            </li>
-            <li class="nav-item">
-                <a href="" data-target="#biological" data-toggle="tab" class="nav-link disabled">Biological</a>
-            </li>
-            <li class="nav-item">
-                <a href="" data-target="#physical" data-toggle="tab" class="nav-link disabled">Physical</a>
-            </li>
-        </ul>
-        <div class="tab-content p-b-3" style="margin-top:20px;">
-            <div class="tab-pane active" id="chemical">
-              {% if not factor.chemical_subfactor_of.count %}
+          <ul class="nav nav-tabs">
+              <li class="nav-item">
+                  <a href="" data-target="#chemical" data-toggle="tab" class="nav-link active">Chemical ({{factor.chemical_subfactor_of.count}})</a>
+              </li>
+              <li class="nav-item">
+                  <a href="" data-target="#biological" data-toggle="tab" class="nav-link">Biological (soon)</a>
+              </li>
+              <li class="nav-item">
+                  <a href="" data-target="#physical" data-toggle="tab" class="nav-link">Physical (soon)</a>
+              </li>
+          </ul>
+          <div class="tab-content p-b-3" style="margin-top:20px;">
+              <div class="tab-pane active" id="chemical">
+                {% if not factor.chemical_subfactor_of.count %}
+                    <div class="row my-5">
+                      <div class="col-md-8 mb-5">
+                        <p>No chemical subfactors linked to this factor</p>
+                      </div>
+                    </div>
+                {% endif %}
+                {% for chemical in factor.chemical_subfactor_of.all %}
                   <div class="row my-5">
                     <div class="col-md-8 mb-5">
-                      <p>No chemical subfactors linked to this factor</p>
-                    </div>
-                  </div>
-              {% endif %}
-              <div class="row my-5">
-                {% for chemical in factor.chemical_subfactor_of.all %}
-                    <div class="col-md-6 mb-5">
                       <h2><i class="fas fa-flask"></i> Chemical factor n° {{ forloop.counter }}</h2>
                       <table class="table">
                         <tbody>
@@ -201,25 +202,32 @@
                         </tbody>
                       </table>
                     </div>
+                    <div class="col-md-4 mb-5">
+                      <h2>Additional information</h2>
+                      <hr>
+                      {% if chemical.additional_info %} {{ chemical.additional_info }} {% else %} No additional information provided {% endif %}
+                    </div>
+                  </div>
                 {% endfor %}
               </div>
-            </div>
-            <div class="tab-pane" id="biological">
-                <div class="row my-5">
-                  <div class="col-md-12 mb-5">
-                    <p>No biological subfactors linked to this factor</p>
+              <div class="tab-pane" id="biological">
+                  <div class="row my-5">
+                    <div class="col-md-12 mb-5">
+                      <p>No biological subfactors linked to this factor</p>
+                    </div>
                   </div>
-                </div>
-            </div>
-            <div class="tab-pane" id="physical">
-                <div class="row my-5">
-                  <div class="col-md-12 mb-5">
-                    <p>No physical subfactors linked to this factor</p>
+              </div>
+              <div class="tab-pane" id="physical">
+                  <div class="row my-5">
+                    <div class="col-md-12 mb-5">
+                      <p>No physical subfactors linked to this factor</p>
+                    </div>
                   </div>
-                </div>
-            </div>
+              </div>
+          </div>
         </div>
-      </div>
+
+
       <div class="row my-5">
           <div class="col-md-4 mb-5">
                 <h2>Genomic signature information</h2>
@@ -327,6 +335,9 @@
   {{ block.super }}
   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
   <script>
+     $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+      })
     var label = ["up-regulated","down-regulated"];
     var values = [439,321];
     var myDoughnutChart = new Chart("myChart", {
