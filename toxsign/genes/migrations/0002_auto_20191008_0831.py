@@ -165,7 +165,7 @@ def insertCollections(genefile):
                 Synonyms = split[5]
                 description = split[6]
                 geneList.append(Gene(gene_id=GeneID, tax_id=tax_id, homolog_id=homologeneID, ensembl_id=ensembleID, symbol=Symbol, synonyms=Synonyms, description=description))
-        Gene.objects.bulk_create(geneList)
+        Gene.objects.bulk_create(geneList, batch_size=1000)
         geneFile.close()
         print("File close")
 
