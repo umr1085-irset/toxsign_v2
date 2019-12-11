@@ -38,7 +38,7 @@ HGIDs <- HGIDs[which(is.na(HGIDs)==FALSE)]
 #--------------------------------------------#
 
 #--------------------------------------------#
-signmatrix <- signmatrix[setdiff(rownames(signmatrix),Sign.Names),]
+signmatrix <- signmatrix[setdiff(rownames(signmatrix),Sign.Names),, drop=F]
 #--------------------------------------------#
 
 #--------------------------------------------#
@@ -55,11 +55,11 @@ for (Sign.File in Sign.Files) {
    #cat(Sign.File,"is loading...\n")
    print(Sign.Name)
    Sign.Data <- read.table(Sign.File,sep="\t",blank.lines.skip=TRUE,fill=TRUE,header=FALSE)
-   All.HGIDs <- unique(as.character(Sign.Data[which(is.na(Sign.Data[,3])== FALSE & Sign.Data[,2] == "0"),3]))
+   All.HGIDs <- unique(as.character(Sign.Data[which(is.na(Sign.Data[,3])== FALSE & Sign.Data[,5] == "0"),3]))
    new.signmatrix[Sign.Name,All.HGIDs] <- 0
 
-   Up.HGIDs  <- unique(as.character(Sign.Data[which(is.na(Sign.Data[,3])== FALSE & Sign.Data[,2] == "1"),3]))
-   Dw.HGIDs  <- unique(as.character(Sign.Data[which(is.na(Sign.Data[,3])== FALSE & Sign.Data[,2] == "-1"),3]))
+   Up.HGIDs  <- unique(as.character(Sign.Data[which(is.na(Sign.Data[,3])== FALSE & Sign.Data[,5] == "1"),3]))
+   Dw.HGIDs  <- unique(as.character(Sign.Data[which(is.na(Sign.Data[,3])== FALSE & Sign.Data[,5] == "-1"),3]))
    new.signmatrix[Sign.Name,setdiff(Up.HGIDs,Dw.HGIDs)] <- 1
    new.signmatrix[Sign.Name,setdiff(Dw.HGIDs,Up.HGIDs)] <- -1
 }

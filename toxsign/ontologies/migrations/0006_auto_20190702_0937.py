@@ -135,11 +135,11 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('ontologies', '0007_auto_20190913_0724'),
-        ('signatures', '0006_signature_expression_values_file'),
-        ('assays', '0006_remove_assay_status'),
-        ('projects', '0007_auto_20190905_1324'),
+        ('signatures', '0010_signature_cell_line_slug'),
+        ('assays', '0010_assay_cell_line_slug'),
+        ('projects', '0010_auto_20191112_0949_squashed_0011_auto_20191112_0951'),
     ]
 
     operations = [
-	    #migrations.RunPython(launch_import),
+	    migrations.RunPython(launch_import),
     ]

@@ -66,7 +66,6 @@
                 <a class="dropdown-item" href="{% url 'tutorial' %}">Tutorials</a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="{% url 'statistics' %}">Statistics</a>
-                <a class="dropdown-item" href="{% url 'download' %}">Download</a>
               </div>
             </li>
             <li class="nav-item dropdown {% if request.resolver_match.url_name == 'about' or request.resolver_match.url_name == 'studies' or request.resolver_match.url_name == 'statistics' or request.resolver_match.url_name == 'citing' or request.resolver_match.url_name == 'contact' %} active {% endif %}">
@@ -128,13 +127,14 @@
     </div>
 
     <div class="container-fluid" style="margin-bottom:50px;margin-top:50px;">
-
+      {% if not request.COOKIES.citation_alert_box == "closed" %}
       <div class="alert alert-info alert-dismissible fade show" role="alert" style="margin-top:15px; text-align:center;">
         The team behind TOXsIgN has invested considerable time, resources, and effort into collecting, curating, processing, developing, and maintaining this web resource.<br> Please follow the citation guidelines if you are using it.
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
+      {% endif %}
 
       {% if messages %}
           {% for message in messages %}
@@ -184,6 +184,7 @@
       <!-- place project specific Javascript in this file -->
       <script src="{% static 'fonts/fontawesome/js/all.js' %}"></script>
       <script src="{% static 'js/jquery.bootstrap.modal.forms.min.js' %}"></script>
+       <script src="{% static 'js/base.js' %}"></script>
     {% endblock javascript %}
   </body>
 </html>

@@ -2,7 +2,8 @@
 
 # This script expect one argument:
 # The path to a temp folder where all the signature files are stored
-# Also, if the mùatric file already existed, it must be in the folder under the name "public.RData.old"
+
+set -e
 
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 

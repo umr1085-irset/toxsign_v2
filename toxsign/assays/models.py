@@ -24,6 +24,7 @@ class Assay(models.Model):
         ("OTHER", "Other"),
     )
     GENERATION = (
+        ("NA", "Na"),
         ('F0', 'F0'),
         ('F1', 'F1'),
         ('F2', 'F2'),
@@ -51,8 +52,9 @@ class Assay(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_created_by')
     updated_at = models.DateTimeField(auto_now=True, null=True, verbose_name=("user"))
-    additional_info = models.TextField("Additional information")
-    experimental_design = models.TextField("Experimental design")
+    description = models.TextField("Description", blank=True)
+    experimental_design = models.TextField("Experimental design", blank=True)
+    additional_info = models.TextField("Additional information", blank=True)
     dev_stage = models.CharField(max_length=50, choices=DEVELOPPMENTAL_STAGE, default="NA")
     generation = models.CharField(max_length=10, choices=GENERATION, default="F0")
     sex_type = models.CharField(max_length=10, choices=SEX_TYPE, default="MALE")
@@ -62,6 +64,8 @@ class Assay(models.Model):
     tissue = models.ForeignKey(Tissue, blank=True, null=True, on_delete=models.CASCADE, related_name='assay_used_in')
     cell = models.ForeignKey(Cell, blank=True, null=True, on_delete=models.CASCADE, related_name='assay_used_in')
     cell_line = models.ForeignKey(CellLine, blank=True, null=True, on_delete=models.CASCADE, related_name='assay_used_in')
+    cell_line_slug = models.CharField(max_length=200, blank=True, null=True)
+    results = models.TextField("Results", blank=True)
 
     def __str__(self):
         return self.name
@@ -100,15 +104,20 @@ class Factor(models.Model):
 class ChemicalsubFactor(models.Model):
 
     DOSE_UNIT = (
+        ('NA', 'NA'),
+        ('IC','IC'),
+        ('EC','EC'),
         ('M','M'),
         ('mM','mM'),
         ('µM','µM'),
+        ('nM','nM'),
+        ('pM','pM'),
+        ('fM','fM'),
         ('g/mL','g/mL'),
         ('mg/mL','mg/mL'),
         ('µg/mL','µg/mL'),
         ('ng/mL','ng/mL'),
         ('mg/kg','mg/kg'),
-        ('µg/kg','µg/kg'),
         ('µg/kg','µg/kg'),
         ('ng/kg','ng/kg'),
         ('ng/g lipid','ng/g lipid'),

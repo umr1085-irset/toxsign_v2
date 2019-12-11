@@ -22,13 +22,13 @@ class SignatureFactory(DjangoModelFactory):
     chemical_slug = Faker("text", max_nb_chars=100)
     technology_slug = Faker("text", max_nb_chars=100)
     platform = Faker("text", max_nb_chars=100)
-    control_sample_number = Faker("pyfloat")
-    treated_sample_number = Faker("pyfloat")
+    control_sample_number = Faker("pyint")
+    treated_sample_number = Faker("pyint")
     pvalue = Faker("pyfloat")
     cutoff = Faker("pyfloat")
     statistical_processing = Faker("text")
     gene_id = "ENTREZ"
-    
+
 
     class Meta:
         model = Signature

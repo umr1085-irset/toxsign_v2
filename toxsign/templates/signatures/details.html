@@ -55,7 +55,7 @@
                     {% if organism == "Rattus norvegicus" %} <img src="{% static 'images/species/Rattus_norvegicus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
                     {% if organism == "Sus scrofa" %} <img src="{% static 'images/species/Sus_scrofa.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
                   </td>
-                  <td>{% onto_value signature.organism "m2m" %}</td>
+                  <td>{% onto_value signature.organism  %}</td>
                 </tr>
                 {% if signature.tissue %}
                   <tr>
@@ -74,16 +74,16 @@
                       {% if tissue == "Stomach" %} <img src="{% static 'images/organs/png/029-stomach.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
                       {% if tissue == "Intestine" %} <img src="{% static 'images/organs/png/027-intestine.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
                     </td>
-                    <td>{% onto_value signature.tissue "m2m" %}</td>
+                    <td>{% onto_value signature.tissue  %}</td>
                   </tr>
                 {% endif %}
-                {% onto_value signature.cell "m2m" as cell%}
+                {% onto_value signature.cell  as cell%}
                 {% if cell != "None" %}
-                  <tr><th scope="row">Cell</th><td><img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px"></td><td>{% onto_value signature.cell "m2m" %}</td></tr>
+                  <tr><th scope="row">Cell</th><td><img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px"></td><td>{% onto_value signature.cell  %}</td></tr>
                 {% endif %}
-                {% onto_value signature.cell_line "m2m" as cell_line%}
+                {% onto_value signature.cell_line  as cell_line%}
                 {% if cell_line != "None" %}
-                  <tr><th scope="row">Cell line</th><td><img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px"></td><td>{% onto_value signature.cell_line "m2m" %}</td></tr>
+                  <tr><th scope="row">Cell line</th><td><img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px"></td><td>{% onto_value signature.cell_line  %}</td></tr>
                 {% endif %}
               </tbody>
             </table>
@@ -236,7 +236,7 @@
                     <tr>
                       <th scope="row">Technology used</th>
                       <td>
-                        {% onto_value signature.technology "m2m" signature.technology_slug %}
+                        {% onto_value signature.technology  signature.technology_slug %}
                       </td>
                     </tr>
                     <tr>
@@ -339,7 +339,7 @@
         $('[data-toggle="tooltip"]').tooltip()
       })
     var label = ["up-regulated","down-regulated"];
-    var values = [439,321];
+    var values = [{{signature.up_gene_number}},{{signature.down_gene_number}}];
     var myDoughnutChart = new Chart("myChart", {
         type: 'doughnut',
         data: {
@@ -361,5 +361,6 @@
           ]
         },
     });
+    {% endif %}
   </script>
 {% endblock%}

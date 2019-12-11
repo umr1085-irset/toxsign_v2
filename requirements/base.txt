@@ -25,3 +25,4 @@ django-guardian==2.0.0
 elasticsearch-dsl>=7.0.0,<8.0.0
 django-elasticsearch-dsl==7.0.0
 pronto==0.12.2
+pymongo

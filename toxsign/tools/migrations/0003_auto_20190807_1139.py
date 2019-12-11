@@ -4,7 +4,7 @@ from django.db import migrations
 from toxsign.tools.models import ArgumentType
 
 def load_args_type(apps, schema_editor):
-    choices = ['Text','Signature']
+    choices = ['Text','Signature', 'Job_id']
     app_models = apps.get_app_config('ontologies').get_models()
     for model in app_models:
         choices.append(model.__name__)

@@ -12,7 +12,7 @@ class AdminForm(forms.ModelForm):
 
     class Meta:
         model = Tool
-        fields = ['name', 'type', 'category', 'short_description', 'description', 'status', 'created_by', 'icon', 'visuel', 'link', 'form_name', 'script_file', 'tags', 'argument_types']
+        fields = ['name', 'type', 'category', 'short_description', 'description', 'status', 'created_by', 'icon', 'visuel', 'link', 'form_name', 'script_file', 'custom_result_link', 'tags', 'argument_types']
 
     def is_valid(self):
         valid = super(AdminForm, self).is_valid()

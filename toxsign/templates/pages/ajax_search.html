@@ -8,35 +8,50 @@
         <div class="row">
         <div class="col-md-3 ">
           <div class="list-group ">
-              <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action active">Superprojects ({{ status.superprojects_number }})</a>
-              <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Projects ({{ status.projects_number }})</a>
-              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Signatures ({{ status.signatures_number }})</a>
+              <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action {{status.is_active.superproject}}">Superprojects ({{ status.superprojects.paginator.count }})</a>
+              <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action {{status.is_active.project}}">Projects ({{ status.projects.paginator.count }})</a>
+              <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action{{status.is_active.signature}}">Signatures ({{ status.signatures.paginator.count }})</a>
             </div>
         </div>
         <div class="col-md-9">
             <div class="tab-content card">
-              <div class="tab-pane active text-style card-body" id="tab1">
+              <div class="tab-pane text-style card-body {{status.is_active.superproject}}" id="tab1">
                 {% for superproject in status.superprojects %}
                     <h3><a href="{% url 'superprojects:detail' superproject.tsx_id %}">{{ superproject.tsx_id }}</a> - {{superproject.name}}</h3>
                     <small><b>Author: </b>{{ superproject.created_by.username }} - {{ superproject.created_at }}</small>
                     <p><b>Description : </b>{{superproject.description}}</p>
                     <hr>
                 {% endfor %}
+                {% if status.superprojects %}
+                {% with table=status.superprojects type="superprojects" get_query=status.query %}
+                {% include "pages/paginate.html" %}
+                {% endwith %}
+                {% endif %}
               </div>
-              <div class="tab-pane text-style card-body" id="tab2">
+              <div class="tab-pane text-style card-body {{status.is_active.project}}" id="tab2">
                 {% for project in status.projects %}
                     <h3><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a> - {{project.name}}</h3>
                     <small><b>Author: </b>{{ project.created_by.username }} - {{ project.created_at }}</small>
                     <p><b>Description : </b>{{project.description}}</p>
                     <hr>
                 {% endfor %}
+                {% if status.projects %}
+                {% with table=status.projects type="projects" get_query=status.query %}
+                {% include "pages/paginate.html" %}
+                {% endwith %}
+                {% endif %}
               </div>
-              <div class="tab-pane text-style card-body" id="tab3">
+              <div class="tab-pane text-style card-body {{status.is_active.signature}}" id="tab3">
                 {% for signature in status.signatures %}
                     <h3><a href="{% url 'signatures:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{signature.name}}</h3>
                     <small><b>Author:</b>{{ signature.created_by.username }} - {{ signature.created_at }}</small>
                     <hr>
                 {% endfor %}
+                {% if status.signatures %}
+                {% with table=status.signatures type="signature" get_query=status.query %}
+                {% include "pages/paginate.html" %}
+                {% endwith %}
+                {% endif %}
               </div>
             </div>
         </div>
