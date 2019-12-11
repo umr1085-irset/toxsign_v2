@@ -268,10 +268,10 @@ tags
 
 ### Project template
 
-toxsign/media/
-
 .pytest_cache/
 
+toxsign/media/tools
+toxsign/media/files
 
 .ipython/
 .env
