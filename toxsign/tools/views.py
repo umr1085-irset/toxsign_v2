@@ -36,6 +36,7 @@ from django.conf import settings
 from toxsign.taskapp.celery import app
 
 from toxsign.scripts.processing import run_distance, run_enrich
+from toxsign.users.views import is_viewable
 
 
 from time import sleep
@@ -83,7 +84,8 @@ def distance_analysis_tool(request):
 
 def distance_analysis_results(request, job_id):
     job = get_object_or_404(Job, id=job_id)
-    if not job.created_by == request.user:
+
+    if not is_viewable(job, request.user):
         return redirect('/unauthorized')
 
     return render(request, 'tools/distance_analysis_results.html', {'job': job})
@@ -93,7 +95,8 @@ def distance_analysis_table(request, job_id):
         if not request.method == 'POST':
             return JsonResponse({})
         job = get_object_or_404(Job, id=job_id)
-        if not job.created_by == request.user:
+
+        if not is_viewable(job, request.user):
             return JsonResponse({})
 
         file_path = job.results['files'][0]
@@ -132,12 +135,22 @@ def distance_analysis_table(request, job_id):
         if request_ordered_column:
             request_order = request.POST.get('order', "")
             if request_order == "asc":
-                df  = df.sort_values(by=[request_ordered_column])
+                if request_ordered_column == "Signature":
+                    df['sort'] = df['Signature'].str.extract(r'TSS(\d+)', expand=False).astype(int)
+                    df  = df.sort_values(by=['sort'])
+                    df = df.drop('sort', axis=1)
+                else:
+                    df  = df.sort_values(by=[request_ordered_column])
                 column_dict[request_ordered_column]['filter'] = 'asc'
                 current_order = request_ordered_column
                 current_order_type = "asc"
             elif request_order == "desc":
-                df  = df.sort_values(by=[request_ordered_column], ascending=False)
+                if request_ordered_column == "Signature":
+                    df['sort'] = df['Signature'].str.extract(r'TSS(\d+)', expand=False).astype(int)
+                    df  = df.sort_values(by=['sort'], ascending=False)
+                    df = df.drop('sort', axis=1)
+                else:
+                    df  = df.sort_values(by=[request_ordered_column], ascending=False)
                 column_dict[request_ordered_column]['filter'] = 'desc'
                 current_order = request_ordered_column
                 current_order_type= "desc"
@@ -185,7 +198,8 @@ def functional_analysis_tool(request):
 
 def functional_analysis_results(request, job_id):
     job = get_object_or_404(Job, id=job_id)
-    if not job.created_by == request.user:
+
+    if not is_viewable(job, request.user):
         return redirect('/unauthorized')
 
     return render(request, 'tools/functional_analysis_results.html', {'job': job})
@@ -195,7 +209,8 @@ def functional_analysis_full_table(request, job_id):
         if not request.method == 'POST':
             return JsonResponse({})
         job = get_object_or_404(Job, id=job_id)
-        if not job.created_by == request.user:
+
+        if not is_viewable(job, request.user):
             return JsonResponse({})
 
         file_path = job.results['files'][0]
@@ -260,7 +275,7 @@ def functional_analysis_partial_table(request, job_id, type):
             return JsonResponse({})
 
         job = get_object_or_404(Job, id=job_id)
-        if not job.created_by == request.user:
+        if not is_viewable(job, request.user):
             return JsonResponse({})
 
         file_path = job.results['files'][0]
@@ -343,6 +358,9 @@ def prediction_tool(request):
 
 def _create_job(title, owner, task_id, tool, type="TOOL"):
     # Add checks?
+    if not owner.is_authenticated:
+        owner=None
+
     job = Job(
             title = title,
             created_by = owner,

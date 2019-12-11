@@ -25,7 +25,7 @@ def prepare_homolog_data(self, force=False):
     ]
 
     # Should load this from config file maybe
-    dest_dir = "/app/tools/admin_data/"
+    dest_dir = "/app/toxsign/media/jobs/admin/"
     _download_datafiles(dest_dir, urls, force=force)
 
     if os.path.exists(os.path.join(dest_dir, "annotation")) and not force:
@@ -48,7 +48,10 @@ def setup_files(self, signature_id, index_files=False, need_move_files=False):
     from .processing import zip_results
 
     time.sleep(10)
-    signature = Signature.objects.get(id=signature_id)
+    try:
+        signature = Signature.objects.get(id=signature_id)
+    except toxsign.signatures.models.DoesNotExist:
+        raise Exception("Signature with id {} was not found".format(signature_id))
 
     new_path = "files/{}/{}/{}/{}/".format(signature.factor.assay.project.tsx_id, signature.factor.assay.tsx_id, signature.factor.tsx_id, signature.tsx_id)
     new_unix_path = settings.MEDIA_ROOT + "/" + new_path
@@ -73,20 +76,19 @@ def index_genes(signature, new_path, new_unix_path):
     shutil.move(signature.up_gene_file_path.path, new_unix_path + "up_genes.txt")
     shutil.move(signature.down_gene_file_path.path, new_unix_path + "down_genes.txt")
     shutil.move(signature.interrogated_gene_file_path.path, new_unix_path + "all_genes.txt")
-    shutil.move(signature.expression_values_file.path, new_unix_path + signature.tsx_id + ".sign")
 
     signature.up_gene_file_path.name = new_path + "up_genes.txt"
     signature.down_gene_file_path.name = new_path + "down_genes.txt"
     signature.interrogated_gene_file_path.name = new_path + "all_genes.txt"
 
-    gene_dict = _generate_values(signature)
-    signature.expression_values = gene_dict
+    gene_dict, count = _generate_values(signature)
+    signature.expression_values = _format_values(gene_dict)
     _write_gene_file(gene_dict, new_unix_path + signature.tsx_id + ".sign")
     signature.expression_values_file.name = new_path + signature.tsx_id + ".sign"
 
-    signature.up_gene_number = _count_lines(new_unix_path + "up_genes.txt")
-    signature.down_gene_number = _count_lines(new_unix_path + "down_genes.txt")
-    signature.interrogated_gene_number = _count_lines(new_unix_path + "all_genes.txt")
+    signature.up_gene_number = count['up']
+    signature.down_gene_number = count['down']
+    signature.interrogated_gene_number = count['all']
 
     return signature
 
@@ -97,20 +99,21 @@ def move_files(signature, new_path, new_unix_path):
     return signature
 
 @app.task(bind=True)
-def change_status(self, project_id):
+def change_status(self, project_id=None):
     # Import here to avoid cyclical import
     from toxsign.projects.models import Project
     from toxsign.signatures.models import Signature
-    temp_dir_path = "/app/tools/job_dir/temp/" + self.request.id + "/"
+    temp_dir_path = "/app/toxsign/media/jobs/temp/" + self.request.id + "/"
 
     if os.path.exists(temp_dir_path):
         print("Folder {} already exists: stopping..".format(temp_dir_path))
         return
 
     # Should test if this project has signature. No point in recalculating if nothing is new
-    project_sig = Signature.objects.filter(factor__assay__project__id=project_id)
-    if not project_sig.exists():
-        return
+    if project_id:
+        project_sig = Signature.objects.filter(factor__assay__project__id=project_id)
+        if not project_sig.exists():
+            return
 
     public_sigs = Signature.objects.filter(factor__assay__project__status="PUBLIC")
     if not public_sigs.exists():
@@ -119,49 +122,52 @@ def change_status(self, project_id):
     os.mkdir(temp_dir_path)
 
     for sig in public_sigs:
-        if sig.expression_values_file:
+        if sig.expression_values_file and os.path.exists(sig.expression_values_file.path):
             shutil.copy2(sig.expression_values_file.path, temp_dir_path)
-    if os.path.exists("/app/tools/admin_data/public.RData"):
-        shutil.copy2("/app/tools/admin_data/public.RData", temp_dir_path + "public.RData.old")
+    if os.path.exists("/app/toxsign/media/jobs/admin/public.RData"):
+        shutil.copy2("/app/toxsign/media/jobs/admin/public.RData", temp_dir_path + "public.RData.old")
 
     # Need to check the result...
     subprocess.run(['/bin/bash', '/app/tools/make_public/make_public.sh', temp_dir_path])
 
 
-def _count_lines(path):
-    with open(path) as f:
-        for i, l in enumerate(f):
-            pass
-    return i + 1
-
 def _generate_values(signature):
     # Starts from scratch
     values = {}
+    count = {
+        'up': 0,
+        'down': 0,
+        'all': 0
+    }
     gene_type = signature.gene_id
     # Starts with interrogated file to get them all (we will upload them later)
     if signature.interrogated_gene_file_path:
-        values = _prepare_values(values, signature.interrogated_gene_file_path.path, gene_type)
+        values, count['all'] = _prepare_values(values, signature.interrogated_gene_file_path.path, gene_type)
     if signature.up_gene_file_path:
-        values = _extract_values(values, signature.up_gene_file_path.path, gene_type, "1")
+        values, count['up'] = _extract_values(values, signature.up_gene_file_path.path, gene_type, "1")
     if signature.down_gene_file_path:
-        values = _extract_values(values, signature.down_gene_file_path.path, gene_type, "-1")
-    return values
+        values, count['down'] = _extract_values(values, signature.down_gene_file_path.path, gene_type, "-1")
+    return values, count
 
 def _extract_values(values, file, gene_type, expression_value=None):
 
-    genes = set()
+    count = 0
     if not os.path.exists(file):
-        return values
+        return values, count
+
     with open(file, 'r') as f:
         for line in f:
-            gene_id = line.strip()
+            gene_id = line.split("\t")[0].strip()
+            if not gene_id:
+                continue
+            count += 1
             # Shoud not happen, but just in case
             if not gene_id in values:
                 values[gene_id] = {'value': expression_value, 'homolog_id': 'NA', 'gene_name':"NA", 'in_base': 0}
             else:
                 values[gene_id]['value'] = expression_value
 
-    return values
+    return values, count
 
 def _prepare_values(values, file, gene_type):
 
@@ -169,12 +175,13 @@ def _prepare_values(values, file, gene_type):
     processed_genes = set()
 
     if not os.path.exists(file):
-        return values
+        return values, 0
 
     with open(file, 'r') as f:
         for line in f:
-            gene_id = line.strip()
-            genes.add(gene_id)
+            gene_id = line.split("\t")[0].strip()
+            if gene_id:
+                genes.add(gene_id)
 
     if gene_type == "ENTREZ":
         for gene in Gene.objects.filter(gene_id__in=genes).values('gene_id', 'homolog_id', 'symbol'):
@@ -190,7 +197,7 @@ def _prepare_values(values, file, gene_type):
         for missing_gene in genes - processed_genes:
             values[missing_gene] = {'value': 0, 'homolog_id': 'NA', 'gene_name':"NA", 'in_base': 0}
 
-    return values
+    return values, len(genes)
 
 def _write_gene_file(gene_values, path):
 
@@ -199,6 +206,15 @@ def _write_gene_file(gene_values, path):
         file.write("{}\t{}\t{}\t{}\t{}\n".format(key, value["gene_name"], value["homolog_id"], value["in_base"], value["value"]))
     file.close()
 
+def _format_values(gene_values):
+    val = {'up_genes': [], 'down_genes': []}
+
+    for key, value in gene_values.items():
+        if value["value"] == "1":
+            val['up_genes'].append(key)
+        elif value["value"] == "-1":
+            val['down_genes'].append(key)
+    return val
 
 def _download_datafiles(dest_dir, url_list, force=False):
 

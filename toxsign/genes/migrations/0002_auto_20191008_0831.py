@@ -17,28 +17,29 @@ def download_datafiles():
     dirpath = '/app/loading_data/genes/'
     urls = ["ftp://ftp.ncbi.nih.gov/gene/DATA/gene2ensembl.gz","ftp://ftp.ncbi.nih.gov/gene/DATA/gene_info.gz","ftp://ftp.ncbi.nih.gov/pub/HomoloGene/build68/homologene.data"]
     for url in urls :
-        file_name = url.split('/')[-1]
-        u = urlopen(url)
-        f = open(os.path.join(dirpath,file_name), 'wb')
-        meta = u.info()
-        file_size = int(meta.get("Content-Length")[0])
-        print("Downloading: %s"% (file_name))
+        if not check_file(dirpath, url):
+            file_name = url.split('/')[-1]
+            u = urlopen(url)
+            f = open(os.path.join(dirpath,file_name), 'wb')
+            meta = u.info()
+            file_size = int(meta.get("Content-Length")[0])
+            print("Downloading: %s"% (file_name))
 
-        file_size_dl = 0
-        block_sz = 8192
-        while True:
-            buffer = u.read(block_sz)
-            if not buffer:
-                break
+            file_size_dl = 0
+            block_sz = 8192
+            while True:
+                buffer = u.read(block_sz)
+                if not buffer:
+                    break
 
-            file_size_dl += len(buffer)
-            f.write(buffer)
+                file_size_dl += len(buffer)
+                f.write(buffer)
 
-        f.close()
-        if ".gz" in file_name :
-            with gzip.open(os.path.join(dirpath,file_name), 'rb') as f_in:
-                with open(os.path.join(dirpath,file_name.replace('.gz','')), 'wb') as f_out:
-                    shutil.copyfileobj(f_in, f_out)
+            f.close()
+            if ".gz" in file_name :
+                with gzip.open(os.path.join(dirpath,file_name), 'rb') as f_in:
+                    with open(os.path.join(dirpath,file_name.replace('.gz','')), 'wb') as f_out:
+                        shutil.copyfileobj(f_in, f_out)
 
     return dirpath
 
@@ -167,13 +168,20 @@ def insertCollections(genefile):
         Gene.objects.bulk_create(geneList)
         geneFile.close()
         print("File close")
-        shutil.rmtree(genefile[0])
 
     except IOError as e:
         print("args: ", e.args)
         print("errno: ", e.errno)
         print("filename: ", e.filename)
         print("strerror: ", e.strerror)
+
+def check_file(path, url):
+
+        file_name = url.split('/')[-1]
+        if ".gz" in file_name :
+            file_name = file_name.replace('.gz','')
+
+        return os.path.exists(os.path.join(path, file_name))
 
 def setup(apps, schema_editor):
     # Do not populate in testing environment
@@ -191,5 +199,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        #migrations.RunPython(setup)
+        migrations.RunPython(setup)
     ]

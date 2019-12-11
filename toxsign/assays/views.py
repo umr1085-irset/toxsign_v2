@@ -55,6 +55,8 @@ class EditAssayView(PermissionRequiredMixin, UpdateView):
     def get_permission_object(self):
         self.assay = Assay.objects.get(tsx_id=self.kwargs['assid'])
         self.project = self.assay.project
+        if self.project.status == "PUBLIC":
+            return redirect(reverse("projects:detail", kwargs={"prjid": self.project.tsx_id}))
         return self.project
 
     def get_object(self, queryset=None):
@@ -74,6 +76,8 @@ class EditFactorView(PermissionRequiredMixin, UpdateView):
     def get_permission_object(self):
         self.factor = Factor.objects.get(tsx_id=self.kwargs['facid'])
         self.project = self.factor.assay.project
+        if self.project.status == "PUBLIC":
+            return redirect(reverse("projects:detail", kwargs={"prjid": self.project.tsx_id}))
         return self.project
 
     def get_object(self, queryset=None):
@@ -96,6 +100,8 @@ class CreateAssayView(PermissionRequiredMixin, CreateView):
 
     def get_permission_object(self):
         self.project = get_object_or_404(Project, tsx_id=self.kwargs['prjid'])
+        if self.project.status == "PUBLIC":
+            return redirect(reverse("projects:detail", kwargs={"prjid": self.project.tsx_id}))
         return self.project
 
     def get_form_kwargs(self):
@@ -106,10 +112,6 @@ class CreateAssayView(PermissionRequiredMixin, CreateView):
                 assay = assays.first()
                 kwargs.update({'assay ': assay})
         return kwargs
-
-    def get_permission_object(self):
-        project = Project.objects.get(tsx_id=self.kwargs['prjid'])
-        return project
 
     # Autofill the user and project
     def form_valid(self, form):
@@ -130,6 +132,8 @@ class CreateFactorView(PermissionRequiredMixin, CreateView):
 
     def get_permission_object(self):
         self.project = Project.objects.get(tsx_id=self.kwargs['prjid'])
+        if self.project.status == "PUBLIC":
+            return redirect(reverse("projects:detail", kwargs={"prjid": self.project.tsx_id}))
         return self.project
 
     def get_form_kwargs(self):
@@ -171,8 +175,10 @@ class CreateChemicalsubFactorView(PermissionRequiredMixin, CreateView):
 
     def get_permission_object(self):
         self.factor = get_object_or_404(Factor, tsx_id=self.kwargs['facid'])
-        project = self.factor.assay.project
-        return project
+        self.project = self.factor.assay.project
+        if self.project.status == "PUBLIC":
+            return redirect(reverse("projects:detail", kwargs={"prjid": self.project.tsx_id}))
+        return self.project
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
@@ -198,8 +204,10 @@ class EditChemicalsubFactorView(PermissionRequiredMixin, UpdateView):
     def get_permission_object(self):
         self.subfactor = get_object_or_404(ChemicalsubFactor, id=self.kwargs['id'])
         self.factor = self.subfactor.factor
-        project = self.factor.assay.project
-        return project
+        self.project = self.factor.assay.project
+        if self.project.status == "PUBLIC":
+            return redirect(reverse("projects:detail", kwargs={"prjid": self.project.tsx_id}))
+        return self.project
 
     def get_object(self, queryset=None):
         return self.subfactor
@@ -231,6 +239,8 @@ def delete_subfactor(request, type, id):
         subfactor = get_object_or_404(ChemicalsubFactor, id=id)
 
     project = subfactor.factor.assay.project
+    if project.status == "PUBLIC":
+            return redirect(reverse("projects:detail", kwargs={"prjid": self.kwargs['prjid']}))
     factor = subfactor.factor
 
     if not check_view_permissions(request.user, project):

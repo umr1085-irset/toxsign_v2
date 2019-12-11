@@ -61,12 +61,13 @@ class Project(models.Model):
     # Override save method to auto increment tsx_id
     # Also set permissions for owner on item
     def save(self, *args, **kwargs):
+        force = kwargs.pop('force', False)
         super(Project, self).save(*args, **kwargs)
         self.tsx_id = "TSP" + str(self.id)
         super(Project, self).save()
         change_permission_owner(self)
         # if status was changed to public. What if it went from public to private?
-        if self.initial_status != self.status and self.status == "PUBLIC":
+        if not force and self.initial_status != self.status and self.status == "PUBLIC":
             change_status.delay(self.id)
 
 
@@ -88,11 +89,11 @@ def update__permissions_write(sender, instance, action, **kwargs):
     if instance.edit_groups.all():
         if action == 'pre_remove':
             for group in instance.edit_groups.all():
-                if 'view_project' in get_group_perms(group, instance):
+                if 'change_project' in get_group_perms(group, instance):
                     remove_perm('change_project', group, instance)
         if action == 'post_add':
             for group in instance.edit_groups.all():
-                if 'view_project' not in get_group_perms(group, instance):
+                if 'change_project' not in get_group_perms(group, instance):
                     assign_perm('change_project', group, instance)
 
 def change_permission_owner(self):

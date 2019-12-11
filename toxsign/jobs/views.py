@@ -17,6 +17,7 @@ from django.http import HttpResponse
 from mimetypes import guess_type
 from django.urls import reverse_lazy
 
+from config.views import paginate
 
 from toxsign.jobs.models import Job
 from celery.result import AsyncResult
@@ -51,17 +52,23 @@ def DownloadView(request, pk, file_name):
         return response
 
 
-class RunningJobsView(LoginRequiredMixin, generic.ListView):
+class RunningJobsView(generic.ListView):
     model = Job
     template_name = 'jobs/running_jobs.html'
 
     def get_context_data(self, **kwargs):
         context = super(RunningJobsView, self).get_context_data(**kwargs)
-        context['jobs_list'] = Job.objects.filter(created_by__exact=self.request.user.id)
-        for job in context['jobs_list']:
-            if job.status != "SUCCESS":
+        if self.request.user.is_authenticated:
+            jobs = Job.objects.filter(created_by__exact=self.request.user.id)
+        else:
+            jobs = Job.objects.filter(created_by=None)
+        jobs = paginate(jobs, self.request.GET.get('jobs'), 10)
+        for job in jobs:
+            if job.status == "PENDING":
                 job.status = AsyncResult(job.celery_task_id).state
-                job.save()
+                if job.status != "PENDING":
+                    job.save()
+        context['jobs_list'] = jobs
         return context
 
 def Delete_job(request, pk):
@@ -71,7 +78,7 @@ def Delete_job(request, pk):
     context = {}
     context['jobs_list'] = Job.objects.filter(created_by__exact=request.user.id)
     for job in context['jobs_list']:
-        if job.status != "SUCCESS":
+        if job.status != "PENDING":
             job.status = AsyncResult(job.celery_task_id).state
             job.save()
 

@@ -1,6 +1,11 @@
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip();
+});
+
 $(function () {
 
   /* Functions */
+
   var loadForm = function () {
     var btn = $(this);
     $.ajax({
@@ -14,7 +19,6 @@ $(function () {
         $("#modal-group .modal-content").html(data.html_form);
       }
     });
-    return false;
   };
 
   var saveForm = function () {
@@ -26,7 +30,7 @@ $(function () {
       dataType: 'json',
       success: function (data) {
         if (data.form_is_valid) {
-            window.location.href = data.redirect;
+            window.location.href = data.redirect
         }
         else {
           $("#modal-group .modal-content").html(data.html_form);
@@ -39,26 +43,7 @@ $(function () {
     return false;
   };
 
-  var send_action = function () {
-    var btn = $(this);
-    $.ajax({
-      url: btn.attr("data-url"),
-      data: [{name: 'csrfmiddlewaretoken', value: token }],
-      type: 'post',
-      dataType: 'json',
-      success: function (data) {
-        if (data.form_is_valid) {
-            window.location.href = data.redirect;
-        }
-      }
-    });
-      return false;
-  };
-
   /* Binding */
-    $("#notification_list").on("click", ".js-refuse-invitation", loadForm);
-    $("#notification_list").on("click", ".js-notif-action", send_action);
-    $("#groups").on("click", ".js-create", loadForm);
-    $("#superprojects").on("click", ".js-create", loadForm);
-    $("#modal-group").on("submit", ".js-form", saveForm);
+    $("#button-div").on("click", ".js-make-public", loadForm);
+    $("#modal-group").on("submit", ".js-make-public-form", saveForm);
 });

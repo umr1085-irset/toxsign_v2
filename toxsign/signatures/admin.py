@@ -5,8 +5,9 @@ from django.contrib.auth import get_user_model
 from toxsign.signatures.models import Signature
 class SignatureAdmin(admin.ModelAdmin):
     fieldsets = [
-        (None,               {'fields': ['name', 
+        (None,               {'fields': ['name',
         'created_by',
+        'tsx_id',
         'signature_type',
         'phenotype_description',
         'experimental_design',

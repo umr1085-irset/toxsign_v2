@@ -70,7 +70,11 @@ class signature_compute_form(forms.Form):
         self.signatures = kwargs.pop('signatures')
         super(signature_compute_form, self).__init__(*args, **kwargs)
 
-        self.fields["signature"] = forms.ModelChoiceField(queryset=self.signatures, label="Signature")
+        self.fields["signature"] = forms.ModelChoiceField(
+            queryset=self.signatures,
+            label="Signature",
+            widget=autocomplete.ModelSelect2(url='/signatures/signature-autocomplete', attrs={'data-minimum-input-length': 3})
+        )
 
         self.helper = FormHelper(self)
         self.helper.form_class = 'form-horizontal'

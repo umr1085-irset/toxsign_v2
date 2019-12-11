@@ -8,11 +8,15 @@ from django.shortcuts import redirect
 from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import get_perms
 
+from django.template.loader import render_to_string
+from django.http import JsonResponse
 from toxsign.assays.models import Assay, Factor
 from toxsign.projects.models import Project
 from toxsign.projects.forms import ProjectCreateForm, ProjectEditForm
 from toxsign.signatures.models import Signature
 from toxsign.superprojects.models import Superproject
+
+from django.core.mail import mail_admins
 
 # TODO : clear 403 page redirect (page with an explanation?)
 def DetailView(request, prjid):
@@ -68,11 +72,36 @@ class CreateProjectView(LoginRequiredMixin, CreateView):
         self.object.created_by = get_user(self.request)
         return super(CreateProjectView, self).form_valid(form)
 
-def check_view_permissions(user, project, strict=False):
+def publicize_project(request, prjid):
+
+    project = Project.objects.get(tsx_id=prjid)
+    if not project.status == "PRIVATE":
+        return redirect(reverse("projects:detail", kwargs={"prjid": prjid}))
+
+    if not request.user == project.created_by:
+        return redirect('/unauthorized')
+
+    data = dict()
+    if request.method == 'POST':
+        project.status = "PENDING"
+        project.save()
+        body = "User {} requested project {} to be publicized. Project is in pending state.".format(project.created_by, project.tsx_id)
+        mail_admins("Project publicize request : " + project.tsx_id, body)
+        data['redirect'] = reverse("projects:detail", kwargs={"prjid": prjid})
+        data['form_is_valid'] = True
+    else:
+       context = {'project': project}
+       data['html_form'] = render_to_string('projects/partial_project_public.html',
+           context,
+           request=request,
+       )
+    return JsonResponse(data)
+
+def check_view_permissions(user, project, strict=False, allow_superuser=True):
     has_access = False
     if project.status == "PUBLIC" and not strict:
         has_access = True
-    elif user.is_superuser:
+    elif allow_superuser and user.is_superuser:
         has_access = True
     elif user.is_authenticated and 'view_project' in get_perms(user, project):
         has_access = True
@@ -81,8 +110,6 @@ def check_view_permissions(user, project, strict=False):
 
 def check_edit_permissions(user, project, need_owner=False):
     has_access = False
-    if user.is_superuser:
-        has_access = True
 
     if not need_owner:
         if user.is_authenticated and 'change_project' in get_perms(user, project) and not need_owner:
@@ -90,6 +117,13 @@ def check_edit_permissions(user, project, need_owner=False):
     else:
         if user == project.created_by:
             has_access = True
+
+    # Stop modification when public
+    if project.status == "PUBLIC":
+        has_access = False
+
+    if user.is_superuser:
+        has_access = True
 
     return has_access
 

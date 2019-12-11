@@ -19,11 +19,31 @@ class SignatureDocument(Document):
         'username': fields.TextField()
     })
 
+    organism = fields.NestedField(properties={
+        'id': fields.TextField(),
+    })
+
+    tissue = fields.NestedField(properties={
+        'id': fields.TextField(),
+    })
+
+    cell = fields.NestedField(properties={
+        'id': fields.TextField(),
+    })
+
+    cell_line = fields.NestedField(properties={
+        'id': fields.TextField(),
+    })
+
+    chemical = fields.NestedField(properties={
+        'id': fields.TextField(),
+    })
+
     disease = fields.NestedField(properties={
         'id': fields.TextField(),
     })
 
-    organism = fields.NestedField(properties={
+    technology = fields.NestedField(properties={
         'id': fields.TextField(),
     })
 
@@ -51,7 +71,15 @@ class SignatureDocument(Document):
     def get_queryset(self):
         """Not mandatory but to improve performance we can select related in one sql request"""
         return super(SignatureDocument, self).get_queryset().select_related(
-            'factor'
+            'factor__assay__project',
+            'created_by',
+            'organism',
+            'tissue',
+            'cell',
+            'cell_line',
+            'chemical',
+            'disease',
+            'technology'
         )
 
     def get_instances_from_related(self, related_instance):

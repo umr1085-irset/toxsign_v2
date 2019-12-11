@@ -96,6 +96,7 @@ def launch_import(apps, schema_editor):
 
     if not os.path.exists("/app/loading_data/ontologies/TOXsIgN_ontologies.csv"):
         print("Not TOXsIgN_ontologies.csv file found. Skipping...")
+        return
 
     start = time.time()
     # Maybe a lock for each table insead of just one?
@@ -138,6 +139,7 @@ class Migration(migrations.Migration):
         ('signatures', '0010_signature_cell_line_slug'),
         ('assays', '0010_assay_cell_line_slug'),
         ('projects', '0010_auto_20191112_0949_squashed_0011_auto_20191112_0951'),
+        ('users', '0006_notification_created_at'),
     ]
 
     operations = [

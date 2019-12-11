@@ -22,16 +22,16 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 
 
   var margin = {
-					top : 10,
-					right : 90,
+					top : 20,
+					right : 0,
 					bottom : 100,
-					left : 90
+					left : 10
 				 };
 
-  var rectNode = { width : 140, height : 60, textMargin : 5 };
+  var rectNode = { width : 140, height : 80, textMargin : 5 };
 
-  var width = max_Parallel * (rectNode.width + 40) + 100 - margin.right - margin.left;
-  var height = max_Depth * (rectNode.height * 1.5) + 50 - margin.top - margin.bottom;
+  var height = max_Parallel * (rectNode.height + 20) + 50 - margin.top - margin.bottom;
+  var width = max_Depth * (rectNode.width * 1.5) + 100 - margin.top - margin.bottom;
 
 
   var colorScale = d3.scaleLinear()
@@ -49,9 +49,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
       .attr("height", height + margin.top + margin.bottom)
       .attr('class', 'svgContainer')
       .append('g')
-      .attr("transform", "translate("
-          + margin.left  + "," + margin.top + ")");
-
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
   var tip = d3.tip().attr('class', 'd3-tip').direction('e').offset([-10,10])
     .html(function(d) {
@@ -70,13 +68,13 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
       isKeydownZoom = false;
 
   // declares a tree layout and assigns the size
-  var treemap = d3.tree().size([width, height]);
+  var treemap = d3.tree().size([height, width]);
   //var treemap = d3.tree().nodeSize([width, height]);
 
   // Assigns parent, children, height, depth
   root = d3.hierarchy(treeData, function(d) { return d.children; });
 
-  root.x0 = (width-rectNode.width)/2;
+  root.x0 = width / 2;
   root.y0 = 0;
 
 
@@ -124,10 +122,11 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
     breadthFirstTraversal(nodes, collision);
 
     nodes.forEach(function(d){
-      d.y = d.depth * (rectNode.height * 1.5)
+      console.log(d.x +" " +d.y)
+      d.y = d.depth * (rectNode.width * 1.5)
       // Force centering on center of node, not on corner
-      d.y = d.y + (rectNode.height/2)
-      d.x = d.x - (rectNode.width/2)
+      //d.y = d.y + (rectNode.height/2)
+      //d.x = d.x - (rectNode.width/2)
 
     });
 
@@ -142,7 +141,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
     var nodeEnter = node.enter().insert('g', 'g.node')
         .attr('class', 'node')
         .attr("transform", function(d) {
-          return "translate(" + source.x0 + "," + source.y0 + ")";
+          return "translate(" + source.y0 + "," + source.x0 + ")";
       })
       .on('click', click);
 
@@ -192,7 +191,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
     // Transition to the proper position for the node
     nodeUpdate.transition().duration(duration)
       .attr("transform", function(d) {
-            return "translate(" + d.x + "," + d.y + ")";});
+            return "translate(" + d.y + "," + d.x + ")";});
 
     // Update the node attributes and style
     nodeUpdate.select('rect')
@@ -208,7 +207,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
     // Remove any exiting nodes
     var nodeExit = node.exit().transition().duration(duration)
         .attr("transform", function(d) {
-            return "translate(" + source.x + "," + source.y + ")";})
+            return "translate(" + source.y + "," + source.x + ")";})
         .remove();
 
     nodeExit.select('text').style('fill-opacity', 1e-6);
@@ -245,7 +244,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
     var linkExit = link.exit().transition()
         .duration(duration)
         .attr('d', function(d) {
-          var o = {x: source.x, y: source.y}
+          var o = {x: source.x0, y: source.y0}
           return diagonal(o, o)
         })
         .style('stroke-width', function(d){
@@ -262,12 +261,12 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
     // Creates a curved (diagonal) path from parent to the child nodes
     function diagonal(s, d) {
             var p0 = {
-                   x : s.x + rectNode.width/2,
+                   x : s.x + rectNode.height/2,
                    y : s.y
             },
         p3 = {
-                   x : d.x + rectNode.width/2 ,
-                   y : d.y + rectNode.height // -12, so the end arrows are just before the rect node
+                   x : d.x + rectNode.height/2,
+                   y : d.y + rectNode.width
             },
         m = (p0.y + p3.y) / 2,
         p = [ p0, {
@@ -278,7 +277,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
                    y : m
             }, p3 ];
             p = p.map(function(d) {
-                   return [ d.x, d.y ];
+                   return [ d.y, d.x ];
             });
             return 'M' + p[0] + 'C' + p[1] + ' ' + p[2] + ' ' + p[3];
     };
@@ -300,8 +299,9 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 	  if (siblings) {
 		  for (var i = 0; i < siblings.length - 1; i++)
 		  {
-			  if (siblings[i + 1].x - (siblings[i].x + rectNode.width) < minPadding)
-				  siblings[i + 1].x = siblings[i].x + rectNode.width + minPadding;
+			  if (siblings[i + 1].x - (siblings[i].x + rectNode.height) < minPadding){
+				  siblings[i + 1].x = siblings[i].x + rectNode.height + minPadding;
+              }
 		  }
 	  }
   }
