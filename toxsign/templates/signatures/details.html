@@ -45,7 +45,7 @@
                 <tr>
                   <th scope="row">Organism</th>
                   <td>
-                    {% onto_value signature.organism "m2m" as organism %}
+                    {% onto_value signature.organism  as organism %}
                     {% if organism == "Homo sapiens" %} <img src="{% static 'images/species/Homo_sapiens.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
                     {% if organism == "Canis familiaris" %} <img src="{% static 'images/species/Canis_familiaris.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
                     {% if organism == "Danio rerio" %} <img src="{% static 'images/species/Danio_rerio.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
@@ -61,7 +61,7 @@
                   <tr>
                     <th scope="row">Tissue</th>
                     <td>
-                      {% onto_value signature.tissue "m2m" as tissue %}
+                      {% onto_value signature.tissue as tissue %}
                       {% if tissue == "Liver" or tissue == "liver" %} <img src="{% static 'images/organs/png/028-liver.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
                       {% if tissue == "Kidney" or tissue == "kidney" %} <img src="{% static 'images/organs/png/008-kidneys-1.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
                       {% if tissue == "Brain" or tissue == "brain" %} <img src="{% static 'images/organs/png/002-brain.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
@@ -360,6 +360,5 @@
           ]
         },
     });
-    {% endif %}
   </script>
 {% endblock%}
