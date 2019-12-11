@@ -62,17 +62,16 @@
                     <th scope="row">Tissue</th>
                     <td>
                       {% onto_value signature.tissue "m2m" as tissue %}
-                      {% if tissue == "Liver" %} <img src="{% static 'images/organs/png/028-liver.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                      {% if tissue == "Kidney" %} <img src="{% static 'images/organs/png/008-kidneys-1.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                      {% if tissue == "Brain" %} <img src="{% static 'images/organs/png/002-brain.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                      {% if tissue == "Lungs" %} <img src="{% static 'images/organs/png/003-lungs.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                      {% if tissue == "Bladder" %} <img src="{% static 'images/organs/png/006-bladder.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                      {% if tissue == "Testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                      {% if tissue == "Heard" %} <img src="{% static 'images/organs/png/023-heart.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                      {% if tissue == "Testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                      {% if tissue == "Ovary" %} <img src="{% static 'images/organs/png/024-uterus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                      {% if tissue == "Stomach" %} <img src="{% static 'images/organs/png/029-stomach.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                      {% if tissue == "Intestine" %} <img src="{% static 'images/organs/png/027-intestine.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if tissue == "Liver" or tissue == "liver" %} <img src="{% static 'images/organs/png/028-liver.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if tissue == "Kidney" or tissue == "kidney" %} <img src="{% static 'images/organs/png/008-kidneys-1.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if tissue == "Brain" or tissue == "brain" %} <img src="{% static 'images/organs/png/002-brain.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if tissue == "Lungs" or tissue == "lungs" %} <img src="{% static 'images/organs/png/003-lungs.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if tissue == "Bladder" or tissue == "bladder" %} <img src="{% static 'images/organs/png/006-bladder.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if tissue == "Heart" or tissue == "heart" %} <img src="{% static 'images/organs/png/023-heart.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if tissue == "Testis" or tissue == "testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if tissue == "Ovary" or tissue == "ovary" %} <img src="{% static 'images/organs/png/024-uterus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if tissue == "Stomach" or tissue == "stomach" %} <img src="{% static 'images/organs/png/029-stomach.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if tissue == "Intestine" or tissue == "intestine" %} <img src="{% static 'images/organs/png/027-intestine.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
                     </td>
                     <td>{% onto_value signature.tissue  %}</td>
                   </tr>
