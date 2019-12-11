@@ -105,34 +105,10 @@
             <h2>Toxicogenomic signature</h2>
             <table class="table">
               <tbody>
-                {% if signature.up_gene_file_path %}
+                {% if signature.up_gene_file_path or signature.up_gene_file_path or signature.interrogated_gene_file_path  %}
                   <tr>
-                    <th scope="row">Upregulated genes file</th>
-                    <td>{{signature.up_gene_file_path.name}}</td>
-                  </tr>
-                {% endif %}
-                {% if signature.down_gene_file_path %}
-                  <tr>
-                    <th scope="row">Downnregulated genes file</th>
-                    <td>{{signature.down_gene_file_path}}</td>
-                  </tr>
-                {% endif %}
-                {% if signature.interrogated_gene_file_path %}
-                  <tr>
-                    <th scope="row">Interrogated genes file</th>
-                    <td>{{signature.interrogated_gene_file_path}}</td>
-                  </tr>
-                {% endif %}
-                {% if signature.expression_values_file %}
-                  <tr>
-                    <th scope="row">Gene expression file</th>
-                    <td>{{signature.expression_values_file}}</td>
-                  </tr>
-                {% endif %}
-                {% if signature.additional_file_path %}
-                  <tr>
-                    <th scope="row">Additional file</th>
-                    <td>{{signature.additional_file_path}}</td>
+                    <th scope="row">Download signature files</th>
+                    <td><a href="{% url 'download_sig' signature.tsx_id  %}" class="btn btn-outline-success" role="button"></a></td>
                   </tr>
                 {% endif %}
               </tbody>
