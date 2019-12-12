@@ -208,8 +208,8 @@
                                 /
                               {% endif %}
                             </td>
-                            {% if signature.sex_type %}<td>{{ signature.get_sex_type_display }} {% else %} /</td>{% endif %}
-                            {% if signature.dev_stage %}<td>{{ signature.get_dev_stage_display }} {% else %} /</td>{% endif %}
+                            <td>{% if signature.sex_type %}{{ signature.get_sex_type_display }} {% else %} / {% endif %}</td>
+                            <td>{% if signature.dev_stage %} {{ signature.get_dev_stage_display }} {% else %} / {% endif %}</td>
                             <td>
                               {{ signature.created_by.username }}
                             </td>
