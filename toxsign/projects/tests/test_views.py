@@ -5,7 +5,7 @@ from django.test import Client
 
 from toxsign.projects.tests.factories import ProjectFactory
 from toxsign.users.tests.factories import UserFactory
-
+from toxsign.groups.tests.factories import GroupFactory
 
 pytestmark = pytest.mark.django_db
 
@@ -23,6 +23,15 @@ class TestProjectDetailView:
         user = django_user_model.objects.create_user(username='random', password='user')
         client.login(username='random', password='user')
         project = ProjectFactory.create(created_by=user)
+        response = client.get(reverse("projects:detail", kwargs={"prjid": project.tsx_id}))
+        response_project = response.context['project']
+        assert project == response_project
+
+    def test_detail_read_groups(self, client, django_user_model):
+        group = GroupFactory.create()
+        project = ProjectFactory.create(read_groups=[group])
+        user = django_user_model.objects.create_user(username='random', password='user', groups=[group])
+        client.login(username='random', password='user')
         response = client.get(reverse("projects:detail", kwargs={"prjid": project.tsx_id}))
         response_project = response.context['project']
         assert project == response_project

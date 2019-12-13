@@ -17,6 +17,9 @@
                         <p><b>Description : </b>{{ superproject.description }}</p>
                         <p><b>Created : </b>{{ superproject.created_at }}</p>
                         <p><b>Owner : </b>{{ superproject.created_by.username }}</p>
+                        {% if user.is_authenticated and superproject.contact_mail %}
+                        <p><b>Contact : </b><a href="mailto:{{superproject.contact_mail}}">{{superproject.contact_mail}}</a></p>
+                       {% endif %}
                     </div>
                     <div class="tab-pane text-style card-body" id="projects">
                         <h2 style='text-align:center;'> List of projects associated to this superproject </h2>

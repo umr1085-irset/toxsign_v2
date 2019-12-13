@@ -2,7 +2,7 @@ from typing import Any, Sequence
 
 from django.contrib.auth import get_user_model
 from factory import DjangoModelFactory, Faker, post_generation
-
+from toxsign.groups.tests.factories import GroupFactory
 
 class UserFactory(DjangoModelFactory):
 
@@ -25,3 +25,14 @@ class UserFactory(DjangoModelFactory):
     class Meta:
         model = get_user_model()
         django_get_or_create = ["username"]
+
+    @post_generation
+    def groups(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            # A list of groups were passed in, use them
+            for group in extracted:
+                self.groups.add(group)

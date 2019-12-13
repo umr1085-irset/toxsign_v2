@@ -11,7 +11,11 @@ class SuperprojectCreateForm(forms.ModelForm):
 
     class Meta:
         model = Superproject
-        fields = ["name", "description"]
+        help_texts = {
+            'contact_mail': 'Mail contact for projects included in this superproject. Will only be visible to logged users.',
+            'description': 'A general description of this superproject'
+        }
+        fields = ["name", "contact_mail", "description"]
 
     def __init__(self, *args, **kwargs):
         super(SuperprojectCreateForm, self).__init__(*args, **kwargs)
