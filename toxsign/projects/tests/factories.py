@@ -21,7 +21,7 @@ class ProjectFactory(DjangoModelFactory):
         if extracted:
             # A list of groups were passed in, use them
             for group in extracted:
-                self.edit_groups.add(group)
+                self.read_groups.add(group)
     @post_generation
     def edit_groups(self, create, extracted, **kwargs):
         if not create:
@@ -31,4 +31,4 @@ class ProjectFactory(DjangoModelFactory):
         if extracted:
             # A list of groups were passed in, use them
             for group in extracted:
-                self.read_groups.add(group)
+                self.edit_groups.add(group)
