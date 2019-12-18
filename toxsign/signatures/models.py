@@ -166,9 +166,7 @@ class Signature(models.Model):
 @receiver(models.signals.post_delete, sender=Signature)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
     # Delete the folder
-    if(instance.expression_values_file):
-        folder_path = os.path.dirname(instance.expression_values_file.path)
-        if os.path.exists(folder_path):
-            shutil.rmtree(folder_path)
-
-
+    local_path = "{}/{}/{}/{}/".format(instance.factor.assay.project.tsx_id, instance.factor.assay.tsx_id, instance.factor.tsx_id, instance.tsx_id)
+    unix_path = settings.MEDIA_ROOT + "/files/" + local_path
+    if(os.path.exists(unix_path)):
+        shutil.rmtree(unix_path)
