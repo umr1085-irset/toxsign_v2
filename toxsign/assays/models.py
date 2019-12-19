@@ -4,6 +4,10 @@ from django.urls import reverse
 from django.db import models
 from django.contrib.auth.models import  User, Group
 from django.conf import settings
+from django.dispatch import receiver
+
+import shutil
+import os
 
 from toxsign.projects.models import Project
 from toxsign.ontologies.models import Biological, Cell, CellLine, Chemical, Disease, Experiment, Species, Tissue
@@ -141,3 +145,19 @@ class ChemicalsubFactor(models.Model):
     # Redirect to factor page
     def get_absolute_url(self):
         return reverse('assays:factor_detail', kwargs={"facid": self.factor.tsx_id})
+
+@receiver(models.signals.post_delete, sender=Assay)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    # Delete the folder
+    local_path = "{}/{}/".format(instance.project.tsx_id, instance.tsx_id)
+    unix_path = settings.MEDIA_ROOT + "/files/" + local_path
+    if(os.path.exists(unix_path)):
+        shutil.rmtree(unix_path)
+
+@receiver(models.signals.post_delete, sender=Factor)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    # Delete the folder
+    local_path = "{}/{}/{}/".format(instance.assay.project.tsx_id, instance.assay.tsx_id, instance.tsx_id)
+    unix_path = settings.MEDIA_ROOT + "/files/" + local_path
+    if(os.path.exists(unix_path)):
+        shutil.rmtree(unix_path)
