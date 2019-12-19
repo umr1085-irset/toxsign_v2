@@ -13,3 +13,4 @@ django-storages[boto3]==1.7.1  # https://github.com/jschneier/django-storages
 django-anymail[mailgun]==6.0  # https://github.com/anymail/django-anymail
 
 pandas
+beautifulsoup4

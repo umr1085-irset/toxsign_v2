@@ -18,3 +18,10 @@ class Gene(models.Model):
 
     def __str__(self):
         return self.gene_id
+
+class Pathway(models.Model):
+
+    name = models.CharField(max_length=200)
+    pathway_id = models.CharField(max_length=50)
+    organism =  models.CharField(max_length=50)
+    genes = models.ManyToManyField(Gene, related_name="pathways")
