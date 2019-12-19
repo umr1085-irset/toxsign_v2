@@ -96,7 +96,7 @@ def get_urls(url, base_url_layout):
     page = requests.get(url)
     soup = BeautifulSoup(page.text, 'html.parser')
     urls = set([link.get('href') for link in soup.find('table').findAll('a')])
-    url_dict
+    url_dict = {}
     for url in urls:
         search = re.search(r"wikipathways-(\d+)-gpml-(.+)\.zip", url)
         url_dict[search.group(2)] = {'url': base_url_layout.format(search.group(1), search.group(2)), 'release': search.group(1)}

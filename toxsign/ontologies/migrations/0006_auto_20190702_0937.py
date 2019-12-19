@@ -140,6 +140,7 @@ class Migration(migrations.Migration):
         ('assays', '0010_assay_cell_line_slug'),
         ('projects', '0010_auto_20191112_0949_squashed_0011_auto_20191112_0951'),
         ('users', '0006_notification_created_at'),
+        ('superprojects', '0002_superproject_contact_mail'),
     ]
 
     operations = [
