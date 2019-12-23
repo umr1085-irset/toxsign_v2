@@ -146,17 +146,23 @@ class ChemicalsubFactor(models.Model):
     def get_absolute_url(self):
         return reverse('assays:factor_detail', kwargs={"facid": self.factor.tsx_id})
 
-@receiver(models.signals.post_delete, sender=Assay)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
+@receiver(models.signals.pre_delete, sender=Assay)
+def auto_delete_assay_on_delete(sender, instance, **kwargs):
     # Delete the folder
+    if not instance.project:
+        return
+
     local_path = "{}/{}/".format(instance.project.tsx_id, instance.tsx_id)
     unix_path = settings.MEDIA_ROOT + "/files/" + local_path
     if(os.path.exists(unix_path)):
         shutil.rmtree(unix_path)
 
-@receiver(models.signals.post_delete, sender=Factor)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
+@receiver(models.signals.pre_delete, sender=Factor)
+def auto_delete_factor_on_delete(sender, instance, **kwargs):
     # Delete the folder
+    if not instance.assay or not instance.assay.project:
+        return
+
     local_path = "{}/{}/{}/".format(instance.assay.project.tsx_id, instance.assay.tsx_id, instance.tsx_id)
     unix_path = settings.MEDIA_ROOT + "/files/" + local_path
     if(os.path.exists(unix_path)):

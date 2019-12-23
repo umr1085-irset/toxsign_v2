@@ -96,8 +96,8 @@ def update__permissions_write(sender, instance, action, **kwargs):
                 if 'change_project' not in get_group_perms(group, instance):
                     assign_perm('change_project', group, instance)
 
-@receiver(models.signals.post_delete, sender=Project)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
+@receiver(models.signals.pre_delete, sender=Project)
+def auto_delete_project_on_delete(sender, instance, **kwargs):
     # Delete the folder
     local_path = "{}/".format(instance.tsx_id)
     unix_path = settings.MEDIA_ROOT + "/files/" + local_path

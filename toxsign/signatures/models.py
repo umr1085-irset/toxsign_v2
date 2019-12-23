@@ -163,9 +163,11 @@ class Signature(models.Model):
         self.__old_all = self.interrogated_gene_file_path
         self.__old_add = self.additional_file_path
 
-@receiver(models.signals.post_delete, sender=Signature)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
+@receiver(models.signals.pre_delete, sender=Signature)
+def auto_delete_signature_on_delete(sender, instance, **kwargs):
     # Delete the folder
+    if not instance.factor or not instance.factor.assay or not instance.factor.assay.project:
+        return
     local_path = "{}/{}/{}/{}/".format(instance.factor.assay.project.tsx_id, instance.factor.assay.tsx_id, instance.factor.tsx_id, instance.tsx_id)
     unix_path = settings.MEDIA_ROOT + "/files/" + local_path
     if(os.path.exists(unix_path)):
