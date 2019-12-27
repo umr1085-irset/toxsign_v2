@@ -3,25 +3,25 @@
 import os
 
 from django.core.management.base import BaseCommand, CommandError
-from _users import process_users, get_user_dict
-from _projects import process_projects, get_project_dict
-from _studies import process_studies
-from _assays import process_assays, get_assay_dict
-from _factors import process_factors, get_corres_dict
-from _signatures import process_signatures, populate_signatures
+from ._users import process_users, get_user_dict
+from ._projects import process_projects, get_project_dict
+from ._studies import process_studies
+from ._assays import process_assays, get_assay_dict
+from ._factors import process_factors, get_corres_dict
+from ._signatures import process_signatures, populate_signatures
 
 
 def launch_data(bson_folder, signature_data_folder, admin_mail, admin_password):
-    process_users(os.path.join(bson_folder, 'users.bson', admin_mail, admin_password))
+    process_users(os.path.join(bson_folder, 'users.bson'), admin_mail, admin_password)
     users = get_user_dict()
     studies = process_studies(os.path.join(bson_folder, 'studies.bson'))
-    process_projects(os.path.join(bson_folder, 'projects.bson', users))
+    process_projects(os.path.join(bson_folder, 'projects.bson'), users)
     projects = get_project_dict()
-    process_assays(os.path.join(bson_folder, 'assays.bson', studies, users, projects))
+    process_assays(os.path.join(bson_folder, 'assays.bson'), studies, users, projects)
     assays = get_assay_dict()
-    process_factors(os.path.join(bson_folder, 'factors.bson',  users, assays))
+    process_factors(os.path.join(bson_folder, 'factors.bson'),  users, assays)
     corresp = get_corres_dict()
-    process_signatures(os.path.join(bson_folder, 'signatures.bson', users, corresp))
+    process_signatures(os.path.join(bson_folder, 'signatures.bson'), users, corresp)
     populate_signatures(os.path.join(bson_folder, 'signatures.bson'), os.path.join(signature_data_folder, ''))
 
 class Command(BaseCommand):

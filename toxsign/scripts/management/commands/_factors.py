@@ -1,6 +1,6 @@
 import bson
-from users import get_owner
-from ontologies import get_ontology, get_ontology_slug
+from ._users import get_owner
+from ._ontologies import get_ontology, get_ontology_slug
 from toxsign.assays.models import Factor, ChemicalsubFactor
 
 

@@ -1,5 +1,5 @@
 import bson
-from users import get_owner
+from ._users import get_owner
 from toxsign.projects.models import Project
 
 def process_projects(path, user_dict):
