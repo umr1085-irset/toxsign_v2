@@ -16,7 +16,7 @@ class UserCreationForm(forms.UserCreationForm):
 
     class Meta(forms.UserCreationForm.Meta):
         model = User
-        fields = ['name', 'last_name', 'institut', 'email', 'username', 'password', 'password1']
+        fields = ['name', 'last_name', 'institut', 'email', 'username']
         labels = {
             "name": "Name",
             "last_name": "Last name",
