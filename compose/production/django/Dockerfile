@@ -9,8 +9,8 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.7.10-Linux-x86
     echo "envs_dirs:" > /root/.condarc && \
     echo "  - /app/tools/conda_envs" >> /root/.condarc
 
-RUN addgroup -S django \
-    && adduser -S -G django django
+RUN addgroup --system django \
+    && adduser --system --ingroup django django
 
 # Requirements are installed here to ensure they will be cached.
 COPY ./requirements /requirements
@@ -41,7 +41,10 @@ RUN sed -i 's/\r$//g' /start-flower
 RUN chmod +x /start-flower
 COPY . /app
 
+RUN mkdir /app/staticfiles
+
 RUN chown -R django /app
+
 
 USER django
 

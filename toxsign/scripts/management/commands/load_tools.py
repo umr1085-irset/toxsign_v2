@@ -13,6 +13,10 @@ import os, shutil
 
 def populate_default_tools():
 
+    if os.path.exists('/app/toxsign/media/tools'):
+        shutil.rmtree('/app/toxsign/media/tools')
+        os.mkdir('/app/toxsign/media/tools')
+
     search_category = _create_category(name='Search tools', description='Tools used to search through entities on this website')
     compare_category = _create_category(name='Comparison tools', description='Tools used to make comparisons between signatures')
     analyze_category = _create_category(name='Analysis tools', description='Tools used to analyze signatures')
@@ -108,7 +112,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Cleanup to avoid duplicate in tools images
-        if os.path.exists('/app/toxsign/media/tools'):
-            shutil.rmtree('/app/toxsign/media/tools')
-            os.mkdir('/app/toxsign/media/tools')
         populate_default_tools()
