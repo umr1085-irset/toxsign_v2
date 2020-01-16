@@ -1,11 +1,7 @@
 from django.contrib.auth import get_user_model, forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
-from toxsign.users.models import Notification
-
-
-User = get_user_model()
-
+from toxsign.users.models import Notification, User
 
 class UserChangeForm(forms.UserChangeForm):
     class Meta(forms.UserChangeForm.Meta):
@@ -20,6 +16,12 @@ class UserCreationForm(forms.UserCreationForm):
 
     class Meta(forms.UserCreationForm.Meta):
         model = User
+        fields = ['name', 'last_name', 'institut', 'email', 'username', 'password', 'password1']
+        labels = {
+            "name": "Name",
+            "last_name": "Last name",
+            "institut": "Institute"
+        }
 
     def clean_username(self):
         username = self.cleaned_data["username"]
