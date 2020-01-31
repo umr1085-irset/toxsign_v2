@@ -108,7 +108,7 @@
                 {% if signature.up_gene_file_path or signature.up_gene_file_path or signature.interrogated_gene_file_path  %}
                   <tr>
                     <th scope="row">Download signature files</th>
-                    <td><a href="{% url 'download_sig' signature.tsx_id  %}" class="btn btn-outline-success" role="button"></a></td>
+                    <td><a href="{% url 'download_sig' signature.tsx_id  %}" class="btn btn-outline-success" role="button">Download</a></td>
                   </tr>
                 {% endif %}
               </tbody>
@@ -117,7 +117,11 @@
           <div class="col-md-4 mb-5">
             <h2>Overview</h2>
             <hr>
-            <canvas id="myChart"></canvas>
+            {% if signature.up_gene_number > 0 or signature.down_gene_number > 0 %}
+              <canvas id="myChart"></canvas>
+            {% else %}
+              <p>No up/down regulated genes</p>
+            {% endif %}
           </div>
       </div>
 
