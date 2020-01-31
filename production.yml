@@ -3,8 +3,6 @@ version: '3'
 volumes:
   production_postgres_data: {}
   production_postgres_data_backups: {}
-  static_volume: {}
-  media_volume: {}
 
 services:
   django: &django
@@ -16,8 +14,7 @@ services:
       - postgres
       - redis
     volumes:
-       - static_volume:/app/staticfiles
-       - media_volume:/app/toxsign/media
+       - .:/app
     env_file:
       - ./.envs/.production/.django
       - ./.envs/.production/.postgres
@@ -45,8 +42,8 @@ services:
       dockerfile: ./compose/production/nginx/Dockerfile
     image: toxsign_production_nginx
     volumes:
-      - static_volume:/app/staticfiles
-      - media_volume:/app/toxsign/media
+      - ./staticfiles:/app/staticfiles
+      - ./toxsign/media:/app/toxsign/media
     depends_on:
       - django
       - flower
