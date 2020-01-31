@@ -1,4 +1,4 @@
-FROM nickgryg/alpine-pandas
+FROM nickgryg/alpine-pandas:3.7.6
 
 ENV PYTHONUNBUFFERED 1
 

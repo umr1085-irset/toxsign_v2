@@ -22,6 +22,12 @@ from config.views import paginate
 from toxsign.jobs.models import Job
 from celery.result import AsyncResult
 
+from django.utils.timezone import now
+from datetime import timedelta
+from celery.schedules import crontab
+from toxsign.taskapp.celery import app
+
+
 def DetailView(request, pk):
     job = get_object_or_404(Job, pk=pk)
     file_list = []
@@ -62,6 +68,7 @@ class RunningJobsView(generic.ListView):
             jobs = Job.objects.filter(created_by__exact=self.request.user.id)
         else:
             jobs = Job.objects.filter(created_by=None)
+        jobs = jobs.order_by('-id')
         jobs = paginate(jobs, self.request.GET.get('jobs'), 10)
         for job in jobs:
             if job.status == "PENDING":
@@ -83,3 +90,17 @@ def Delete_job(request, pk):
             job.save()
 
     return render(request, 'jobs/running_jobs.html', context)
+
+@app.on_after_configure.connect
+def cron_cleanup(sender, **kwargs):
+    sender.add_periodic_task(
+        crontab(hour=0, minute=0, day_of_week=1),
+        cleanup_jobs.s(),
+    )
+
+@app.task
+def cleanup_jobs():
+    # Clean anonymous jobs older than 7 days
+    Job.objects.filter(updated_at__lte= now()-timedelta(days=7), created_by=None).delete()
+    # Clean pending jobs?
+

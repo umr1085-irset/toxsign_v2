@@ -4,6 +4,12 @@ from toxsign.assays.models import Factor
 from toxsign.signatures.models import Signature
 from toxsign.ontologies.models import *
 
+from elasticsearch_dsl import normalizer
+
+lowercase = normalizer('my_analyzer',
+    filter=['lowercase']
+)
+
 @registry.register_document
 class SignatureDocument(Document):
 
@@ -47,7 +53,7 @@ class SignatureDocument(Document):
         'id': fields.TextField(),
     })
 
-    tsx_id = fields.KeywordField()
+    tsx_id = fields.KeywordField(normalizer=lowercase)
 
     class Index:
         # Name of the Elasticsearch index

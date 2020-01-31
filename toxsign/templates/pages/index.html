@@ -27,6 +27,9 @@
                 {% include "pages/paginate.html" %}
                 {% endwith %}
                 {% endif %}
+                {% if not superproject_list.count %}
+                    <p>There are no superprojects yet.</p>
+                {% endif %}
               </div>
               <div class="tab-pane text-style card-body {{is_active.project}}" id="tab2">
                 {% for project in project_list %}

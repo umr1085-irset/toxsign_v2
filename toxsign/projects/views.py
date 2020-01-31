@@ -31,7 +31,8 @@ def DetailView(request, prjid):
 
 # TODO : clear 403 page redirect (page with an explanation?)
 class EditProjectView(PermissionRequiredMixin, UpdateView):
-    permission_required = 'change_project'
+    # Only owner has delete_project perm
+    permission_required = ['change_project', 'delete_project']
     model = Project
     login_url = "/unauthorized"
     redirect_field_name="edit"
@@ -46,7 +47,12 @@ class EditProjectView(PermissionRequiredMixin, UpdateView):
         return kwargs
 
     def get_object(self, queryset=None):
-        return Project.objects.get(tsx_id=self.kwargs['prjid'])
+        project = Project.objects.get(tsx_id=self.kwargs['prjid'])
+        if project.status == "PUBLIC":
+            return None
+        else:
+            return project
+
 
 class CreateProjectView(LoginRequiredMixin, CreateView):
     model = Project

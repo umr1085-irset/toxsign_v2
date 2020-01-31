@@ -43,6 +43,7 @@ def run_distance(self, signature_id, user_id=None):
 
     os.mkdir(job_dir_path)
 
+
     # If is logged, get all available (private one) signs to him
     signatures = []
     if user_id:
@@ -62,10 +63,17 @@ def run_distance(self, signature_id, user_id=None):
         logger.exception("Temp directory with this task id ({}) already exists. Stopping..".format(task_id))
         raise TaskFailure('test')
 
+    current_job = Job.objects.get(celery_task_id=self.request.id)
+    current_job.results = {'tmp_folder': temp_dir_path}
+    current_job.save()
+
     run = subprocess.run(['/bin/bash', '/app/tools/run_dist/run_dist.sh', temp_dir_path, job_dir_path, temp_dir_path + selected_signature.tsx_id + ".sign"], capture_output=True)
-    logger.info(run.stdout.decode())
 
     if not run.returncode == 0:
+        if os.path.exists(temp_dir_path):
+            os.rmtree(temp_dir_path)
+        current_job.results['error'] = run.stdout.decode()
+        current_job.save()
         logger.exception(run.stderr.decode())
         raise TaskFailure('Error running bash script')
 
@@ -82,7 +90,6 @@ def run_distance(self, signature_id, user_id=None):
         }
     }
 
-    current_job = Job.objects.get(celery_task_id=self.request.id)
     current_job.results = results
     current_job.save()
 
@@ -117,11 +124,18 @@ def run_enrich(self, signature_id):
         logger.exception("Temp directory with this task id ({}) already exists. Stopping..".format(task_id))
         raise TaskFailure('test')
 
+    current_job = Job.objects.get(celery_task_id=self.request.id)
+    current_job.results = {'tmp_folder': temp_dir_path}
+    current_job.save()
 
     run = subprocess.run(['/bin/bash', '/app/tools/run_enrich/run_enrich.sh', temp_dir_path, job_dir_path, temp_dir_path + selected_signature.tsx_id + ".sign"], capture_output=True)
     logger.info(run.stdout.decode())
 
     if not run.returncode == 0:
+        if os.path.exists(temp_dir_path):
+            os.rmtree(temp_dir_path)
+        current_job.results['error'] = run.stdout.decode()
+        current_job.save()
         logger.exception(run.stderr.decode())
         raise TaskFailure('Error running bash script')
 
@@ -140,7 +154,6 @@ def run_enrich(self, signature_id):
     }
 
 
-    current_job = Job.objects.get(celery_task_id=self.request.id)
     current_job.results = results
     current_job.save()
 

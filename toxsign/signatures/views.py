@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.views import generic
 from django.views.generic import CreateView, DetailView, ListView, RedirectView, UpdateView
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
 
 from guardian.mixins import PermissionRequiredMixin
 

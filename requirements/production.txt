@@ -5,11 +5,14 @@
 gunicorn==19.9.0  # https://github.com/benoitc/gunicorn
 psycopg2==2.8 --no-binary psycopg2  # https://github.com/psycopg/psycopg2
 Collectfast==0.6.2  # https://github.com/antonagestam/collectfast
-sentry-sdk==0.7.10  # https://github.com/getsentry/sentry-python
 
 # Django
 # ------------------------------------------------------------------------------
-django-storages[boto3]==1.7.1  # https://github.com/jschneier/django-storages
-django-anymail[mailgun]==6.0  # https://github.com/anymail/django-anymail
+django-extensions==2.1.6
+django-debug-toolbar
+
+xlrd==1.2.0
+Cython==0.29.13
 
 pandas
+beautifulsoup4
