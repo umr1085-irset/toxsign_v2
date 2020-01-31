@@ -45,15 +45,14 @@
                 <tr>
                   <th scope="row">Organism</th>
                   <td>
-                    {% onto_value signature.organism  as organism %}
-                    {% if organism == "Homo sapiens" %} <img src="{% static 'images/species/Homo_sapiens.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
-                    {% if organism == "Canis familiaris" %} <img src="{% static 'images/species/Canis_familiaris.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
-                    {% if organism == "Danio rerio" %} <img src="{% static 'images/species/Danio_rerio.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
-                    {% if organism == "Drosophila melanogaster" %} <img src="{% static 'images/species/Drosophila_melanogaster.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
-                    {% if organism == "Macaca mulatta" %} <img src="{% static 'images/species/Macaca_mulatta.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
-                    {% if organism == "Mus musculus" %} <img src="{% static 'images/species/Mus_musculus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
-                    {% if organism == "Rattus norvegicus" %} <img src="{% static 'images/species/Rattus_norvegicus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
-                    {% if organism == "Sus scrofa" %} <img src="{% static 'images/species/Sus_scrofa.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if signature.organism.name == "Homo sapiens" %} <img src="{% static 'images/species/Homo_sapiens.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if signature.organism.name == "Canis familiaris" %} <img src="{% static 'images/species/Canis_familiaris.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if signature.organism.name == "Danio rerio" %} <img src="{% static 'images/species/Danio_rerio.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if signature.organism.name == "Drosophila melanogaster" %} <img src="{% static 'images/species/Drosophila_melanogaster.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if signature.organism.name == "Macaca mulatta" %} <img src="{% static 'images/species/Macaca_mulatta.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if signature.organism.name == "Mus musculus" %} <img src="{% static 'images/species/Mus_musculus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if signature.organism.name == "Rattus norvegicus" %} <img src="{% static 'images/species/Rattus_norvegicus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if signature.organism.name == "Sus scrofa" %} <img src="{% static 'images/species/Sus_scrofa.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
                   </td>
                   <td>{% onto_value signature.organism  %}</td>
                 </tr>
@@ -61,17 +60,17 @@
                   <tr>
                     <th scope="row">Tissue</th>
                     <td>
-                      {% onto_value signature.tissue as tissue %}
-                      {% if tissue == "Liver" or tissue == "liver" %} <img src="{% static 'images/organs/png/028-liver.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                      {% if tissue == "Kidney" or tissue == "kidney" %} <img src="{% static 'images/organs/png/008-kidneys-1.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                      {% if tissue == "Brain" or tissue == "brain" %} <img src="{% static 'images/organs/png/002-brain.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                      {% if tissue == "Lungs" or tissue == "lungs" %} <img src="{% static 'images/organs/png/003-lungs.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                      {% if tissue == "Bladder" or tissue == "bladder" %} <img src="{% static 'images/organs/png/006-bladder.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                      {% if tissue == "Heart" or tissue == "heart" %} <img src="{% static 'images/organs/png/023-heart.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                      {% if tissue == "Testis" or tissue == "testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                      {% if tissue == "Ovary" or tissue == "ovary" %} <img src="{% static 'images/organs/png/024-uterus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                      {% if tissue == "Stomach" or tissue == "stomach" %} <img src="{% static 'images/organs/png/029-stomach.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                      {% if tissue == "Intestine" or tissue == "intestine" %} <img src="{% static 'images/organs/png/027-intestine.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% onto_value signature.tissue "m2m" as tissue %}
+                      {% if signature.tissue.name == "Liver" or signature.tissue.name == "liver" %} <img src="{% static 'images/organs/png/028-liver.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if signature.tissue.name == "Kidney" or signature.tissue.name == "kidney" %} <img src="{% static 'images/organs/png/008-kidneys-1.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if signature.tissue.name == "Brain" or signature.tissue.name == "brain" %} <img src="{% static 'images/organs/png/002-brain.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if signature.tissue.name == "Lungs" or signature.tissue.name == "lungs" %} <img src="{% static 'images/organs/png/003-lungs.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if signature.tissue.name == "Bladder" or signature.tissue.name == "bladder" %} <img src="{% static 'images/organs/png/006-bladder.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if signature.tissue.name == "Heart" or signature.tissue.name == "heart" %} <img src="{% static 'images/organs/png/023-heart.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if signature.tissue.name == "Testis" or signature.tissue.name == "testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if signature.tissue.name == "Ovary" or signature.tissue.name == "ovary" %} <img src="{% static 'images/organs/png/024-uterus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if signature.tissue.name == "Stomach" or signature.tissue.name == "stomach" %} <img src="{% static 'images/organs/png/029-stomach.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if signature.tissue.name == "Intestine" or signature.tissue.name == "intestine" %} <img src="{% static 'images/organs/png/027-intestine.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
                     </td>
                     <td>{% onto_value signature.tissue  %}</td>
                   </tr>
@@ -108,7 +107,7 @@
                 {% if signature.up_gene_file_path or signature.up_gene_file_path or signature.interrogated_gene_file_path  %}
                   <tr>
                     <th scope="row">Download signature files</th>
-                    <td><a href="{% url 'download_sig' signature.tsx_id  %}" class="btn btn-outline-success" role="button"></a></td>
+                    <td><a href="{% url 'download_sig' signature.tsx_id  %}" class="btn btn-outline-success" role="button">Download</a></td>
                   </tr>
                 {% endif %}
               </tbody>
@@ -117,7 +116,11 @@
           <div class="col-md-4 mb-5">
             <h2>Overview</h2>
             <hr>
-            <canvas id="myChart"></canvas>
+            {% if signature.up_gene_number > 0 or signature.down_gene_number > 0 %}
+              <canvas id="myChart"></canvas>
+            {% else %}
+              <p>No up/down regulated genes</p>
+            {% endif %}
           </div>
       </div>
 
