@@ -60,7 +60,6 @@
                   <tr>
                     <th scope="row">Tissue</th>
                     <td>
-                      {% onto_value signature.tissue "m2m" as tissue %}
                       {% if signature.tissue.name == "Liver" or signature.tissue.name == "liver" %} <img src="{% static 'images/organs/png/028-liver.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
                       {% if signature.tissue.name == "Kidney" or signature.tissue.name == "kidney" %} <img src="{% static 'images/organs/png/008-kidneys-1.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
                       {% if signature.tissue.name == "Brain" or signature.tissue.name == "brain" %} <img src="{% static 'images/organs/png/002-brain.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
