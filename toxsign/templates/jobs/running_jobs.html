@@ -38,7 +38,7 @@
                             {% if "error" in job.results %}
                                 <a class="btn btn-danger">Traceback</a>
                             {% endif %}
-                            {% if not job.created_by %}
+                            {% if job.created_by %}
                             <a href="{% url 'jobs:delete_job' job.id %}" class="btn btn-outline-danger">Delete</a> 
                             {% endif %}
                         </td>
