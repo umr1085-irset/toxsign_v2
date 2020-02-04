@@ -38,7 +38,7 @@
           </div>
       </div>
       <div class="row my-5">
-          <div class="col-md-6 mb-5">
+          <div class="col-md-6">
             <h2>Summary</h2>
             <table class="table">
               <tbody>
@@ -85,7 +85,7 @@
               </tbody>
             </table>
           </div>
-          <div class="col-md-6 mb-5">
+          <div class="col-md-6">
                 <h2>Characteristics</h2>
                 <table class="table">
                   <tbody>
@@ -98,21 +98,8 @@
           </div>
       </div>
        <div class="row my-5">
-          <div class="col-md-8 mb-5">
-            <h2>Toxicogenomic signature</h2>
-            <table class="table">
-              <tbody>
-                {% if signature.up_gene_file_path or signature.up_gene_file_path or signature.interrogated_gene_file_path  %}
-                  <tr>
-                    <th scope="row">Download signature files</th>
-                    <td><a href="{% url 'download_sig' signature.tsx_id  %}" class="btn btn-outline-success" role="button">Download</a></td>
-                  </tr>
-                {% endif %}
-              </tbody>
-            </table>
-          </div>
-          <div class="col-md-4 mb-5">
-            <h2>Overview</h2>
+          <div class="col-md-8">
+            <h2>Overview  {% if signature.up_gene_file_path or signature.up_gene_file_path or signature.interrogated_gene_file_path  %}<a href="{% url 'download_sig' signature.tsx_id  %}" class="btn btn-outline-success" role="button">Download</a><{% endif %}</h2>
             <hr>
             {% if signature.up_gene_number > 0 or signature.down_gene_number > 0 %}
               <canvas id="myChart"></canvas>
@@ -121,6 +108,54 @@
             {% endif %}
           </div>
       </div>
+      <div class="row my-5">
+        <div class="col-md-4">
+              <h2>Genomic signature information</h2>
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <th scope="row">Technology used</th>
+                    <td>
+                      {% onto_value signature.technology  signature.technology_slug %}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Platform</th>
+                    <td>
+                      {{signature.platform}}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+        </div>
+        <div class="col-md-8">
+              <h2>Statistical information</h2>
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <th scope="row">Control samples</th>
+                    <td>{{signature.control_sample_number}}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Treated samples</th>
+                    <td>{{signature.treated_sample_number}}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Pvalue Cutoff</th>
+                    <td>{{signature.pvalue}}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">FC Cutoff</th>
+                    <td>{{signature.cutoff}}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Statistical processing</th>
+                    <td>{{signature.statistical_processing}}</td>
+                  </tr>
+                </tbody>
+              </table>
+        </div>
+    </div>
 
       <h2>Associated Factors</h2>
       
@@ -130,10 +165,10 @@
                   <a href="" data-target="#chemical" data-toggle="tab" class="nav-link active">Chemical ({{factor.chemical_subfactor_of.count}})</a>
               </li>
               <li class="nav-item">
-                  <a href="" data-target="#biological" data-toggle="tab" class="nav-link">Biological (soon)</a>
+                  <a href="" data-target="#biological" data-toggle="tab" class="nav-link {% if factor.biological_subfactor_of.count != 0 %} disable {% endif %}">Biological ({{factor.biological_subfactor_of.count}})</a>
               </li>
               <li class="nav-item">
-                  <a href="" data-target="#physical" data-toggle="tab" class="nav-link">Physical (soon)</a>
+                  <a href="" data-target="#physical" data-toggle="tab" class="nav-link {% if factor.physical_subfactor_of.count != 0 %} disable {% endif %}">Physical ({{factor.physical_subfactor_of.count}})</a>
               </li>
           </ul>
           <div class="tab-content p-b-3" style="margin-top:20px;">
@@ -147,7 +182,7 @@
                 {% endif %}
                 {% for chemical in factor.chemical_subfactor_of.all %}
                   <div class="row my-5">
-                    <div class="col-md-8 mb-5">
+                    <div class="col-md-12">
                       <h2><i class="fas fa-flask"></i> Chemical factor n° {{ forloop.counter }}</h2>
                       <table class="table">
                         <tbody>
@@ -178,12 +213,6 @@
                         </tbody>
                       </table>
                     </div>
-                    <div class="col-md-4 mb-5">
-                      <h2>Additional information</h2>
-                      <hr>
-                      {% if chemical.additional_info %} {{ chemical.additional_info }} {% else %} No additional information provided {% endif %}
-                    </div>
-                  </div>
                 {% endfor %}
               </div>
               <div class="tab-pane" id="biological">
@@ -204,54 +233,7 @@
         </div>
 
 
-      <div class="row my-5">
-          <div class="col-md-4 mb-5">
-                <h2>Genomic signature information</h2>
-                <table class="table">
-                  <tbody>
-                    <tr>
-                      <th scope="row">Technology used</th>
-                      <td>
-                        {% onto_value signature.technology  signature.technology_slug %}
-                      </td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Platform</th>
-                      <td>
-                        {{signature.platform}}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-          </div>
-          <div class="col-md-8 mb-5">
-                <h2>Statistical information</h2>
-                <table class="table">
-                  <tbody>
-                    <tr>
-                      <th scope="row">Control samples</th>
-                      <td>{{signature.control_sample_number}}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Treated samples</th>
-                      <td>{{signature.treated_sample_number}}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Pvalue Cutoff</th>
-                      <td>{{signature.pvalue}}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">FC Cutoff</th>
-                      <td>{{signature.cutoff}}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Statistical processing</th>
-                      <td>{{signature.statistical_processing}}</td>
-                    </tr>
-                  </tbody>
-                </table>
-          </div>
-      </div>
+      
       {% if project.created_by == request.user%}
         <div class="row my-5">
             <div class="col-md-8 mb-5">
@@ -314,58 +296,93 @@
      $(function () {
         $('[data-toggle="tooltip"]').tooltip()
       })
-    var label = ["up-regulated","down-regulated"];
-    var values = [{{signature.up_gene_number}},{{signature.down_gene_number}}];
-    var myDoughnutChart = new Chart("myChart", {
-        type: 'horizontalBar',
-        options:{
-            scales: {
-              xAxes: [{
-                  ticks: {
-                      beginAtZero:true,
-                      fontFamily: "'Open Sans Bold', sans-serif",
-                      fontSize:11
-                  },
-                  scaleLabel:{
-                      display:false
-                  },
-                  gridLines: {
-                  }, 
-                  stacked: true
-              }],
-              yAxes: [{
-                  gridLines: {
-                      display:false,
-                      color: "#fff",
-                      zeroLineColor: "#fff",
-                      zeroLineWidth: 0
-                  },
-                  ticks: {
-                      fontFamily: "'Open Sans Bold', sans-serif",
-                      fontSize:11
-                  },
-                  stacked: true
-              }]
-          },
+      var label = ["up-regulated","down-regulated"];
+      var values = [{{signature.up_gene_number}},{{signature.down_gene_number}}];
+    
+      var barOptions_stacked = {
+        tooltips: {
+            enabled: false
         },
-        data: {
-          labels:label,
-          datasets:[
-            {
-              label:"Signature overview",
-              data:values,
-              backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-              ],
-              borderColor: [
-                  'rgba(255, 99, 132, 1)',
-                  'rgba(54, 162, 235, 1)',
-              ],
-              borderWidth: 1
+        hover :{
+            animationDuration:0
+        },
+        scales: {
+            xAxes: [{
+                ticks: {
+                    beginAtZero:true,
+                    fontFamily: "'Open Sans Bold', sans-serif",
+                    fontSize:11
+                },
+                scaleLabel:{
+                    display:false
+                },
+                gridLines: {
+                }, 
+                stacked: true
+            }],
+            yAxes: [{
+                gridLines: {
+                    display:false,
+                    color: "#fff",
+                    zeroLineColor: "#fff",
+                    zeroLineWidth: 0
+                },
+                ticks: {
+                    fontFamily: "'Open Sans Bold', sans-serif",
+                    fontSize:11
+                },
+                stacked: true
+            }]
+        },
+        legend:{
+            display:false
+        },
+        
+        animation: {
+            onComplete: function () {
+                var chartInstance = this.chart;
+                var ctx = chartInstance.ctx;
+                ctx.textAlign = "left";
+                ctx.font = "9px Open Sans";
+                ctx.fillStyle = "#fff";
+
+                Chart.helpers.each(this.data.datasets.forEach(function (dataset, i) {
+                    var meta = chartInstance.controller.getDatasetMeta(i);
+                    Chart.helpers.each(meta.data.forEach(function (bar, index) {
+                        data = dataset.data[index];
+                        if(i==0){
+                            ctx.fillText(data, 50, bar._model.y+4);
+                        } else {
+                            ctx.fillText(data, bar._model.x-25, bar._model.y+4);
+                        }
+                    }),this)
+                }),this);
             }
-          ]
         },
+        pointLabelFontFamily : "Quadon Extra Bold",
+        scaleFontFamily : "Quadon Extra Bold",
+    };
+
+    var ctx = document.getElementById("myChart");
+    var myChart = new Chart(ctx, {
+        type: 'horizontalBar',
+        data: {
+            labels: label,
+            
+            datasets: [{
+                data: values[0],
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            },{
+                data: values[1],
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+
+        options: barOptions_stacked,
     });
   </script>
 {% endblock%}
