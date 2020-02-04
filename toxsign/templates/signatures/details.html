@@ -12,8 +12,8 @@
   .chart-container {
   position: relative;
   margin: auto;
-  height: 80vh;
-  width: 80vw;
+  height: 20vh;
+  width: 20vw;
 }
 </style>
 
@@ -113,7 +113,7 @@
           </div>
       </div>
        <div class="row my-5">
-          <div class="col-md-12">
+          <div class="col-md-6">
             <h2>Overview</h2>
             <hr>
             {% if signature.up_gene_number > 0 or signature.down_gene_number > 0 %}
@@ -124,27 +124,27 @@
               <p>No up/down regulated genes</p>
             {% endif %}
           </div>
+          <div class="col-md-6">
+            <h2>Genomic signature information</h2>
+            <table class="table">
+              <tbody>
+                <tr>
+                  <th scope="row">Technology used</th>
+                  <td>
+                    {% onto_value signature.technology  signature.technology_slug %}
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Platform</th>
+                  <td>
+                    {{signature.platform}}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+      </div>
       </div>
       <div class="row my-5">
-        <div class="col-md-4">
-              <h2>Genomic signature information</h2>
-              <table class="table">
-                <tbody>
-                  <tr>
-                    <th scope="row">Technology used</th>
-                    <td>
-                      {% onto_value signature.technology  signature.technology_slug %}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Platform</th>
-                    <td>
-                      {{signature.platform}}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-        </div>
         <div class="col-md-8">
               <h2>Statistical information</h2>
               <table class="table">
@@ -230,6 +230,7 @@
                         </tbody>
                       </table>
                     </div>
+                  </div>
                 {% endfor %}
               </div>
               <div class="tab-pane" id="biological">
@@ -248,8 +249,6 @@
               </div>
           </div>
         </div>
-      </div>
-
 
       
       {% if project.created_by == request.user%}
@@ -319,7 +318,7 @@
 
     var barOptions_stacked = {
         tooltips: {
-            enabled: false
+            enabled: true
         },
         hover :{
             animationDuration:0
@@ -360,18 +359,20 @@
             onComplete: function () {
                 var chartInstance = this.chart;
                 var ctx = chartInstance.ctx;
-                ctx.textAlign = "left";
+                ctx.textAlign = "center";
                 ctx.font = "12px Open Sans";
-                ctx.fillStyle = "#fff";
+                ctx.fillStyle = "#202529";
+                ctx.textBaseline = "bottom";
+
 
                 Chart.helpers.each(this.data.datasets.forEach(function (dataset, i) {
                     var meta = chartInstance.controller.getDatasetMeta(i);
                     Chart.helpers.each(meta.data.forEach(function (bar, index) {
                         data = dataset.data[index];
                         if(i==0){
-                            ctx.fillText(data, 50, bar._model.y+4);
+                            ctx.fillText(data, 50, bar._model.y+10);
                         } else {
-                            ctx.fillText(data, bar._model.x-25, bar._model.y+4);
+                            ctx.fillText(data, bar._model.x-25, bar._model.y+10);
                         }
                     }),this)
                 }),this);
