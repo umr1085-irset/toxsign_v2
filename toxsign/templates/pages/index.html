@@ -172,8 +172,8 @@
                               {% if signature.factor.assay.project.status == "PUBLIC" %}<span class="badge badge-pill badge-success">Public</span>{% endif %}
                               {% if signature.factor.assay.project.status == "PENDING" %}<span class="badge badge-pill badge-secondary">Pending</span>{% endif %}
                               {% if signature.factor.assay.project.status == "PRIVATE" %}<span class="badge badge-pill badge-dark">Private</span>{% endif %}
-                              {% if signature.signature_type == "GENOMICS" %}<span class="badge badge-pill badge-danger">Genomics</span>{% endif %}
-                              {% if signature.signature_type == "METABOLOMICS" %}<span class="badge badge-pill badge-info">Metabolomics</span>{% endif %}
+                              {% if signature.signature_type == "GENOMIC" %}<span class="badge badge-pill badge-danger">Genomics</span>{% endif %}
+                              {% if signature.signature_type == "METABOLOMIC" %}<span class="badge badge-pill badge-info">Metabolomics</span>{% endif %}
                             </td>
                             <td>
                               {% if signature.organism.name == "Homo sapiens" %} <img src="{% static 'images/species/Homo_sapiens.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
