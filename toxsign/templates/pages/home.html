@@ -39,9 +39,9 @@
             <div class="col-md-4 mb-5">
                 <h2>Tools and Access</h2>
                 <hr>
-                <p>TOXsIgN provides a powerful <a href ="#/query">search engine</a> to access and query the repository.<br></p>
-                <p>The <a href="#/tools">TOXsIgN warehouse</a> for toxicogenomics and predictive toxicology tools.<br></p>
-                <a href="#" class="btn btn-outline-info btn-sm">View tools</a>
+                <p>TOXsIgN provides a powerful <a href="{% url 'advanced_search' %}">search engine</a> to access and query the repository.<br></p>
+                <p>The <a href="{% url 'tools:index' %}">TOXsIgN warehouse</a> for toxicogenomics and predictive toxicology tools.<br></p>
+                <a href="{% url 'tools:index' %}" class="btn btn-outline-info btn-sm">View tools</a>
             </div>
             <!-- /.col-md-4 -->
         </div>
