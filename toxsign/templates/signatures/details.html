@@ -165,10 +165,10 @@
                   <a href="" data-target="#chemical" data-toggle="tab" class="nav-link active">Chemical ({{factor.chemical_subfactor_of.count}})</a>
               </li>
               <li class="nav-item">
-                  <a href="" data-target="#biological" data-toggle="tab" class="nav-link {% if factor.biological_subfactor_of.count %} disable {% endif %}">Biological ({{factor.biological_subfactor_of.count}})</a>
+                  <a href="" data-target="#biological" data-toggle="tab" class="nav-link disabled">Biological (0)</a>
               </li>
               <li class="nav-item">
-                  <a href="" data-target="#physical" data-toggle="tab" class="nav-link {% if factor.physical_subfactor_of.count %} disable {% endif %}">Physical ({{factor.physical_subfactor_of.count}})</a>
+                  <a href="" data-target="#physical" data-toggle="tab" class="nav-link disabled">Physical (0)</a>
               </li>
           </ul>
           <div class="tab-content p-b-3" style="margin-top:20px;">
@@ -217,20 +217,21 @@
               </div>
               <div class="tab-pane" id="biological">
                   <div class="row my-5">
-                    <div class="col-md-12 mb-5">
+                    <div class="col-md-12">
                       <p>No biological subfactors linked to this factor</p>
                     </div>
                   </div>
               </div>
               <div class="tab-pane" id="physical">
                   <div class="row my-5">
-                    <div class="col-md-12 mb-5">
+                    <div class="col-md-12">
                       <p>No physical subfactors linked to this factor</p>
                     </div>
                   </div>
               </div>
           </div>
         </div>
+      </div>
 
 
       
@@ -335,7 +336,7 @@
             }]
         },
         legend:{
-            display:false
+            display:true
         },
         
         animation: {
@@ -370,13 +371,13 @@
             labels: ["Genes"],
             
             datasets: [{
-                data: values[0],
-                label : labels[0],
+                data: [values[0]],
+                label : [labels[0]],
                 backgroundColor: "rgba(63,103,126,1)",
                 hoverBackgroundColor: "rgba(50,90,100,1)"
             },{
-                data: values[1],
-                label : labels[1],
+                data: [values[1]],
+                label : [labels[1]],
                 backgroundColor: "rgba(163,103,126,1)",
                 hoverBackgroundColor: "rgba(140,85,100,1)"
             }]
