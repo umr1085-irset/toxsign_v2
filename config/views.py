@@ -11,7 +11,7 @@ from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, Page
 from django.conf import settings
-
+from django.shortcuts import redirect
 
 from toxsign.superprojects.models import Superproject
 from toxsign.assays.models import Assay, Factor
@@ -72,7 +72,7 @@ def download_signature(request, sigid):
 def download_job_result(request, jobid):
     from toxsign.scripts.processing import zip_results
     job = get_object_or_404(Job, id=jobid)
-    if not job.created_by == request.user:
+    if not job.created_by == None or not job.created_by == request.user:
          return redirect('/unauthorized')
 
     if not job.results or not 'archive' in job.results or not job.results['archive']:
