@@ -37,6 +37,13 @@
                 <hr>
           </div>
       </div>
+      <div class="row">
+        {% if signature.up_gene_file_path or signature.up_gene_file_path or signature.interrogated_gene_file_path  %}
+          <div class="col align-self-center">
+            <a href="{% url 'download_sig' signature.tsx_id  %}" class="btn btn-outline-success" role="button">Download</a>
+          </div>
+        {% endif %}
+      </div>
       <div class="row my-5">
           <div class="col-md-6">
             <h2>Summary</h2>
@@ -98,11 +105,13 @@
           </div>
       </div>
        <div class="row my-5">
-          <div class="col-md-8">
-            <h2>Overview  {% if signature.up_gene_file_path or signature.up_gene_file_path or signature.interrogated_gene_file_path  %}<a href="{% url 'download_sig' signature.tsx_id  %}" class="btn btn-outline-success" role="button">Download</a>{% endif %}</h2>
+          <div class="col-md-12">
+            <h2>Overview</h2>
             <hr>
             {% if signature.up_gene_number > 0 or signature.down_gene_number > 0 %}
-              <canvas id="myChart"></canvas>
+              <div style="height:200px">
+                <canvas id="myChart"></canvas>
+              </div>
             {% else %}
               <p>No up/down regulated genes</p>
             {% endif %}
@@ -312,7 +321,7 @@
                 ticks: {
                     beginAtZero:true,
                     fontFamily: "'Open Sans Bold', sans-serif",
-                    fontSize:11
+                    fontSize:15
                 },
                 scaleLabel:{
                     display:false
@@ -330,7 +339,7 @@
                 },
                 ticks: {
                     fontFamily: "'Open Sans Bold', sans-serif",
-                    fontSize:11
+                    fontSize:15
                 },
                 stacked: true
             }]
@@ -344,7 +353,7 @@
                 var chartInstance = this.chart;
                 var ctx = chartInstance.ctx;
                 ctx.textAlign = "left";
-                ctx.font = "9px Open Sans";
+                ctx.font = "12px Open Sans";
                 ctx.fillStyle = "#fff";
 
                 Chart.helpers.each(this.data.datasets.forEach(function (dataset, i) {
