@@ -322,12 +322,35 @@ def index(request):
         else:
             is_active['superproject'] = "active"
 
+    dev_stage_dict = {
+        "FETAL": 'Fetal',
+        "EMBRYONIC": "Embryonic",
+        "LARVA": "Larva",
+        "NEONATAL": "Neo-natal",
+        "JUVENILE": "Juvenile",
+        "PREPUBERTAL": "Prepubertal",
+        "ADULTHOOD": "Adulthood",
+        "ELDERLY": "Elderly",
+        "NA": "Na",
+        "OTHER": "Other",
+    }
+    sex_type_dict = {
+        'MALE': 'Male',
+        'FEMALE': 'Female',
+        'BOTH': 'Both',
+        'NA': 'Na',
+        "OTHER": "Other",
+    }
+
+
     context = {
         'superproject_list': superprojects,
         'project_list': projects,
         'assay_list': assays,
         'signature_list': signatures,
-        "is_active": is_active
+        "is_active": is_active,
+        "dev_stage_dict": dev_stage_dict,
+        "sex_type_dict": sex_type_dict
     }
 
     return render(request, 'pages/index.html', context)

@@ -113,20 +113,20 @@
                             </td>
                             <td>
                               {% if assay.cell %}
-                                <img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.cell}}">
+                                <img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.cell.name}}">
                               {% else %}
                                 /
                               {% endif %}
                             </td>
                             <td>
                               {% if assay.cell_line %}
-                                <img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.cell_line}}">
+                                <img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{assay.cell_line.name}}">
                               {% else %}
                                 /
                               {% endif %}
                             </td>
-                            <td>{% if assay.sex_type %}{{ assay.get_sex_type_display }} {% else %} / {% endif %}</td>
-                            <td>{% if assay.dev_stage %} {{ assay.get_dev_stage_display }} {% else %} / {% endif %}</td>
+                            <td>{% if assay.sex_type %}{% get_dict_value sex_type_dict assay.sex_type %} {% else %} / {% endif %}</td>
+                            <td>{% if assay.dev_stage %}{% get_dict_value dev_stage_dict assay.dev_stage %} {% else %} / {% endif %}</td>
                             <td>
                               {{ assay.created_by.username }}
                             </td>
@@ -169,9 +169,9 @@
                         <tbody>
                           <tr>
                             <td>
-                              {% if signature.project.status == "PUBLIC" %}<span class="badge badge-pill badge-success">Public</span>{% endif %}
-                              {% if signature.project.status == "PENDING" %}<span class="badge badge-pill badge-secondary">Pending</span>{% endif %}
-                              {% if signature.project.status == "PRIVATE" %}<span class="badge badge-pill badge-dark">Private</span>{% endif %}
+                              {% if signature.factor.assay.project.status == "PUBLIC" %}<span class="badge badge-pill badge-success">Public</span>{% endif %}
+                              {% if signature.factor.assay.project.status == "PENDING" %}<span class="badge badge-pill badge-secondary">Pending</span>{% endif %}
+                              {% if signature.factor.assay.project.status == "PRIVATE" %}<span class="badge badge-pill badge-dark">Private</span>{% endif %}
                               {% if signature.signature_type == "GENOMICS" %}<span class="badge badge-pill badge-danger">Genomics</span>{% endif %}
                               {% if signature.signature_type == "METABOLOMICS" %}<span class="badge badge-pill badge-info">Metabolomics</span>{% endif %}
                             </td>
@@ -186,33 +186,34 @@
                               {% if signature.organism.name == "Sus scrofa" %} <img src="{% static 'images/species/Sus_scrofa.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
                             </td>
                             <td>
-                              {% if tissue == "Liver" or tissue == "liver" %} <img src="{% static 'images/organs/png/028-liver.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                              {% if tissue == "Kidney" or tissue == "kidney" %} <img src="{% static 'images/organs/png/008-kidneys-1.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                              {% if tissue == "Brain" or tissue == "brain" %} <img src="{% static 'images/organs/png/002-brain.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                              {% if tissue == "Lungs" or tissue == "lungs" %} <img src="{% static 'images/organs/png/003-lungs.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                              {% if tissue == "Bladder" or tissue == "bladder" %} <img src="{% static 'images/organs/png/006-bladder.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                              {% if tissue == "Testis" or tissue == "testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                              {% if tissue == "Heart" or tissue == "heart" %} <img src="{% static 'images/organs/png/023-heart.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                              {% if tissue == "Ovary" or tissue == "ovary" %} <img src="{% static 'images/organs/png/024-uterus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                              {% if tissue == "Stomach" or tissue == "stomach" %} <img src="{% static 'images/organs/png/029-stomach.png' %}" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
-                              {% if tissue == "Intestine" or tissue == "intestine" %} <img src="{% static 'images/organs/png/027-intestine.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                              {% if signature.tissue.name == "Liver" or signature.tissue.name == "liver" %} <img src="{% static 'images/organs/png/028-liver.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.tissue.name}}">{% endif %}
+                              {% if signature.tissue.name == "Kidney" or signature.tissue.name == "kidney" %} <img src="{% static 'images/organs/png/008-kidneys-1.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.tissue.name}}">{% endif %}
+                              {% if signature.tissue.name == "Brain" or signature.tissue.name == "brain" %} <img src="{% static 'images/organs/png/002-brain.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.tissue.name}}">{% endif %}
+                              {% if signature.tissue.name == "Lungs" or signature.tissue.name == "lungs" %} <img src="{% static 'images/organs/png/003-lungs.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.tissue.name}}">{% endif %}
+                              {% if signature.tissue.name == "Bladder" or signature.tissue.name == "bladder" %} <img src="{% static 'images/organs/png/006-bladder.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.tissue.name}}">{% endif %}
+                              {% if signature.tissue.name == "Testis" or signature.tissue.name == "testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.tissue.name}}">{% endif %}
+                              {% if signature.tissue.name == "Heart" or signature.tissue.name == "heart" %} <img src="{% static 'images/organs/png/023-heart.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.tissue.name}}">{% endif %}
+                              {% if signature.tissue.name == "Ovary" or signature.tissue.name == "ovary" %} <img src="{% static 'images/organs/png/024-uterus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.tissue.name}}">{% endif %}
+                              {% if signature.tissue.name == "Stomach" or signature.tissue.name == "stomach" %} <img src="{% static 'images/organs/png/029-stomach.png' %}" data-toggle="tooltip" data-placement="top" title="{{signature.tissue.name}}">{% endif %}
+                              {% if signature.tissue.name == "Intestine" or signature.tissue.name == "intestine" %} <img src="{% static 'images/organs/png/027-intestine.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.tissue.name}}">{% endif %}
                             </td>
                             <td>
-                              {% if cell != "None" %}
-                                <img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{cell}}">
+                              
+                              {% if signature.cell %}
+                                <img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.cell.name}}">
                               {% else %}
                                 /
                               {% endif %}
                             </td>
                             <td>
-                              {% if cell_line != "None" %}
-                                <img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{cell_line}}">
+                              {% if signature.cell_line %}
+                                <img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.cell_line.name}}">
                               {% else %}
                                 /
                               {% endif %}
                             </td>
-                            <td>{% if signature.sex_type %}{{ signature.get_sex_type_display }} {% else %} / {% endif %}</td>
-                            <td>{% if signature.dev_stage %} {{ signature.get_dev_stage_display }} {% else %} / {% endif %}</td>
+                            <td>{% if signature.sex_type %}{%  get_dict_value  sex_type_dict signature.sex_type %} {% else %} / {% endif %}</td>
+                            <td>{% if signature.dev_stage %}{% get_dict_value dev_stage_dict signature.dev_stage %} {% else %} / {% endif %}</td>
                             <td>
                               {{ signature.created_by.username }}
                             </td>

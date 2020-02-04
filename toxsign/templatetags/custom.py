@@ -56,3 +56,10 @@ def get_arrow(value):
     elif value == "desc":
         arrow="<i class='fas fa-arrow-down'></i>"
     return format_html(arrow)
+
+@register.simple_tag
+def get_dict_value(dict, value):
+    if value in dict:
+        return dict[value]
+    else:
+        return "/"

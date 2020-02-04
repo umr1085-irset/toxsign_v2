@@ -14,12 +14,31 @@ lowercase = normalizer('my_analyzer',
 class AssayDocument(Document):
 
     project= fields.ObjectField(properties={
-            'id': fields.TextField()
+            'id': fields.TextField(),
+            'status': fields.TextField()
     })
 
     created_by = fields.ObjectField(properties={
         'username': fields.TextField()
     })
+
+    organism = fields.NestedField(properties={
+        'name': fields.TextField()
+    })
+
+    tissue = fields.NestedField(properties={
+        'name': fields.TextField()
+    })
+
+    cell = fields.NestedField(properties={
+        'name': fields.TextField()
+    })
+
+    cell_line = fields.NestedField(properties={
+        'name': fields.TextField()
+    })
+
+    cell_line_slug = fields.TextField()
 
     tsx_id = fields.KeywordField(normalizer=lowercase)
 
@@ -38,6 +57,8 @@ class AssayDocument(Document):
             'id',
             'name',
             'created_at',
+            'sex_type',
+            'dev_stage',
         ]
         related_models = [Project]
         ignore_signals = False
@@ -46,7 +67,11 @@ class AssayDocument(Document):
         """Not mandatory but to improve performance we can select related in one sql request"""
         return super(AssayDocument, self).get_queryset().select_related(
             'project',
-            'created_by'
+            'created_by',
+            'organism',
+            'tissue',
+            'cell',
+            'cell_line',
         )
 
     def get_instances_from_related(self, related_instance):
@@ -62,7 +87,8 @@ class FactorDocument(Document):
 
     assay = fields.ObjectField(properties={
         'project': fields.ObjectField(properties={
-            'id': fields.TextField()
+            'id': fields.TextField(),
+            'status': fields.TextField()
         })
     })
 
