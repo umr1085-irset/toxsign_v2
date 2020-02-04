@@ -99,7 +99,7 @@
       </div>
        <div class="row my-5">
           <div class="col-md-8">
-            <h2>Overview  {% if signature.up_gene_file_path or signature.up_gene_file_path or signature.interrogated_gene_file_path  %}<a href="{% url 'download_sig' signature.tsx_id  %}" class="btn btn-outline-success" role="button">Download</a><{% endif %}</h2>
+            <h2>Overview  {% if signature.up_gene_file_path or signature.up_gene_file_path or signature.interrogated_gene_file_path  %}<a href="{% url 'download_sig' signature.tsx_id  %}" class="btn btn-outline-success" role="button">Download</a>{% endif %}</h2>
             <hr>
             {% if signature.up_gene_number > 0 or signature.down_gene_number > 0 %}
               <canvas id="myChart"></canvas>
@@ -165,10 +165,10 @@
                   <a href="" data-target="#chemical" data-toggle="tab" class="nav-link active">Chemical ({{factor.chemical_subfactor_of.count}})</a>
               </li>
               <li class="nav-item">
-                  <a href="" data-target="#biological" data-toggle="tab" class="nav-link {% if factor.biological_subfactor_of.count != 0 %} disable {% endif %}">Biological ({{factor.biological_subfactor_of.count}})</a>
+                  <a href="" data-target="#biological" data-toggle="tab" class="nav-link {% if factor.biological_subfactor_of.count %} disable {% endif %}">Biological ({{factor.biological_subfactor_of.count}})</a>
               </li>
               <li class="nav-item">
-                  <a href="" data-target="#physical" data-toggle="tab" class="nav-link {% if factor.physical_subfactor_of.count != 0 %} disable {% endif %}">Physical ({{factor.physical_subfactor_of.count}})</a>
+                  <a href="" data-target="#physical" data-toggle="tab" class="nav-link {% if factor.physical_subfactor_of.count %} disable {% endif %}">Physical ({{factor.physical_subfactor_of.count}})</a>
               </li>
           </ul>
           <div class="tab-content p-b-3" style="margin-top:20px;">
@@ -296,10 +296,10 @@
      $(function () {
         $('[data-toggle="tooltip"]').tooltip()
       })
-      var label = ["up-regulated","down-regulated"];
-      var values = [{{signature.up_gene_number}},{{signature.down_gene_number}}];
-    
-      var barOptions_stacked = {
+    var labels = ["up-regulated","down-regulated"];
+    var values = [{{signature.up_gene_number}},{{signature.down_gene_number}}];
+
+    var barOptions_stacked = {
         tooltips: {
             enabled: false
         },
@@ -363,22 +363,22 @@
         scaleFontFamily : "Quadon Extra Bold",
     };
 
-    var ctx = document.getElementById("myChart");
+    var ctx = document.getElementById("Chart1");
     var myChart = new Chart(ctx, {
         type: 'horizontalBar',
         data: {
-            labels: label,
+            labels: ["Genes"],
             
             datasets: [{
                 data: values[0],
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
+                label : labels[0],
+                backgroundColor: "rgba(63,103,126,1)",
+                hoverBackgroundColor: "rgba(50,90,100,1)"
             },{
                 data: values[1],
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
+                label : labels[1],
+                backgroundColor: "rgba(163,103,126,1)",
+                hoverBackgroundColor: "rgba(140,85,100,1)"
             }]
         },
 
