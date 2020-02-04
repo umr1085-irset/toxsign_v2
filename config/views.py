@@ -72,7 +72,7 @@ def download_signature(request, sigid):
 def download_job_result(request, jobid):
     from toxsign.scripts.processing import zip_results
     job = get_object_or_404(Job, id=jobid)
-    if not job.created_by == None or not job.created_by == request.user:
+    if job.created_by and not job.created_by == request.user:
          return redirect('/unauthorized')
 
     if not job.results or not 'archive' in job.results or not job.results['archive']:
