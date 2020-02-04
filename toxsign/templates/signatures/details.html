@@ -93,7 +93,6 @@
                     {% if signature.sex_type %}<tr><th scope="row">Sex</th><td>{{ signature.get_sex_type_display }}</td></tr>{% endif %}
                     {% if signature.generation %}<tr><th scope="row">Generation</th><td>{{ signature.get_generation_display }}</td></tr>{% endif %}
                     {% if signature.dev_stage %}<tr><th scope="row">Developmental stage</th><td>{{ signature.get_dev_stage_display }}</td></tr>{% endif %}
-                    {% if signature.sex_type %}<tr><th scope="row">Sex</th><td>{{ signature.get_sex_type_display }}</td></tr>{% endif %}
                   </tbody>
                 </table>
           </div>
@@ -318,7 +317,35 @@
     var label = ["up-regulated","down-regulated"];
     var values = [{{signature.up_gene_number}},{{signature.down_gene_number}}];
     var myDoughnutChart = new Chart("myChart", {
-        type: 'doughnut',
+        type: 'horizontalBar',
+        scales: {
+            xAxes: [{
+                ticks: {
+                    beginAtZero:true,
+                    fontFamily: "'Open Sans Bold', sans-serif",
+                    fontSize:11
+                },
+                scaleLabel:{
+                    display:false
+                },
+                gridLines: {
+                }, 
+                stacked: true
+            }],
+            yAxes: [{
+                gridLines: {
+                    display:false,
+                    color: "#fff",
+                    zeroLineColor: "#fff",
+                    zeroLineWidth: 0
+                },
+                ticks: {
+                    fontFamily: "'Open Sans Bold', sans-serif",
+                    fontSize:11
+                },
+                stacked: true
+            }]
+        },
         data: {
           labels:label,
           datasets:[
