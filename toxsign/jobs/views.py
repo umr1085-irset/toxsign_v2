@@ -30,6 +30,8 @@ from toxsign.taskapp.celery import app
 
 def DetailView(request, pk):
     job = get_object_or_404(Job, pk=pk)
+    if job.created_by and not job.created_by == request.user:
+        return redirect('/unauthorized')
     file_list = []
 
     for file in os.listdir(job.output):
@@ -80,7 +82,10 @@ class RunningJobsView(generic.ListView):
 
 def Delete_job(request, pk):
     job = get_object_or_404(Job, pk=pk)
-    print(job)
+    # Only allow job owner to delete. Anonymous job should not be deleted. Cron will do it
+    if not job.created_by or not job.created_by == request.user:
+        return redirect('/unauthorized')
+
     job.delete()
     context = {}
     context['jobs_list'] = Job.objects.filter(created_by__exact=request.user.id)
