@@ -79,7 +79,8 @@ class SignatureDocument(Document):
             'name',
             'created_at',
             'sex_type',
-            'dev_stage'
+            'dev_stage',
+            'signature_type'
         ]
         related_models = [Factor, Disease]
         ignore_signals = False
