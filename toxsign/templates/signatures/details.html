@@ -296,58 +296,93 @@
      $(function () {
         $('[data-toggle="tooltip"]').tooltip()
       })
-    var label = ["up-regulated","down-regulated"];
-    var values = [{{signature.up_gene_number}},{{signature.down_gene_number}}];
-    var myDoughnutChart = new Chart("myChart", {
-        type: 'horizontalBar',
-        options:{
-            scales: {
-              xAxes: [{
-                  ticks: {
-                      beginAtZero:true,
-                      fontFamily: "'Open Sans Bold', sans-serif",
-                      fontSize:11
-                  },
-                  scaleLabel:{
-                      display:false
-                  },
-                  gridLines: {
-                  }, 
-                  stacked: true
-              }],
-              yAxes: [{
-                  gridLines: {
-                      display:false,
-                      color: "#fff",
-                      zeroLineColor: "#fff",
-                      zeroLineWidth: 0
-                  },
-                  ticks: {
-                      fontFamily: "'Open Sans Bold', sans-serif",
-                      fontSize:11
-                  },
-                  stacked: true
-              }]
-          },
+      var label = ["up-regulated","down-regulated"];
+      var values = [{{signature.up_gene_number}},{{signature.down_gene_number}}];
+    
+      var barOptions_stacked = {
+        tooltips: {
+            enabled: false
         },
-        data: {
-          labels:label,
-          datasets:[
-            {
-              label:"Signature overview",
-              data:values,
-              backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-              ],
-              borderColor: [
-                  'rgba(255, 99, 132, 1)',
-                  'rgba(54, 162, 235, 1)',
-              ],
-              borderWidth: 1
+        hover :{
+            animationDuration:0
+        },
+        scales: {
+            xAxes: [{
+                ticks: {
+                    beginAtZero:true,
+                    fontFamily: "'Open Sans Bold', sans-serif",
+                    fontSize:11
+                },
+                scaleLabel:{
+                    display:false
+                },
+                gridLines: {
+                }, 
+                stacked: true
+            }],
+            yAxes: [{
+                gridLines: {
+                    display:false,
+                    color: "#fff",
+                    zeroLineColor: "#fff",
+                    zeroLineWidth: 0
+                },
+                ticks: {
+                    fontFamily: "'Open Sans Bold', sans-serif",
+                    fontSize:11
+                },
+                stacked: true
+            }]
+        },
+        legend:{
+            display:false
+        },
+        
+        animation: {
+            onComplete: function () {
+                var chartInstance = this.chart;
+                var ctx = chartInstance.ctx;
+                ctx.textAlign = "left";
+                ctx.font = "9px Open Sans";
+                ctx.fillStyle = "#fff";
+
+                Chart.helpers.each(this.data.datasets.forEach(function (dataset, i) {
+                    var meta = chartInstance.controller.getDatasetMeta(i);
+                    Chart.helpers.each(meta.data.forEach(function (bar, index) {
+                        data = dataset.data[index];
+                        if(i==0){
+                            ctx.fillText(data, 50, bar._model.y+4);
+                        } else {
+                            ctx.fillText(data, bar._model.x-25, bar._model.y+4);
+                        }
+                    }),this)
+                }),this);
             }
-          ]
         },
+        pointLabelFontFamily : "Quadon Extra Bold",
+        scaleFontFamily : "Quadon Extra Bold",
+    };
+
+    var ctx = document.getElementById("myChart");
+    var myChart = new Chart(ctx, {
+        type: 'horizontalBar',
+        data: {
+            labels: label,
+            
+            datasets: [{
+                data: values[0],
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            },{
+                data: values[1],
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+
+        options: barOptions_stacked,
     });
   </script>
 {% endblock%}
