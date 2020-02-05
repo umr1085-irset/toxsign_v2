@@ -34,3 +34,4 @@ xlrd==1.2.0
 Cython==0.29.13
 
 pandas
+beautifulsoup4

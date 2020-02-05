@@ -11,7 +11,7 @@ from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, Page
 from django.conf import settings
-
+from django.shortcuts import redirect
 
 from toxsign.superprojects.models import Superproject
 from toxsign.assays.models import Assay, Factor
@@ -72,7 +72,7 @@ def download_signature(request, sigid):
 def download_job_result(request, jobid):
     from toxsign.scripts.processing import zip_results
     job = get_object_or_404(Job, id=jobid)
-    if not job.created_by == request.user:
+    if job.created_by and not job.created_by == request.user:
          return redirect('/unauthorized')
 
     if not job.results or not 'archive' in job.results or not job.results['archive']:
@@ -102,13 +102,13 @@ def autocompleteModel(request):
         else:
             q = Q_es("match", status="PUBLIC")
 
-        allowed_projects =  ProjectDocument.search().query(q).scan()
+        allowed_projects =  ProjectDocument.search().sort('id').query(q).scan()
         # Limit all query to theses projects
         allowed_projects_id_list = [project.id for project in allowed_projects]
 
         # Now do the queries
-        results_superprojects = SuperprojectDocument.search()
-        results_signatures = SignatureDocument.search().filter("terms", factor__assay__project__id=allowed_projects_id_list)
+        results_superprojects = SuperprojectDocument.search().sort('id')
+        results_signatures = SignatureDocument.search().sort('id').filter("terms", factor__assay__project__id=allowed_projects_id_list)
         # This search in all fields.. might be too much. Might need to restrict to fields we actually show on the search page..
         q1 = Q_es("query_string", query=query)
 
@@ -126,8 +126,6 @@ def autocompleteModel(request):
 
         results_projects = paginate([project for project in results_projects if check_view_permissions(request.user, project)], request.GET.get('projects'), 5)
         results_signatures = paginate([sig for sig in results_signatures if check_view_permissions(request.user, sig.factor.assay.project)], request.GET.get('signatures'), 5)
-
-
 
     is_active = {'superproject': "", 'project': "", 'signature': ""}
     # If a specific page was requested,  set the related tab to active
@@ -267,20 +265,21 @@ def index(request):
         else:
             q = Q_es("match", status="PUBLIC")
 
-        allowed_projects =  ProjectDocument.search().query(q).scan()
+        allowed_projects =  ProjectDocument.search().sort('id').query(q).scan()
         allowed_projects_id_list = [project.id for project in allowed_projects]
 
         superprojects = SuperprojectDocument.search()
-        assays = AssayDocument.search().filter("terms", project__id=allowed_projects_id_list)
-        signatures = SignatureDocument.search().filter("terms", factor__assay__project__id=allowed_projects_id_list)
+        assays = AssayDocument.search().sort('id').filter("terms", project__id=allowed_projects_id_list)
+        signatures = SignatureDocument.search().sort('id').filter("terms", factor__assay__project__id=allowed_projects_id_list)
 
         # Since ES search objects are generators, we need to re-query them
-        projects = paginate(ProjectDocument.search().query(q), request.GET.get('projects'), 5, True)
+        projects = paginate(ProjectDocument.search().sort('id').query(q), request.GET.get('projects'), 5, True)
         superprojects = paginate(superprojects, request.GET.get('superprojects'), 5, True)
         assays = paginate(assays, request.GET.get('assays'), 5, True)
         signatures = paginate(signatures, request.GET.get('signatures'), 5, True)
 
     except Exception as e:
+        raise e
         superprojects = Superproject.objects.all()
         all_projects = Project.objects.all().order_by('id')
         projects = []
@@ -323,12 +322,35 @@ def index(request):
         else:
             is_active['superproject'] = "active"
 
+    dev_stage_dict = {
+        "FETAL": 'Fetal',
+        "EMBRYONIC": "Embryonic",
+        "LARVA": "Larva",
+        "NEONATAL": "Neo-natal",
+        "JUVENILE": "Juvenile",
+        "PREPUBERTAL": "Prepubertal",
+        "ADULTHOOD": "Adulthood",
+        "ELDERLY": "Elderly",
+        "NA": "Na",
+        "OTHER": "Other",
+    }
+    sex_type_dict = {
+        'MALE': 'Male',
+        'FEMALE': 'Female',
+        'BOTH': 'Both',
+        'NA': 'Na',
+        "OTHER": "Other",
+    }
+
+
     context = {
         'superproject_list': superprojects,
         'project_list': projects,
         'assay_list': assays,
         'signature_list': signatures,
-        "is_active": is_active
+        "is_active": is_active,
+        "dev_stage_dict": dev_stage_dict,
+        "sex_type_dict": sex_type_dict
     }
 
     return render(request, 'pages/index.html', context)

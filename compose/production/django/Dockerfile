@@ -9,8 +9,8 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.7.10-Linux-x86
     echo "envs_dirs:" > /root/.condarc && \
     echo "  - /app/tools/conda_envs" >> /root/.condarc
 
-RUN addgroup -S django \
-    && adduser -S -G django django
+RUN addgroup --system django \
+    && adduser --system --ingroup django django
 
 # Requirements are installed here to ensure they will be cached.
 COPY ./requirements /requirements
@@ -39,11 +39,13 @@ RUN chown django /start-celerybeat
 COPY ./compose/production/django/celery/flower/start /start-flower
 RUN sed -i 's/\r$//g' /start-flower
 RUN chmod +x /start-flower
-COPY . /app
+#COPY . /app
 
-RUN chown -R django /app
+RUN mkdir -p /app/staticfiles
 
-USER django
+#RUN chown -R django /app
+
+#USER django
 
 WORKDIR /app
 

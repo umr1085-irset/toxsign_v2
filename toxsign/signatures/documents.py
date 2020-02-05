@@ -4,13 +4,20 @@ from toxsign.assays.models import Factor
 from toxsign.signatures.models import Signature
 from toxsign.ontologies.models import *
 
+from elasticsearch_dsl import normalizer
+
+lowercase = normalizer('my_analyzer',
+    filter=['lowercase']
+)
+
 @registry.register_document
 class SignatureDocument(Document):
 
     factor = fields.ObjectField(properties={
         'assay': fields.ObjectField(properties={
             'project': fields.ObjectField(properties={
-                'id': fields.TextField()
+                'id': fields.TextField(),
+                'status': fields.TextField()
             })
         })
     })
@@ -21,33 +28,40 @@ class SignatureDocument(Document):
 
     organism = fields.NestedField(properties={
         'id': fields.TextField(),
+        'name': fields.TextField()
     })
 
     tissue = fields.NestedField(properties={
         'id': fields.TextField(),
+        'name': fields.TextField()
     })
 
     cell = fields.NestedField(properties={
         'id': fields.TextField(),
+        'name': fields.TextField()
     })
 
     cell_line = fields.NestedField(properties={
         'id': fields.TextField(),
+        'name': fields.TextField()
     })
 
     chemical = fields.NestedField(properties={
         'id': fields.TextField(),
+        'name': fields.TextField()
     })
 
     disease = fields.NestedField(properties={
         'id': fields.TextField(),
+        'name': fields.TextField()
     })
 
     technology = fields.NestedField(properties={
         'id': fields.TextField(),
+        'name': fields.TextField()
     })
 
-    tsx_id = fields.KeywordField()
+    tsx_id = fields.KeywordField(normalizer=lowercase)
 
     class Index:
         # Name of the Elasticsearch index
@@ -64,6 +78,9 @@ class SignatureDocument(Document):
             'id',
             'name',
             'created_at',
+            'sex_type',
+            'dev_stage',
+            'signature_type'
         ]
         related_models = [Factor, Disease]
         ignore_signals = False

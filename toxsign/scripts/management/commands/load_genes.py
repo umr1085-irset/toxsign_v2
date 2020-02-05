@@ -12,6 +12,8 @@ import gzip
 from time import gmtime, strftime
 from toxsign.genes.models import Gene
 
+from django.core.management.base import BaseCommand, CommandError
+
 def download_datafiles():
 
     dirpath = '/app/loading_data/genes/'
@@ -140,7 +142,7 @@ def concat_files(dirpath, use_dl=False, file_list=[]):
         for geneID in dData_organized:
             resultFile.write(geneID+'\t'+dData_organized[geneID]['tax_id']+'\t'+dData_organized[geneID]['homologene']+'\t'+dData_organized[geneID]['ensembl']+'\t'+dData_organized[geneID]['symbol']+'\t'+dData_organized[geneID]['synonyms']+'\t'+dData_organized[geneID]['description']+'\n')
         resultFile.close()
-        return [dirpath,os.path.join(dirpath,'RGV_database_genes.txt')]
+        return os.path.join(dirpath,'RGV_database_genes.txt')
     except IOError as e:
         print("args: ", e.args)
         print("errno: ", e.errno)
@@ -151,7 +153,7 @@ def insertCollections(genefile):
     try :
         print('CreateCollection - create RGV_geneDB collection')
         #Insert Allbank ID from TOXsIgN_geneDB file
-        geneFile = open(genefile[1],'r')
+        geneFile = open(genefile,'r')
         geneList = []
 
         for geneLine in geneFile.readlines():
@@ -165,7 +167,8 @@ def insertCollections(genefile):
                 Synonyms = split[5]
                 description = split[6]
                 geneList.append(Gene(gene_id=GeneID, tax_id=tax_id, homolog_id=homologeneID, ensembl_id=ensembleID, symbol=Symbol, synonyms=Synonyms, description=description))
-        Gene.objects.bulk_create(geneList)
+        print('Length : ' + str(len(geneList)))
+        Gene.objects.bulk_create(geneList, batch_size=1000)
         geneFile.close()
         print("File close")
 
@@ -183,21 +186,16 @@ def check_file(path, url):
 
         return os.path.exists(os.path.join(path, file_name))
 
-def setup(apps, schema_editor):
-    # Do not populate in testing environment
-    if os.environ.get("MODE") == "TEST":
-        return
+def populate_genes():
+        dirpath = download_datafiles()
+        gene_file = os.path.join(dirpath, 'RGV_database_genes.txt')
+        if not os.path.exists(gene_file):
+            concat_files(dirpath, use_dl=True)
+        insertCollections(gene_file)
 
-    dirpath = download_datafiles()
-    gene_file = concat_files(dirpath, use_dl=True)
-    insertCollections(gene_file)
+class Command(BaseCommand):
 
-class Migration(migrations.Migration):
+    help = 'Populate genes'
 
-    dependencies = [
-        ('genes', '0001_initial'),
-    ]
-
-    operations = [
-        migrations.RunPython(setup)
-    ]
+    def handle(self, *args, **options):
+        populate_genes()
