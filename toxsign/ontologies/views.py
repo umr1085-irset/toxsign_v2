@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from django.apps import apps
 from toxsign.ontologies.forms import BiologicalForm
 from toxsign.ontologies.documents import *
+from toxsign.signatures.documents import SignatureDocument
 import toxsign.ontologies.models as ontologymodels
 
 class OntologyAutocomplete(autocomplete.Select2QuerySetView):
@@ -16,11 +17,6 @@ class OntologyAutocomplete(autocomplete.Select2QuerySetView):
 
     def get_result_label(self, result):
         return result.name
-
-class BiologicalAutocomplete(OntologyAutocomplete):
-
-    def get_queryset(self):
-        return(get_results(self.q, Biological, BiologicalDocument))
 
 class CellLineAutocomplete(OntologyAutocomplete):
 
@@ -57,6 +53,45 @@ class TissueAutocomplete(OntologyAutocomplete):
     def get_queryset(self):
         return(get_results(self.q, Tissue, TissueDocument))
 
+# Restricted autocompletes
+
+class CellLineRestrictedAutocomplete(OntologyAutocomplete):
+
+    def get_queryset(self):
+        return(get_restricted_results(self.q, CellLine, CellLineDocument, "cellline"))
+
+class CellRestrictedAutocomplete(OntologyAutocomplete):
+
+    def get_queryset(self):
+        return(get_restricted_results(self.q, Cell, CellDocument, "cell"))
+
+class ChemicalRestrictedAutocomplete(OntologyAutocomplete):
+
+    def get_queryset(self):
+        return(get_restricted_results(self.q, Chemical, ChemicalDocument, "chemical""))
+
+class DiseaseRestrictedAutocomplete(OntologyAutocomplete):
+
+    def get_queryset(self):
+        return(get_restricted_results(self.q, Disease, DiseaseDocument, "disease"))
+
+class ExperimentRestrictedAutocomplete(OntologyAutocomplete):
+
+    def get_queryset(self):
+        return(get_restricted_results(self.q, Experiment, ExperimentDocument, "disease"))
+
+class SpeciesRestrictedAutocomplete(OntologyAutocomplete):
+
+    def get_queryset(self):
+        return(get_restricted_results(self.q, Species, SpeciesDocument, "organism"))
+
+class TissueRestrictedAutocomplete(OntologyAutocomplete):
+
+    def get_queryset(self):
+        return(get_restricted_results(self.q, Tissue, TissueDocument, "tissue")
+
+# Methods
+
 def get_results(query, Model, Document):
     try:
         # No need to restrict to authenticated
@@ -70,6 +105,20 @@ def get_results(query, Model, Document):
         if query:
             qs = qs.filter(Q(name__istartswith=query))
         return qs
+
+def get_restricted_results(query, Model, Document, fieldname):
+
+    qs = SignatureDocument.search()
+    used_ontology_list = set()
+    for sig in qs.scan():
+        field_val = getattr(sig, fieldname)
+        if field_val:
+            used_ontology_list.add(field_val.id)
+
+    ontologies = Document.search().filter("terms", id=used_ontology_list)
+    if query:
+        ontologies = ontologies.query("prefix", name=query)
+    return qs
 
 def DetailView(request):
 
