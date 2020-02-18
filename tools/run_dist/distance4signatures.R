@@ -15,7 +15,7 @@ if (exists("signmatrix") == FALSE) {
 cat(dim(signmatrix))
 #--------------------------------------------#
 New.Data <- matrix(NA,ncol=12,nrow=nrow(signmatrix))
-colnames(New.Data) <- c("Signature", "r", "R", "n", "N", "Ratio", "Pvalue", "AdjustedPValue", "Zscore", "EuclideanDistance", "CorrelationDistance", "HomologeneIds")
+colnames(New.Data) <- c("Signature", "r", "R", "n", "N", "Ratio", "Zscore", "Pvalue", "AdjustedPvalue", "EuclideanDistance", "CorrelationDistance", "HomologeneIds")
 rownames(New.Data) <- rownames(signmatrix)
 Sign.In.values <- as.double(signmatrix[Sign.In.Name,])
 for (Sign.Name in rownames(signmatrix)) {
