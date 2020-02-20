@@ -24,6 +24,11 @@
     
 
     <!-- Your stuff: Third-party CSS libraries go here -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+    
+    <!-- This file stores project-specific CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/mdb.min.css' %}" rel="stylesheet">
     
     <!-- This file stores project-specific CSS -->
     <link href="{% static 'fonts/fontawesome/css/all.css' %}" rel="stylesheet">
@@ -80,7 +85,7 @@
             <li>
                 <form class="form-inline my-2 my-lg-0" id="search" method="GET" action='{% url "search" %}'>
                     <input type='text' class="form-control mr-sm-2" name='q' placeholder="Enter Search Keyword" value='{{ request.GET.q }}' id='intry'>
-                    <button type="submit" class="btn btn-outline-success my-2 my-sm-0">Search</button>
+                    <button type="submit" class="btn btn-outline-default my-2 my-sm-0" style="border-radius: 30px;">Search</button>
                 </form>
             </li>
             <li class="nav-item">

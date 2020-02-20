@@ -17,7 +17,7 @@
             <div class="tab-content card">
               <div class="tab-pane text-style card-body {{is_active.superproject}}" id="tab1">
                 {% for superproject in superproject_list %}
-                    <h3><a href="{% url 'superprojects:detail' superproject.tsx_id %}">{{ superproject.tsx_id }}</a> - {{superproject.name}}</h3>
+                    <h5><a href="{% url 'superprojects:detail' superproject.tsx_id %}">{{ superproject.tsx_id }}</a> - {{superproject.name}}</h5>
                     <p><b>Owner : </b>{{ superproject.created_by.username }} - {{ superproject.created_at }}</p>
                     <p><b>Description : </b>{{superproject.description}}</p>
                     <hr>
@@ -33,7 +33,7 @@
               </div>
               <div class="tab-pane text-style card-body {{is_active.project}}" id="tab2">
                 {% for project in project_list %}
-                    <h3><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a> - {{project.name}}</h3>
+                    <h5><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a> - {{project.name}}</h5>
 
                     <table class="table">
                       <tbody>
@@ -67,7 +67,7 @@
               </div>
               <div class="tab-pane text-style card-body {{is_active.assay}}" id="tab3">
                 {% for assay in assay_list %}
-                      <h3><a href="{% url 'assays:assay_detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{assay.name}}                      </h3>
+                      <h5><a href="{% url 'assays:assay_detail' assay.tsx_id %}">{{ assay.tsx_id }}</a> - {{assay.name}}                      </h5>
                       <table class="table text-center">
                         <thead>
                           <tr>
@@ -133,12 +133,6 @@
                             </td>
                             <td>{% if assay.sex_type %}{% get_dict_value sex_type_dict assay.sex_type %} {% else %} / {% endif %}</td>
                             <td>{% if assay.dev_stage %}{% get_dict_value dev_stage_dict assay.dev_stage %} {% else %} / {% endif %}</td>
-                            <td>
-                              {{ assay.created_by.username }}
-                            </td>
-                            <td>
-                              {{ assay.created_at }}
-                            </td>
                           </tr>
                         </tbody>
                     </table>
@@ -151,13 +145,13 @@
               </div>
               <div class="tab-pane text-style card-body {{is_active.signature}}" id="tab4">
                 {% for signature in signature_list %}
-                      <h3><a href="{% url 'signatures:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{signature.name}}
+                      <h5><a href="{% url 'signatures:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{signature.name}}
                       
                       {% onto_value signature.organism as organism %}
                       {% onto_value signature.tissue as tissue %}
                       {% onto_value signature.cell as cell%}
                       {% onto_value signature.cell_line as cell_line%}
-                      </h3>
+                      </h5>
                       <table class="table text-center">
                         <thead>
                           <tr>
@@ -168,8 +162,8 @@
                               <th scope="col">Cell line</th>
                               <th scope="col">Sex</th>
                               <th scope="col">Stage</th>
-                              <th scope="col">Owner</th>
-                              <th scope="col">Creation date</th>
+                              <th scope="col">Up genes</th>
+                              <th scope="col">Down genes</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -226,12 +220,8 @@
                             </td>
                             <td>{% if signature.sex_type %}{%  get_dict_value  sex_type_dict signature.sex_type %} {% else %} / {% endif %}</td>
                             <td>{% if signature.dev_stage %}{% get_dict_value dev_stage_dict signature.dev_stage %} {% else %} / {% endif %}</td>
-                            <td>
-                              {{ signature.created_by.username }}
-                            </td>
-                            <td>
-                              {{ signature.created_at }}
-                            </td>
+                            <td>{{ signature.up_gene_number }}</td>
+                            <td>{{ signature.down_gene_number }}</td>
                           </tr>
                         </tbody>
                     </table>
