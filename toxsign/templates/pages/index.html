@@ -46,7 +46,12 @@
                             {% if project.project_type == "OBSERVATIONAL" %} <span class="badge badge-success">Observational</span>{% endif %}
                           <td>
                           <td>
-                            {% if project.description %} {{ project.description }} {% else %} No description provided {% endif %}
+                            {% if project.description %}
+                              {{ project.description|safe|truncatewords:"30"|linebreaks }}
+                              <a href="{% url 'projects:detail' project.tsx_id %}">more</a>
+                            {% else %} 
+                              No description provided 
+                            {% endif %}
                           </td>
                           <td>
                             {{ project.created_by.username }}

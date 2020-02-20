@@ -7,40 +7,24 @@
 <div class="container">
     <h2 class="m-y-2">Profile</h2>
     <div class="row m-y-2">
-      <div class="col-lg-4 pull-lg-8 text-xs-center">
-          <img src="{% if object.avatar %} {{ object.avatar.url }} {% else %} https://gravatar.com/avatar/32cd3b759677f3dad63033536e05672b?s=400&d=robohash&r=x {% endif %}" class="m-x-auto img-fluid img-circle" alt="avatar">
-
-          <table class="table table-striped">
-            <tbody>
-              <tr>
-                <th scope="row">Creation date</th>
-                <td>{{ object.date_joined }}</td>
-              </tr>
-              <tr>
-                <th scope="row">Last connexion</th>
-                <td>{{ object.last_login }}</td>
-              </tr>
-            </tbody>
-          </table>
-      </div>
-        <div class="col-lg-8 push-lg-4">
+        <div class="col-lg-12 push-lg-12">
             <ul class="nav nav-tabs">
                 <li class="nav-item">
                     <a href="" data-target="#profile" data-toggle="tab" class="nav-link {{in_use.user}}">Profile</a>
                 </li>
                 {% if object == request.user %}
-                <li class="nav-item">
-                    <a href="" data-target="#notifications" data-toggle="tab" class="nav-link {{in_use.notification}}">Notifications ({{ notifications.paginator.count }})</a>
-                </li>
-                <li class="nav-item">
-                    <a href="" data-target="#groups" data-toggle="tab" class="nav-link">My groups  ({{ groups.paginator.count }})</a>
-                </li>
-                <li class="nav-item">
-                    <a href="" data-target="#superprojects" data-toggle="tab" class="nav-link {{in_use.superproject}}">My superprojects ({{ superprojects.paginator.count }})</a>
-                </li>
-                <li class="nav-item">
-                    <a href="" data-target="#project" data-toggle="tab" class="nav-link {{in_use.project}}">My projects ({{ projects.paginator.count }})</a>
-                </li>
+                  <li class="nav-item">
+                      <a href="" data-target="#notifications" data-toggle="tab" class="nav-link {{in_use.notification}}">Notifications ({{ notifications.paginator.count }})</a>
+                  </li>
+                  <li class="nav-item">
+                      <a href="" data-target="#groups" data-toggle="tab" class="nav-link">My groups  ({{ groups.paginator.count }})</a>
+                  </li>
+                  <li class="nav-item">
+                      <a href="" data-target="#superprojects" data-toggle="tab" class="nav-link {{in_use.superproject}}">My superprojects ({{ superprojects.paginator.count }})</a>
+                  </li>
+                  <li class="nav-item">
+                      <a href="" data-target="#project" data-toggle="tab" class="nav-link {{in_use.project}}">My projects ({{ projects.paginator.count }})</a>
+                  </li>
                 {% endif %}
             </ul>
             <div class="tab-content p-b-3" style="margin-top:20px;">
