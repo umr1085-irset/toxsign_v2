@@ -5,12 +5,12 @@
 
 {% block content %}
     <!-- Header -->
-    <header class="bg-success py-5 mb-5">
+    <header class="bg-default py-3">
         <div class="container h-100">
         <div class="row h-100 align-items-center">
             <div class="col-lg-12">
-            <h1 class="display-4 text-white mt-5 mb-2">Welcome to TOXsIgN</h1>
-            <p class="lead mb-5 text-white">The TOXicogenomic sIgNature (TOXsIgN) is a user-friendly and cross-species resource that supports online submission, storage, and retrieval of TOXicogenomic sIgNatures.</p>
+            <h1 class="display-4 text-white mt-2 mb-2">Welcome to TOXsIgN</h1>
+            <p class="lead mb-2 text-white">The TOXicogenomic sIgNature (TOXsIgN) is a user-friendly and cross-species resource that supports online submission, storage, and retrieval of TOXicogenomic sIgNatures.</p>
              <form class="form-inline my-6 my-lg-0" id="search" method="GET" action='{% url "search" %}'>
                     <input type='text' class="form-control col-md-6" name='q' placeholder="Search signature" value='{{ request.GET.q }}' id='intry'>
                     <button type="submit" class="btn btn-outline-light col-md-2">Search</button>
@@ -41,7 +41,7 @@
                 <hr>
                 <p>TOXsIgN provides a powerful <a href="{% url 'advanced_search' %}">search engine</a> to access and query the repository.<br></p>
                 <p>The <a href="{% url 'tools:index' %}">TOXsIgN warehouse</a> for toxicogenomics and predictive toxicology tools.<br></p>
-                <a href="{% url 'tools:index' %}" class="btn btn-outline-info btn-sm">View tools</a>
+                <a href="{% url 'tools:index' %}" class="btn btn-outline-info btn-sm" style="border-radius: 30px;">View tools</a>
             </div>
             <!-- /.col-md-4 -->
         </div>
