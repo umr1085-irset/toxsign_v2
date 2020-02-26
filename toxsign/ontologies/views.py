@@ -68,7 +68,7 @@ class CellRestrictedAutocomplete(OntologyAutocomplete):
 class ChemicalRestrictedAutocomplete(OntologyAutocomplete):
 
     def get_queryset(self):
-        return(get_restricted_results(self.q, Chemical, ChemicalDocument, "chemical""))
+        return(get_restricted_results(self.q, Chemical, ChemicalDocument, "chemical"))
 
 class DiseaseRestrictedAutocomplete(OntologyAutocomplete):
 
@@ -88,7 +88,7 @@ class SpeciesRestrictedAutocomplete(OntologyAutocomplete):
 class TissueRestrictedAutocomplete(OntologyAutocomplete):
 
     def get_queryset(self):
-        return(get_restricted_results(self.q, Tissue, TissueDocument, "tissue")
+        return(get_restricted_results(self.q, Tissue, TissueDocument, "tissue"))
 
 # Methods
 
@@ -108,17 +108,17 @@ def get_results(query, Model, Document):
 
 def get_restricted_results(query, Model, Document, fieldname):
 
-    qs = SignatureDocument.search()
+    qs = SignatureDocument.search().query("exists", field=fieldname)
     used_ontology_list = set()
     for sig in qs.scan():
         field_val = getattr(sig, fieldname)
         if field_val:
             used_ontology_list.add(field_val.id)
 
-    ontologies = Document.search().filter("terms", id=used_ontology_list)
+    ontologies = Document.search().filter("terms", id=list(used_ontology_list))
     if query:
         ontologies = ontologies.query("prefix", name=query)
-    return qs
+    return ontologies
 
 def DetailView(request):
 

@@ -28,7 +28,7 @@ class SignatureDocument(Document):
 
     organism = fields.NestedField(properties={
         'id': fields.TextField(),
-        'name': fields.TextField()
+        'name': fields.KeywordField()
     })
 
     tissue = fields.NestedField(properties={
@@ -80,7 +80,9 @@ class SignatureDocument(Document):
             'created_at',
             'sex_type',
             'dev_stage',
-            'signature_type'
+            'signature_type',
+            'up_gene_number',
+            'down_gene_number'
         ]
         related_models = [Factor, Disease]
         ignore_signals = False
