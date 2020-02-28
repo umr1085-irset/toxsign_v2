@@ -6,5 +6,10 @@ conda info --envs | grep 'condaR_TCL' &> /dev/null
 
 if [[ $? -eq 1 ]]; then
     conda create -y -n condaR_TCL R=3.5.1 tk
+    conda activate condaR_TCL
+    pip install h5py
+    pip install tensorflow==2.0.0
+    echo "install.packages(\"keras\", repos=\"https://cran.rstudio.com\")" | R --no-save
+    echo "install.packages(\"caret\", repos=\"https://cran.rstudio.com\")" | R --no-save
+    echo "install.packages(\"e1071\", repos=\"https://cran.rstudio.com\")" | R --no-save
 fi
-
