@@ -88,11 +88,10 @@ def download_job_result(request, jobid):
     return response
 
 def autocompleteModel(request):
-    query = request.GET.get('q')
+    query = request.GET.get('q', "")
 
     try:
         # Wildcard for search (not optimal)
-        query = "*" + query + "*"
         if request.user.is_authenticated:
             if request.user.is_superuser:
                 q = Q_es()
