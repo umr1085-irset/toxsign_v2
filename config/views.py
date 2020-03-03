@@ -92,6 +92,11 @@ def autocompleteModel(request):
 
     try:
         # Wildcard for search (not optimal)
+        if query:
+            query = "*" + query + "*"
+        else:
+            query = "*"
+
         if request.user.is_authenticated:
             if request.user.is_superuser:
                 q = Q_es()
@@ -128,7 +133,7 @@ def autocompleteModel(request):
 
     is_active = {'superproject': "", 'project': "", 'signature': ""}
     # If a specific page was requested,  set the related tab to active
-    if request.GET.get('projects') or request.GET.get('assays') or request.GET.get('signatures'):
+    if request.GET.get('projects') or request.GET.get('superprojects') or request.GET.get('signatures'):
 
         if request.GET.get('projects'):
             is_active['project'] = "active"
@@ -147,14 +152,37 @@ def autocompleteModel(request):
         else:
             is_active['superproject'] = "active"
 
-    results = {
-        'superprojects' : results_superprojects,
-        'projects': results_projects,
-        'signatures': results_signatures,
-        'is_active': is_active,
-        'query': request.GET.get('q')
+    dev_stage_dict = {
+        "FETAL": 'Fetal',
+        "EMBRYONIC": "Embryonic",
+        "LARVA": "Larva",
+        "NEONATAL": "Neo-natal",
+        "JUVENILE": "Juvenile",
+        "PREPUBERTAL": "Prepubertal",
+        "ADULTHOOD": "Adulthood",
+        "ELDERLY": "Elderly",
+        "NA": "Na",
+        "OTHER": "Other",
     }
-    return render(request, 'pages/ajax_search.html', {'status': results})
+    sex_type_dict = {
+        'MALE': 'Male',
+        'FEMALE': 'Female',
+        'BOTH': 'Both',
+        'NA': 'Na',
+        "OTHER": "Other",
+    }
+
+    results = {
+        'superproject_list' : results_superprojects,
+        'project_list': results_projects,
+        'signature_list': results_signatures,
+        'is_active': is_active,
+        "dev_stage_dict": dev_stage_dict,
+        "sex_type_dict": sex_type_dict,
+        'get_query': request.GET.get('q')
+    }
+
+    return render(request, 'pages/ajax_search.html', results)
 
 def advanced_search_form(request):
 
