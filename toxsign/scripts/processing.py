@@ -13,6 +13,7 @@ from toxsign.taskapp.celery import app
 from toxsign.projects.views import check_view_permissions
 from toxsign.projects.models import Project
 from toxsign.signatures.models import Signature
+from toxsign.tools.models import PredictionModel
 from toxsign.jobs.models import Job
 
 from celery.utils.log import get_task_logger
@@ -22,10 +23,20 @@ logger = get_task_logger(__name__)
 class TaskFailure(Exception):
    pass
 
+
+def zip_results(path_to_folder, archive_name="archive"):
+    if os.path.exists(path_to_folder + '/{}.zip'.format(archive_name)):
+        os.remove(path_to_folder + '/{}.zip'.format(archive_name))
+
+    with tempfile.TemporaryDirectory() as dirpath:
+        archive_temp_path = shutil.make_archive(dirpath + '/' + archive_name, 'zip', path_to_folder)
+        archive_path = shutil.move(archive_temp_path, path_to_folder)
+
+    return archive_path
+
 @app.task(bind=True)
 def run_distance(self, signature_id, user_id=None):
     from toxsign.users.models import User
-    from toxsign.scripts.processing import zip_results
     dt = datetime.datetime.utcnow()
     ztime = time.mktime(dt.timetuple())
     task_id = self.request.id + "_" + str(ztime)
@@ -95,7 +106,6 @@ def run_distance(self, signature_id, user_id=None):
 
 @app.task(bind=True)
 def run_enrich(self, signature_id):
-    from toxsign.scripts.processing import zip_results
     dt = datetime.datetime.utcnow()
     ztime = time.mktime(dt.timetuple())
     task_id = self.request.id + "_" + str(ztime)
@@ -157,7 +167,76 @@ def run_enrich(self, signature_id):
     current_job.results = results
     current_job.save()
 
-def _prepare_temp_folder(request_id, signature, additional_signatures=[], add_RData=False, add_Homolog=False):
+@app.task(bind=True)
+def run_predict(self, signature_id, model_id):
+    dt = datetime.datetime.utcnow()
+    ztime = time.mktime(dt.timetuple())
+    task_id = self.request.id + "_" + str(ztime)
+
+    # Does it work with no rData file? Using only provided signatures?
+    if not os.path.exists("/app/toxsign/media/jobs/admin/mat_chempsy_final_10793.tsv"):
+        logger.exception("No chempsy matrix file found. Stopping..")
+        raise TaskFailure('No chempsy matrix file found')
+
+    job_dir_path = "/app/toxsign/media/jobs/results/" + task_id + "/"
+
+    if os.path.exists(job_dir_path):
+        logger.exception("Result directory {} already exists. Stopping.".format(task_id))
+        raise TaskFailure('Result directory already exists')
+
+    os.mkdir(job_dir_path)
+    selected_signature = Signature.objects.get(id=signature_id)
+
+    if not selected_signature.expression_values_file:
+        logger.exception("Signature {} has no file associated.".format(selected_signature.tsx_id))
+        raise TaskFailure("Signature {} has no file associated.".format(selected_signature.tsx_id))
+
+    selected_model = PredictionModel.objects.get(id=model_id)
+
+    if not selected_model.model_file or not selected_model.association_matrix:
+        logger.exception("Model {} is missing a file.".format(selected_model.name))
+        raise TaskFailure("Model {} is missing a file".format(selected_model.name))
+
+    temp_dir_path = _prepare_temp_folder(task_id, selected_signature, additional_signatures=[], add_Homolog=True, predict_model=selected_model)
+
+    if not temp_dir_path:
+        logger.exception("Temp directory with this task id ({}) already exists. Stopping..".format(task_id))
+        raise TaskFailure('test')
+
+    current_job = Job.objects.get(celery_task_id=self.request.id)
+    current_job.results = {'tmp_folder': temp_dir_path}
+    current_job.save()
+
+    run = subprocess.run(['/bin/bash', '/app/tools/run_enrich/run_predict.sh', temp_dir_path, selected_signature.name, selected_signature.tsx_id, job_dir_path], capture_output=True)
+    logger.info(run.stdout.decode())
+
+    if not run.returncode == 0:
+        if os.path.exists(temp_dir_path):
+            os.rmtree(temp_dir_path)
+        current_job.results['error'] = run.stdout.decode()
+        current_job.save()
+        logger.exception(run.stderr.decode())
+        raise TaskFailure('Error running bash script')
+
+    # Update job with results
+    zip_path = zip_results(job_dir_path)
+
+    results = {
+        'files': [
+            job_dir_path + 'prediction_results.tsv'
+        ],
+        'job_folder': job_dir_path,
+        'archive': zip_path,
+        'args': {
+            'signature_id': signature_id,
+            'model_id': model_id
+        }
+    }
+
+    current_job.results = results
+    current_job.save()
+
+def _prepare_temp_folder(request_id, signature, additional_signatures=[], add_RData=False, add_Homolog=False, predict_model=None):
 
     temp_dir_path =  "/app/toxsign/media/jobs/temp/" + request_id + "/"
 
@@ -167,7 +246,10 @@ def _prepare_temp_folder(request_id, signature, additional_signatures=[], add_RD
 
     os.mkdir(temp_dir_path)
 
-    shutil.copy2(signature.expression_values_file.path, temp_dir_path)
+    if predict_model:
+        shutil.copy2(signature.expression_values_file.path, temp_dir_path + "signature.file")
+    else:
+        shutil.copy2(signature.expression_values_file.path, temp_dir_path)
     for sig in additional_signatures:
         if sig.expression_values_file and os.path.exists(sig.expression_values_file.path):
             shutil.copy2(sig.expression_values_file.path, temp_dir_path)
@@ -177,14 +259,9 @@ def _prepare_temp_folder(request_id, signature, additional_signatures=[], add_RD
     if add_Homolog:
         shutil.copy2('/app/toxsign/media/jobs/admin/annotation', temp_dir_path)
 
+    if predict_model:
+        shutil.copy2('/app/toxsign/media/jobs/admin/mat_chempsy_final_10793.tsv', temp_dir_path)
+        shutil.copy2(predict_model.model_file.path, temp_dir_path)
+        shutil.copy2(predict_model.association_matrix.path, temp_dir_path)
+
     return temp_dir_path
-
-def zip_results(path_to_folder, archive_name="archive"):
-    if os.path.exists(path_to_folder + '/{}.zip'.format(archive_name)):
-        os.remove(path_to_folder + '/{}.zip'.format(archive_name))
-
-    with tempfile.TemporaryDirectory() as dirpath:
-        archive_temp_path = shutil.make_archive(dirpath + '/' + archive_name, 'zip', path_to_folder)
-        archive_path = shutil.move(archive_temp_path, path_to_folder)
-
-    return archive_path

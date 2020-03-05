@@ -131,6 +131,86 @@ def change_status(self, project_id=None):
     subprocess.run(['/bin/bash', '/app/tools/make_public/make_public.sh', temp_dir_path])
 
 
+@app.task(bind=True)
+def setup_cluster(self, cluster_id):
+
+    from toxsign.clusters.models import Cluster
+    # Make sure the entity is saved before anything
+    time.sleep(10)
+    try:
+        cluster = Cluster.objects.get(id=cluster_id)
+    except toxsign.signatures.models.DoesNotExist:
+        raise Exception("Cluster with id {} was not found".format(cluster_id))
+
+    if cluster.conditions_file:
+        cluster.conditions = _process_cluster_conditions(cluster.conditions_file)
+    if cluster.signature_file:
+        cluster.signature = _process_cluster_signature(cluster.signature_file)
+
+    cluster.save()
+
+
+def _process_cluster_conditions(condition_file):
+
+    if not condition_file or not os.path.exists(condition_file.path):
+        return {'unique_chemicals': 0, 'conditions': []}
+
+    chemicals = set()
+    conditions = []
+    with open(condition_file.path, 'r') as f:
+        for line in f:
+            data = process_condition_line(line)
+            if not data:
+                continue
+            chemicals.add(data['chemical'])
+            conditions.append(data)
+    results = {'unique_chemicals': len(chemicals), 'conditions': conditions}
+
+    return results
+
+def _process_condition_line(line):
+
+    data = {}
+
+    line_values = line.split("+")
+    if not len(line_values) == 6:
+        return {}
+
+    data['geo_id'] = line_values[0]
+    data['tissue'] = line_values[1].title()
+    data['chemical'] = line_values[2].title()
+    data['generation'] = line_values[3]
+    data['concentration'] = _process_data(line_values[4])
+    data['exposure'] = _process_data(line_values[5])
+
+    return data
+
+def _process_data(data):
+
+    if not data:
+        return "NA"
+
+    return " ".join(data.split("_"))
+
+def _process_cluster_signature(signature_file):
+
+    if not signature_file or not os.path.exists(signature_file):
+        return {}
+
+    gene_list = []
+
+    with open(condition_file.path, 'r') as f:
+        for line in f:
+            data = {"gene_id" : line.rstrip()}
+            gene = Gene.object.filter(gene_id=line.rstrip())
+            if gene.count():
+                gene = gene[0]
+                data = {"gene_id" : gene.gene_id, "symbol": gene.symbol, "homolog_id": gene.homolog_id, "tax_id": gene.tax_id}
+            else:
+                data = {"gene_id" : line.rstrip(), "symbol": "NA", "homolog_id": "NA", "tax_id": "NA"}
+            gene_list.append(data)
+    return {"gene_list": gene_list}
+
 def _generate_values(signature):
     # Starts from scratch
     values = {}
