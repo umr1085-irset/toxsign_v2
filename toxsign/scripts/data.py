@@ -159,7 +159,7 @@ def _process_cluster_conditions(condition_file):
     conditions = []
     with open(condition_file.path, 'r') as f:
         for line in f:
-            data = process_condition_line(line)
+            data = _process_condition_line(line)
             if not data:
                 continue
             chemicals.add(data['chemical'])
@@ -194,20 +194,20 @@ def _process_data(data):
 
 def _process_cluster_signature(signature_file):
 
-    if not signature_file or not os.path.exists(signature_file):
+    if not signature_file or not os.path.exists(signature_file.path):
         return {}
 
     gene_list = []
 
-    with open(condition_file.path, 'r') as f:
+    with open(signature_file.path, 'r') as f:
         for line in f:
             data = {"gene_id" : line.rstrip()}
-            gene = Gene.object.filter(gene_id=line.rstrip())
+            gene = Gene.objects.filter(gene_id=line.rstrip())
             if gene.count():
                 gene = gene[0]
-                data = {"gene_id" : gene.gene_id, "symbol": gene.symbol, "homolog_id": gene.homolog_id, "tax_id": gene.tax_id}
+                data = {"gene_id" : gene.gene_id, "symbol": gene.symbol}
             else:
-                data = {"gene_id" : line.rstrip(), "symbol": "NA", "homolog_id": "NA", "tax_id": "NA"}
+                data = {"gene_id" : line.rstrip(), "symbol": "NA"}
             gene_list.append(data)
     return {"gene_list": gene_list}
 

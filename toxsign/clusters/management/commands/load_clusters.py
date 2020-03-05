@@ -30,7 +30,7 @@ def _create_cluster(cluster_id, distance_type, data):
     if 'gene2enr' in data:
         cluster.gene_enrichment_file.save("gene2enr", File(open(data['gene2enr'], "rb")), save=False)
 
-    cluster.save()
+    cluster.save(force=True)
 
 def _get_cluster_file_paths(data_folder):
 
