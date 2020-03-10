@@ -26,7 +26,7 @@ from django.template.loader import render_to_string
 from guardian.shortcuts import get_objects_for_user
 from toxsign.projects.models import Project
 from toxsign.projects.views import check_view_permissions
-from toxsign.tools.models import Tool, Category
+from toxsign.tools.models import Tool, Category, PredictionModel
 import toxsign.tools.forms as forms
 from toxsign.jobs.models import Job
 from toxsign.signatures.models import Signature
@@ -35,7 +35,7 @@ from toxsign.projects.models import Project
 from django.conf import settings
 from toxsign.taskapp.celery import app
 
-from toxsign.scripts.processing import run_distance, run_enrich
+from toxsign.scripts.processing import run_distance, run_enrich, run_predict
 from toxsign.users.views import is_viewable
 
 
@@ -353,7 +353,39 @@ def functional_analysis_partial_table(request, job_id, type):
         return JsonResponse(data)
 
 def prediction_tool(request):
-    pass
+
+    accessible_projects = [project for project in Project.objects.all() if check_view_permissions(request.user, project)]
+    signatures = Signature.objects.filter(factor__assay__project__in=accessible_projects)
+
+    if request.method == 'POST':
+        form = forms.prediction_compute_form(request.POST, signatures=signatures)
+        if form.is_valid():
+            signature_id = request.POST.get('signature')
+            # Make sure it's selected from available sigs
+            if not signature_id or not signatures.filter(id=signature_id).exists:
+                return redirect('/unauthorized')
+
+            model_id = request.POST.get('model')
+            if not model_id or not PredictionModel.filter(id=model_id).exists:
+                return redirect('/unauthorized')
+
+            tool = Tool.objects.get(name="Temp_name")
+            job_name = request.POST.get('job_name', "Prediction job")
+            task = run_prediction.delay(signature_id)
+            _create_job(job_name, request.user, task.id, tool)
+            return(redirect(reverse("jobs:running_jobs")))
+
+        else:
+            context = {'form':form}
+            return render(request, 'tools/run_dist.html', context)
+
+        sig_id = request.POST['signature']
+        job_name = request.POST['job_name']
+
+    else:
+        form = forms.prediction_compute_form(signatures=signatures)
+        context = {'form':form}
+        return render(request, 'tools/run_dist.html', context)
 
 
 def _create_job(title, owner, task_id, tool, type="TOOL"):

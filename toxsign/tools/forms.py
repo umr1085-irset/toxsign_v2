@@ -5,6 +5,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout
 from crispy_forms.bootstrap import FormActions
 from toxsign.signatures.models import Signature
+from toxsign.tools.models import PredictionModel
 import toxsign.ontologies.models as models
 
 class default_form(forms.Form):
@@ -69,6 +70,33 @@ class signature_compute_form(forms.Form):
 
         self.signatures = kwargs.pop('signatures')
         super(signature_compute_form, self).__init__(*args, **kwargs)
+
+        self.fields["signature"] = forms.ModelChoiceField(
+            queryset=self.signatures,
+            label="Signature",
+            widget=autocomplete.ModelSelect2(url='/signatures/signature-autocomplete', attrs={'data-minimum-input-length': 3})
+        )
+
+        self.helper = FormHelper(self)
+        self.helper.form_class = 'form-horizontal'
+        self.helper.label_class = 'col-lg-2'
+        self.helper.field_class = 'col-lg-8'
+        self.helper.form_method = 'POST'
+        self.helper.add_input(Submit('save', 'Submit job'))
+
+class prediction_compute_form(forms.Form):
+
+    job_name = forms.CharField(label='Job_name', max_length=100)
+
+    def __init__(self, *args, **kwargs):
+
+        self.signatures = kwargs.pop('signatures')
+        super(signature_compute_form, self).__init__(*args, **kwargs)
+
+        self.fields["model"] = forms.ModelChoiceField(
+            queryset=PredictionModel.objects.all(),
+            label="Prediction model",
+        )
 
         self.fields["signature"] = forms.ModelChoiceField(
             queryset=self.signatures,

@@ -53,7 +53,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 
   var tip = d3.tip().attr('class', 'd3-tip').direction('e').offset([-10,10])
     .html(function(d) {
-      var content = "<span style='margin-left: 2.5px;'><b>" + d.data.name + "</b></span><br>";
+      var content = "<span style='margin-left: 2.5px;'><b>Left click to see this entity. Right click for more options</b></span><br>";
       return content;
      });
 

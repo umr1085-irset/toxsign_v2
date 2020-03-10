@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
+
+    <style>
+        .dataTables_filter input { width: 100px }
+    </style>
+    <div class="container">
+      <h3>Details for cluster {{cluster.cluster_id}}</h3>
+      <p>Distance calculation method : {{cluster.distance_method}}</p>
+      <div class="row">
+          <div class="col-md-8 mb-2" style="text-align:center">
+            <h4>Experimental conditions</h4>
+            <div class="table-responsive">
+              <table class="table table-hover" id="conditions">
+                <thead>
+                  <tr style="text-align:center;">
+                    <th scope="col">Source</th>
+                    <th scope="col">Tissue</th>
+                    <th scope="col">Chemical</th>
+                    <th scope="col">Generation</th>
+                    <th scope="col">Concentration</th>
+                    <th scope="col">Exposure</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for condition in cluster.conditions.conditions %}
+                  <tr>
+                    <td>
+                    {% if condition.geo_id == "TGGATE" %}
+                      <a href="10.18908/lsdba.nbdc00954-01-000">TG-GATEs</a>
+                    {% elif "GSE" in condition.geo_id %}
+                      <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={{condition.geo_id}}">{{condition.geo_id}}</a>
+                    {% else %}
+                      {{ condition.geo_id }}
+                    {% endif %}
+                    </td>
+                    <td>{{condition.tissue}}</td>
+                    <td>{{condition.chemical}}</td>
+                    <td>{{condition.generation}}</td>
+                    <td>{{condition.concentration}}</td>
+                    <td>{{condition.exposure}}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="col-md-4 mb-2" style="text-align:center">
+            <h4>Cluster signature</h4>
+              {% if cluster.signature %}
+              <div class="table-responsive">
+                <table class="table table-hover" id="signature">
+                  <thead>
+                    <tr style="text-align:center;">
+                      <th scope="col">Gene id (Entrez)</th>
+                      <th scope="col">Gene name</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for gene in cluster.signature.gene_list %}
+                    <tr>
+                      <td>{{ gene.gene_id }}</td>
+                      <td>{{ gene.symbol }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% endif %}    
+          </div>
+      </div>
+      <div class="row">
+          <div class="col-md-12">
+            <div id="chem2enr" data-url="{% url 'clusters:graph' cluster.id %}?type=chem"></div>
+          </div>
+      </div>
+      <div class="row">
+          <div class="col-md-12">
+            <div id="gene2enr"data-url="{% url 'clusters:graph' cluster.id %}?type=gene"></div>
+          </div>
+      </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+        {% if cluster.signature %}
+        var has_signature=true;
+        {% else %}
+        var has_signature=false;
+        {% endif %}
+        {% if cluster.chemical_enrichment_file %}
+        var has_chem_enr=true;
+        {% else %}
+        var has_chem_enr=false;
+        {% endif %}
+        {% if cluster.gene_enrichment_file %}
+        var has_gene_enr=true;
+        {% else %}
+        var has_gene_enr=false;
+        {% endif %}
+    </script>
+    <script src="{% static 'js/cluster.js' %}"></script>
+{% endblock %}

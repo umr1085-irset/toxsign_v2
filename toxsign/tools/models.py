@@ -7,8 +7,17 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.postgres.fields import JSONField
 from django.apps import apps
 
-# Create your models here.
+def get_model_upload_path(instance, filename):
 
+    path =  os.path.join("jobs/admin/{}/".format(instance.computer_name), "model.h5")
+    return path
+
+def get_association_upload_path(instance, filename):
+
+    path =  os.path.join("jobs/admin/{}/".format(instance.computer_name), "association_matrix.tsv")
+    return path
+
+# Create your models here.
 class Tag(models.Model):
     word        = models.CharField(max_length=35)
     slug        = models.CharField(max_length=250)
@@ -78,3 +87,14 @@ class Argument(models.Model):
 
     class Meta:
         ordering = ('order',)
+
+class PredictionModel(models.Model):
+
+    name = models.CharField(max_length=200)
+    computer_name = models.CharField(max_length=50)
+    description = models.TextField("description", blank=True, null=True)
+    model_file = models.FileField(upload_to=get_model_upload_path)
+    association_matrix = models.FileField(upload_to=get_association_upload_path)
+
+    def __str__(self):
+        return self.name

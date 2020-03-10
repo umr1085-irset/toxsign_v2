@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+
+{% block content %}
+<div class="container">    
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header bg-white">Signature prediction tool</div>
+                <div class="card-body bg-light">
+                This tool allows users to predict the properties of a chemical by feeding its signature to a neural network trained on the ChemPSy dataset. 
+                Predictions include whether the chemical is an endocrine disrupting, or its distances to several chemical clusters.
+                <br>
+                <b>How to perform the prediction</b>
+                <br>
+                <b><i>Input data</i></b>: Select the signature using the "Select signature" selector. Select the model you wish to use.
+                <br>
+                <b><i>Output data</i></b>: Model-dependent table.
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">Parameters</div>
+                <div class="card-body">
+                    {% crispy form %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
