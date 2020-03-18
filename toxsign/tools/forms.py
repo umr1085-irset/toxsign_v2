@@ -91,7 +91,7 @@ class prediction_compute_form(forms.Form):
     def __init__(self, *args, **kwargs):
 
         self.signatures = kwargs.pop('signatures')
-        super(signature_compute_form, self).__init__(*args, **kwargs)
+        super(prediction_compute_form, self).__init__(*args, **kwargs)
 
         self.fields["model"] = forms.ModelChoiceField(
             queryset=PredictionModel.objects.all(),

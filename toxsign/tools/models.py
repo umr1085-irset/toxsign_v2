@@ -7,6 +7,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.postgres.fields import JSONField
 from django.apps import apps
 
+import os
+
 def get_model_upload_path(instance, filename):
 
     path =  os.path.join("jobs/admin/{}/".format(instance.computer_name), "model.h5")
@@ -95,6 +97,7 @@ class PredictionModel(models.Model):
     description = models.TextField("description", blank=True, null=True)
     model_file = models.FileField(upload_to=get_model_upload_path)
     association_matrix = models.FileField(upload_to=get_association_upload_path)
+    parameters = JSONField(null=True, blank=True, default=dict)
 
     def __str__(self):
         return self.name

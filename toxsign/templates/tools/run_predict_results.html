@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
+
+<div class="container">    
+    <div id="graph"></div>
+    <div class="table-responsive">
+      <table class="table table-hover" id="conditions">
+        <thead>
+          <tr>
+            <th scope="col">Cluster</th>
+            <th scope="col">Probability</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            {% for value in clusters %}
+            <td><a style="color:blue" href="{% url 'clusters:details' value.cluster.distance_method value.cluster.cluster_id %}">Cluster {{value.cluster.cluster_id}}</a></td>
+            <td>{{value.value |floatformat:-3 }}</td>
+            {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <br>
+</div>
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+        $('#conditions').DataTable();
+        var data= {{json_data | safe}};
+        Plotly.newPlot('graph', data['data'], data['layout'])
+    </script>
+   
+
+{% endblock %}

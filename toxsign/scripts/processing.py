@@ -82,7 +82,7 @@ def run_distance(self, signature_id, user_id=None):
 
     if not run.returncode == 0:
         if os.path.exists(temp_dir_path):
-            os.rmtree(temp_dir_path)
+            shutil.rmtree(temp_dir_path)
         current_job.results['error'] = run.stdout.decode()
         current_job.save()
         logger.exception(run.stderr.decode())
@@ -143,7 +143,7 @@ def run_enrich(self, signature_id):
 
     if not run.returncode == 0:
         if os.path.exists(temp_dir_path):
-            os.rmtree(temp_dir_path)
+            shutil.rmtree(temp_dir_path)
         current_job.results['error'] = run.stdout.decode()
         current_job.save()
         logger.exception(run.stderr.decode())
@@ -207,12 +207,13 @@ def run_predict(self, signature_id, model_id):
     current_job.results = {'tmp_folder': temp_dir_path}
     current_job.save()
 
-    run = subprocess.run(['/bin/bash', '/app/tools/run_enrich/run_predict.sh', temp_dir_path, selected_signature.name, selected_signature.tsx_id, job_dir_path], capture_output=True)
+    run = subprocess.run(['/bin/bash', '/app/tools/run_predict/run_predict.sh', temp_dir_path, selected_signature.name, selected_signature.tsx_id, job_dir_path], capture_output=True)
     logger.info(run.stdout.decode())
 
     if not run.returncode == 0:
         if os.path.exists(temp_dir_path):
-            os.rmtree(temp_dir_path)
+            #shutil.rmtree(temp_dir_path)
+            pass
         current_job.results['error'] = run.stdout.decode()
         current_job.save()
         logger.exception(run.stderr.decode())
@@ -246,10 +247,7 @@ def _prepare_temp_folder(request_id, signature, additional_signatures=[], add_RD
 
     os.mkdir(temp_dir_path)
 
-    if predict_model:
-        shutil.copy2(signature.expression_values_file.path, temp_dir_path + "signature.file")
-    else:
-        shutil.copy2(signature.expression_values_file.path, temp_dir_path)
+    shutil.copy2(signature.expression_values_file.path, temp_dir_path)
     for sig in additional_signatures:
         if sig.expression_values_file and os.path.exists(sig.expression_values_file.path):
             shutil.copy2(sig.expression_values_file.path, temp_dir_path)

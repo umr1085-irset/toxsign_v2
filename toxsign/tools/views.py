@@ -18,6 +18,7 @@ from django.contrib import messages
 import uuid
 import shutil
 import pandas as pd
+import json
 
 from celery.result import AsyncResult
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -31,6 +32,8 @@ import toxsign.tools.forms as forms
 from toxsign.jobs.models import Job
 from toxsign.signatures.models import Signature
 from toxsign.projects.models import Project
+
+from toxsign.clusters.models import Cluster
 
 from django.conf import settings
 from toxsign.taskapp.celery import app
@@ -366,12 +369,12 @@ def prediction_tool(request):
                 return redirect('/unauthorized')
 
             model_id = request.POST.get('model')
-            if not model_id or not PredictionModel.filter(id=model_id).exists:
+            if not model_id or not PredictionModel.objects.filter(id=model_id).exists:
                 return redirect('/unauthorized')
 
-            tool = Tool.objects.get(name="Temp_name")
+            tool = Tool.objects.get(name="ChemPSy - Prediction")
             job_name = request.POST.get('job_name', "Prediction job")
-            task = run_prediction.delay(signature_id)
+            task = run_predict.delay(signature_id, model_id)
             _create_job(job_name, request.user, task.id, tool)
             return(redirect(reverse("jobs:running_jobs")))
 
@@ -386,6 +389,69 @@ def prediction_tool(request):
         form = forms.prediction_compute_form(signatures=signatures)
         context = {'form':form}
         return render(request, 'tools/run_dist.html', context)
+
+def prediction_tool_results(request, job_id):
+
+    job = get_object_or_404(Job, id=job_id)
+
+    if not is_viewable(job, request.user):
+        return redirect('/unauthorized')
+
+    file_path = job.results['files'][0]
+    selected_signature_id = job.results['args']['signature_id']
+    selected_model_id = job.results['args']['model_id']
+
+    model = get_object_or_404(PredictionModel, id=selected_model_id)
+    type = model.parameters.get("cluster_distance_type")
+
+    if not type:
+        # What to do?
+        pass
+
+    if not os.path.exists(file_path):
+        # What do do?
+        pass
+
+    # Will need to manage multiple signature at some point
+    df = pd.read_csv(file_path, sep="\t", encoding="latin1")
+    df = df[df['x'] > 0.05]
+
+    clusters = []
+    for cluster_name in df.index.values:
+        cluster_id = cluster_name.replace("Group_", "")
+        cluster = Cluster.objects.filter(distance_method=type, cluster_id=cluster_id)
+        if cluster:
+            clusters.append({'cluster': cluster[0], 'value': df["x"][cluster_name]})
+
+    json_data = _format_graph_data(clusters)
+
+    context = {
+        "clusters": clusters,
+        "json_data": json.dumps(json_data)
+    }
+    return render(request, 'tools/run_predict_results.html', context)
+
+def _format_graph_data(data):
+
+    layout = {
+        "title": "Probability that the sample belongs to a cluster",
+        "bargap": 0.9,
+        "yaxis": {
+            "automargin": True,
+            "autorange":"reversed"
+        },
+    };
+
+    return {
+        "data": [{
+            "x": [cluster['value'] for cluster in data],
+            "y": ["<a href='{}'>Cluster {} </a>".format(reverse('clusters:details', kwargs={'type': cluster['cluster'].distance_method, 'clrid':cluster['cluster'].cluster_id}), cluster['cluster'].cluster_id) for cluster in data],
+            "type": "bar",
+            "orientation": "h",
+            "textposition": 'auto',
+        }],
+        "layout": layout
+    }
 
 
 def _create_job(title, owner, task_id, tool, type="TOOL"):

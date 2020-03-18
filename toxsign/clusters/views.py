@@ -24,28 +24,33 @@ def index(request):
 
     return render(request, 'clusters/index.html',{"euclidean": euclidean_clusters, "correlation": correlation_cluster})
 
-def details(request, clrid):
+def details(request, type, clrid):
 
-    cluster = get_object_or_404(Cluster, id=clrid)
+    if not type in ['correlation', 'euclidean']:
+        return redirect(reverse("home"))
+
+    cluster = get_object_or_404(Cluster, distance_method=type, cluster_id=clrid)
     return render(request, 'clusters/details.html',{"cluster": cluster})
 
 
-def get_graph_data(request, clrid):
+def get_graph_data(request, type, clrid):
 
-    type = request.GET.get("type")
-    if not type or not (type == "chem" or type == "gene"):
+    data = {"data": [{"x": [], "y": [], "type": "bar", "text": []}]}
+
+    if not type in ['correlation', 'euclidean']:
+        return JsonResponse()
+
+    enrich_type = request.GET.get("type")
+    if not enrich_type or not (enrich_type == "chem" or enrich_type == "gene"):
         type= "chem"
 
-    cluster = get_object_or_404(Cluster, id=clrid)
+    cluster = get_object_or_404(Cluster, distance_method=type, cluster_id=clrid)
 
-    if type == "chem" and cluster.chemical_enrichment_file:
+    if enrich_type == "chem" and cluster.chemical_enrichment_file:
         data = _format_graph_data(cluster.chemical_enrichment_file.path, "Chemical enrichment")
 
-    elif type == "gene" and cluster.gene_enrichment_file:
+    elif enrich_type == "gene" and cluster.gene_enrichment_file:
         data = _format_graph_data(cluster.gene_enrichment_file.path, "Gene enrichment")
-    else:
-        # TODO: Manage error
-        data = {"data": [{"x": [], "y": [], "type": "bar", "text": []}]}
 
     return JsonResponse(data)
 
@@ -54,7 +59,7 @@ def _format_graph_data(file_path, title, rows=10):
     df = pd.read_csv(file_path, sep="\t", encoding="latin1")
     df = df[['MESH', 'pBH', 'r']]
     df = df[df.pBH != 1]
-    df = df.sort_values('pBH')
+    df = df.sort_values(['pBH', 'r'], ascending=(True,False))
     df = df.head(rows)
     df['pBH'] = -np.log(df['pBH'])
     df['MESH'] = df['MESH'].apply(_clean_name)
@@ -65,7 +70,10 @@ def _format_graph_data(file_path, title, rows=10):
         "yaxis": {
             "automargin": True,
             "autorange":"reversed"
-        }
+        },
+        "xaxis": {
+            "title": {"text": "-log(Adjusted P value)"},
+        },
     };
 
     return {

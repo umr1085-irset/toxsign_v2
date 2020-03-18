@@ -14,7 +14,7 @@
       <p>Distance calculation method : {{cluster.distance_method}}</p>
       <div class="row">
           <div class="col-md-8 mb-2" style="text-align:center">
-            <h4>Experimental conditions</h4>
+            <h4> {{ cluster.conditions.conditions | length}} experimental conditions with {{cluster.conditions.unique_chemicals}} distinct chemicals</h4>
             <div class="table-responsive">
               <table class="table table-hover" id="conditions">
                 <thead>
@@ -76,12 +76,12 @@
       </div>
       <div class="row">
           <div class="col-md-12">
-            <div id="chem2enr" data-url="{% url 'clusters:graph' cluster.id %}?type=chem"></div>
+            <div id="chem2enr" data-url="{% url 'clusters:graph' cluster.distance_method cluster.cluster_id %}?type=chem"></div>
           </div>
       </div>
       <div class="row">
           <div class="col-md-12">
-            <div id="gene2enr"data-url="{% url 'clusters:graph' cluster.id %}?type=gene"></div>
+            <div id="gene2enr"data-url="{% url 'clusters:graph' cluster.distance_method cluster.cluster_id %}?type=gene"></div>
           </div>
       </div>
     </div>

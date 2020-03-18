@@ -13,6 +13,8 @@ import os, shutil
 
 def populate_default_tools():
 
+    Tool.objects.all().delete()
+
     if os.path.exists('/app/toxsign/media/tools'):
         shutil.rmtree('/app/toxsign/media/tools')
         os.mkdir('/app/toxsign/media/tools')
@@ -90,10 +92,26 @@ def populate_default_tools():
     run_enrichment_tool.tags.add(analyze_tag)
     run_enrichment_tool.save()
 
+    run_prediction_tool = Tool(
+        name = 'ChemPSy - Prediction',
+        type = "LOCAL",
+        category = analyze_category,
+        short_description = "Prediction tool using machine learning trained on the ChemPSy (Chemical Prioritization System) data",
+        description = "The aim of ChemPSy (Chemical Prioritization System) is to provide an innovative tool based on several bioinformatics and biostatistics methodologies to analyze and integrate massive toxicogenomics datasets. Specific objectives include: (1) classification of chemicals based on transcriptional signatures, i.e. the set of genes whose expression is known to be positively or negatively altered after an exposure to these compounds; (2) the association of classes with human pathologies or deleterious phenotypes, i.e. classes containing toxicants with well-known effects; (3) the prediction of novel reprotoxicants and/or endocrine disruptors based on transcriptional signature similarities with known chemicals affecting testis development and function.",
+        status = "DEVELOPPMENT",
+        link = "tools:run_predict",
+        custom_result_link = "tools:run_predict_results"
+    )
+
+    run_prediction_tool.icon.save("advanced_search.jpg", File(open("/app/loading_data/images/advanced_search.jpg", "rb")), save=False)
+    run_prediction_tool.visuel.save("advanced_search.jpg", File(open("/app/loading_data/images/advanced_search.jpg", "rb")), save=False)
+    run_prediction_tool.save()
+    run_prediction_tool.tags.add(analyze_tag)
+    run_prediction_tool.save()
+
     if not os.environ.get("MODE") == "TEST":
         prepare_tools_env.delay()
         prepare_homolog_data.delay()
-        pass
 
 
 def _create_category(name, description):
