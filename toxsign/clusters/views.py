@@ -32,6 +32,20 @@ def details(request, type, clrid):
     cluster = get_object_or_404(Cluster, distance_method=type, cluster_id=clrid)
     return render(request, 'clusters/details.html',{"cluster": cluster})
 
+def details_modal(request, type, clrid):
+
+    if not type in ['correlation', 'euclidean']:
+        return redirect(reverse("home"))
+
+    data = {}
+    cluster = get_object_or_404(Cluster, distance_method=type, cluster_id=clrid)
+    data['html'] = render_to_string('clusters/partial_details.html',
+        {"cluster": cluster},
+        request=request,
+    )
+
+    return JsonResponse(data)
+
 
 def get_graph_data(request, type, clrid):
 

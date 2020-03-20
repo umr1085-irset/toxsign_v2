@@ -401,6 +401,18 @@ def prediction_tool_results(request, job_id):
     selected_signature_id = job.results['args']['signature_id']
     selected_model_id = job.results['args']['model_id']
 
+    signature  = get_object_or_404(Signature, id=selected_signature_id)
+
+    chemical = "No chemical associated"
+    if signature.factor.chemical_subfactor_of:
+        chemical_list = []
+        for chemical in signature.factor.chemical_subfactor_of.all():
+            if chemical.chemical:
+                chemical_list.append(chemical.chemical.name)
+            elif chemical.chemical_slug:
+                chemical_list.append(chemical.chemical_slug)
+        chemical = "{}".format(", ".join(chemical_list))
+
     model = get_object_or_404(PredictionModel, id=selected_model_id)
     type = model.parameters.get("cluster_distance_type")
 
@@ -414,7 +426,7 @@ def prediction_tool_results(request, job_id):
 
     # Will need to manage multiple signature at some point
     df = pd.read_csv(file_path, sep="\t", encoding="latin1")
-    df = df[df['x'] > 0.05]
+#    df = df[df['x'] > 0.05]
 
     clusters = []
     for cluster_name in df.index.values:
@@ -427,7 +439,11 @@ def prediction_tool_results(request, job_id):
 
     context = {
         "clusters": clusters,
-        "json_data": json.dumps(json_data)
+        "json_data": json.dumps(json_data),
+        "chemical": chemical,
+        "signature": signature,
+        "model": model
+
     }
     return render(request, 'tools/run_predict_results.html', context)
 
