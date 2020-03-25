@@ -6,6 +6,8 @@ from django.conf import settings
 from django.utils.timezone import now
 from datetime import timedelta
 from celery.schedules import crontab
+from toxsign.jobs.models import Job
+
 
 if not settings.configured:
     # set the default Django settings module for the 'celery' program.
