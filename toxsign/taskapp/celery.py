@@ -3,6 +3,9 @@ from celery import Celery
 from django.apps import apps, AppConfig
 from django.conf import settings
 
+from django.utils.timezone import now
+from datetime import timedelta
+from celery.schedules import crontab
 
 if not settings.configured:
     # set the default Django settings module for the 'celery' program.
@@ -31,3 +34,27 @@ class CeleryAppConfig(AppConfig):
 @app.task(bind=True)
 def debug_task(self):
     print(f"Request: {self.request!r}")  # pragma: no cover
+
+
+@app.on_after_configure.connect
+def cron_cleanup(sender, **kwargs):
+    sender.add_periodic_task(
+        crontab(hour=0, minute=0, day_of_week=1),
+        cleanup_jobs.s(),
+    )
+    sender.add_periodic_task(
+        crontab(hour=0, minute=0),
+        cleanup_failed_jobs.s(),
+    )
+
+@app.task
+def cleanup_jobs():
+    # Clean anonymous jobs older than 7 days
+    Job.objects.filter(updated_at__lte= now()-timedelta(days=7), created_by=None).delete()
+    # Clean pending jobs?
+
+
+@app.task
+def cleanup_failed_jobs():
+    # Clean anonymous failed job older than 1 day
+    Job.objects.filter(updated_at__lte= now()-timedelta(days=1), created_by=None, status="FAILURE").delete()

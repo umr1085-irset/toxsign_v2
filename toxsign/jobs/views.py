@@ -95,28 +95,3 @@ def Delete_job(request, pk):
             job.save()
 
     return render(request, 'jobs/running_jobs.html', context)
-
-@app.on_after_configure.connect
-def cron_cleanup(sender, **kwargs):
-    sender.add_periodic_task(
-        crontab(hour=0, minute=0, day_of_week=1),
-        cleanup_jobs.s(),
-    )
-    sender.add_periodic_task(
-        crontab(hour=0, minute=0),
-        cleanup_failed_jobs.s(),
-    )
-
-
-
-@app.task
-def cleanup_jobs():
-    # Clean anonymous jobs older than 7 days
-    Job.objects.filter(updated_at__lte= now()-timedelta(days=7), created_by=None).delete()
-    # Clean pending jobs?
-
-
-@app.task
-def cleanup_failed_jobs():
-    # Clean anonymous failed job older than 1 day
-    Job.objects.filter(updated_at__lte= now()-timedelta(days=1), created_by=None, status="FAILURE").delete()
