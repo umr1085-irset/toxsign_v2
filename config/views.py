@@ -189,15 +189,15 @@ def advanced_search_form(request):
     if request.method == 'POST':
         data = request.POST
         terms = json.loads(data['terms'])
-        entity = data['entity']
+        entity = data.get('entity')
+        pagination = data.get('page')
         context = {}
         data = {}
         if entity == 'project':
-            context['projects'] = search(request, Project, ProjectDocument, entity, terms)
+            context['projects'] = search(request, Project, ProjectDocument, entity, terms, pagination)
 
         elif entity == "signature":
-            context['signatures'] = search(request, Signature, SignatureDocument, entity, terms)
-
+            context['signatures'] = search(request, Signature, SignatureDocument, entity, terms, pagination)
 
         data['html_page'] = render_to_string('pages/partial_advanced_search.html',
             context,
@@ -436,7 +436,7 @@ def render_403(request):
 
     return render(request, '403.html', {'data':data})
 
-def search(request, model, document, entity, search_terms):
+def search(request, model, document, entity, search_terms, pagination=None):
 
     # First try with elasticsearch, then fallback to  DB query if it fails
     try:
@@ -450,7 +450,7 @@ def search(request, model, document, entity, search_terms):
         else:
             q = Q_es("match", status="PUBLIC")
 
-        allowed_projects =  ProjectDocument.search().query(q)
+        allowed_projects =  ProjectDocument.search().query(q).scan()
         # Limit all query to theses projects
         allowed_projects_id_list = [project.id for project in allowed_projects]
 
@@ -459,10 +459,12 @@ def search(request, model, document, entity, search_terms):
         if entity == 'project':
             results = allowed_projects
         elif entity == "signature":
-            results = SignatureDocument.search().filter("terms", factor__assay__project__id=allowed_projects_id_list)
+            results = SignatureDocument.search().filter("terms", factor__assay__project__id=allowed_projects_id_list).sort('id')
 
         if query:
             results = results.filter(query)
+
+        results = paginate(results, pagination, 10, True)
 
         return results
 
@@ -488,31 +490,17 @@ def generate_query(search_terms):
             if index == 0:
                 # Couldn't make double nested query work, so first query the correct ontologies, then query the correct signatures
                 if item['is_ontology']:
-                    if item['ontology_options']['search_type'] == "CHILDREN":
-                        q = Q_es("match", id=item['ontology_options']['id'])
-                        children_list =  [ontology.as_children for ontology in documentDict[item['arg_type']].search().query(q)][0].split(",")
-                        onto_query = q | Q_es("terms", onto_id=children_list)
-                    else:
-                        onto_query = Q_es("match", id=item['ontology_options']['id'])
-
-                    ontology_list = [ontology.id for ontology in documentDict[item['arg_type']].search().query(onto_query).scan()]
+                    onto_id = item['ontology_options']['id']
                     id_field = item['arg_type'] + "__id"
-                    query = Q_es("nested", path=item['arg_type'], query=Q_es("terms", **{id_field:ontology_list}))
+                    query = Q_es("nested", path=item['arg_type'], query=Q_es("match", **{id_field:onto_id}))
 
                 else:
                     query = Q_es("wildcard", **{item['arg_type']:item['arg_value']})
             else:
                 if item['is_ontology']:
-                    if item['ontology_options']['search_type'] == "CHILDREN":
-                        q = Q_es("match", id=item['ontology_options']['id'])
-                        children_list =  [ontology.as_children for ontology in documentDict[item['arg_type']].search().query(q)][0].split(",")
-                        onto_query = q | Q_es("terms", onto_id=children_list)
-                    else:
-                        onto_query = Q_es("match", id=item['ontology_options']['id'])
-
-                    ontology_list = [ontology.id for ontology in documentDict[item['arg_type']].search().query(onto_query).scan()]
+                    onto_id = item['ontology_options']['id']
                     id_field = item['arg_type'] + "__id"
-                    new_query = Q_es("nested", path=item['arg_type'], query=Q_es("terms", **{id_field:ontology_list}))
+                    new_query = Q_es("nested", path=item['arg_type'], query=Q_es("match", **{id_field:onto_id}))
 
                 else:
                     new_query = Q_es("wildcard", **{item['arg_type']:item['arg_value']})
