@@ -9,25 +9,6 @@ $(function () {
   var active_ontology_id = "";
   var current_search = {}
 
-  var get_form = function () {
-    full_form_clear();
-    var entity_type = $("#entity_select").val();
-    var url = $("#entity_form").attr("data-url") + "?entity=" + entity_type;
-    $.ajax({
-      url: url,
-      type: 'get',
-      dataType: 'json',
-      success: function (data) {
-        $("#result").html(data.html_form);
-        // Enable button
-        $("#load_results").prop('disabled', false);
-        // Fix issue with autocomplete box too small
-        $(".select2-container").width("100%");
-      }
-    });
-    return false;
-  };
-
     var add_param = function() {
         $("#error_field").html("");
         var arg_type = $("#id_field").val();
@@ -69,12 +50,11 @@ $(function () {
             $("#search_terms").html("<div  style='text-align:center;color:red;'> Please select some terms before searching</div>");
             return false;
         }
-        var url = $("#entity_form").attr("data-url");
-        var entity_type = $("#entity_select").val();
+        var url = $("#load_results").attr("data-url");
         var token = $("input[name=csrfmiddlewaretoken]").val();
-        var data = {entity: entity_type, terms: JSON.stringify(search_params), csrfmiddlewaretoken: token};
-        update_history({entity: entity_type, terms:search_params});
-        current_search = {entity: entity_type, terms:search_params};
+        var data = {terms: JSON.stringify(search_params), csrfmiddlewaretoken: token};
+        update_history({terms:search_params});
+        current_search = {terms:search_params};
         $.ajax({
             url: url,
             data: data,
@@ -83,6 +63,7 @@ $(function () {
             success: function (response) {
                 $("#search_results_wrapper").show();
                 $("#search_results").html(response.html_page);
+                $("#search_results_wrapper")[0].scrollIntoView()
             }
         });
         return false;
@@ -91,9 +72,9 @@ $(function () {
     var relaunch_search = function(){
         var history_key = $(this).attr("key");
         var search_params = history[history_key];
-        var url = $("#entity_form").attr("data-url");
+        var url = $("#load_results").attr("data-url");
         var token = $("input[name=csrfmiddlewaretoken]").val();
-        var body = {entity: search_params['entity'], terms: JSON.stringify(search_params['raw_data']), csrfmiddlewaretoken: token};
+        var body = {terms: JSON.stringify(search_params['raw_data']), csrfmiddlewaretoken: token};
         current_search = history[history_key];
         $.ajax({
             url: url,
@@ -103,6 +84,7 @@ $(function () {
             success: function (response) {
                 $("#search_results_wrapper").show();
                 $("#search_results").html(response.html_page);
+                $("#search_results_wrapper")[0].scrollIntoView()
             }
         });
         return false;
@@ -163,7 +145,7 @@ $(function () {
         if (data){
             // Need to make a true copy, and not a reference
             var copy = JSON.parse(JSON.stringify(data['terms']));
-            var dict = {entity: data['entity'], raw_data: copy}
+            var dict = {raw_data: copy}
             var terms = "";
             for  (i=0; i < data['terms'].length; i++){
                 terms += `${data['terms'][i]['bool_type']} (${data['terms'][i]['arg_type']} : ${data['terms'][i]['arg_value']} `
@@ -174,7 +156,7 @@ $(function () {
         }
         var html = ""
         for (i=0; i< history.length; i++){
-            html += `{${history[i]['entity']}: {${history[i]['terms']}}}`;
+            html += `Signature search: {${history[i]['terms']}}`;
             html += "<button type='button' key='" + i +"' class='btn btn-link search_button'><i class='fa fa-sync' aria-hidden='true'></i><br></button><br>"
         }
         if(history.length > 0){
@@ -205,9 +187,9 @@ $(function () {
 
     var paginate = function(){
         var next_page = $(this).attr("target");
-        var url = $("#entity_form").attr("data-url");
+        var url = $("#load_results").attr("data-url");
         var token = $("input[name=csrfmiddlewaretoken]").val();
-        var body = {entity: current_search['entity'], terms: JSON.stringify(current_search['terms']), page:next_page, csrfmiddlewaretoken: token};
+        var body = {terms: JSON.stringify(current_search['terms']), page:next_page, csrfmiddlewaretoken: token};
         $.ajax({
             url: url,
             data: body,
@@ -224,7 +206,6 @@ $(function () {
 
 
   /* Binding */
-    $('#entity_select').on('change', get_form);
     $('#result').on('click','#add_argument', add_param);
     $('#result').on('change','#id_field', update_fields);
     $('#search_terms').on('click','.remove_arg', remove_param);

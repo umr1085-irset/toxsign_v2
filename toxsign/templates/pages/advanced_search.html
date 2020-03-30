@@ -2,6 +2,7 @@
 {% load static i18n %}
 {% load account socialaccount %}
 {% load static i18n %}
+{% load crispy_forms_tags %}
 
 {% block content %}
     <link href="{% static 'css/advanced_search.css' %}" rel="stylesheet">
@@ -13,13 +14,7 @@
                     <div class="card" style="text-align:center;">
                         <div class="card-header bg-info text-white"> Select entity to search </div>
                         <div class="card-body bg-light">
-                            <form id="entity_form" data-url="{% url 'advanced_search_api' %}">
-                                <select id="entity_select" class="select form-control">
-                                    <option disabled selected value> -- Select an entity -- </option>
-                                    <option value="project">Project</option>
-                                    <option value="signature">Signature</option>
-                                </select>
-                            </form>
+                            blablabla
                         </div>
                     </div>
                 </div>
@@ -32,7 +27,7 @@
             <div class="card">
                 <div class="card-header bg-info text-white" style="text-align:center;"> Select search terms </div>
                 <div class="card-body bg-light">
-                    <div id="result"><div  style="text-align:center;"> Please select an entity to load the available fields</div></div>
+                    <div id="result">{% crispy form %}</div>
                 </div>
             </div>
             <br>
@@ -44,7 +39,7 @@
             </div>
             <br>
             <div style="text-align:center;">
-                <button class="btn btn-primary" id="load_results" disabled>Search</button>
+                <button class="btn btn-primary" id="load_results" data-url="{% url 'advanced_search_api' %}">Search</button>
             </div>
             <br>
             <div class="card" id="search_results_wrapper" style="display:none">

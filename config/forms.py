@@ -40,28 +40,36 @@ class ProjectSearchForm(forms.Form):
         )
 
 
+class MyModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.name.capitalize()
+
 class SignatureSearchForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(SignatureSearchForm, self).__init__(*args, **kwargs)
 
-        self.entity_fields = ['name', 'tsx_id', 'disease', 'organism']
+        self.entity_fields = ['disease', 'organism', 'chemical', 'cell', 'cell_line', 'technology', 'tissue']
         choices = (('', 'Select a field'),)
 
+        data = {
+            'disease': Disease.objects.filter(signature_used_in__isnull=False).distinct(),
+            'organism': Species.objects.filter(signature_used_in__isnull=False).distinct(),
+            'chemical': Chemical.objects.filter(signature_used_in__isnull=False).distinct(),
+            'cell': Cell.objects.filter(signature_used_in__isnull=False).distinct(),
+            'cell_line': CellLine.objects.filter(signature_used_in__isnull=False).distinct(),
+            'tissue': Tissue.objects.filter(signature_used_in__isnull=False).distinct(),
+            'technology': Experiment.objects.filter(signature_used_in__isnull=False).distinct(),
+        }
+
         for field in self.entity_fields:
-            choices += ((field, field.capitalize()),)
+            if field in data and data[field]:
+                choices += ((field, field.capitalize()),)
+                self.fields[field] = MyModelChoiceField(queryset=data[field], required=False)
 
         self.fields["type"] = forms.ChoiceField(choices=(("AND","AND"),("OR","OR"),))
         self.fields["field"] = forms.ChoiceField(choices=choices)
         self.fields["value"] = forms.CharField()
-        self.fields["disease"] = forms.ModelChoiceField(
-                                    queryset=Disease.objects.filter(signature_used_in__isnull=False).distinct(),
-                                    required=False,
-                                )
-        self.fields["organism"] = forms.ModelChoiceField(
-                                    queryset=Species.objects.filter(signature_used_in__isnull=False).distinct(),
-                                    required=False,
-                                )
 
         self.helper = FormHelper(self)
         self.helper.form_method = 'POST'
@@ -75,7 +83,10 @@ class SignatureSearchForm(forms.Form):
             Div('type', style="display:none", id="id_type_wrapper"),
             Div('field', id="id_field_wrapper"),
             Div('value', style="display:none", id="id_value_wrapper"),
-            Div('disease', style="display:none", id="id_disease_ontology_wrapper"),
-            Div('organism', style="display:none", id="id_organism_ontology_wrapper"),
-            Div(HTML("<button class='btn btn-primary' id='add_argument'><i class='fas fa-plus'></i></button>"), style="text-align:center;"),
         )
+
+        for field in self.entity_fields:
+            if field in data and data[field]:
+                 self.helper.layout.append(Div(field, style="display:none", id="id_" + field + "_ontology_wrapper"))
+
+        self.helper.layout.append(Div(HTML("<button class='btn btn-primary' id='add_argument'><i class='fas fa-plus'></i></button>"), style="text-align:center;"))

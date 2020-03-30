@@ -189,15 +189,10 @@ def advanced_search_form(request):
     if request.method == 'POST':
         data = request.POST
         terms = json.loads(data['terms'])
-        entity = data.get('entity')
         pagination = data.get('page')
         context = {}
         data = {}
-        if entity == 'project':
-            context['projects'] = search(request, Project, ProjectDocument, entity, terms, pagination)
-
-        elif entity == "signature":
-            context['signatures'] = search(request, Signature, SignatureDocument, entity, terms, pagination)
+        context['signatures'] = search(request, Signature, SignatureDocument, terms, pagination)
 
         data['html_page'] = render_to_string('pages/partial_advanced_search.html',
             context,
@@ -205,22 +200,13 @@ def advanced_search_form(request):
         )
         return JsonResponse(data)
 
-    else:
-        entity_type = request.GET.get('entity')
-        data = {}
-        if entity_type == 'project':
-            form = forms.ProjectSearchForm()
-        elif entity_type == 'signature':
-            form = forms.SignatureSearchForm()
+    return JsonResponse({})
 
-        context = {'form': form}
-        data['html_form'] = render_to_string('pages/advanced_search_form.html',
-            context,
-            request=request,
-        )
-        return JsonResponse(data)
+def advanced_search(request):
 
-    return None
+    form = forms.SignatureSearchForm()
+    context = {'form': form}
+    return render(request, 'pages/advanced_search.html', context)
 
 def graph_data(request):
 
@@ -436,7 +422,7 @@ def render_403(request):
 
     return render(request, '403.html', {'data':data})
 
-def search(request, model, document, entity, search_terms, pagination=None):
+def search(request, model, document, search_terms, pagination=None):
 
     # First try with elasticsearch, then fallback to  DB query if it fails
     try:
@@ -456,10 +442,7 @@ def search(request, model, document, entity, search_terms, pagination=None):
 
         query = generate_query(search_terms)
         # Now do the queries
-        if entity == 'project':
-            results = allowed_projects
-        elif entity == "signature":
-            results = SignatureDocument.search().filter("terms", factor__assay__project__id=allowed_projects_id_list).sort('id')
+        results = SignatureDocument.search().filter("terms", factor__assay__project__id=allowed_projects_id_list).sort('id')
 
         if query:
             results = results.filter(query)
