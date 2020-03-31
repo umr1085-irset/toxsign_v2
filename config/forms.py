@@ -8,8 +8,30 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from toxsign.projects.models import Project
 from toxsign.ontologies.models import *
+from toxsign.signatures.models import Signature
+from toxsign.assays.models import ChemicalsubFactor
 
 # Should be able to merge them in one form.. unless we need specific fields
+
+
+def get_model_data(ontology_model, related_field_name, entity_model=None, field_name=None, field_slug_name=None):
+    data = {}
+
+    for ontology in ontology_model.objects.filter(**{related_field_name + "__isnull":False}).distinct():
+        data[ontology.name.capitalize()] = ontology.id
+
+    if field_name and entity_model and field_slug_name:
+        entities = entity_model.objects.filter(**{field_name + "__isnull":True}).exclude(**{field_slug_name + "__exact":""})
+        for entity in entities:
+            data[getattr(entity, field_slug_name)] = getattr(entity, field_slug_name)
+
+    res = []
+
+    for key, value in data.items():
+        res.append((value, key))
+
+    return res
+
 class ProjectSearchForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
@@ -40,7 +62,7 @@ class ProjectSearchForm(forms.Form):
         )
 
 
-class MyModelChoiceField(forms.ModelChoiceField):
+class MyChoiceField(forms.ChoiceField):
     def label_from_instance(self, obj):
         return obj.name.capitalize()
 
@@ -49,23 +71,23 @@ class SignatureSearchForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(SignatureSearchForm, self).__init__(*args, **kwargs)
 
-        self.entity_fields = ['disease', 'organism', 'chemical', 'cell', 'cell_line', 'technology', 'tissue']
+        self.entity_fields = ['disease', 'organism', 'cell', 'cell_line', 'technology', 'tissue']
         choices = (('', 'Select a field'),)
 
         data = {
-            'disease': Disease.objects.filter(signature_used_in__isnull=False).distinct(),
-            'organism': Species.objects.filter(signature_used_in__isnull=False).distinct(),
-            'chemical': Chemical.objects.filter(signature_used_in__isnull=False).distinct(),
-            'cell': Cell.objects.filter(signature_used_in__isnull=False).distinct(),
-            'cell_line': CellLine.objects.filter(signature_used_in__isnull=False).distinct(),
-            'tissue': Tissue.objects.filter(signature_used_in__isnull=False).distinct(),
-            'technology': Experiment.objects.filter(signature_used_in__isnull=False).distinct(),
+            'disease': get_model_data(Disease, "signature_used_in"),
+            'organism': get_model_data(Species, "signature_used_in"),
+            'technology': get_model_data(Experiment, "signature_used_in", Signature, "technology", "technology_slug"),
+            'chemical': get_model_data(Chemical, "signature_used_in", ChemicalsubFactor, "chemical", "chemical_slug"),
+            'cell': get_model_data(Cell, "signature_used_in"),
+            'cell_line': get_model_data(CellLine, "signature_used_in", Signature, "cell_line", "cell_line_slug"),
+            'tissue': get_model_data(Tissue, "signature_used_in")
         }
 
         for field in self.entity_fields:
             if field in data and data[field]:
                 choices += ((field, field.capitalize()),)
-                self.fields[field] = MyModelChoiceField(queryset=data[field], required=False)
+                self.fields[field] = MyChoiceField(choices=[('','---------')] + data[field], required=False)
 
         self.fields["type"] = forms.ChoiceField(choices=(("AND","AND"),("OR","OR"),))
         self.fields["field"] = forms.ChoiceField(choices=choices)
@@ -90,3 +112,4 @@ class SignatureSearchForm(forms.Form):
                  self.helper.layout.append(Div(field, style="display:none", id="id_" + field + "_ontology_wrapper"))
 
         self.helper.layout.append(Div(HTML("<button class='btn btn-primary' id='add_argument'><i class='fas fa-plus'></i></button>"), style="text-align:center;"))
+
