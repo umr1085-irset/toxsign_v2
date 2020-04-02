@@ -19,7 +19,8 @@ class SignatureDocument(Document):
                 'id': fields.TextField(),
                 'status': fields.TextField()
             })
-        })
+        }),
+        'id': fields.TextField()
     })
 
     created_by = fields.ObjectField(properties={
@@ -42,11 +43,6 @@ class SignatureDocument(Document):
     })
 
     cell_line = fields.NestedField(properties={
-        'id': fields.TextField(),
-        'name': fields.TextField()
-    })
-
-    chemical = fields.NestedField(properties={
         'id': fields.TextField(),
         'name': fields.TextField()
     })
@@ -81,6 +77,8 @@ class SignatureDocument(Document):
             'sex_type',
             'dev_stage',
             'signature_type',
+            "technology_slug",
+            "cell_line_slug",
             'up_gene_number',
             'down_gene_number'
         ]

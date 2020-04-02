@@ -6,6 +6,7 @@
 
 {% block content %}
     <link href="{% static 'css/advanced_search.css' %}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
     <div class="container">
         <h2> Advanced search </h2>
         <div id="advanced_search_wrapper">
@@ -55,5 +56,6 @@
 
 {% block javascript %}
     {{ block.super }}
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
     <script src="{% static 'js/advanced_search.js' %}"></script>
 {% endblock %}

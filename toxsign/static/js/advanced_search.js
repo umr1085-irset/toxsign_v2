@@ -120,8 +120,6 @@ $(function () {
         } else {
             $(selected_field_id).hide();
             $("#id_onto_type_wrapper").hide()
-            $("#id_value_wrapper").show();
-            selected_field_id = "#id_value_wrapper";
             active_ontology_id = "";
         }
     }
@@ -214,5 +212,10 @@ $(function () {
     $("#history").on('click', '.search_button', relaunch_search);
     $("#history").on('click', '.clear_history', reset_history);
     $('#search_results').on('click', ".page-action", paginate);
+
+    $('.entity-wrapper select').select2({
+       placeholder: 'Select a value'
+    });
+
 });
 

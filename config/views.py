@@ -22,7 +22,7 @@ from toxsign.projects.views import check_view_permissions, check_edit_permission
 
 from toxsign.superprojects.documents import SuperprojectDocument
 from toxsign.projects.documents import ProjectDocument
-from toxsign.assays.documents import AssayDocument
+from toxsign.assays.documents import AssayDocument, ChemicalsubFactorDocument
 from toxsign.signatures.documents import SignatureDocument
 from toxsign.ontologies.documents import *
 from elasticsearch_dsl import Q as Q_es
@@ -473,18 +473,27 @@ def generate_query(search_terms):
             if index == 0:
                 # Couldn't make double nested query work, so first query the correct ontologies, then query the correct signatures
                 if item['is_ontology']:
-                    onto_id = item['ontology_options']['id']
-                    id_field = item['arg_type'] + "__id"
-                    query = Q_es("nested", path=item['arg_type'], query=Q_es("match", **{id_field:onto_id}))
-
+                    if item['arg_type'] == "chemical":
+                        query = generate_biological_query(item['ontology_options']['id'])
+                    elif item['arg_type'] == "technology" or item['arg_type'] == "cell_line":
+                        query = generate_slug_query(item['ontology_options']['id'], item['arg_type'])
+                    else:
+                        onto_id = item['ontology_options']['id']
+                        id_field = item['arg_type'] + "__id"
+                        query = Q_es("nested", path=item['arg_type'], query=Q_es("match", **{id_field:onto_id}))
                 else:
                     query = Q_es("wildcard", **{item['arg_type']:item['arg_value']})
             else:
                 if item['is_ontology']:
-                    onto_id = item['ontology_options']['id']
-                    id_field = item['arg_type'] + "__id"
-                    new_query = Q_es("nested", path=item['arg_type'], query=Q_es("match", **{id_field:onto_id}))
 
+                    if item['arg_type'] == "chemical":
+                        new_query = generate_biological_query(item['ontology_options']['id'])
+                    elif item['arg_type'] == "technology" or item['arg_type'] == "cell_line":
+                        new_query = generate_slug_query(item['ontology_options']['id'], item['arg_type'])
+                    else:
+                        onto_id = item['ontology_options']['id']
+                        id_field = item['arg_type'] + "__id"
+                        new_query = Q_es("nested", path=item['arg_type'], query=Q_es("match", **{id_field:onto_id}))
                 else:
                     new_query = Q_es("wildcard", **{item['arg_type']:item['arg_value']})
 
@@ -493,6 +502,29 @@ def generate_query(search_terms):
                 else:
                     query = query | new_query
     return query
+
+
+def generate_biological_query(onto_id):
+
+    if onto_id.isdigit():
+        subfactors = ChemicalsubFactorDocument.search().filter(Q_es("nested", path="chemical", query=Q_es("match", chemical__id=onto_id)))
+    else:
+        subfactors = ChemicalsubFactorDocument.search().filter(Q_es("match", chemical_slug=onto_id))
+
+    factors = [subfactor.factor.id for subfactor in subfactors.scan()]
+    return Q_es("terms", factor__id=factors)
+
+def generate_slug_query(onto_id, type):
+
+    if onto_id.isdigit():
+        id_field = type + "__id"
+        query = Q_es("nested", path=type, query=Q_es("match", **{id_field:onto_id}))
+    else:
+        id_field = type + "_slug"
+        query = Q_es("match", **{id_field:onto_id})
+
+    return query
+
 
 def count_subentities(entity, entity_type):
     # Might use it for other entity types later on

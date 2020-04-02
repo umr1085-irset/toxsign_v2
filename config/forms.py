@@ -30,6 +30,8 @@ def get_model_data(ontology_model, related_field_name, entity_model=None, field_
     for key, value in data.items():
         res.append((value, key))
 
+    res.sort(key=lambda tup: tup[1])
+
     return res
 
 class ProjectSearchForm(forms.Form):
@@ -71,14 +73,14 @@ class SignatureSearchForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(SignatureSearchForm, self).__init__(*args, **kwargs)
 
-        self.entity_fields = ['disease', 'organism', 'cell', 'cell_line', 'technology', 'tissue']
+        self.entity_fields = ['disease', 'organism', 'cell', 'cell_line', 'technology', 'tissue', 'chemical']
         choices = (('', 'Select a field'),)
 
         data = {
             'disease': get_model_data(Disease, "signature_used_in"),
             'organism': get_model_data(Species, "signature_used_in"),
             'technology': get_model_data(Experiment, "signature_used_in", Signature, "technology", "technology_slug"),
-            'chemical': get_model_data(Chemical, "signature_used_in", ChemicalsubFactor, "chemical", "chemical_slug"),
+            'chemical': get_model_data(Chemical, "chemical_subfactor_used_in", ChemicalsubFactor, "chemical", "chemical_slug"),
             'cell': get_model_data(Cell, "signature_used_in"),
             'cell_line': get_model_data(CellLine, "signature_used_in", Signature, "cell_line", "cell_line_slug"),
             'tissue': get_model_data(Tissue, "signature_used_in")
@@ -104,12 +106,11 @@ class SignatureSearchForm(forms.Form):
             Div(id='error_field', style='color:red; text-align:center;'),
             Div('type', style="display:none", id="id_type_wrapper"),
             Div('field', id="id_field_wrapper"),
-            Div('value', style="display:none", id="id_value_wrapper"),
         )
 
         for field in self.entity_fields:
             if field in data and data[field]:
-                 self.helper.layout.append(Div(field, style="display:none", id="id_" + field + "_ontology_wrapper"))
+                 self.helper.layout.append(Div(field, css_class="entity-wrapper", id="id_" + field + "_ontology_wrapper"))
 
         self.helper.layout.append(Div(HTML("<button class='btn btn-primary' id='add_argument'><i class='fas fa-plus'></i></button>"), style="text-align:center;"))
 
