@@ -14,7 +14,7 @@ class Biological(models.Model):
     as_children =  models.TextField("Children", blank=True, default="") #all parents
 
     def __str__(self):
-        return self.name
+        return self.name.capitalize()
 
 class CellLine(models.Model):
     name = models.TextField(verbose_name='Ontology name')
@@ -23,7 +23,7 @@ class CellLine(models.Model):
     as_children =  models.TextField("Children", blank=True, default="") #all parents
 
     def __str__(self):
-        return self.name
+        return self.name.capitalize()
 
 class Cell(models.Model):
     name = models.TextField(verbose_name='Ontology name')
@@ -32,7 +32,7 @@ class Cell(models.Model):
     as_children =  models.TextField("Children", blank=True, default="") #all parents
 
     def __str__(self):
-        return self.name
+        return self.name.capitalize()
 
 class Chemical(models.Model):
     name = models.TextField(verbose_name='Ontology name')
@@ -41,7 +41,7 @@ class Chemical(models.Model):
     as_children =  models.TextField("Children", blank=True, default="") #all parents
 
     def __str__(self):
-        return self.name
+        return self.name.capitalize()
 
 class Disease(models.Model):
     name = models.TextField(verbose_name='Ontology name')
@@ -50,7 +50,7 @@ class Disease(models.Model):
     as_children =  models.TextField("Children", blank=True, default="") #all parents
 
     def __str__(self):
-        return self.name
+        return self.name.capitalize()
 
 class Experiment(models.Model):
     name = models.TextField(verbose_name='Ontology name')
@@ -59,7 +59,7 @@ class Experiment(models.Model):
     as_children =  models.TextField("Children", blank=True, default="") #all parents
 
     def __str__(self):
-        return self.name
+        return self.name.capitalize()
 
 class Species(models.Model):
     name = models.TextField(verbose_name='Ontology name')
@@ -68,7 +68,7 @@ class Species(models.Model):
     as_children =  models.TextField("Children", blank=True, default="") #all parents
 
     def __str__(self):
-        return self.name
+        return self.name.capitalize()
 
 class Tissue(models.Model):
     name = models.TextField(verbose_name='Ontology name')
@@ -77,4 +77,4 @@ class Tissue(models.Model):
     as_children =  models.TextField("Children", blank=True, default="") #all parents
 
     def __str__(self):
-        return self.name
+        return self.name.capitalize()

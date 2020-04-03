@@ -59,6 +59,7 @@
                     <th scope="col">Tissue</th>
                     <th scope="col">Cell</th>
                     <th scope="col">Cell line</th>
+                    <th scope="col">Chemical</th>
                     <th scope="col">Sex</th>
                     <th scope="col">Stage</th>
                     <th scope="col">Up genes</th>
@@ -116,6 +117,7 @@
                         /
                     {% endif %}
                     </td>
+                    <td>{% get_chemicals_es signature %}</td>
                     <td>{% if signature.sex_type %}{%  get_dict_value  sex_type_dict signature.sex_type %} {% else %} / {% endif %}</td>
                     <td>{% if signature.dev_stage %}{% get_dict_value dev_stage_dict signature.dev_stage %} {% else %} / {% endif %}</td>
                     <td>{{ signature.up_gene_number }}</td>

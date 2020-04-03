@@ -93,7 +93,7 @@
                 {% if cell != "None" %}
                   <tr><th scope="row">Cell</th><td><img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px"></td><td>{% onto_value signature.cell  %}</td></tr>
                 {% endif %}
-                {% onto_value signature.cell_line  as cell_line%}
+                {% onto_value signature.cell_line signature.cell_line_slug as cell_line%}
                 {% if cell_line != "None" %}
                   <tr><th scope="row">Cell line</th><td><img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px"></td><td>{% onto_value signature.cell_line  %}</td></tr>
                 {% endif %}

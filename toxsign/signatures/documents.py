@@ -1,6 +1,6 @@
 from django_elasticsearch_dsl import Document, fields
 from django_elasticsearch_dsl.registries import registry
-from toxsign.assays.models import Factor
+from toxsign.assays.models import Factor, Chemical
 from toxsign.signatures.models import Signature
 from toxsign.ontologies.models import *
 
@@ -20,7 +20,13 @@ class SignatureDocument(Document):
                 'status': fields.TextField()
             })
         }),
-        'id': fields.TextField()
+        'id': fields.TextField(),
+        'chemical_subfactor_of': fields.NestedField(properties={
+            'chemical': fields.ObjectField(properties={
+                'name': fields.KeywordField()
+            }),
+            'chemical_slug': fields.TextField(),
+        })
     })
 
     created_by = fields.ObjectField(properties={
