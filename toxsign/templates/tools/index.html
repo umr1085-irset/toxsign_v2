@@ -3,47 +3,70 @@
 {% block content %}
     <div class="container">
       <!-- Page Heading -->
-      <h1 class="my-4">Existing Tools
-      </h1>
+      <h1 class="my-4">Existing Tools</h1>
       <!-- Insert in house tools by hand here (custom search + ontologies) -->
         {% if category_list %}
             <!-- TODO: filter by category beforehand -->
             {% for category in category_list %}
             <h2>{{category.name}}</h2>
             <p>{{category.description}}</p>
-            <div class="row my-5 mb-5">
             {% for tool in category.category_of.all %}
-                <div class="col-md-3">
-                    <!-- Card -->
-                    <div class="card text-center">
-
-                        <!-- Card image -->
-                        <img class="card-img-top" src="{{ tool.icon.url }}" alt="">
-                    
-                        <!-- Card content -->
-                        <div class="card-body">
-                    
-                            <!-- Title -->
-                            <h4 class="card-title"><a>{{ tool.name }}</a></h4>
-                            <!-- Text -->
-                            <p class="card-text">{{ tool.short_description}}</p>
-                            <!-- Button -->
-                            {% if tool.type == "LOCAL" %}
-                                <a class="btn btn-default" href="{% url tool.link  %}">Use</a>
-                            {% elif tool.type == "REMOTE" %}
-                                <a class="btn btn-default" href="{{ tool.link }}">Use</a>
-                            {% else %}
-                                <a class="btn btn-default" href="{% url 'tools:detail' tool.id  %}">Use</a>
-                            {% endif %}                
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <div class="row">
+                            <div class="col-md-1 my-auto">
+                                <img class="img-fluid rounded mb-3 mb-md-0" src="{{ tool.icon.url }}" alt="" style="background-color:white;">
+                            </div>
+                            <div class="col-md-9 my-auto">
+                                <b>{{ tool.name }}</b>
+                                <p>{{ tool.short_description}}</p>
+                            </div>
+                            <div class="col-md-2 my-auto">
+                                <button class="btn btn-outline-light btn-sm float-right" type="button" data-toggle="collapse" data-target="#tool-{{tool.id}}">More info <i class="fas fa-chevron-down"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="collapse" id="tool-{{tool.id}}">
+                        <div class="card-body bg-light">
+                            <div class="row align-items-center">
+                                <div class="col-md-3">
+                                    <a href="#">
+                                        <img class="img-fluid rounded mb-3 mb-md-0" src="{{ tool.visuel.url }}" alt="" style="background-color:white;">
+                                    </a>
+                                </div>
+                                <div class="col-md-9">
+                                    <p>Author: {{ tool.created_by }}</p>
+                                    <small>{{tool.description}}</small>
+                                    <hr>
+                                    <table class="table table-striped">
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row">Creation date</th>
+                                                <td>{{ tool.created_at }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">Last update</th>
+                                                <td>{{ tool.updated_at }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    {% if tool.type == "LOCAL" %}
+                                    <a class="btn btn-primary" href="{% url tool.link  %}">View tool</a>
+                                    {% elif tool.type == "REMOTE" %}
+                                    <a class="btn btn-primary" href="{{ tool.link }}">View tool</a>
+                                    {% else %}
+                                    <a class="btn btn-primary" href="{% url 'tools:detail' tool.id  %}">View tool</a>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <hr>
             {% endfor %}
-            </div>
             {% endfor %}
         {% else %}
             <p>No tools are available.</p>
         {% endif %}
     </div>
-
 {% endblock %}
