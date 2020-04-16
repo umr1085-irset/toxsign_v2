@@ -17,15 +17,13 @@ if [ $# -lt 3 ]
     exit 1
 fi
 
-GROUP_DIR="$1"
-TEMP_DIR="$2"
+GROUP_DIR="$1""/"
+TEMP_DIR="$2""/"
 OUTPUT="$3"
 
 . /opt/conda/etc/profile.d/conda.sh
-conda activate condaR_TCL
+conda activate condaR_TCL2
 
-Rscript ./prepare_clustering_method.R "$TEMP_DIR""data.reduced.RData" "$GROUP_DIR" "$TEMP_DIR""homologene.data" "$TEMP_DIR"
+Rscript "$CURRENT_DIR""/prepare_clustering_method.R" "$TEMP_DIR""data.reduced.RData" "$GROUP_DIR" "$TEMP_DIR""homologene.data" "$TEMP_DIR"
 
 cp "$TEMP_DIR""method.RData" "$OUTPUT"
-
-rm -rf "$TEMP_DIR"
