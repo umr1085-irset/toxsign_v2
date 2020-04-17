@@ -24,8 +24,8 @@ OUTPUT_DIR="$3"
 . /opt/conda/etc/profile.d/conda.sh
 conda activate condaR_TCL2
 
-Rscript "$CURRENT_DIR""/prepare_clustering_method.R" "$TEMP_DIR""$SIG_FILE" "$TEMP_DIR""method.RData" "$TEMP_DIR"
+Rscript "$CURRENT_DIR""/predict_group.R" "$TEMP_DIR""$SIG_FILE" "$TEMP_DIR" "$TEMP_DIR""method.RData"
 
 cp "$TEMP_DIR""output.txt" "$OUTPUT_DIR"
 
-rm -rf "$TEMP_DIR"
+#rm -rf "$TEMP_DIR"

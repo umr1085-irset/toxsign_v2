@@ -38,7 +38,7 @@ from toxsign.clusters.models import Cluster
 from django.conf import settings
 from toxsign.taskapp.celery import app
 
-from toxsign.scripts.processing import run_distance, run_enrich, run_predict
+from toxsign.scripts.processing import run_distance, run_enrich, run_predict, run_cluster_dist
 from toxsign.users.views import is_viewable
 
 
@@ -382,13 +382,47 @@ def prediction_tool(request):
             context = {'form':form}
             return render(request, 'tools/run_dist.html', context)
 
-        sig_id = request.POST['signature']
-        job_name = request.POST['job_name']
-
     else:
         form = forms.prediction_compute_form(signatures=signatures)
         context = {'form':form}
         return render(request, 'tools/run_dist.html', context)
+
+def cluster_dist_tool(request):
+
+    accessible_projects = [project for project in Project.objects.all() if check_view_permissions(request.user, project)]
+    signatures = Signature.objects.filter(factor__assay__project__in=accessible_projects)
+
+    if request.method == 'POST':
+        form = forms.signature_cluster_compute_form(request.POST, signatures=signatures)
+        if form.is_valid():
+            signature_id = request.POST.get('signature')
+
+            # Make sure it's selected from available sigs
+            if not signature_id or not signatures.filter(id=signature_id).exists:
+                return redirect('/unauthorized')
+
+            cluster_type = request.POST.get('cluster_type')
+
+            if cluster_type not in ['euclidean', 'correlation']:
+                return redirect('/unauthorized')
+
+            tool = Tool.objects.get(name="ChemPSy - Cluster distance")
+            job_name = request.POST.get('job_name', "Cluster distance job")
+            task = run_cluster_dist.delay(signature_id, cluster_type)
+            _create_job(job_name, request.user, task.id, tool)
+            return(redirect(reverse("jobs:running_jobs")))
+
+        else:
+            context = {'form':form}
+            return render(request, 'tools/run_cluster_dist.html', context)
+
+        sig_id = request.POST['signature']
+        job_name = request.POST['job_name']
+
+    else:
+        form = forms.signature_cluster_compute_form(signatures=signatures)
+        context = {'form':form}
+        return render(request, 'tools/run_cluster_dist.html', context)
 
 def prediction_tool_results(request, job_id):
 

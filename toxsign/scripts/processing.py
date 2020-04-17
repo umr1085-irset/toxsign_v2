@@ -168,7 +168,7 @@ def run_enrich(self, signature_id):
     current_job.save()
 
 @app.task(bind=True)
-def run_cluster_distance(self, signature_id, clustering_type):
+def run_cluster_dist(self, signature_id, clustering_type):
     dt = datetime.datetime.utcnow()
     ztime = time.mktime(dt.timetuple())
     task_id = self.request.id + "_" + str(ztime)
@@ -190,7 +190,7 @@ def run_cluster_distance(self, signature_id, clustering_type):
         logger.exception("Signature {} has no file associated.".format(selected_signature.tsx_id))
         raise TaskFailure("Signature {} has no file associated.".format(selected_signature.tsx_id))
 
-    temp_dir_path = _prepare_temp_folder(task_id, selected_signature, additional_signatures=[], add_Homolog=True, add_Cluster_Method=clustering_type)
+    temp_dir_path = _prepare_temp_folder(task_id, selected_signature, additional_signatures=[], add_Cluster_Method=clustering_type)
 
     if not temp_dir_path:
         logger.exception("Temp directory with this task id ({}) already exists. Stopping..".format(task_id))
@@ -205,7 +205,8 @@ def run_cluster_distance(self, signature_id, clustering_type):
 
     if not run.returncode == 0:
         if os.path.exists(temp_dir_path):
-            shutil.rmtree(temp_dir_path)
+            pass
+            #shutil.rmtree(temp_dir_path)
         current_job.results['error'] = run.stdout.decode()
         current_job.save()
         logger.exception(run.stderr.decode())

@@ -67,7 +67,7 @@ PCA.Red.Centroid.Data = t( rbind( PCA.Red.Centroid.Data$ind.sup$coord ,  PCA.Red
 PCA.Medoid.cor.values   <- as.matrix(apply( PCA.Red.Medoid.Data[,2:ncol(PCA.Red.Medoid.Data)] ,2,function (X) cor(X, PCA.Red.Medoid.Data[,1,drop=FALSE] )))
 PCA.Centroid.cor.values <- as.matrix(apply( PCA.Red.Centroid.Data[,2:ncol(PCA.Red.Centroid.Data)] ,2,function (X) cor(X, PCA.Red.Centroid.Data[,1,drop=FALSE] )))
 
-PCA.Medoid.ed.values   <- as.matrix(apply( PCA.Red.Medoid.Data[,2:ncol(PCA.Red.Medoid.Data)] ,2,function (X) sqrt(sum((X - PCA.Red.Centroid.Data[,1,drop=FALSE]) ^ 2))))     
+PCA.Medoid.ed.values   <- as.matrix(apply( PCA.Red.Medoid.Data[,2:ncol(PCA.Red.Medoid.Data)] ,2,function (X) sqrt(sum((X - PCA.Red.Medoid.Data[,1,drop=FALSE]) ^ 2))))     
 PCA.Centroid.ed.values <- as.matrix(apply( PCA.Red.Centroid.Data[,2:ncol(PCA.Red.Centroid.Data)] ,2,function (X) sqrt(sum((X - PCA.Red.Centroid.Data[,1,drop=FALSE]) ^ 2))))  
 #--------------------------------------------#
 

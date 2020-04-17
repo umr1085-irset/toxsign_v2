@@ -14,6 +14,8 @@ import os, shutil
 def populate_default_tools():
 
     Tool.objects.all().delete()
+    Category.objects.all().delete()
+    Tag.objects.all().delete()
 
     if os.path.exists('/app/toxsign/media/tools'):
         shutil.rmtree('/app/toxsign/media/tools')
@@ -22,41 +24,44 @@ def populate_default_tools():
     search_category = _create_category(name='Search tools', description='Tools used to search through entities on this website')
     compare_category = _create_category(name='Comparison tools', description='Tools used to make comparisons between signatures')
     analyze_category = _create_category(name='Analysis tools', description='Tools used to analyze signatures')
+    chempsy_category = _create_category(name='ChemPSy tools', description='Tools interacting with the ChemPSy project')
 
     search_tag = _create_tag(word='Search', slug='search')
     compare_tag = _create_tag(word='Compare', slug='compare')
     analyze_tag = _create_tag(word='Analyze', slug='analyze')
+    chempsy_tag =  _create_tag(word='ChemPSy', slug='chempsy')
 
-    onto_search_tool = Tool(
-        name = 'Browse ontologies',
-        type = "LOCAL",
-        category = search_category,
-        short_description = "Get information about ontologies (name, id, synonyms)",
-        description = "TOXsIgN also includes a tool to browse the ontologies used in the resource to describe data. This feature is especially relevant for filling the excel template required when submitting a novel signature.",
-        status = "DEVELOPPMENT",
-        link = "ontologies:search",
-    )
-    onto_search_tool.icon.save("Ontology.svg", File(open("/app/loading_data/images/Ontology.svg", "rb")), save=True)
-    onto_search_tool.visuel.save("Ontology.svg", File(open("/app/loading_data/images/Ontology.svg", "rb")), save=True)
-    onto_search_tool.save()
-    onto_search_tool.tags.add(search_tag)
-    onto_search_tool.save()
+#    onto_search_tool = Tool(
+#        name = 'Browse ontologies',
+#        type = "LOCAL",
+#        category = search_category,
+#        short_description = "Get information about ontologies (name, id, synonyms)",
+#        description = "TOXsIgN also includes a tool to browse the ontologies used in the resource to describe data. This feature is especially relevant for filling the excel template required when submitting a novel signature.",
+#        status = "DEVELOPPMENT",
+#        link = "ontologies:search",
+#    )
 
-    advanced_search_tool = Tool(
-        name = 'Advanced search',
-        type = "LOCAL",
-        category = search_category,
-        short_description = "Search entities using multiple fields such as names, descriptions, ontologies..",
-        description = "The search engine supports complex fielded queries to retrieve signatures and associated data based on various information such as experimental parameters, observed toxicological effects and/or up/down-regulated gene lists. This module is especially powerfull for identifying comparable experiments (i.e. performed on similar models and/or with close environmental factors) and/or similar outcomes (i.e. close physiological, molecular and/or omics effects).",
-        status = "DEVELOPPMENT",
-        link = "advanced_search",
-    )
+#    onto_search_tool.icon.save("Ontology.svg", File(open("/app/loading_data/images/Ontology.svg", "rb")), save=True)
+#    onto_search_tool.visuel.save("Ontology.svg", File(open("/app/loading_data/images/Ontology.svg", "rb")), save=True)
+#    onto_search_tool.save()
+#    onto_search_tool.tags.add(search_tag)
+#    onto_search_tool.save()
 
-    advanced_search_tool.icon.save("advanced_search.jpg", File(open("/app/loading_data/images/advanced_search.jpg", "rb")), save=True)
-    advanced_search_tool.visuel.save("advanced_search.jpg", File(open("/app/loading_data/images/advanced_search.jpg", "rb")), save=True)
-    advanced_search_tool.save()
-    advanced_search_tool.tags.add(search_tag)
-    advanced_search_tool.save()
+#    advanced_search_tool = Tool(
+#        name = 'Advanced search',
+#        type = "LOCAL",
+#        category = search_category,
+#        short_description = "Search entities using multiple fields such as names, descriptions, ontologies..",
+#        description = "The search engine supports complex fielded queries to retrieve signatures and associated data based on various information such as experimental parameters, observed toxicological effects and/or up/down-regulated gene lists. This module is especially powerfull for identifying comparable experiments (i.e. performed on similar models and/or with close environmental factors) and/or similar outcomes (i.e. close physiological, molecular and/or omics effects).",
+#        status = "DEVELOPPMENT",
+#        link = "advanced_search",
+#    )
+
+#    advanced_search_tool.icon.save("advanced_search.jpg", File(open("/app/loading_data/images/advanced_search.jpg", "rb")), save=True)
+#    advanced_search_tool.visuel.save("advanced_search.jpg", File(open("/app/loading_data/images/advanced_search.jpg", "rb")), save=True)
+#    advanced_search_tool.save()
+#    advanced_search_tool.tags.add(search_tag)
+#    advanced_search_tool.save()
 
     run_distance_tool = Tool(
         name = 'Signature enrichment analysis',
@@ -69,8 +74,6 @@ def populate_default_tools():
         custom_result_link = "tools:run_dist_results"
     )
 
-    run_distance_tool.icon.save("advanced_search.jpg", File(open("/app/loading_data/images/advanced_search.jpg", "rb")), save=True)
-    run_distance_tool.visuel.save("advanced_search.jpg", File(open("/app/loading_data/images/advanced_search.jpg", "rb")), save=True)
     run_distance_tool.save()
     run_distance_tool.tags.add(compare_tag)
     run_distance_tool.save()
@@ -86,16 +89,29 @@ def populate_default_tools():
         custom_result_link = "tools:run_enrich_results"
     )
 
-    run_enrichment_tool.icon.save("advanced_search.jpg", File(open("/app/loading_data/images/advanced_search.jpg", "rb")), save=True)
-    run_enrichment_tool.visuel.save("advanced_search.jpg", File(open("/app/loading_data/images/advanced_search.jpg", "rb")), save=True)
     run_enrichment_tool.save()
     run_enrichment_tool.tags.add(analyze_tag)
     run_enrichment_tool.save()
 
+    run_cluster_distance_tool = Tool(
+        name = 'ChemPSy - Cluster distance',
+        type = "LOCAL",
+        category = chempsy_category,
+        short_description = "Calculate the distance between a specific signature and the clusters generated by the ChemPSy (Chemical Prioritization System) project",
+        description = "Calculate the distance between a specific signature and the clusters generated by the ChemPSy (Chemical Prioritization System) project",
+        status = "DEVELOPPMENT",
+        link = "tools:run_cluster_dist",
+        custom_result_link = "tools:run_cluster_dist_results"
+    )
+    run_cluster_distance_tool.save()
+    run_cluster_distance_tool.tags.add(compare_tag)
+    run_cluster_distance_tool.tags.add(chempsy_tag)
+    run_cluster_distance_tool.save()
+
     run_prediction_tool = Tool(
         name = 'ChemPSy - Prediction',
         type = "LOCAL",
-        category = analyze_category,
+        category = chempsy_category,
         short_description = "Prediction tool using machine learning trained on the ChemPSy (Chemical Prioritization System) data",
         description = "The aim of ChemPSy (Chemical Prioritization System) is to provide an innovative tool based on several bioinformatics and biostatistics methodologies to analyze and integrate massive toxicogenomics datasets. Specific objectives include: (1) classification of chemicals based on transcriptional signatures, i.e. the set of genes whose expression is known to be positively or negatively altered after an exposure to these compounds; (2) the association of classes with human pathologies or deleterious phenotypes, i.e. classes containing toxicants with well-known effects; (3) the prediction of novel reprotoxicants and/or endocrine disruptors based on transcriptional signature similarities with known chemicals affecting testis development and function.",
         status = "DEVELOPPMENT",
@@ -103,15 +119,13 @@ def populate_default_tools():
         custom_result_link = "tools:run_predict_results"
     )
 
-    run_prediction_tool.icon.save("advanced_search.jpg", File(open("/app/loading_data/images/advanced_search.jpg", "rb")), save=False)
-    run_prediction_tool.visuel.save("advanced_search.jpg", File(open("/app/loading_data/images/advanced_search.jpg", "rb")), save=False)
     run_prediction_tool.save()
     run_prediction_tool.tags.add(analyze_tag)
+    run_prediction_tool.tags.add(chempsy_tag)
     run_prediction_tool.save()
 
-    if not os.environ.get("MODE") == "TEST":
-        prepare_tools_env.delay()
-        prepare_homolog_data.delay()
+    prepare_tools_env.delay()
+    prepare_homolog_data.delay()
 
 
 def _create_category(name, description):

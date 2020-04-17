@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+
+{% block content %}
+<div class="container">    
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header bg-white">Cluster distance calculation tool</div>
+                <div class="card-body bg-light">
+                The signature enrichment analysis module allows users to compare a selected toxicogenomic signatures to the overall set of signatures deposited by the community using a distance analysis approach (based on the Euclidean distance and the correlation coefficient).
+                <br>
+                <b>How to perform calculation</b>
+                <br>
+                <b><i>Input data</i></b>: Select the clustering distance method and the signature.
+                <br>
+                <b><i>Output data</i></b>: Table that corresponds to the distance between the selected signature 
+               </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">Parameters</div>
+                <div class="card-body">
+                    {% crispy form %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
