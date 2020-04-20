@@ -424,6 +424,42 @@ def cluster_dist_tool(request):
         context = {'form':form}
         return render(request, 'tools/run_cluster_dist.html', context)
 
+def cluster_dist_results(request, job_id):
+    job = get_object_or_404(Job, id=job_id)
+
+    if not is_viewable(job, request.user):
+        return redirect('/unauthorized')
+
+    file_path = job.results['files'][0]
+    selected_signature_id = job.results['args']['signature_id']
+    selected_distance_id = job.results['args']['clustering_type']
+
+    signature = Signature.objects.get(id=selected_signature_id)
+    chemical = "No chemical associated"
+    if signature.factor.chemical_subfactor_of:
+        chemical_list = []
+        for chemical in signature.factor.chemical_subfactor_of.all():
+            if chemical.chemical:
+                chemical_list.append(chemical.chemical.name)
+            elif chemical.chemical_slug:
+                chemical_list.append(chemical.chemical_slug)
+        chemical = "{}".format(", ".join(chemical_list))
+
+    df = pd.read_csv(file_path, sep="\t", encoding="latin1")
+    df = df.set_index('Class')
+    df = df.drop(['X', 'Y', 'Sample'])
+    df = df.drop(columns=['Sign'])
+
+    clusters = []
+    for cluster_name in df.columns:
+        cluster_id = cluster_name.split(".")[-1]
+        cluster = Cluster.objects.filter(distance_method=selected_distance_id, cluster_id=cluster_id)
+        if cluster:
+            clusters.append({'cluster': cluster[0], 'value': df[cluster_name].values})
+    columns = df.index.values
+
+    return render(request, 'tools/run_cluster_dist_results.html', {'columns': columns, 'clusters': clusters, 'distance_type': selected_distance_id, 'signature': signature, 'chemical': chemical})
+
 def prediction_tool_results(request, job_id):
 
     job = get_object_or_404(Job, id=job_id)

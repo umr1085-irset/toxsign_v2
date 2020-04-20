@@ -72,7 +72,10 @@ PCA.Centroid.ed.values <- as.matrix(apply( PCA.Red.Centroid.Data[,2:ncol(PCA.Red
 #--------------------------------------------#
 
 #--------------------------------------------#
-m <- matrix(nrow=14,ncol=ncol(PCA.Red.Medoid.Data),dimnames=list( c("Class" , "Sample" , "X" , "Y" , "Correlation - Centroid" , "Correlation - Medoid" , "Correlation - Closest" , "Correlation - PCA(Medoid)" , "Correlation - PCA(Centroid)", "Euclidean distance - Centroid" , "Euclidean distance - Medoid" , "Euclidean distance - Closest" , "Euclidean distance - PCA(Medoid)" , "Euclidean distance - PCA(Centroid)")    , colnames(PCA.Red.Medoid.Data)))
+m <- matrix(nrow=14,ncol=ncol(PCA.Red.Medoid.Data),dimnames=list( c("Class" , "Sample" , "X" , "Y" , 
+"Correlation - Medoid" , "Correlation - Centroid" , "Correlation - Closest" , "Correlation - PCA(Medoid)" , "Correlation - PCA(Centroid)", 
+"Euclidean distance - Medoid" , "Euclidean distance - Centroid" , "Euclidean distance - Closest" , "Euclidean distance - PCA(Medoid)" , "Euclidean distance - PCA(Centroid)")    , 
+colnames(PCA.Red.Medoid.Data)))
 
 m[1,] <- colnames(PCA.Red.Medoid.Data)
 m[2,] <- colnames(PCA.Red.Medoid.Data)
@@ -81,6 +84,7 @@ m[4,] <- PCA.Red.Medoid.Data[2,]
 
 m[5 ,] <- c(1,as.vector(Medoid.cor.values      ))
 m[6 ,] <- c(1,as.vector(Centroid.cor.values    ))
+
 m[7 ,] <- c(1,as.vector(Closest.cor.values     ))
 m[8 ,] <- c(1,as.vector(PCA.Medoid.cor.values  ))
 m[9 ,] <- c(1,as.vector(PCA.Centroid.cor.values))

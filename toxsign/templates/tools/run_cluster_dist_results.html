@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
+
+<div class="container">    
+    <div class="card">
+        <div class="text-style card-body">
+            <h4>Prediction results for signature {{signature.tsx_id}} using {{distance_type}}-defined clusters</h4>
+            <p><b>Signature name</b>: {{signature.name}}</p>
+            <p><b>Chemical(s) associated</b>: {{chemical}}</p>
+                <div class="table-responsive">
+                  <table class="table table-hover" id="results">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            {% for column in columns %}
+                            <th scope="col">{{column}}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for value in clusters %}
+                        <tr>
+                            <td><button type="button" class="btn btn-primary btn-sm js-load-modal" data-url="{% url 'clusters:details_modal' value.cluster.distance_method value.cluster.cluster_id %}">Cluster {{value.cluster.cluster_id}}</button> ({{ value.cluster.conditions.conditions | length}} conditions, {{value.cluster.conditions.unique_chemicals}} distincts chemicals)</td>
+                            {% for val in value.value %}
+                                {% if val == nan %}
+                                    <td>NA</td>
+                                {% else %}
+                                    <td>{{val |floatformat:-3 }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+        </div>
+    </div>
+    <br>
+</div>
+<div class="modal fade" id="modal-group">
+    <div class="modal-dialog" style="max-width: 1200px;"><div class="modal-content"></div></div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="{% static 'js/run_cluster_dist_results.js' %}"></script>   
+{% endblock %}
