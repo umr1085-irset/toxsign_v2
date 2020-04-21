@@ -54,7 +54,7 @@ class IndexView(generic.ListView):
 def distance_analysis_tool(request):
 
     accessible_projects = [project for project in Project.objects.all() if check_view_permissions(request.user, project)]
-    signatures = Signature.objects.filter(factor__assay__project__in=accessible_projects)
+    signatures = Signature.objects.filter(factor__assay__project__in=accessible_projects).exclude(up_gene_number=0, down_gene_number=0)
 
     if request.method == 'POST':
         form = forms.signature_compute_form(request.POST, signatures=signatures)
@@ -172,7 +172,7 @@ def distance_analysis_table(request, job_id):
 def functional_analysis_tool(request):
 
     accessible_projects = [project for project in Project.objects.all() if check_view_permissions(request.user, project)]
-    signatures = Signature.objects.filter(factor__assay__project__in=accessible_projects)
+    signatures = Signature.objects.filter(factor__assay__project__in=accessible_projects).exclude(up_gene_number=0, down_gene_number=0)
 
     if request.method == 'POST':
         form = forms.signature_compute_form(request.POST, signatures=signatures)
@@ -358,7 +358,7 @@ def functional_analysis_partial_table(request, job_id, type):
 def prediction_tool(request):
 
     accessible_projects = [project for project in Project.objects.all() if check_view_permissions(request.user, project)]
-    signatures = Signature.objects.filter(factor__assay__project__in=accessible_projects)
+    signatures = Signature.objects.filter(factor__assay__project__in=accessible_projects).exclude(up_gene_number=0, down_gene_number=0)
 
     if request.method == 'POST':
         form = forms.prediction_compute_form(request.POST, signatures=signatures)
@@ -390,7 +390,7 @@ def prediction_tool(request):
 def cluster_dist_tool(request):
 
     accessible_projects = [project for project in Project.objects.all() if check_view_permissions(request.user, project)]
-    signatures = Signature.objects.filter(factor__assay__project__in=accessible_projects)
+    signatures = Signature.objects.filter(factor__assay__project__in=accessible_projects).exclude(up_gene_number=0, down_gene_number=0)
 
     if request.method == 'POST':
         form = forms.signature_cluster_compute_form(request.POST, signatures=signatures)

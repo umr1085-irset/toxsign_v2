@@ -35,8 +35,8 @@ class SignatureToolAutocomplete(autocomplete.Select2QuerySetView):
             allowed_projects =  ProjectDocument.search().sort('id').query(q).scan()
             # Limit all query to theses projects
             allowed_projects_id_list = [project.id for project in allowed_projects]
-
-            qs = SignatureDocument.search().sort('id').filter("terms", factor__assay__project__id=allowed_projects_id_list)
+            docs = Q_es("match", down_gene_number=0) & Q_es("match", up_gene_number=0)
+            qs = SignatureDocument.search().sort('id').filter("terms", factor__assay__project__id=allowed_projects_id_list).exclude(docs)
             query = self.q
             if query:
                 query = "*" + query + "*"
