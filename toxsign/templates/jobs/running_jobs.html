@@ -29,17 +29,17 @@
                         <td>  
                             {% if job.status == "SUCCESS" %}
                                 {% if job.running_tool.custom_result_link %}
-                                    <a href="{% url job.running_tool.custom_result_link job.id %}" class="btn btn-success">View results</a>
+                                    <a href="{% url job.running_tool.custom_result_link job.id %}" class="btn btn-success btn-sm">View results</a>
                                 {% endif %}
                                 {% if  "archive" in job.results %}
-                                    <a href="{% url 'download_job' job.id %}" class="btn btn-info">Download</a>
+                                    <a href="{% url 'download_job' job.id %}" class="btn btn-info btn-sm">Download</a>
                                 {% endif %}
                             {% endif %}
                             {% if "error" in job.results %}
                                 <a class="btn btn-danger">Traceback</a>
                             {% endif %}
                             {% if job.created_by %}
-                            <a href="{% url 'jobs:delete_job' job.id %}" class="btn btn-outline-danger">Delete</a> 
+                            <a href="{% url 'jobs:delete_job' job.id %}" class="btn btn-outline-danger btn-sm">Delete</a> 
                             {% endif %}
                         </td>
                     </tr>

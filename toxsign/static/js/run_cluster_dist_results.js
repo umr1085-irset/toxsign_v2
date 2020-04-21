@@ -2,7 +2,8 @@ $(function () {
 
     var table = $('#results').DataTable({
         "pageLength": 5,
-        "scrollX": true
+        "scrollX": true,
+        "bFilter": false
     });
 
     var loadForm = function () {
