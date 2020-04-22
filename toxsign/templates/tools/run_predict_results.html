@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
-{% load static %}
-
+{% load static i18n %}
+{% load custom %}
 {% block content %}
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
@@ -17,6 +17,9 @@
                     <thead>
                         <tr>
                             <th scope="col">Cluster</th>
+                            <th scope="col">Model precision</th>
+                            <th scope="col">Model recall</th>
+                            <th scope="col">Model specificity</th>
                             <th scope="col">Probability</th>
                         </tr>
                     </thead>
@@ -24,6 +27,9 @@
                         {% for value in clusters %}
                         <tr>
                             <td><button type="button" class="btn btn-primary btn-sm js-load-modal" data-url="{% url 'clusters:details_modal' value.cluster.distance_method value.cluster.cluster_id %}">Cluster {{value.cluster.cluster_id}}</button> ({{ value.cluster.conditions.conditions | length}} conditions, {{value.cluster.conditions.unique_chemicals}} distincts chemicals)</td>
+                            <td>{% get_model_group_data model.parameters.groups_data value.cluster.cluster_id 'precision' %}</td>
+                            <td>{% get_model_group_data model.parameters.groups_data value.cluster.cluster_id 'recall' %}</td>
+                            <td>{% get_model_group_data model.parameters.groups_data value.cluster.cluster_id 'specificity' %}</td>
                             <td>{{value.value |floatformat:-3 }}</td>
                         </tr>
                         {% endfor %}

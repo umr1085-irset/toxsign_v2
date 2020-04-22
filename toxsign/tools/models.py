@@ -7,7 +7,9 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.postgres.fields import JSONField
 from django.apps import apps
 
-import os
+from django.dispatch import receiver
+
+import os, shutil
 
 def get_model_upload_path(instance, filename):
 
@@ -101,3 +103,11 @@ class PredictionModel(models.Model):
 
     def __str__(self):
         return self.name
+
+@receiver(models.signals.pre_delete, sender=PredictionModel)
+def auto_delete_signature_on_delete(sender, instance, **kwargs):
+    # Delete the folder
+    if instance.computer_name:
+        local_path = os.path.join(settings.MEDIA_ROOT, "jobs/admin/{}/".format(instance.computer_name))
+        if(os.path.exists(local_path)):
+            shutil.rmtree(local_path)

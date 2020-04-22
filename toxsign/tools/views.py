@@ -197,7 +197,7 @@ def functional_analysis_tool(request):
     else:
         form = forms.signature_compute_form(signatures=signatures)
         context = {'form':form}
-        return render(request, 'tools/run_dist.html', context)
+        return render(request, 'tools/run_enrich.html', context)
 
 def functional_analysis_results(request, job_id):
     job = get_object_or_404(Job, id=job_id)

@@ -17,7 +17,7 @@ $(function () {
     );
 
     var table = $('#results').DataTable({
-        "order": [[ 1, "desc" ]],
+        "order": [[ 4, "desc" ]],
         "pageLength": 5,
         "dom": 'l<"wrapper">rtip'
 

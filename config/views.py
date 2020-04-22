@@ -119,6 +119,7 @@ def autocompleteModel(request):
         results_superprojects = paginate(results_superprojects.filter(q1), request.GET.get('superprojects'), 5, True)
         results_projects = paginate(ProjectDocument.search().query(q & q1), request.GET.get('projects'), 5, True)
         results_signatures = paginate(results_signatures.filter(q1), request.GET.get('signatures'), 5, True)
+        type="es"
 
     # Fallback to DB search
     # Need to select the correct error I guess
@@ -130,6 +131,7 @@ def autocompleteModel(request):
 
         results_projects = paginate([project for project in results_projects if check_view_permissions(request.user, project)], request.GET.get('projects'), 5)
         results_signatures = paginate([sig for sig in results_signatures if check_view_permissions(request.user, sig.factor.assay.project)], request.GET.get('signatures'), 5)
+        type="db"
 
     is_active = {'superproject': "", 'project': "", 'signature': ""}
     # If a specific page was requested,  set the related tab to active
@@ -179,7 +181,8 @@ def autocompleteModel(request):
         'is_active': is_active,
         "dev_stage_dict": dev_stage_dict,
         "sex_type_dict": sex_type_dict,
-        'get_query': request.GET.get('q')
+        'get_query': request.GET.get('q'),
+        "type": type
     }
 
     return render(request, 'pages/ajax_search.html', results)
@@ -290,9 +293,9 @@ def index(request):
         superprojects = paginate(superprojects, request.GET.get('superprojects'), 5, True)
         assays = paginate(assays, request.GET.get('assays'), 5, True)
         signatures = paginate(signatures, request.GET.get('signatures'), 5, True)
+        type="es"
 
     except Exception as e:
-        raise e
         superprojects = Superproject.objects.all()
         all_projects = Project.objects.all().order_by('id')
         projects = []
@@ -309,6 +312,7 @@ def index(request):
         projects = paginate(projects, request.GET.get('projects'), 5)
         assays = paginate(assays, request.GET.get('assays'), 5)
         signatures = paginate(signatures, request.GET.get('signatures'), 5)
+        type="db"
 
     is_active = {'superproject': "", 'project': "", 'assay': "", 'signature': ""}
     # If a specific page was requested,  set the related tab to active
@@ -363,7 +367,8 @@ def index(request):
         'signature_list': signatures,
         "is_active": is_active,
         "dev_stage_dict": dev_stage_dict,
-        "sex_type_dict": sex_type_dict
+        "sex_type_dict": sex_type_dict,
+        "type": type,
     }
 
     return render(request, 'pages/index.html', context)

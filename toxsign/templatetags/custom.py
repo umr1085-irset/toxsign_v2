@@ -52,10 +52,17 @@ def get_arrow(value):
         arrow="<i class='fas fa-arrow-down'></i>"
     return format_html(arrow)
 
-@register.simple_tag
+@register.simple_tag()
 def get_dict_value(dict, value):
     if value in dict:
         return dict[value]
+    else:
+        return "/"
+
+@register.simple_tag()
+def get_model_group_data(dict, group_id, field):
+    if group_id in dict:
+        return dict[group_id][field]
     else:
         return "/"
 

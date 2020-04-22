@@ -8,9 +8,13 @@ from toxsign.tools.models import PredictionModel
 from datetime import datetime
 import os, shutil
 
+import pandas as pd
+
 # Populate with default tools (ontologies..)
 
 def populate_prediction_models(folder):
+
+    PredictionModel.objects.all().delete()
 
     if not os.path.exists(folder):
         print("Folder {} does not exists. Exiting.".format(folder))
@@ -26,36 +30,62 @@ def populate_prediction_models(folder):
     if not (os.path.exists(os.path.join(folder, "association_matrix_cor.tsv")) and os.path.exists(os.path.join(folder, "model_cor.h5"))):
         print("Missing either {} or {}. Stopping.".format("association_matrix_cor.tsv", "model_cor.h5"))
         return
+    if not os.path.exists(os.path.join(folder, "Groups_statistics_1_cor.tsv")):
+        print("Missing {}. Stopping.".format("Groups_statistics_1_cor.tsv"))
+        return
 
     if not (os.path.exists(os.path.join(folder, "association_matrix_euc.tsv")) and os.path.exists(os.path.join(folder, "model_euc.h5"))):
         print("Missing either {} or {}. Stopping.".format("association_matrix_euc.tsv", "model_euc.h5"))
+        return
+
+    if not os.path.exists(os.path.join(folder, "Groups_statistics_1_euc.tsv")):
+        print("Missing {}. Stopping.".format("Groups_statistics_1_euc.tsv"))
         return
 
     description="This model return the probability that the chemical(s) related to a signature is part of a <a href='https://www.anses.fr/fr/content/chempsy-identification-classification-and-prioritization-novel-endocrine-disruptors'>ChemPSy</a> defined cluster."
     corr_description = description + "<br>This model will return clusters defined using correlation as similar proximity</br>"
     eucl_description = description + "<br>This model will return clusters defined using euclidean distance as similar proximity</br>"
 
+    model_data, groups_data = extract_models_stats(folder, 'cor')
+
     correlation_model = PredictionModel(
         name="ChemPSy cluster prediction (correlation)",
         computer_name="correlation",
         description=corr_description,
-        parameters={"cluster_distance_type":"correlation"}
+        parameters={"cluster_distance_type":"correlation", "model_data": model_data, "groups_data": groups_data}
     )
 
-    correlation_model.model_file.save("Ontology.svg", File(open(os.path.join(folder, "model_cor.h5"), "rb")), save=False)
-    correlation_model.association_matrix.save("Ontology.svg", File(open(os.path.join(folder, "association_matrix_cor.tsv"), "rb")), save=False)
+    correlation_model.model_file.save("tempname", File(open(os.path.join(folder, "model_cor.h5"), "rb")), save=False)
+    correlation_model.association_matrix.save("tempname", File(open(os.path.join(folder, "association_matrix_cor.tsv"), "rb")), save=False)
     correlation_model.save()
+
+    model_data, groups_data = extract_models_stats(folder, 'euc')
 
     euclidean_model = PredictionModel(
         name="ChemPSy cluster prediction (euclidean)",
         computer_name="euclidean",
         description=eucl_description,
-        parameters={"cluster_distance_type":"euclidean"}
+        parameters={"cluster_distance_type":"euclidean", "model_data": model_data, "groups_data": groups_data}
     )
 
-    euclidean_model.model_file.save("Ontology.svg", File(open(os.path.join(folder, "model_euc.h5"), "rb")), save=False)
-    euclidean_model.association_matrix.save("Ontology.svg", File(open(os.path.join(folder, "association_matrix_euc.tsv"), "rb")), save=False)
+    euclidean_model.model_file.save("tempname", File(open(os.path.join(folder, "model_euc.h5"), "rb")), save=False)
+    euclidean_model.association_matrix.save("tempname", File(open(os.path.join(folder, "association_matrix_euc.tsv"), "rb")), save=False)
     euclidean_model.save()
+
+
+def extract_models_stats(folder, type):
+
+    groups_data = {}
+
+    df = pd.read_csv(os.path.join(folder, "Groups_statistics_1_{}.tsv".format(type)), sep="\t", encoding="latin1")
+    df = df.set_index('Group')
+    for index,row in df.iterrows():
+        group_id = index.split("_")[-1]
+        groups_data[group_id] = {"precision": row['Precision [TP/(TP+FP)]'], "recall": row['Recall (Sensibility) [TP/(FN+TP)]'], "specificity": row['spec']}
+
+    model_data = {"precision": df['Precision [TP/(TP+FP)]'].mean(), "recall": df['Recall (Sensibility) [TP/(FN+TP)]'].mean(), "specificity": df['spec'].mean()}
+
+    return model_data, groups_data
 
 
 class Command(BaseCommand):
