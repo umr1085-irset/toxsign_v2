@@ -89,7 +89,7 @@ class signature_cluster_compute_form(forms.Form):
     CHOICES = (("euclidean","Euclidean distance"),("correlation","Correlation distance"))
 
     job_name = forms.CharField(label='Job_name', max_length=100, required=True)
-    cluster_type = forms.ChoiceField(choices = CHOICES, label="Test", widget=forms.Select(), required=True)
+    cluster_type = forms.ChoiceField(choices = CHOICES, label="Cluster distance type", widget=forms.Select(), required=True, help_text='The distance calculation method used to define the ChemPSy clusters')
 
     def __init__(self, *args, **kwargs):
 
