@@ -380,12 +380,12 @@ def prediction_tool(request):
 
         else:
             context = {'form':form}
-            return render(request, 'tools/run_dist.html', context)
+            return render(request, 'tools/run_predict.html', context)
 
     else:
         form = forms.prediction_compute_form(signatures=signatures)
         context = {'form':form}
-        return render(request, 'tools/run_dist.html', context)
+        return render(request, 'tools/run_predict.html', context)
 
 def cluster_dist_tool(request):
 

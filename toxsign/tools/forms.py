@@ -8,6 +8,8 @@ from toxsign.signatures.models import Signature
 from toxsign.tools.models import PredictionModel
 import toxsign.ontologies.models as models
 
+from crispy_forms.layout import Submit, Layout, HTML, Div
+
 class default_form(forms.Form):
 
     job_name = forms.CharField(label='Job_name', max_length=100)
@@ -134,4 +136,14 @@ class prediction_compute_form(forms.Form):
         self.helper.label_class = 'col-lg-2'
         self.helper.field_class = 'col-lg-8'
         self.helper.form_method = 'POST'
+
+        self.helper.layout = Layout(
+            Div('model'),
+        )
+
+        for model in PredictionModel.objects.all():
+            stats = "<p>This model has a precision of {:.3f}, a recall of {:.3f} and a specificity of {:.3f}</p>".format(model.parameters['model_data']['precision'], model.parameters['model_data']['recall'], model.parameters['model_data']['specificity'])
+            self.helper.layout.append(Div(HTML('<div class="card bg-light"><div class="card-body"><p>{}</p>{}</div></div><br>'.format(model.description, stats)), style="display:none", css_class="model_description", id="model_" + str(model.id)))
+
+        self.helper.layout.append(Div('signature'))
         self.helper.add_input(Submit('save', 'Submit job'))

@@ -43,13 +43,13 @@ def populate_prediction_models(folder):
         return
 
     description="This model return the probability that the chemical(s) related to a signature is part of a <a href='https://www.anses.fr/fr/content/chempsy-identification-classification-and-prioritization-novel-endocrine-disruptors'>ChemPSy</a> defined cluster."
-    corr_description = description + "<br>This model will return clusters defined using correlation as similar proximity</br>"
-    eucl_description = description + "<br>This model will return clusters defined using euclidean distance as similar proximity</br>"
+    corr_description = description + "<br>These clusters are defined using <b>correlation as similar proximity</b></br>"
+    eucl_description = description + "<br>These clusters are defined using <b>euclidean distance as similar proximity</b></br>"
 
     model_data, groups_data = extract_models_stats(folder, 'cor')
 
     correlation_model = PredictionModel(
-        name="ChemPSy cluster prediction (correlation)",
+        name="ChemPSy cluster (correlation)",
         computer_name="correlation",
         description=corr_description,
         parameters={"cluster_distance_type":"correlation", "model_data": model_data, "groups_data": groups_data}
@@ -62,7 +62,7 @@ def populate_prediction_models(folder):
     model_data, groups_data = extract_models_stats(folder, 'euc')
 
     euclidean_model = PredictionModel(
-        name="ChemPSy cluster prediction (euclidean)",
+        name="ChemPSy cluster (euclidean)",
         computer_name="euclidean",
         description=eucl_description,
         parameters={"cluster_distance_type":"euclidean", "model_data": model_data, "groups_data": groups_data}
