@@ -19,7 +19,7 @@
                                 <p>{{ tool.short_description}}</p>
                             </div>
                             <div class="col-md-2 my-auto">
-                                <button class="btn btn-outline-light btn-sm float-right" type="button" data-toggle="collapse" data-target="#tool-{{tool.id}}">More info <i class="fas fa-chevron-down"></i></button>
+                                <button class="btn btn-outline-light btn-sm float-right" type="button" data-trigger="focus" data-toggle="collapse" data-target="#tool-{{tool.id}}">More info <i class="fas fa-chevron-down"></i></button>
                             </div>
                         </div>
                     </div>
@@ -60,4 +60,16 @@
             <p>No tools are available.</p>
         {% endif %}
     </div>
+{% endblock %}
+
+
+{% block javascript %}
+    {{ block.super }}
+    <script>
+    $(".collapse").on("shown.bs.collapse", function () {
+        $('html, body').animate({
+            scrollTop: $(this).offset().top - 50
+        }, 500)
+    });
+    </script>
 {% endblock %}
