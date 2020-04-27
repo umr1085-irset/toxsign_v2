@@ -62,7 +62,7 @@ def get_dict_value(dict, value):
 @register.simple_tag()
 def get_model_group_data(dict, group_id, field):
     if group_id in dict:
-        return dict[group_id][field]
+        return "{:.3f}".format(dict[group_id][field])
     else:
         return "/"
 
