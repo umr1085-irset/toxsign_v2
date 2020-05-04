@@ -31,7 +31,7 @@
               <thead>
                 <tr style="text-align:center;" id="{{type}}-columns">
                   {% for column, param in columns.items %}
-                    <th scope="col"><button type="button" class="btn btn-link btn-sm order-action" data-type="{{type}}" action="order" target="{{column}}">{{column}} {% get_arrow param.filter %}</button></th>
+                    <th scope="col"><button type="button" class="btn btn-link order-action" data-type="{{type}}" action="order" target="{{column}}">{{column}} {% get_arrow param.filter %}</button></th>
                   {% endfor %}
                 </tr>
                 <tr>
@@ -46,7 +46,7 @@
                     {% for col in row %}
                       {% if forloop.counter == 1  %}
                         <td>{{ col }}</td>
-                      {% elif forloop.counter == 6 %}
+                      {% elif forloop.counter == 4 %}
                         <td>{% widthratio col 1 100 %} %</td>
                       {% else %}
                         <td>{{ col |floatformat:-3}}</td>

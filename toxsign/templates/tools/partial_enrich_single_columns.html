@@ -4,6 +4,6 @@
 
 {% block content %}
 {% for column, param in columns.items %}
-    <th scope="col"><button type="button" class="btn btn-link btn-sm order-action" data-type="{{type}}" action="order" target="{{column}}">{{column}} {% get_arrow param.filter %}</button></th>
+    <th scope="col"><button type="button" class="btn btn-link order-action" data-type="{{type}}" action="order" target="{{column}}">{{column}} {% get_arrow param.filter %}</button></th>
 {% endfor %}
 {% endblock %}

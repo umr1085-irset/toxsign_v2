@@ -226,6 +226,12 @@ def functional_analysis_full_table(request, job_id):
         df = pd.read_csv(file_path, sep="\t", encoding="latin1")
         df = df.drop(columns=['HomologeneIds'])
 
+        df.columns = ["Type", "Term", "r", "R", "n", "N", "r/R", "Pvalue", "Adj PValue"]
+
+        ordered_columns = ["Type", "Term", "Adj PValue", "Pvalue", "r/R", "r", "R", "n", "N"]
+
+        df = df[ordered_columns]
+
         filters = json.loads(request.POST['terms'])
         for filter in filters:
             try:
@@ -290,6 +296,11 @@ def functional_analysis_partial_table(request, job_id, type):
 
         df = pd.read_csv(file_path, sep="\t", encoding="latin1")
         df = df.drop(columns=['HomologeneIds'])
+
+        df.columns = ["Type", "Term", "r", "R", "n", "N", "r/R", "Pvalue", "Adj PValue"]
+        ordered_columns = ["Type", "Term", "Adj PValue", "Pvalue", "r/R", "r", "R", "n", "N"]
+
+        df = df[ordered_columns]
 
         filters = json.loads(request.POST['terms'])
         for filter in filters:

@@ -8,7 +8,7 @@
     {% for col in row %}
       {% if forloop.counter == 1  %}
         <td>{{ col }}</td>
-      {% elif forloop.counter == 6 %}
+      {% elif forloop.counter == 4 %}
         <td>{% widthratio col 1 100 %} %</td>
       {% else %}
         <td>{{ col |floatformat:-3}}</td>
