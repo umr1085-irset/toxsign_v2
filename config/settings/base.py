@@ -93,6 +93,7 @@ LOCAL_APPS = [
     "toxsign.genes.apps.GenesAppConfig",
     "toxsign.groups.apps.GroupsAppConfig",
     "toxsign.scripts.apps.ScriptsAppConfig",
+    "toxsign.clusters.apps.ClustersAppConfig",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

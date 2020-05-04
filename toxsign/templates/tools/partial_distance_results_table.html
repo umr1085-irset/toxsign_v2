@@ -4,11 +4,11 @@
 
 {% block content %}
 <div class="table-responsive">
-    <table class="table">
+    <table class="table" style="text-align:center;">
       <thead>
-        <tr style="text-align:center;">
+        <tr>
           {% for column, param in columns.items %}
-            <th scope="col"><button type="button" class="btn btn-link btn-sm order-action" action="order" target="{{column}}">{{column}} {% get_arrow param.filter %}</button></th>
+            <th scope="col"><button type="button" class="btn btn-link order-action" action="order" target="{{column}}">{{column}} {% get_arrow param.filter %}</button></th>
           {% endfor %}
         </tr>
       </thead>
