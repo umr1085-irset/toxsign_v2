@@ -54,7 +54,7 @@ for (Sign.Name in rownames(signmatrix)) {
    New.Data[Sign.Name,10] <- N
    New.Data[Sign.Name,12] <- paste(r.IDs,collapse="|")
 
-colnames(New.Data) <- c("Signature", "Euclidean dist", "Correlation dist", "Adj Pvalue", "Pvalue", "Ratio", "r", "R", "n", "N", "Zscore", "HomologeneIds")
+colnames(New.Data) <- c("Signature", "Euclidean dist", "Correlation dist", "Adj Pvalue", "Pvalue", "r/R", "r", "R", "n", "N", "Zscore", "HomologeneIds")
 
 }
 #--------------------------------------------#

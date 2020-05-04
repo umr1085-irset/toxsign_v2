@@ -1,9 +1,24 @@
 $(function () {
 
+
+    jQuery.extend( jQuery.fn.dataTableExt.oSort, {
+        "formatted-num-pre": function ( a ) {
+            a === "nan" ? 0 : a;
+            return parseFloat( a );
+        },
+        "formatted-num-asc": function ( a, b ) {
+            return a - b;
+        },
+        "formatted-num-desc": function ( a, b ) {
+            return b - a;
+        }
+    });
+
     var table = $('#results').DataTable({
         "pageLength": 5,
         "scrollX": true,
-        "bFilter": false
+        "bFilter": false,
+        "columnDefs": [{ type: 'formatted-num', targets: 1 }]
     });
 
     var loadForm = function () {

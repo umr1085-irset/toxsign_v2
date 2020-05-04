@@ -39,11 +39,7 @@
                         <tr>
                             <td><button type="button" class="btn btn-primary btn-sm js-load-modal" data-url="{% url 'clusters:details_modal' value.cluster.distance_method value.cluster.cluster_id %}">Cluster {{value.cluster.cluster_id}}</button></td>
                             {% for val in value.value %}
-                                {% if not val == val %}
-                                    <td>NA</td>
-                                {% else %}
                                     <td>{{val |floatformat:-3 }}</td>
-                                {% endif %}
                             {% endfor %}
                         </tr>
                         {% endfor %}

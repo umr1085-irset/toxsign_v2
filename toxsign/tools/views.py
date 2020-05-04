@@ -91,7 +91,10 @@ def distance_analysis_results(request, job_id):
     if not is_viewable(job, request.user):
         return redirect('/unauthorized')
 
-    return render(request, 'tools/distance_analysis_results.html', {'job': job})
+    sig_id = job.results['args']['signature_id']
+
+    sig = Signature.objects.get(id=sig_id)
+    return render(request, 'tools/distance_analysis_results.html', {'job': job, 'sig': sig})
 
 def distance_analysis_table(request, job_id):
         # Due to potential complexity in arguments (multiples filters), we pass it as a POST instead of GET
@@ -128,6 +131,10 @@ def distance_analysis_table(request, job_id):
                 df = df[df[column_name].lt(value)]
             elif filter['filter_adjust'] == 'gt':
                 df = df[df[column_name].gt(value)]
+            elif filter['filter_adjust'] == 'le':
+                df = df[df[column_name].le(value)]
+            elif filter['filter_adjust'] == 'ge':
+                df = df[df[column_name].ge(value)]
 
         column_dict = {}
         current_order = ""
@@ -205,7 +212,11 @@ def functional_analysis_results(request, job_id):
     if not is_viewable(job, request.user):
         return redirect('/unauthorized')
 
-    return render(request, 'tools/functional_analysis_results.html', {'job': job})
+    sig_id = job.results['args']['signature_id']
+
+    sig = Signature.objects.get(id=sig_id)
+
+    return render(request, 'tools/functional_analysis_results.html', {'job': job, "sig": sig})
 
 def functional_analysis_full_table(request, job_id):
         # Due to potential complexity in arguments (multiples filters), we pass it as a POST instead of GET
@@ -247,6 +258,10 @@ def functional_analysis_full_table(request, job_id):
                 df = df[df[column_name].lt(value)]
             elif filter['filter_adjust'] == 'gt':
                 df = df[df[column_name].gt(value)]
+            elif filter['filter_adjust'] == 'le':
+                df = df[df[column_name].le(value)]
+            elif filter['filter_adjust'] == 'ge':
+                df = df[df[column_name].ge(value)]
 
         column_dict = {}
         for column in df.columns:
@@ -317,6 +332,10 @@ def functional_analysis_partial_table(request, job_id, type):
                 df = df[df[column_name].lt(value)]
             elif filter['filter_adjust'] == 'gt':
                 df = df[df[column_name].gt(value)]
+            elif filter['filter_adjust'] == 'le':
+                df = df[df[column_name].le(value)]
+            elif filter['filter_adjust'] == 'ge':
+                df = df[df[column_name].ge(value)]
 
         column_dict = {}
         current_order = ""
@@ -460,6 +479,12 @@ def cluster_dist_results(request, job_id):
     df = df.set_index('Class')
     df = df.drop(['X', 'Y', 'Sample'])
     df = df.drop(columns=['Sign'])
+
+    if selected_distance_id == "euclidean":
+        df = df.drop(['Correlation - Medoid', 'Correlation - Centroid', 'Correlation - Closest', 'Correlation - PCA(Medoid)', 'Correlation - PCA(Centroid)'])
+
+    elif selected_distance_id == "correlation":
+        df = df.drop(['Euclidean distance - Medoid', 'Euclidean distance - Centroid', 'Euclidean distance - Closest', 'Euclidean distance - PCA(Medoid)', 'Euclidean distance - PCA(Centroid)'])
 
     clusters = []
     for cluster_name in df.columns:
