@@ -14,9 +14,12 @@ $(function () {
         }
     });
 
+
+
     var table = $('#results').DataTable({
         "pageLength": 5,
         "scrollX": true,
+        "order": [[ 1, order_type]],
         "bFilter": false,
         "columnDefs": [{ type: 'formatted-num', targets: 1 }]
     });

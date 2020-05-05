@@ -481,10 +481,12 @@ def cluster_dist_results(request, job_id):
     df = df.drop(columns=['Sign'])
 
     if selected_distance_id == "euclidean":
-        df = df.drop(['Correlation - Medoid', 'Correlation - Centroid', 'Correlation - Closest', 'Correlation - PCA(Medoid)', 'Correlation - PCA(Centroid)'])
+        df = df.drop(['Correlation - Medoid', 'Correlation - Centroid', 'Correlation - Closest', 'Correlation - PCA(Medoid)', 'Correlation - PCA(Centroid)', 'Euclidean distance - PCA(Medoid)', 'Euclidean distance - PCA(Centroid)'])
+        order_type="asc"
 
     elif selected_distance_id == "correlation":
-        df = df.drop(['Euclidean distance - Medoid', 'Euclidean distance - Centroid', 'Euclidean distance - Closest', 'Euclidean distance - PCA(Medoid)', 'Euclidean distance - PCA(Centroid)'])
+        df = df.drop(['Euclidean distance - Medoid', 'Euclidean distance - Centroid', 'Euclidean distance - Closest', 'Euclidean distance - PCA(Medoid)', 'Euclidean distance - PCA(Centroid)', 'Correlation - PCA(Medoid)', 'Correlation - PCA(Centroid)'])
+        order_type="desc"
 
     clusters = []
     for cluster_name in df.columns:
@@ -494,7 +496,7 @@ def cluster_dist_results(request, job_id):
             clusters.append({'cluster': cluster[0], 'value': df[cluster_name].values})
     columns = df.index.values
 
-    return render(request, 'tools/run_cluster_dist_results.html', {'columns': columns, 'clusters': clusters, 'distance_type': selected_distance_id, 'signature': signature, 'chemical': chemical})
+    return render(request, 'tools/run_cluster_dist_results.html', {'columns': columns, 'clusters': clusters, 'distance_type': selected_distance_id, 'signature': signature, 'chemical': chemical, "order_type": order_type})
 
 def prediction_tool_results(request, job_id):
 

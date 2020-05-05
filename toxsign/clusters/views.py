@@ -61,7 +61,7 @@ def get_graph_data(request, type, clrid):
     cluster = get_object_or_404(Cluster, distance_method=type, cluster_id=clrid)
 
     if enrich_type == "chem" and cluster.chemical_enrichment_file:
-        data = _format_graph_data(cluster.chemical_enrichment_file.path, "Chemical enrichment")
+        data = _format_graph_data(cluster.chemical_enrichment_file.path, "Disease enrichment based on chemical association with diseases (CID)")
 
     elif enrich_type == "gene" and cluster.gene_enrichment_file:
         data = _format_graph_data(cluster.gene_enrichment_file.path, "Gene enrichment")

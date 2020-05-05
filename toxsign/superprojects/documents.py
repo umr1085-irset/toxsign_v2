@@ -8,7 +8,8 @@ class SuperprojectDocument(Document):
     tsx_id = fields.KeywordField()
 
     created_by = fields.ObjectField(properties={
-        'username': fields.TextField()
+        'username': fields.TextField(),
+        'is_superuser': fields.BooleanField()
     })
 
     class Index:

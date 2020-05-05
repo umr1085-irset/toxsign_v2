@@ -5,18 +5,6 @@
 {% block content %}
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
-<style>
-    .table td {
-        font-size: .8rem;
-    }
-    .table th {
-        font-size: .8rem;
-    }
-    .table .custom-select{
-        font-size: .8rem;
-    }
-</style>
-
 
 <div class="container">    
     <div class="card">
@@ -24,8 +12,8 @@
             <h4>Prediction results for signature {{signature.tsx_id}} using {{distance_type}}-defined clusters</h4>
             <p><b>Signature name</b>: {{signature.name}}</p>
             <p><b>Chemical(s) associated</b>: {{chemical}}</p>
-                <div class="table-responsive">
-                  <table class="table table-hover" id="results">
+                <div class="table">
+                  <table class="table table-hover" id="results" style="width:100%">
                     <thead>
                         <tr>
                             <th></th>
@@ -61,5 +49,10 @@
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+        var order_type = "{{order_type}}";        
+    </script>
     <script src="{% static 'js/run_cluster_dist_results.js' %}"></script>   
+    
+
 {% endblock %}
