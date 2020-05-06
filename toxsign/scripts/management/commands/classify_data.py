@@ -38,10 +38,10 @@ def _get_drugmatrix(admin_user):
         return sprojects[0]
     else:
         name = "DrugMatrix"
-        description = "<a href='https://ntp.niehs.nih.gov/data/drugmatrix/'>DrugMatrix</a>, produced by the <a href='https://ntp.niehs.nih.gov/'>U.S. National Toxicology Program</a>, is a molecular toxicology reference database and informatics system. DrugMatrix is populated with the comprehensive results of thousands of highly controlled and standardized toxicological experiments in which rats or primary rat hepatocytes were systematically treated with therapeutic, industrial, and environmental chemicals at both non-toxic and toxic doses."
+        description = "<a target='_blank' href='https://ntp.niehs.nih.gov/data/drugmatrix/'>DrugMatrix</a>, produced by the <a target='_blank' href='https://ntp.niehs.nih.gov/'>U.S. National Toxicology Program</a>, is a molecular toxicology reference database and informatics system. DrugMatrix is populated with the comprehensive results of thousands of highly controlled and standardized toxicological experiments in which rats or primary rat hepatocytes were systematically treated with therapeutic, industrial, and environmental chemicals at both non-toxic and toxic doses."
         description += "<br>" + "The DrugMatrix database is one of the world’s largest toxicogenomic reference resources. The ToxFX reporting system, a companion to DrugMatrix, allows users to quickly create fully annotated reports from DrugMatrix data. Together, these tools increase the efficiency of the toxicological assessment process and reduce the amount of time needed to formulate a xenobiotic’s potential for toxicity."
         description += "<br>" + "The heart of the DrugMatrix database is large-scale gene expression data. The primary value that DrugMatrix provides to the toxicology community is in its capacity to use toxicogenomic data to perform rapid toxicological evaluations."
-        description += "<br>" + "The resource is no longer hosted for external use, but the data is <a href='https://ntp.niehs.nih.gov/data/drugmatrix/'>available</a> in a number of formats."
+        description += "<br>" + "The resource is no longer hosted for external use, but the data is <a href='https://ntp.niehs.nih.gov/data/drugmatrix/' target='_blank' >available</a> in a number of formats."
 
         drugmatrix = Superproject(name=name, description=description, created_by=admin_user)
         drugmatrix.save()
