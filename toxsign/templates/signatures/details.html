@@ -48,6 +48,7 @@
       <div class="row">
         {% if signature.up_gene_file_path or signature.up_gene_file_path or signature.interrogated_gene_file_path  %}
           <div class="col align-self-center">
+            <a href="{% url 'tools:index'  %}?selected={{signature.tsx_id}}" class="btn btn-outline-primary" role="button">Tools <i class="fas fa-external-link-alt"></i></a>
             <a href="{% url 'download_sig' signature.tsx_id  %}" class="btn btn-outline-success" role="button">Download</a>
           </div>
         {% endif %}
@@ -188,8 +189,8 @@
                   <a href="" data-target="#physical" data-toggle="tab" class="nav-link disabled">Physical (0)</a>
               </li>
           </ul>
-          <div class="tab-content p-b-3" style="margin-top:20px;">
-              <div class="tab-pane active" id="chemical">
+          <div class="tab-content" style="margin-top:20px;">
+              <div class="tab-pane active p-b-3" id="chemical">
                 {% if not factor.chemical_subfactor_of.count %}
                     <div class="row my-5">
                       <div class="col-md-8 mb-5">

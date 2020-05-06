@@ -12,6 +12,7 @@
             <h4>Prediction results for signature {{signature.tsx_id}} with model {{model.name}}</h4>
             <p><b>Signature name</b>: {{signature.name}}</p>
             <p><b>Chemical(s) associated</b>: {{chemical}}</p>
+            <p>For more information on the results, click <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-models">here</button></p>
                 <div class="table-responsive">
                   <table class="table table-hover" id="results">
                     <thead>
@@ -43,6 +44,9 @@
 <div class="modal fade" id="modal-group">
     <div class="modal-dialog" style="max-width: 1200px;"><div class="modal-content"></div></div>
 </div>
+
+{% include "tools/prediction_data_modal.html" %}
+
 {% endblock %}
 
 {% block javascript %}

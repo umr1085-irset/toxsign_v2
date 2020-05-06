@@ -54,7 +54,7 @@ class SignatureToolAutocomplete(autocomplete.Select2QuerySetView):
         return result.id
 
     def get_result_label(self, result):
-        return result.tsx_id + "-" + result.name
+        return result.tsx_id + " - " + result.name
 
 def DetailView(request, sigid):
 

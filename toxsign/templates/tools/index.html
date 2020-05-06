@@ -42,7 +42,7 @@
                                         </tbody>
                                     </table>
                                     {% if tool.type == "LOCAL" %}
-                                    <a class="btn btn-primary" href="{% url tool.link  %}">View tool</a>
+                                    <a class="btn btn-primary" href="{% url tool.link  %}{% if selected_sig %}?selected={{selected_sig}}{% endif %}">View tool</a>
                                     {% elif tool.type == "REMOTE" %}
                                     <a class="btn btn-primary" href="{{ tool.link }}">View tool</a>
                                     {% else %}

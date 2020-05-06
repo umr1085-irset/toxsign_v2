@@ -51,13 +51,27 @@ class IndexView(generic.ListView):
     def get_queryset(self):
         return Category.objects.exclude(category_of=None)
 
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        # Add in a QuerySet of all the books
+        context['selected_sig'] = self.request.GET.get('selected')
+        return context
+
+
 def distance_analysis_tool(request):
 
     accessible_projects = [project for project in Project.objects.all() if check_view_permissions(request.user, project)]
     signatures = Signature.objects.filter(factor__assay__project__in=accessible_projects).exclude(up_gene_number=0, down_gene_number=0)
 
+    selected_signature = None
+    if request.GET.get('selected'):
+        selected_signature = signatures.filter(tsx_id=request.GET.get('selected'))
+        if selected_signature:
+            selected_signature = selected_signature[0]
+
     if request.method == 'POST':
-        form = forms.signature_compute_form(request.POST, signatures=signatures)
+        form = forms.signature_compute_form(request.POST, signatures=signatures, selected_signature=selected_signature)
         if form.is_valid():
             signature_id = request.POST['signature']
             # Make sure it's selected from available sigs
@@ -81,7 +95,7 @@ def distance_analysis_tool(request):
         job_name = request.POST['job_name']
 
     else:
-        form = forms.signature_compute_form(signatures=signatures)
+        form = forms.signature_compute_form(signatures=signatures, selected_signature=selected_signature)
         context = {'form':form}
         return render(request, 'tools/run_dist.html', context)
 
@@ -181,8 +195,14 @@ def functional_analysis_tool(request):
     accessible_projects = [project for project in Project.objects.all() if check_view_permissions(request.user, project)]
     signatures = Signature.objects.filter(factor__assay__project__in=accessible_projects).exclude(up_gene_number=0, down_gene_number=0)
 
+    selected_signature = None
+    if request.GET.get('selected'):
+        selected_signature = signatures.filter(tsx_id=request.GET.get('selected'))
+        if selected_signature:
+            selected_signature = selected_signature[0]
+
     if request.method == 'POST':
-        form = forms.signature_compute_form(request.POST, signatures=signatures)
+        form = forms.signature_compute_form(request.POST, signatures=signatures, selected_signature=selected_signature)
         if form.is_valid():
             signature_id = request.POST['signature']
             # Make sure it's selected from available sigs
@@ -202,7 +222,7 @@ def functional_analysis_tool(request):
         job_name = request.POST['job_name']
 
     else:
-        form = forms.signature_compute_form(signatures=signatures)
+        form = forms.signature_compute_form(signatures=signatures, selected_signature=selected_signature)
         context = {'form':form}
         return render(request, 'tools/run_enrich.html', context)
 
@@ -390,8 +410,14 @@ def prediction_tool(request):
     accessible_projects = [project for project in Project.objects.all() if check_view_permissions(request.user, project)]
     signatures = Signature.objects.filter(factor__assay__project__in=accessible_projects).exclude(up_gene_number=0, down_gene_number=0)
 
+    selected_signature = None
+    if request.GET.get('selected'):
+        selected_signature = signatures.filter(tsx_id=request.GET.get('selected'))
+        if selected_signature:
+            selected_signature = selected_signature[0]
+
     if request.method == 'POST':
-        form = forms.prediction_compute_form(request.POST, signatures=signatures)
+        form = forms.prediction_compute_form(request.POST, signatures=signatures, selected_signature=selected_signature)
         if form.is_valid():
             signature_id = request.POST.get('signature')
             # Make sure it's selected from available sigs
@@ -413,7 +439,7 @@ def prediction_tool(request):
             return render(request, 'tools/run_predict.html', context)
 
     else:
-        form = forms.prediction_compute_form(signatures=signatures)
+        form = forms.prediction_compute_form(signatures=signatures, selected_signature=selected_signature)
         context = {'form':form}
         return render(request, 'tools/run_predict.html', context)
 
@@ -421,9 +447,14 @@ def cluster_dist_tool(request):
 
     accessible_projects = [project for project in Project.objects.all() if check_view_permissions(request.user, project)]
     signatures = Signature.objects.filter(factor__assay__project__in=accessible_projects).exclude(up_gene_number=0, down_gene_number=0)
+    selected_signature = None
+    if request.GET.get('selected'):
+        selected_signature = signatures.filter(tsx_id=request.GET.get('selected'))
+        if selected_signature:
+            selected_signature = selected_signature[0]
 
     if request.method == 'POST':
-        form = forms.signature_cluster_compute_form(request.POST, signatures=signatures)
+        form = forms.signature_cluster_compute_form(request.POST, signatures=signatures, selected_signature=selected_signature)
         if form.is_valid():
             signature_id = request.POST.get('signature')
 
@@ -450,7 +481,7 @@ def cluster_dist_tool(request):
         job_name = request.POST['job_name']
 
     else:
-        form = forms.signature_cluster_compute_form(signatures=signatures)
+        form = forms.signature_cluster_compute_form(signatures=signatures, selected_signature=selected_signature)
         context = {'form':form}
         return render(request, 'tools/run_cluster_dist.html', context)
 

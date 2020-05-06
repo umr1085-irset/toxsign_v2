@@ -1,5 +1,6 @@
 $(function () {
 
+
     $.fn.dataTable.ext.search.push(
         function( settings, data, dataIndex ) {
             if ( settings.nTable.id !== 'results' ) {
