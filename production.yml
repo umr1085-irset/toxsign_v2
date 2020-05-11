@@ -15,6 +15,7 @@ services:
       - redis
     volumes:
        - .:/app
+       - /groups/irset/archives/web/TOXsIgN/tools/pred_tox/clustering_methods/ChemPSy:/chempsy:ro
     env_file:
       - ./.envs/.production/.django
       - ./.envs/.production/.postgres
@@ -48,7 +49,7 @@ services:
       - django
       - flower
     ports:
-      - "80:80"
+      - "6543:80"
 
   redis:
     image: redis:3.2
