@@ -472,7 +472,7 @@ def cluster_dist_tool(request):
             if cluster_type not in ['euclidean', 'correlation']:
                 return redirect('/unauthorized')
 
-            tool = Tool.objects.get(name="ChemPSy - Cluster distance")
+            tool = Tool.objects.get(name="ChemPSy - Spatial prediction")
             job_name = request.POST.get('job_name', "Cluster distance job")
             task = run_cluster_dist.delay(signature_id, cluster_type)
             _create_job(job_name, request.user, task.id, tool)
