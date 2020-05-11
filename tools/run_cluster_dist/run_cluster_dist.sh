@@ -22,7 +22,7 @@ SIG_FILE="$2"
 OUTPUT_DIR="$3"
 
 . /opt/conda/etc/profile.d/conda.sh
-conda activate condaR_TCL2
+conda activate condaR_TCL
 
 Rscript "$CURRENT_DIR""/predict_group.R" "$TEMP_DIR""$SIG_FILE" "$TEMP_DIR" "$TEMP_DIR""method.RData"
 
