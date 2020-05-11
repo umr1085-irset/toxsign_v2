@@ -16,9 +16,17 @@
             <div class="tab-content card">
               <div class="tab-pane text-style card-body {{is_active.superproject}}" id="tab1">
                 {% for superproject in superproject_list %}
-                    <h5><a href="{% url 'superprojects:detail' superproject.tsx_id %}">{{ superproject.tsx_id }}</a> - {{superproject.name}}</h5>
-                    <p><b>Owner : </b>{{ superproject.created_by.username }} - {{ superproject.created_at }}</p>
-                    <p><b>Description : </b>{{superproject.description}}</p>
+                <h5><a href="{% url 'superprojects:detail' superproject.tsx_id %}">{{ superproject.tsx_id }}</a> - {{superproject.name}}</h5>
+                    <table class="table">
+                      <tbody>
+                        <tr>
+                            <td>{% if superproject.created_by.is_superuser %}{{ superproject.description | safe | truncatewords:"50" }} {% else %} {{ superproject.description|truncatewords:"50"}} {% endif %}
+                             <a style="color:blue;" href="{% url 'superprojects:detail' superproject.tsx_id %}">[more]</a></td>
+                            <td>{{ superproject.created_by.username }}</td>
+                            <td>{{ superproject.created_at }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
                     <hr>
                 {% endfor %}
                 {% if superproject_list %}
