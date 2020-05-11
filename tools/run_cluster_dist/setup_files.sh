@@ -22,7 +22,7 @@ TEMP_DIR="$2""/"
 OUTPUT="$3"
 
 . /opt/conda/etc/profile.d/conda.sh
-conda activate condaR_TCL2
+conda activate condaR_TCL
 
 Rscript "$CURRENT_DIR""/prepare_clustering_method.R" "$TEMP_DIR""data.reduced.RData" "$GROUP_DIR" "$TEMP_DIR""homologene.data" "$TEMP_DIR"
 
