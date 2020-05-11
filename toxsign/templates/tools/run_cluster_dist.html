@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+
+{% block content %}
+<div class="container">    
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">ChemPSy - Spatial prediction</div>
+                <div class="card-body">
+                Project the selected signature and the ChemPSy-defined clusters on a 2-D axis. Both the Euclidean distance and the correlation coefficient will be calculated for the centroid and medoid.
+                <br>
+                <b>How to perform calculation</b>
+                <br>
+                <b><i>Input data</i></b>: Select the clustering distance method for ChemPSy clusters.
+                <br>
+                <b><i>Output data</i></b>: Table listing the distances for all clusters.
+               </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">Parameters</div>
+                <div class="card-body">
+                    {% crispy form %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

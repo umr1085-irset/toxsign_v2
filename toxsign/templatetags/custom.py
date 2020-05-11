@@ -4,21 +4,16 @@ from django.utils.html import format_html
 register = template.Library()
 
 @register.simple_tag
-def onto_value(value, type="foreign", substitute=None):
-    # Need to make a distinction between foreign keys and m2m.. not optimal
-    if type == "foreign":
-        if value:
-            return value
-    if type == "m2m":
-        if value.exists():
-            result = []
-            for val in value.all():
-                result.append(val.name)
-            return ", ".join(result)
-    if substitute:
-        return substitute
+def onto_value(value, substitute=None):
+    data = "None"
 
-    return "None"
+    if value:
+        data = value
+
+    if substitute and not value:
+        data = substitute
+
+    return data
 
 @register.simple_tag(takes_context=True)
 def url_replace(context, field, value):
@@ -57,9 +52,46 @@ def get_arrow(value):
         arrow="<i class='fas fa-arrow-down'></i>"
     return format_html(arrow)
 
-@register.simple_tag
+@register.simple_tag()
 def get_dict_value(dict, value):
     if value in dict:
         return dict[value]
     else:
         return "/"
+
+@register.simple_tag()
+def get_model_group_data(dict, group_id, field):
+    if group_id in dict:
+        return "{:.3f}".format(dict[group_id][field])
+    else:
+        return "/"
+
+@register.simple_tag()
+def get_chemicals(signature):
+    chemicals = []
+    if signature.factor.chemical_subfactor_of:
+        for subfactor in signature.factor.chemical_subfactor_of.all():
+            if subfactor.chemical:
+                chemicals.append(subfactor.chemical.name)
+            elif subfactor.chemical_slug:
+                chemicals.append(subfactor.chemical_slug)
+    if chemicals:
+        res = ", ".join(chemicals).capitalize()
+    else:
+        res = "/"
+    return res
+
+@register.simple_tag()
+def get_chemicals_es(signature):
+    chemicals = []
+    if signature.factor.chemical_subfactor_of:
+        for subfactor in signature.factor.chemical_subfactor_of:
+            if subfactor.chemical:
+                chemicals.append(subfactor.chemical.name)
+            elif subfactor.chemical_slug:
+                chemicals.append(subfactor.chemical_slug)
+    if chemicals:
+        res = ", ".join(chemicals).capitalize()
+    else:
+        res = "/"
+    return res

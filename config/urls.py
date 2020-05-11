@@ -9,7 +9,7 @@ from . import views
 urlpatterns = [
     path("", views.HomeView, name="home"),
     path("search/", views.autocompleteModel, name="search"),
-    path("advanced_search", TemplateView.as_view(template_name="pages/advanced_search.html"), name="advanced_search"),
+    path("advanced_search", views.advanced_search, name="advanced_search"),
     path("advanced_search_api", views.advanced_search_form, name="advanced_search_api"),
     path("index/", views.index, name="index"),
     path(
@@ -42,6 +42,7 @@ urlpatterns = [
     path("tools/", include("toxsign.tools.urls", namespace="tools")),
     path("jobs/", include("toxsign.jobs.urls", namespace="jobs")),
     path("genes", include("toxsign.genes.urls", namespace="genes")),
+    path("clusters/", include("toxsign.clusters.urls", namespace="clusters")),
     path("accounts/", include("allauth.urls")),
     path("ontologies/", include("toxsign.ontologies.urls", namespace="ontologies")),
     # Your stuff: custom urls includes go here

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static i18n %}
+{% load custom %}
+{% block content %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
+
+<div class="container">    
+    <div class="card">
+        <div class="text-style card-body">
+            <h4>Prediction results for signature {{signature.tsx_id}} with model {{model.name}}</h4>
+            <p><b>Signature name</b>: {{signature.name}}</p>
+            <p><b>Chemical(s) associated</b>: {{chemical}}</p>
+            <p>For more information on the results, click <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-models">here</button></p>
+                <div class="table-responsive">
+                  <table class="table table-hover" id="results">
+                    <thead>
+                        <tr>
+                            <th scope="col">Cluster</th>
+                            <th scope="col">Model precision</th>
+                            <th scope="col">Model recall</th>
+                            <th scope="col">Model specificity</th>
+                            <th scope="col">Probability</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for value in clusters %}
+                        <tr>
+                            <td><button type="button" class="btn btn-primary btn-sm js-load-modal" data-url="{% url 'clusters:details_modal' value.cluster.distance_method value.cluster.cluster_id %}">Cluster {{value.cluster.cluster_id}}</button> ({{ value.cluster.conditions.conditions | length}} conditions, {{value.cluster.conditions.unique_chemicals}} distincts chemicals)</td>
+                            <td>{% get_model_group_data model.parameters.groups_data value.cluster.cluster_id 'precision' %}</td>
+                            <td>{% get_model_group_data model.parameters.groups_data value.cluster.cluster_id 'recall' %}</td>
+                            <td>{% get_model_group_data model.parameters.groups_data value.cluster.cluster_id 'specificity' %}</td>
+                            <td>{{value.value |floatformat:-3 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+        </div>
+    </div>
+    <br>
+</div>
+<div class="modal fade" id="modal-group">
+    <div class="modal-dialog" style="max-width: 1200px;"><div class="modal-content"></div></div>
+</div>
+
+{% include "tools/prediction_data_modal.html" %}
+
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="{% static 'js/predict_results.js' %}"></script>
+   
+{% endblock %}

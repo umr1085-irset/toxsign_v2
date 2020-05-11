@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+
+{% block content %}
+<div class="container">    
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">Functional enrichment analysis tool</div>
+                <div class="card-body">
+                The functional enrichment analysis allows users to identify biological processes, molecular functions, cellular components and phenotypes significantly associated to a selected signature.
+                <br>
+                <b>How to perform enrichment</b>
+                <br>
+                <b><i>Input data</i></b>: Select the signature using the "Select signature" selector
+                <br>
+                <b><i>Output data</i></b>: Table that corresponds to the distance between the selected signature and all other TOXsIgN public signatures (including your own private signatures), where N is the total number of HomoleGene Ids measured, R is the total number of HomoleGene Ids meeting the criterion, n is the total number of HomoleGene Ids in this specific signature, and r is the number of HomoleGene Ids meeting the criterion in this specific signature and ratio corresponding to r/union(n,R).
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">Parameters</div>
+                <div class="card-body">
+                    {% crispy form %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

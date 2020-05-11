@@ -272,6 +272,7 @@ tags
 
 toxsign/media/tools
 toxsign/media/files
+toxsign/media/clusters
 
 .ipython/
 .env

@@ -1,6 +1,6 @@
 from django_elasticsearch_dsl import Document, fields
 from django_elasticsearch_dsl.registries import registry
-from toxsign.assays.models import Factor
+from toxsign.assays.models import Factor, Chemical
 from toxsign.signatures.models import Signature
 from toxsign.ontologies.models import *
 
@@ -19,6 +19,13 @@ class SignatureDocument(Document):
                 'id': fields.TextField(),
                 'status': fields.TextField()
             })
+        }),
+        'id': fields.TextField(),
+        'chemical_subfactor_of': fields.NestedField(properties={
+            'chemical': fields.ObjectField(properties={
+                'name': fields.KeywordField()
+            }),
+            'chemical_slug': fields.TextField(),
         })
     })
 
@@ -28,7 +35,7 @@ class SignatureDocument(Document):
 
     organism = fields.NestedField(properties={
         'id': fields.TextField(),
-        'name': fields.TextField()
+        'name': fields.KeywordField()
     })
 
     tissue = fields.NestedField(properties={
@@ -42,11 +49,6 @@ class SignatureDocument(Document):
     })
 
     cell_line = fields.NestedField(properties={
-        'id': fields.TextField(),
-        'name': fields.TextField()
-    })
-
-    chemical = fields.NestedField(properties={
         'id': fields.TextField(),
         'name': fields.TextField()
     })
@@ -80,7 +82,11 @@ class SignatureDocument(Document):
             'created_at',
             'sex_type',
             'dev_stage',
-            'signature_type'
+            'signature_type',
+            "technology_slug",
+            "cell_line_slug",
+            'up_gene_number',
+            'down_gene_number'
         ]
         related_models = [Factor, Disease]
         ignore_signals = False

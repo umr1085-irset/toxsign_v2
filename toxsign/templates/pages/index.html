@@ -18,8 +18,16 @@
               <div class="tab-pane text-style card-body {{is_active.superproject}}" id="tab1">
                 {% for superproject in superproject_list %}
                     <h5><a href="{% url 'superprojects:detail' superproject.tsx_id %}">{{ superproject.tsx_id }}</a> - {{superproject.name}}</h5>
-                    <p><b>Owner : </b>{{ superproject.created_by.username }} - {{ superproject.created_at }}</p>
-                    <p><b>Description : </b>{{superproject.description}}</p>
+                    <table class="table">
+                      <tbody>
+                        <tr>
+                            <td>{% if superproject.created_by.is_superuser %}{{ superproject.description | safe | truncatewords:"50" }} {% else %} {{ superproject.description|truncatewords:"50"}} {% endif %}
+                                <a style="color:blue;" href="{% url 'superprojects:detail' superproject.tsx_id %}">[more]</a></td>
+                            <td>{{ superproject.created_by.username }}</td>
+                            <td>{{ superproject.created_at }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
                     <hr>
                 {% endfor %}
                 {% if superproject_list %}
@@ -34,7 +42,6 @@
               <div class="tab-pane text-style card-body {{is_active.project}}" id="tab2">
                 {% for project in project_list %}
                     <h5><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a> - {{project.name}}</h5>
-
                     <table class="table">
                       <tbody>
                         <tr>
@@ -48,7 +55,7 @@
                           <td>
                             {% if project.description %}
                               {{ project.description|safe|truncatewords:"30"|linebreaks }}
-                              <a href="{% url 'projects:detail' project.tsx_id %}">more</a>
+                              <a style="color:blue;" href="{% url 'projects:detail' project.tsx_id %}">[more]</a>
                             {% else %} 
                               No description provided 
                             {% endif %}
@@ -83,8 +90,6 @@
                             <th scope="col">Cell line</th>
                             <th scope="col">Sex</th>
                             <th scope="col">Stage</th>
-                            <th scope="col">Owner</th>
-                            <th scope="col">Creation date</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -165,6 +170,7 @@
                               <th scope="col">Tissue</th>
                               <th scope="col">Cell</th>
                               <th scope="col">Cell line</th>
+                              <th scope="col">Chemical</th>
                               <th scope="col">Sex</th>
                               <th scope="col">Stage</th>
                               <th scope="col">Up genes</th>
@@ -223,6 +229,11 @@
                                 /
                               {% endif %}
                             </td>
+                            {% if type == "es" %}
+                                <td>{% get_chemicals_es signature %}</td>
+                            {% else %}
+                                <td>{% get_chemicals signature %}</td>
+                            {% endif %}
                             <td>{% if signature.sex_type %}{%  get_dict_value  sex_type_dict signature.sex_type %} {% else %} / {% endif %}</td>
                             <td>{% if signature.dev_stage %}{% get_dict_value dev_stage_dict signature.dev_stage %} {% else %} / {% endif %}</td>
                             <td>{{ signature.up_gene_number }}</td>

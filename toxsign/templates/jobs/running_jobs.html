@@ -1,55 +1,38 @@
 {% extends "base.html" %}
-
+{% load static %}
 
 {% block content %}
     <div class="container">
         <h1>Running jobs</h1>
         <hr>
-        <table class="table">
-            <thead>
-                <tr>
-                <th scope="col">#</th>
-                <th scope="col">Name</th>
-                <th scope="col">Created by</th>
-                <th scope="col">Updated at</th>
-                <th scope="col">Tool</th>
-                <th scope="col">Status</th>
-                <th scope="col">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for job in jobs_list%}
-                    <tr class="{% if job.status == 'SUCCESS' %} table-success {% endif %} {% if job.status == 'STARTED' %} table-warning {% endif %} {% if job.status == 'FAILURE' %} table-danger {% endif %}">
-                        <th scope="row">{{ job.id }}</th>
-                        <td>{{ job.title }}</td>
-                        <td>{{ job.created_by }}</td>
-                        <td>{{ job.updated_at }}</td>
-                        <td>{{ job.running_tool }}</td>
-                        <td>{{ job.status }}</td>
-                        <td>  
-                            {% if job.status == "SUCCESS" %}
-                                {% if job.running_tool.custom_result_link %}
-                                    <a href="{% url job.running_tool.custom_result_link job.id %}" class="btn btn-success">View results</a>
-                                {% endif %}
-                                {% if  "archive" in job.results %}
-                                    <a href="{% url 'download_job' job.id %}" class="btn btn-info">Download</a>
-                                {% endif %}
-                            {% endif %}
-                            {% if "error" in job.results %}
-                                <a class="btn btn-danger">Traceback</a>
-                            {% endif %}
-                            {% if job.created_by %}
-                            <a href="{% url 'jobs:delete_job' job.id %}" class="btn btn-outline-danger">Delete</a> 
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor%}
-            </tbody>
-        </table>
-        {% if jobs_list %}
-        {% with table=jobs_list type="jobs" %}
-        {% include "pages/paginate.html" %}
-        {% endwith %}
-        {% endif %}
+        <div id="content" data-url="{% url 'jobs:partial_running_jobs' %}">
+        {{content}}
+        </div>
     </div>
+{% endblock %}
+
+
+{% block javascript %}
+    {{ block.super }}
+    <script>
+        var need_refresh="{{need_refresh}}";
+        console.log("test1")
+        if (need_refresh == "True"){
+          console.log("test2")
+          var intervalID = setInterval(function(){   
+            var url = $("#content").attr('data-url')
+            $.ajax({
+                url: url,
+                type: 'get',
+                dataType: 'json',
+                success: function (data) {
+                    $("#content").html(data["content"])
+                    if (! data["need_refresh"]){
+                        clearInterval(intervalID);
+                    }
+                }
+            });
+          },20000);
+        }
+    </script>
 {% endblock %}

@@ -57,6 +57,9 @@ class Signature(models.Model):
     SIGNATURE_TYPE = (
         ('GENOMICS', 'Genomics'),
         ('METABOLOMICS', 'Metabolomics'),
+        ('TRANSCRIPTOMICS', 'Transcriptomics'),
+        ('EPIGENOMICS', 'Epigenomics'),
+        ('PROTEOMICS', 'Proteomics'),
     )
 
     GENE_ID = (

@@ -17,3 +17,11 @@
     border: 1px solid #ced4da;
     border-radius: .25rem;
 }
+
+.entity-wrapper {
+    display:none; 
+}
+
+.select2-container {
+    width: 100% !important;
+}

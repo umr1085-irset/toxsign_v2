@@ -4,8 +4,27 @@
 {% load custom %}
 
 {% block content %}
+
+<style>
+.btn {
+  text-transform: unset !important;
+}
+
+.btn-link {
+  text-transform: unset !important;
+  padding: 0;
+}
+</style>
+
 <div class="container">
 
+  <div class="tab-content card">
+     <div class="text-style card-header"> Job description </div>
+     <div class="text-style card-body">
+        <p>Signature enrichment analysis for signature {{sig.tsx_id}} - {{sig.name}}</p>
+     </div>
+  </div>
+  <br>
   <div class="tab-content card">
     <div class="text-style card-header"> Add filters (optional) </div>
      <div class="text-style card-body">
@@ -22,9 +41,11 @@
             </select>
             </div>
             <div class="form-group col-md-4">
-            <label for="filter_adjust"> Adjust </label>
+            <label for="filter_adjust"> Operator </label>
             <select id="filter_adjust" name="adjust" class="form-control">
-                <option value="lt">Less than</option>
+                <option value="lt">Lesser than</option>
+                <option value="le">Lesser or equal</option>
+                <option value="ge">Greater or equal</option>
                 <option value="gt">Greater than</option>
             </select>
             </div>

@@ -1,0 +1,29 @@
+
+<div class="modal fade" id="modal-models">
+<div class="modal-dialog modal-xl">
+<div class="modal-content">
+<div class="modal-header">
+    <h4 class="modal-title">Prediction model performance</h4>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <p>Prediction models have several performance metrics available, defined during the training:</p>
+    <p>Cluster-based models will try to predict whether an experimental condition is in a cluster or not</p>
+    <ul>
+    <li><b style="color:red">Precision</b> is the measure of <i>How many conditions the model labelled as part of a cluster are actually part of it?</i><br>It is the ratio of True positives/(True positives + False positives)</li>
+    <li><b style="color:red">Recall</b> is the measure of <i>Out of all the conditions in a cluster, how many did the model correctly label?</i><br>It is the ratio of True positives/(True positives + False negatives)</li>
+    <li><b style="color:red">Specificity</b> is the measure of <i>Out of all the conditions <b>not</b> in a cluster, how many did the model correctly label?</i><br>It is the ratio of True negatives/(True negatives + False positives)</li>
+    </ul>
+    <p>The "best" metrics depends of the user needs</p>
+
+    <p><b style="color:red">Probability</b> is not a metric of the model, but simply the probability that a condition belongs to a cluster</p>
+
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+</div>
+</div>
+</div>
+</div>

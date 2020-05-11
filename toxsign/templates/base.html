@@ -82,7 +82,7 @@
                 <a class="dropdown-item" href="{% url 'jobs:running_jobs' %}">Running jobs</a>
               </div>
             </li>
-            <form class="form-inline">
+            <form class="form-inline" action="{% url 'search' %}">
               <div class="md-form my-0">
                 <input type='text' class="form-control mr-sm-2" name='q' placeholder="Enter Search Keyword" value='{{ request.GET.q }}' id='intry'>
                 <button type="submit" class="btn btn-outline-default btn-sm" style="border-radius: 30px;">Search</button>
@@ -171,7 +171,7 @@
     <footer class="page-footer bg-dark text-white fixed-bottom ">
 
       <!-- Copyright -->
-      <div class="footer-copyright text-center py-3">© 2019 Copyright:
+      <div class="footer-copyright text-center py-3">© 2020 Copyright:
         <a target="_blank" href="https://www.irset.org/"> Irset</a> - <a target="_blank" href="https://www.genouest.org/"> Genouest</a>
       </div>
       <!-- Copyright -->

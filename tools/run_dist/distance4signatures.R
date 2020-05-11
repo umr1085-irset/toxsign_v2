@@ -15,7 +15,7 @@ if (exists("signmatrix") == FALSE) {
 cat(dim(signmatrix))
 #--------------------------------------------#
 New.Data <- matrix(NA,ncol=12,nrow=nrow(signmatrix))
-colnames(New.Data) <- c("Signature", "r", "R", "n", "N", "Ratio", "Pvalue", "AdjustedPValue", "Zscore", "EuclideanDistance", "CorrelationDistance", "HomologeneIds")
+colnames(New.Data) <- c("Signature", "EuclideanDistance", "CorrelationDistance", "AdjustedPvalue", "Pvalue", "Ratio", "r", "R", "n", "N", "Zscore", "HomologeneIds")
 rownames(New.Data) <- rownames(signmatrix)
 Sign.In.values <- as.double(signmatrix[Sign.In.Name,])
 for (Sign.Name in rownames(signmatrix)) {
@@ -43,28 +43,30 @@ for (Sign.Name in rownames(signmatrix)) {
    z.dist <- (r-n*R/N) / sqrt( (n*R/N) * (1-R/N) * (1-(n-1)/(N-1)))
    #--------------------------------------------#
    New.Data[Sign.Name,1]  <- Sign.Name
-   New.Data[Sign.Name,2]  <- r
-   New.Data[Sign.Name,3]  <- R
-   New.Data[Sign.Name,4]  <- n
-   New.Data[Sign.Name,5]  <- N
+   New.Data[Sign.Name,2]  <- cor.dist
+   New.Data[Sign.Name,3]  <- euc.dist
+   New.Data[Sign.Name,4]  <- p.dist
+   New.Data[Sign.Name,5]  <- z.dist
    New.Data[Sign.Name,6]  <- rR
-   New.Data[Sign.Name,7]  <- z.dist
-   New.Data[Sign.Name,8]  <- p.dist
-   New.Data[Sign.Name,10] <- euc.dist
-   New.Data[Sign.Name,11] <- cor.dist
+   New.Data[Sign.Name,7]  <- r
+   New.Data[Sign.Name,8]  <- R
+   New.Data[Sign.Name,9] <- n
+   New.Data[Sign.Name,10] <- N
    New.Data[Sign.Name,12] <- paste(r.IDs,collapse="|")
+
+colnames(New.Data) <- c("Signature", "Correlation dist", "Euclidean dist", "Adj Pvalue", "Pvalue", "r/R", "r", "R", "n", "N", "Zscore", "HomologeneIds")
+
 }
 #--------------------------------------------#
 
 #--------------------------------------------#
-New.Data <- New.Data[which(as.double(New.Data[,2]) > 0),,drop=FALSE]
-#New.Data <- New.Data[which(as.double(New.Data[,2]) != as.double(New.Data[,3]) & as.double(New.Data[,2]) != as.double(New.Data[,4])),,drop=FALSE]
-New.Data[,9] <- p.adjust(as.double(New.Data[,8]),method="BH")
+New.Data <- New.Data[which(as.double(New.Data[,7]) > 0),,drop=FALSE]
+New.Data[,11] <- p.adjust(as.double(New.Data[,4]),method="BH")
 #--------------------------------------------#
 
 #--------------------------------------------#
-New.Data <- New.Data[sort(as.double(New.Data[,7]),decreasing=TRUE,index.return=TRUE)$ix,]
-New.Data <- New.Data[sort(as.double(New.Data[,8]),decreasing=FALSE,index.return=TRUE)$ix,]
+New.Data <- New.Data[sort(as.double(New.Data[,5]),decreasing=TRUE,index.return=TRUE)$ix,]
+New.Data <- New.Data[sort(as.double(New.Data[,4]),decreasing=FALSE,index.return=TRUE)$ix,]
 #--------------------------------------------#
 
 #--------------------------------------------#

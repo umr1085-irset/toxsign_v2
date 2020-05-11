@@ -6,33 +6,57 @@
         <div class="row">
             <div class="col-md-3 ">
                 <div class="list-group ">
-                    <a href="#superproject" data-toggle="tab" class="list-group-item list-group-item-action active">Superproject</a>
-                    <a href="#projects" data-toggle="tab" class="list-group-item list-group-item-action {% if not projects %} disabled {% endif %}}">Related projects ({{ projects|length }})</a>
+                    <a href="#superproject" data-toggle="tab" class="list-group-item list-group-item-action {{is_active.superprojects}}">Superproject</a>
+                    <a href="#projects" data-toggle="tab" class="list-group-item list-group-item-action {% if not projects %} disabled {% endif %}} {{is_active.projects}}">Related projects ({{ projects.paginator.count}})</a>
                 </div>
             </div>
             <div class="col-md-9">
                 <div class="tab-content card">
-                    <div class="tab-pane active text-style card-body" id="superproject">
+                    <div class="tab-pane text-style card-body {{is_active.superprojects}}" id="superproject">
                         <h2 style="text-align:center">{{ superproject.tsx_id }} - {{ superproject.name }}</h2>
-                        <p><b>Description : </b>{{ superproject.description }}</p>
+                        <p><b>Description : </b>{% if superproject.created_by.is_superuser %} {{ superproject.description | safe }} {% else %} {{ superproject.description}} {% endif %}</p>
                         <p><b>Created : </b>{{ superproject.created_at }}</p>
                         <p><b>Owner : </b>{{ superproject.created_by.username }}</p>
                         {% if user.is_authenticated and superproject.contact_mail %}
                         <p><b>Contact : </b><a href="mailto:{{superproject.contact_mail}}">{{superproject.contact_mail}}</a></p>
                        {% endif %}
                     </div>
-                    <div class="tab-pane text-style card-body" id="projects">
-                        <h2 style='text-align:center;'> List of projects associated to this superproject </h2>
+                    <div class="tab-pane text-style card-body {{is_active.projects}}" id="projects">
                         {% for project in projects %}
-                            <hr>
                             {% if project.visible %}
-                            <h3 style='text-align:center;'><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }} - {{ project.name }}</a></h3>
-                                <p><b>Description : </b>{{project.description}}</p>
-                                <p><b>Created : </b>{{project.created_at}}</p>
-                                <p><b>Owner : </b>{{project.created_by.username}}</p>
+                            <h5><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a> - {{project.name}}</h5>
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            {% if project.status == "PUBLIC" %}<span class="badge badge-pill badge-success">Public</span>{% endif %}
+                                            {% if project.status == "PENDING" %}<span class="badge badge-pill badge-secondary">Pending</span>{% endif %}
+                                            {% if project.status == "PRIVATE" %}<span class="badge badge-pill badge-dark">Private</span>{% endif %}
+                                            {% if project.project_type == "INTERVENTIONAL" %} <span class="badge badge-primary">Interventional</span>{% endif %}
+                                            {% if project.project_type == "OBSERVATIONAL" %} <span class="badge badge-success">Observational</span>{% endif %}
+                                        <td>
+                                        <td>
+                                        {% if project.description %}
+                                            {{ project.description|safe|truncatewords:"30"|linebreaks }}
+                                            <a style="color:blue;" href="{% url 'projects:detail' project.tsx_id %}">[more]</a>
+                                        {% else %}
+                                            No description provided
+                                        {% endif %}
+                                        </td>
+                                        <td>
+                                            {{ project.created_by.username }}
+                                        </td>
+                                        <td>
+                                            {{ project.created_at }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <hr>
                             {% else %}
-                            <h3 style='text-align:center;' >{{ project.tsx_id }} - {{ project.name }}</h3>
-                                <p style='text-align:center;'> Access to this project is restricted </p>
+                            <h5 style='text-align:center;' >{{ project.tsx_id }} - {{ project.name }}</h3>
+                            <p style='text-align:center;'> Access to this project is restricted </p>
+                            <hr>
                             {% endif %}
                             {% if superproject.created_by.username == user.username %}
                                 <div style="float:right">
@@ -42,6 +66,11 @@
                                 </div>
                             {% endif %}
                         {% endfor %}
+                        {% if projects %}
+                        {% with table=projects type="projects" %}
+                        {% include "pages/paginate.html" %}
+                        {% endwith %}
+                        {% endif %}
                     </div>
                 </div>
             </div>

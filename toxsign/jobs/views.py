@@ -16,6 +16,8 @@ from django.contrib import messages
 from django.http import HttpResponse
 from mimetypes import guess_type
 from django.urls import reverse_lazy
+from django.http import JsonResponse
+from django.template.loader import render_to_string
 
 from config.views import paginate
 
@@ -60,25 +62,46 @@ def DownloadView(request, pk, file_name):
         return response
 
 
-class RunningJobsView(generic.ListView):
-    model = Job
-    template_name = 'jobs/running_jobs.html'
+def running_jobs_view(request):
 
-    def get_context_data(self, **kwargs):
-        context = super(RunningJobsView, self).get_context_data(**kwargs)
-        if self.request.user.is_authenticated:
-            jobs = Job.objects.filter(created_by__exact=self.request.user.id)
-        else:
-            jobs = Job.objects.filter(created_by=None)
-        jobs = jobs.order_by('-id')
-        jobs = paginate(jobs, self.request.GET.get('jobs'), 10)
-        for job in jobs:
-            if job.status == "PENDING":
-                job.status = AsyncResult(job.celery_task_id).state
-                if job.status != "PENDING":
-                    job.save()
-        context['jobs_list'] = jobs
-        return context
+    content, need_refresh = _generate_job_table(request)
+    return render(request, 'jobs/running_jobs.html', {"content": content, "need_refresh":need_refresh})
+
+
+def partial_running_jobs_view(request):
+
+    content, need_refresh = _generate_job_table(request)
+    return JsonResponse({"content": content, "need_refresh": need_refresh})
+
+def _generate_job_table(request):
+
+    if request.user.is_authenticated:
+        jobs = Job.objects.filter(created_by__exact=request.user.id)
+    else:
+        jobs = Job.objects.filter(created_by=None)
+    jobs = jobs.order_by('-id')
+    jobs = paginate(jobs, request.GET.get('jobs'), 10)
+    need_refresh = False
+    for job in jobs:
+        if job.status == "PENDING":
+            job.status = AsyncResult(job.celery_task_id).state
+            if job.status != "PENDING":
+                 job.save()
+            else:
+                need_refresh = True
+
+    if request.GET.get('jobs') and request.GET.get('jobs') != "1":
+        need_refresh = False
+
+    return render_to_string('jobs/partial_running_jobs.html',
+        {"jobs_list": jobs},
+        request=request,
+    ), need_refresh
+
+
+
+
+
 
 def Delete_job(request, pk):
     job = get_object_or_404(Job, pk=pk)
@@ -95,28 +118,3 @@ def Delete_job(request, pk):
             job.save()
 
     return render(request, 'jobs/running_jobs.html', context)
-
-@app.on_after_configure.connect
-def cron_cleanup(sender, **kwargs):
-    sender.add_periodic_task(
-        crontab(hour=0, minute=0, day_of_week=1),
-        cleanup_jobs.s(),
-    )
-    sender.add_periodic_task(
-        crontab(hour=0, minute=0),
-        cleanup_failed_jobs.s(),
-    )
-
-
-
-@app.task
-def cleanup_jobs():
-    # Clean anonymous jobs older than 7 days
-    Job.objects.filter(updated_at__lte= now()-timedelta(days=7), created_by=None).delete()
-    # Clean pending jobs?
-
-
-@app.task
-def cleanup_failed_jobs():
-    # Clean anonymous failed job older than 1 day
-    Job.objects.filter(updated_at__lte= now()-timedelta(days=1), created_by=None, status="FAILURE").delete()

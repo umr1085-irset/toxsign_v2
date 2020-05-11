@@ -36,6 +36,36 @@ def prepare_homolog_data(self, force=False):
     print(run.stdout.decode())
 
 @app.task(bind=True)
+def prepare_cluster_data(self):
+    dest_dir = "/app/toxsign/media/jobs/admin/"
+
+    if not os.path.exists(os.path.join(dest_dir, "euclidean_method.RData")):
+        print("Building file for euclidean")
+        if os.path.exists("/app/loading_data/euclidean_data.reduced.RData") and os.path.exists("/app/toxsign/media/jobs/admin/homologene.data"):
+            with tempfile.TemporaryDirectory() as dirpath:
+                path_to_groups = "/app/loading_data/ChemPSy/PCA_bin_DynamicCutTree_euclidean/Groups/"
+                dest_file = dest_dir + "euclidean_method.RData"
+                shutil.copy2("/app/loading_data/euclidean_data.reduced.RData", dirpath + "/data.reduced.RData")
+                shutil.copy2("/app/toxsign/media/jobs/admin/homologene.data", dirpath)
+                run = subprocess.run(['/bin/bash', '/app/tools/run_cluster_dist/setup_files.sh', path_to_groups, dirpath, dest_file], capture_output=True)
+                print(run.stdout.decode())
+        else:
+            print("Missing either euclidean_method.RData file or homologene file: skipping")
+
+    if not os.path.exists(os.path.join(dest_dir, "correlation_method.RData")):
+        print("Building file for correlation")
+        if os.path.exists("/app/loading_data/correlation_data.reduced.RData") and os.path.exists("/app/toxsign/media/jobs/admin/homologene.data"):
+            with tempfile.TemporaryDirectory() as dirpath:
+                path_to_groups = "/app/loading_data/ChemPSy/PCA_bin_DynamicCutTree_correlation/Groups/"
+                dest_file = dest_dir + "correlation_method.RData"
+                shutil.copy2("/app/loading_data/correlation_data.reduced.RData", dirpath + "/data.reduced.RData")
+                shutil.copy2("/app/toxsign/media/jobs/admin/homologene.data", dirpath)
+                run = subprocess.run(['/bin/bash', '/app/tools/run_cluster_dist/setup_files.sh', path_to_groups, dirpath, dest_file], capture_output=True)
+                print(run.stdout.decode())
+        else:
+            print("Missing either correlation_method.RData file or homologene file: skipping")
+
+@app.task(bind=True)
 def prepare_tools_env(self):
     # Should maybe use a tool parameter (install_script_file?)
     run = subprocess.run(['/bin/bash', '/app/tools/envR_TCL/setupR_TCL'], capture_output=True)
@@ -130,6 +160,86 @@ def change_status(self, project_id=None):
     # Need to check the result...
     subprocess.run(['/bin/bash', '/app/tools/make_public/make_public.sh', temp_dir_path])
 
+
+@app.task(bind=True)
+def setup_cluster(self, cluster_id):
+
+    from toxsign.clusters.models import Cluster
+    # Make sure the entity is saved before anything
+    time.sleep(10)
+    try:
+        cluster = Cluster.objects.get(id=cluster_id)
+    except toxsign.signatures.models.DoesNotExist:
+        raise Exception("Cluster with id {} was not found".format(cluster_id))
+
+    if cluster.conditions_file:
+        cluster.conditions = _process_cluster_conditions(cluster.conditions_file)
+    if cluster.signature_file:
+        cluster.signature = _process_cluster_signature(cluster.signature_file)
+
+    cluster.save()
+
+
+def _process_cluster_conditions(condition_file):
+
+    if not condition_file or not os.path.exists(condition_file.path):
+        return {'unique_chemicals': 0, 'conditions': []}
+
+    chemicals = set()
+    conditions = []
+    with open(condition_file.path, 'r') as f:
+        for line in f:
+            data = _process_condition_line(line)
+            if not data:
+                continue
+            chemicals.add(data['chemical'])
+            conditions.append(data)
+    results = {'unique_chemicals': len(chemicals), 'conditions': conditions}
+
+    return results
+
+def _process_condition_line(line):
+
+    data = {}
+
+    line_values = line.split("+")
+    if not len(line_values) == 6:
+        return {}
+
+    data['geo_id'] = line_values[0]
+    data['tissue'] = line_values[1].title()
+    data['chemical'] = line_values[2].title()
+    data['generation'] = line_values[3]
+    data['concentration'] = _process_data(line_values[4])
+    data['exposure'] = _process_data(line_values[5])
+
+    return data
+
+def _process_data(data):
+
+    if not data:
+        return "NA"
+
+    return " ".join(data.split("_"))
+
+def _process_cluster_signature(signature_file):
+
+    if not signature_file or not os.path.exists(signature_file.path):
+        return {}
+
+    gene_list = []
+
+    with open(signature_file.path, 'r') as f:
+        for line in f:
+            data = {"gene_id" : line.rstrip()}
+            gene = Gene.objects.filter(gene_id=line.rstrip())
+            if gene.count():
+                gene = gene[0]
+                data = {"gene_id" : gene.gene_id, "symbol": gene.symbol}
+            else:
+                data = {"gene_id" : line.rstrip(), "symbol": "NA"}
+            gene_list.append(data)
+    return {"gene_list": gene_list}
 
 def _generate_values(signature):
     # Starts from scratch
@@ -242,3 +352,5 @@ def _download_datafiles(dest_dir, url_list, force=False):
             with gzip.open(os.path.join(dest_dir, file_name), 'rb') as f_in:
                 with open(os.path.join(dest_dir, file_name.replace('.gz','')), 'wb') as f_out:
                     shutil.copyfileobj(f_in, f_out)
+
+

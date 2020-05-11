@@ -15,19 +15,29 @@ from toxsign.superprojects.forms import SuperprojectEditForm, SuperprojectCreate
 from toxsign.projects.models import Project
 from toxsign.superprojects.models import Superproject
 from toxsign.projects.views import check_view_permissions
+from config.views import paginate
 
 # TODO : clear 403 page redirect (page with an explanation?)
 def DetailView(request, spjid):
     superproject = get_object_or_404(Superproject, tsx_id=spjid)
-    raw_projects = superproject.project_of.all()
+    raw_projects = superproject.project_of.all().order_by('id')
     projects = []
     for project in raw_projects:
-        dict = {'name': project.name, 'description': project.description, 'tsx_id': project.tsx_id, 'created_at': project.created_at, 'created_by': project.created_by, 'visible': False}
+        dict = {'name': project.name, 'description': project.description, 'status': project.status, 'project_type': project.project_type, 'tsx_id': project.tsx_id, 'created_at': project.created_at, 'created_by': project.created_by, 'visible': False}
         if check_view_permissions(request.user, project):
             dict['visible'] = True
         projects.append(dict)
 
-    return render(request, 'superprojects/details.html', {'superproject': superproject, 'projects': projects})
+    is_active = {'superprojects': "", 'projects': ""}
+
+    if request.GET.get('projects'):
+        is_active['projects'] = "active"
+    else:
+        is_active['superprojects'] = "active"
+
+    projects = paginate(projects, request.GET.get('projects'), 5, False)
+
+    return render(request, 'superprojects/details.html', {'superproject': superproject, 'projects': projects, 'is_active': is_active})
 
 def edit_superproject(request, spjid):
     if not request.user.is_authenticated:
@@ -109,3 +119,5 @@ def unlink_project(request, spjid, prjid):
         request=request,
     )
     return JsonResponse(data)
+
+

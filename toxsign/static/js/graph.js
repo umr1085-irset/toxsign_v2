@@ -53,7 +53,7 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 
   var tip = d3.tip().attr('class', 'd3-tip').direction('e').offset([-10,10])
     .html(function(d) {
-      var content = "<span style='margin-left: 2.5px;'><b>" + d.data.name + "</b></span><br>";
+      var content = "<span style='margin-left: 2.5px;'><b>Left click to see this entity. Right click for more options</b></span><br>";
       return content;
      });
 
@@ -82,7 +82,10 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
     .attr('id', 'nodes');
 
   // Collapse after the second level
-  collapse(root);
+
+  // No collapse
+
+  //collapse(root);
   update(root);
 
   function collapse(element){
@@ -122,7 +125,6 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
     breadthFirstTraversal(nodes, collision);
 
     nodes.forEach(function(d){
-      console.log(d.x +" " +d.y)
       d.y = d.depth * (rectNode.width * 1.5)
       // Force centering on center of node, not on corner
       //d.y = d.y + (rectNode.height/2)
@@ -282,16 +284,9 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
             return 'M' + p[0] + 'C' + p[1] + ' ' + p[2] + ' ' + p[3];
     };
 
-    // Toggle children on click.
+    // Go to entity on click
     function click(d) {
-      if (d.children) {
-          d._children = d.children;
-          d.children = null;
-        } else {
-          d.children = d._children;
-          d._children = null;
-        }
-      update(d);
+      window.location.assign(d.data.view_url);
     };
 	// x = ordoninates and y = abscissas
 	function collision(siblings) {
@@ -339,7 +334,6 @@ function drawGraph(treeData, max_Parallel, max_Depth, current_Entity=""){
 
     function get_subentities(type, count){
         if(type == "factor"){
-            console.log("ok");
             if (count > 0){
                 return "<i>" +  count + " subfactor(s)</i>"
             }

@@ -22,7 +22,7 @@ from toxsign.projects.views import check_view_permissions, check_edit_permission
 
 from toxsign.superprojects.documents import SuperprojectDocument
 from toxsign.projects.documents import ProjectDocument
-from toxsign.assays.documents import AssayDocument
+from toxsign.assays.documents import AssayDocument, ChemicalsubFactorDocument
 from toxsign.signatures.documents import SignatureDocument
 from toxsign.ontologies.documents import *
 from elasticsearch_dsl import Q as Q_es
@@ -88,11 +88,15 @@ def download_job_result(request, jobid):
     return response
 
 def autocompleteModel(request):
-    query = request.GET.get('q')
+    query = request.GET.get('q', "")
 
     try:
         # Wildcard for search (not optimal)
-        query = "*" + query + "*"
+        if query:
+            query = "*" + query + "*"
+        else:
+            query = "*"
+
         if request.user.is_authenticated:
             if request.user.is_superuser:
                 q = Q_es()
@@ -115,6 +119,7 @@ def autocompleteModel(request):
         results_superprojects = paginate(results_superprojects.filter(q1), request.GET.get('superprojects'), 5, True)
         results_projects = paginate(ProjectDocument.search().query(q & q1), request.GET.get('projects'), 5, True)
         results_signatures = paginate(results_signatures.filter(q1), request.GET.get('signatures'), 5, True)
+        type="es"
 
     # Fallback to DB search
     # Need to select the correct error I guess
@@ -126,10 +131,11 @@ def autocompleteModel(request):
 
         results_projects = paginate([project for project in results_projects if check_view_permissions(request.user, project)], request.GET.get('projects'), 5)
         results_signatures = paginate([sig for sig in results_signatures if check_view_permissions(request.user, sig.factor.assay.project)], request.GET.get('signatures'), 5)
+        type="db"
 
     is_active = {'superproject': "", 'project': "", 'signature': ""}
     # If a specific page was requested,  set the related tab to active
-    if request.GET.get('projects') or request.GET.get('assays') or request.GET.get('signatures'):
+    if request.GET.get('projects') or request.GET.get('superprojects') or request.GET.get('signatures'):
 
         if request.GET.get('projects'):
             is_active['project'] = "active"
@@ -148,29 +154,48 @@ def autocompleteModel(request):
         else:
             is_active['superproject'] = "active"
 
-    results = {
-        'superprojects' : results_superprojects,
-        'projects': results_projects,
-        'signatures': results_signatures,
-        'is_active': is_active,
-        'query': request.GET.get('q')
+    dev_stage_dict = {
+        "FETAL": 'Fetal',
+        "EMBRYONIC": "Embryonic",
+        "LARVA": "Larva",
+        "NEONATAL": "Neo-natal",
+        "JUVENILE": "Juvenile",
+        "PREPUBERTAL": "Prepubertal",
+        "ADULTHOOD": "Adulthood",
+        "ELDERLY": "Elderly",
+        "NA": "Na",
+        "OTHER": "Other",
     }
-    return render(request, 'pages/ajax_search.html', {'status': results})
+    sex_type_dict = {
+        'MALE': 'Male',
+        'FEMALE': 'Female',
+        'BOTH': 'Both',
+        'NA': 'Na',
+        "OTHER": "Other",
+    }
+
+    results = {
+        'superproject_list' : results_superprojects,
+        'project_list': results_projects,
+        'signature_list': results_signatures,
+        'is_active': is_active,
+        "dev_stage_dict": dev_stage_dict,
+        "sex_type_dict": sex_type_dict,
+        'get_query': request.GET.get('q'),
+        "type": type
+    }
+
+    return render(request, 'pages/ajax_search.html', results)
 
 def advanced_search_form(request):
 
     if request.method == 'POST':
         data = request.POST
         terms = json.loads(data['terms'])
-        entity = data['entity']
+        pagination = data.get('page')
         context = {}
         data = {}
-        if entity == 'project':
-            context['projects'] = search(request, Project, ProjectDocument, entity, terms)
-
-        elif entity == "signature":
-            context['signatures'] = search(request, Signature, SignatureDocument, entity, terms)
-
+        context['signatures'] = search(request, Signature, SignatureDocument, terms, pagination)
 
         data['html_page'] = render_to_string('pages/partial_advanced_search.html',
             context,
@@ -178,22 +203,13 @@ def advanced_search_form(request):
         )
         return JsonResponse(data)
 
-    else:
-        entity_type = request.GET.get('entity')
-        data = {}
-        if entity_type == 'project':
-            form = forms.ProjectSearchForm()
-        elif entity_type == 'signature':
-            form = forms.SignatureSearchForm()
+    return JsonResponse({})
 
-        context = {'form': form}
-        data['html_form'] = render_to_string('pages/advanced_search_form.html',
-            context,
-            request=request,
-        )
-        return JsonResponse(data)
+def advanced_search(request):
 
-    return None
+    form = forms.SignatureSearchForm()
+    context = {'form': form}
+    return render(request, 'pages/advanced_search.html', context)
 
 def graph_data(request):
 
@@ -277,9 +293,9 @@ def index(request):
         superprojects = paginate(superprojects, request.GET.get('superprojects'), 5, True)
         assays = paginate(assays, request.GET.get('assays'), 5, True)
         signatures = paginate(signatures, request.GET.get('signatures'), 5, True)
+        type="es"
 
     except Exception as e:
-        raise e
         superprojects = Superproject.objects.all()
         all_projects = Project.objects.all().order_by('id')
         projects = []
@@ -296,6 +312,7 @@ def index(request):
         projects = paginate(projects, request.GET.get('projects'), 5)
         assays = paginate(assays, request.GET.get('assays'), 5)
         signatures = paginate(signatures, request.GET.get('signatures'), 5)
+        type="db"
 
     is_active = {'superproject': "", 'project': "", 'assay': "", 'signature': ""}
     # If a specific page was requested,  set the related tab to active
@@ -350,7 +367,8 @@ def index(request):
         'signature_list': signatures,
         "is_active": is_active,
         "dev_stage_dict": dev_stage_dict,
-        "sex_type_dict": sex_type_dict
+        "sex_type_dict": sex_type_dict,
+        "type": type,
     }
 
     return render(request, 'pages/index.html', context)
@@ -409,7 +427,7 @@ def render_403(request):
 
     return render(request, '403.html', {'data':data})
 
-def search(request, model, document, entity, search_terms):
+def search(request, model, document, search_terms, pagination=None):
 
     # First try with elasticsearch, then fallback to  DB query if it fails
     try:
@@ -423,19 +441,18 @@ def search(request, model, document, entity, search_terms):
         else:
             q = Q_es("match", status="PUBLIC")
 
-        allowed_projects =  ProjectDocument.search().query(q)
+        allowed_projects =  ProjectDocument.search().query(q).scan()
         # Limit all query to theses projects
         allowed_projects_id_list = [project.id for project in allowed_projects]
 
         query = generate_query(search_terms)
         # Now do the queries
-        if entity == 'project':
-            results = allowed_projects
-        elif entity == "signature":
-            results = SignatureDocument.search().filter("terms", factor__assay__project__id=allowed_projects_id_list)
+        results = SignatureDocument.search().filter("terms", factor__assay__project__id=allowed_projects_id_list).sort('id')
 
         if query:
             results = results.filter(query)
+
+        results = paginate(results, pagination, 10, True)
 
         return results
 
@@ -461,32 +478,27 @@ def generate_query(search_terms):
             if index == 0:
                 # Couldn't make double nested query work, so first query the correct ontologies, then query the correct signatures
                 if item['is_ontology']:
-                    if item['ontology_options']['search_type'] == "CHILDREN":
-                        q = Q_es("match", id=item['ontology_options']['id'])
-                        children_list =  [ontology.as_children for ontology in documentDict[item['arg_type']].search().query(q)][0].split(",")
-                        onto_query = q | Q_es("terms", onto_id=children_list)
+                    if item['arg_type'] == "chemical":
+                        query = generate_biological_query(item['ontology_options']['id'])
+                    elif item['arg_type'] == "technology" or item['arg_type'] == "cell_line":
+                        query = generate_slug_query(item['ontology_options']['id'], item['arg_type'])
                     else:
-                        onto_query = Q_es("match", id=item['ontology_options']['id'])
-
-                    ontology_list = [ontology.id for ontology in documentDict[item['arg_type']].search().query(onto_query).scan()]
-                    id_field = item['arg_type'] + "__id"
-                    query = Q_es("nested", path=item['arg_type'], query=Q_es("terms", **{id_field:ontology_list}))
-
+                        onto_id = item['ontology_options']['id']
+                        id_field = item['arg_type'] + "__id"
+                        query = Q_es("nested", path=item['arg_type'], query=Q_es("match", **{id_field:onto_id}))
                 else:
                     query = Q_es("wildcard", **{item['arg_type']:item['arg_value']})
             else:
                 if item['is_ontology']:
-                    if item['ontology_options']['search_type'] == "CHILDREN":
-                        q = Q_es("match", id=item['ontology_options']['id'])
-                        children_list =  [ontology.as_children for ontology in documentDict[item['arg_type']].search().query(q)][0].split(",")
-                        onto_query = q | Q_es("terms", onto_id=children_list)
+
+                    if item['arg_type'] == "chemical":
+                        new_query = generate_biological_query(item['ontology_options']['id'])
+                    elif item['arg_type'] == "technology" or item['arg_type'] == "cell_line":
+                        new_query = generate_slug_query(item['ontology_options']['id'], item['arg_type'])
                     else:
-                        onto_query = Q_es("match", id=item['ontology_options']['id'])
-
-                    ontology_list = [ontology.id for ontology in documentDict[item['arg_type']].search().query(onto_query).scan()]
-                    id_field = item['arg_type'] + "__id"
-                    new_query = Q_es("nested", path=item['arg_type'], query=Q_es("terms", **{id_field:ontology_list}))
-
+                        onto_id = item['ontology_options']['id']
+                        id_field = item['arg_type'] + "__id"
+                        new_query = Q_es("nested", path=item['arg_type'], query=Q_es("match", **{id_field:onto_id}))
                 else:
                     new_query = Q_es("wildcard", **{item['arg_type']:item['arg_value']})
 
@@ -495,6 +507,29 @@ def generate_query(search_terms):
                 else:
                     query = query | new_query
     return query
+
+
+def generate_biological_query(onto_id):
+
+    if onto_id.isdigit():
+        subfactors = ChemicalsubFactorDocument.search().filter(Q_es("nested", path="chemical", query=Q_es("match", chemical__id=onto_id)))
+    else:
+        subfactors = ChemicalsubFactorDocument.search().filter(Q_es("match", chemical_slug=onto_id))
+
+    factors = [subfactor.factor.id for subfactor in subfactors.scan()]
+    return Q_es("terms", factor__id=factors)
+
+def generate_slug_query(onto_id, type):
+
+    if onto_id.isdigit():
+        id_field = type + "__id"
+        query = Q_es("nested", path=type, query=Q_es("match", **{id_field:onto_id}))
+    else:
+        id_field = type + "_slug"
+        query = Q_es("match", **{id_field:onto_id})
+
+    return query
+
 
 def count_subentities(entity, entity_type):
     # Might use it for other entity types later on
