@@ -48,7 +48,7 @@ services:
       - django
       - flower
     ports:
-      - "80:80"
+      - "6543:80"
 
   redis:
     image: redis:3.2

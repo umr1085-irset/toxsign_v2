@@ -16,9 +16,7 @@
     {{ block.super }}
     <script>
         var need_refresh="{{need_refresh}}";
-        console.log("test1")
         if (need_refresh == "True"){
-          console.log("test2")
           var intervalID = setInterval(function(){   
             var url = $("#content").attr('data-url')
             $.ajax({
