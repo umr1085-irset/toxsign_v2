@@ -7,7 +7,7 @@
   <tr>
     {% for col in row %}
       {% if forloop.counter == 1  %}
-        <td>{{ col }}</td>
+        <td>{{ col | capfirst }}</td>
       {% elif forloop.counter == 4 %}
         <td>{% widthratio col 1 100 %} %</td>
       {% else %}

@@ -185,7 +185,7 @@ def distance_analysis_table(request, job_id):
                 current_order_type= "desc"
 
         page = request.POST.get('request_page')
-        sigs =_paginate_table(df, page, 15)
+        sigs =_paginate_table(df, page, 15, is_sig=True)
         context = {'sigs': sigs, 'columns': column_dict, 'current_order':current_order, 'current_order_type':current_order_type, 'job': job}
         data = {
             'table' : render_to_string('tools/partial_distance_results_table.html', context, request=request),
@@ -628,7 +628,7 @@ def _create_job(title, owner, task_id, tool, type="TOOL"):
         )
     job.save()
 
-def _paginate_table(dataframe, page, max_size=10):
+def _paginate_table(dataframe, page, max_size=10, is_sig=False):
     paginator = Paginator(dataframe.apply(lambda df: df.values,axis=1), max_size)
     try:
         result = paginator.page(page)
@@ -637,10 +637,11 @@ def _paginate_table(dataframe, page, max_size=10):
     except EmptyPage:
         result = paginator.page(paginator.num_pages)
 
-    for data in result:
-        sig_id = data[0]
-        sig = Signature.objects.get(tsx_id=sig_id)
-        html = "<a href='{}' target='_blank'>{} - {}</a>".format(reverse("signatures:detail", kwargs={"sigid": sig.tsx_id}), sig.tsx_id ,sig.name)
-        data[0] = html
+    if is_sig:
+        for data in result:
+            sig_id = data[0]
+            sig = Signature.objects.get(tsx_id=sig_id)
+            html = "<a href='{}' target='_blank'>{} - {}</a>".format(reverse("signatures:detail", kwargs={"sigid": sig.tsx_id}), sig.tsx_id ,sig.name)
+            data[0] = html
 
     return result
