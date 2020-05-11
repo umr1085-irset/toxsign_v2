@@ -17,7 +17,7 @@
           <tr>
             {% for col in sig %}
               {% if forloop.counter == 1  %}
-                <td><a class="btn btn-sm btn-primary" href="{% url 'signatures:detail' col %}">{{ col }}</a></td>
+                <td>{{ col | safe}}</td>
               {% elif forloop.counter == 6 %}
                 <td>{% widthratio col 1 100 %} %</td>
               {% else %}

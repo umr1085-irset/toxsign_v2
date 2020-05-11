@@ -128,7 +128,7 @@ def distance_analysis_table(request, job_id):
 
         df = pd.read_csv(file_path, sep="\t", encoding="latin1")
 
-        df = df.drop(columns=['HomologeneIds'])
+        df = df.drop(columns=['HomologeneIds', "Zscore"])
         filters = json.loads(request.POST['terms'])
         for filter in filters:
             try:
@@ -156,7 +156,12 @@ def distance_analysis_table(request, job_id):
         for column in df.columns:
             column_dict[column]={"filter": ""}
         request_ordered_column = request.POST.get('ordered_column')
-        if request_ordered_column:
+        if not request_ordered_column:
+            df  = df.sort_values(by=['Correlation dist'], ascending=False)
+            column_dict["Correlation dist"]['filter'] = 'desc'
+            current_order = "Correlation dist"
+            current_order_type= "desc"
+        else:
             request_order = request.POST.get('order', "")
             if request_order == "asc":
                 if request_ordered_column == "Signature":
@@ -631,4 +636,11 @@ def _paginate_table(dataframe, page, max_size=10):
         result = paginator.page(1)
     except EmptyPage:
         result = paginator.page(paginator.num_pages)
+
+    for data in result:
+        sig_id = data[0]
+        sig = Signature.objects.get(tsx_id=sig_id)
+        html = "<a href='{}' target='_blank'>{} - {}</a>".format(reverse("signatures:detail", kwargs={"sigid": sig.tsx_id}), sig.tsx_id ,sig.name)
+        data[0] = html
+
     return result

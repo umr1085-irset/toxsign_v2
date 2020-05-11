@@ -43,8 +43,8 @@ for (Sign.Name in rownames(signmatrix)) {
    z.dist <- (r-n*R/N) / sqrt( (n*R/N) * (1-R/N) * (1-(n-1)/(N-1)))
    #--------------------------------------------#
    New.Data[Sign.Name,1]  <- Sign.Name
-   New.Data[Sign.Name,2]  <- euc.dist
-   New.Data[Sign.Name,3]  <- cor.dist
+   New.Data[Sign.Name,2]  <- cor.dist
+   New.Data[Sign.Name,3]  <- euc.dist
    New.Data[Sign.Name,4]  <- p.dist
    New.Data[Sign.Name,5]  <- z.dist
    New.Data[Sign.Name,6]  <- rR
@@ -54,7 +54,7 @@ for (Sign.Name in rownames(signmatrix)) {
    New.Data[Sign.Name,10] <- N
    New.Data[Sign.Name,12] <- paste(r.IDs,collapse="|")
 
-colnames(New.Data) <- c("Signature", "Euclidean dist", "Correlation dist", "Adj Pvalue", "Pvalue", "r/R", "r", "R", "n", "N", "Zscore", "HomologeneIds")
+colnames(New.Data) <- c("Signature", "Correlation dist", "Euclidean dist", "Adj Pvalue", "Pvalue", "r/R", "r", "R", "n", "N", "Zscore", "HomologeneIds")
 
 }
 #--------------------------------------------#
