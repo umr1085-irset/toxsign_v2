@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static i18n %}
+{% load custom %}
 
 {% block content %}
     <div class="container">
@@ -16,7 +17,7 @@
                         <h2 style="text-align:center">{{ superproject.tsx_id }} - {{ superproject.name }}</h2>
                         <p><b>Description : </b>{% if superproject.created_by.is_superuser %} {{ superproject.description | safe }} {% else %} {{ superproject.description}} {% endif %}</p>
                         <p><b>Created : </b>{{ superproject.created_at }}</p>
-                        <p><b>Owner : </b>{{ superproject.created_by.username }}</p>
+                        <p><b>Owner : </b>{% show_username superproject %}</p>
                         {% if user.is_authenticated and superproject.contact_mail %}
                         <p><b>Contact : </b><a href="mailto:{{superproject.contact_mail}}">{{superproject.contact_mail}}</a></p>
                        {% endif %}
@@ -44,7 +45,7 @@
                                         {% endif %}
                                         </td>
                                         <td>
-                                            {{ project.created_by.username }}
+                                            {% show_username project %}
                                         </td>
                                         <td>
                                             {{ project.created_at }}
