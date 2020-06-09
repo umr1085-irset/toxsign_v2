@@ -2,47 +2,7 @@
 {% load custom %}
 {% block content %}
 
-{% if projects and projects.paginator.count > 0 %}
-    <h2 style="text-align:center">{{ projects.paginator.count }} result(s)</h2>
-    <hr>
-    {% for project in projects %}
-        <h3><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a> - {{project.name}}</h3>
-        <small><b>Owner : </b>{{ project.created_by.username }} - {{ project.created_at }}</small>
-        <p><b>Description : </b>{{project.description}}</p>
-        <hr>
-    {% endfor %}
-    {% if projects %}
-    <nav aria-label="Page navigation example">
-        <p>Showing results {{projects.start_index}} - {{projects.end_index}} out of {{projects.paginator.count}}</p>
-        <ul class="pagination">
-        {% if projects.has_previous %}
-            <li class="page-item"><a class="page-link page-action" target="1">&laquo;</a></li>
-        {% else %}
-            <li class="page-item disabled"><a class="page-link"><span>&laquo;</span></a></li>
-        {% endif %}
-        {% if projects.number|add:'-4' > 1 %}
-            <li class="page-item"><a class="page-link page-action" target="{{ projects.number|add:'-5' }}">&hellip;</a></li>
-        {% endif %}
-        {% for i in projects.paginator.page_range %}
-            {% if projects.number == i %}
-                <li class="page-item active"><a class="page-link"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
-            {% elif i > projects.number|add:'-5' and i < projects.number|add:'5' %}
-                <li class="page-item"><a class="page-link page-action" target="{{i}}"">{{ i }}</a></li>
-            {% endif %}
-        {% endfor %}
-        {% if projects.paginator.num_pages > projects.number|add:'4' %}
-            <li class="page-item"><a class="page-link page-action" target="{{ table.number|add:'5' }}">&hellip;</a></li>
-        {% endif %}
-        {% if projects.has_next %}
-            <li class="page-item"><a class="page-link page-action" target="{{projects.paginator.num_pages}}">&raquo;</a></li>
-        {% else %}
-            <li class="page-item disabled"><a class="page-link"><span>&raquo;</span></a></li>
-        {% endif %}
-        </ul>
-    </nav>
-    {% endif %}
-
-{% elif signatures and signatures.paginator.count > 0 %}
+{% if signatures and signatures.paginator.count > 0 %}
     <h2 style="text-align:center">{{ signatures.paginator.count }} result(s)</h2>
     <hr>
     {% for signature in signatures %}

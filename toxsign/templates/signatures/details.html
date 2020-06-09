@@ -285,15 +285,15 @@
                     <tbody>
                       <tr>
                         <th scope="row">Owner</th>
-                        <td>{{ factor.created_by }}</td>
+                        <td>{% show_username signature %}</td>
                       </tr>
                       <tr>
                         <th scope="row">Creation date</th>
-                        <td>{{ factor.created_at }}</td>
+                        <td>{{ signature.created_at }}</td>
                       </tr>
                       <tr>
                         <th scope="row">Last update</th>
-                        <td>{{ factor.updated_at }}</td>
+                        <td>{{ signature.updated_at }}</td>
                       </tr>
                     </tbody>
                   </table>

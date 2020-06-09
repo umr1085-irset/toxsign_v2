@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static i18n %}
+{% load custom %}
 
 {% block content %}
     <script src="https://d3js.org/d3.v5.min.js"></script>
@@ -84,7 +85,7 @@
                     <tbody>
                       <tr>
                         <th scope="row">Owner</th>
-                        <td>{{ project.created_by }}</td>
+                        <td>{% show_username project %}</td>
                       </tr>
                       <tr>
                         <th scope="row">Creation date</th>
