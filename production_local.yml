@@ -17,8 +17,8 @@ services:
        - .:/app
        - /groups/irset/archives/web/TOXsIgN/tools/pred_tox/clustering_methods/ChemPSy:/chempsy:ro
     env_file:
-      - ./.envs/.production/.django_prod
-      - ./.envs/.production/.postgres_prod
+      - ./.envs/.production/.django
+      - ./.envs/.production/.postgres
     command: /start
 
   postgres:
@@ -30,7 +30,7 @@ services:
       - production_postgres_data:/var/lib/postgresql/data
       - ./backups:/backups
     env_file:
-      - ./.envs/.production/.postgres_prod
+      - ./.envs/.production/.postgres
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.3.0

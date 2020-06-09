@@ -1,5 +1,6 @@
 from django import template
 from django.utils.html import format_html
+from collections.abc import Mapping
 
 register = template.Library()
 
@@ -95,3 +96,19 @@ def get_chemicals_es(signature):
     else:
         res = "/"
     return res
+
+@register.simple_tag(takes_context=True)
+def show_username(context, entity):
+    username = "/"
+    if isinstance(entity, Mapping):
+        user = entity['created_by']
+    else:
+        user = entity.created_by
+
+    if user.is_superuser:
+        username = user.username
+    elif context["request"].user.is_authenticated:
+        username = user.username
+    return username
+
+

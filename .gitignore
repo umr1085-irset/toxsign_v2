@@ -281,3 +281,6 @@ toxsign/media/clusters
 
 loading_data/ontologies/*
 !loading_data/ontologies/TOXsIgN_ontologies.csv.example
+
+.envs/.production/.django_prod
+.envs/.production/.postgres_prod
