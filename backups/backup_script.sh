@@ -2,13 +2,13 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-. "$DIR""/../.envs/.production/.django"
-. "$DIR""/../.envs/.production/.postgres"
+. "$DIR""/../.envs/.production/.django_prod"
+. "$DIR""/../.envs/.production/.postgres_prod"
 
 CELERY_BROKER_URL="${REDIS_URL}"
 DATABASE_URL="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
 LOCAL_BACKUP_DIR="$DIR""/archives/"
-REMOTE_BACKUP_DIR="/tmp/"
+REMOTE_BACKUP_DIR="/groups/irset/archives/web/TOXsIgNv2/"
 DATE=`eval date +%Y%m%d`
 
 if docker-compose -f "$DIR""/../production.yml" exec -e DATABASE_URL=$DATABASE_URL -e CELERY_BROKER_URL=$CELERY_BROKER_URL django python manage.py check_signatures > /dev/null 2>&1; then
