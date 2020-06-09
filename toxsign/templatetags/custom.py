@@ -95,3 +95,14 @@ def get_chemicals_es(signature):
     else:
         res = "/"
     return res
+
+@register.simple_tag(takes_context=True)
+def show_username(context, entity):
+    username = "/"
+    if entity.created_by.is_superuser:
+        username = entity.created_by.username
+    elif context["request"].user.is_authenticated:
+        username = entity.created_by.username
+    return username
+
+

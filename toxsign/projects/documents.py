@@ -18,7 +18,8 @@ class ProjectDocument(Document):
     })
 
     created_by = fields.ObjectField(properties={
-        'username': fields.TextField()
+        'username': fields.TextField(),
+        'is_superuser': fields.BooleanField()
     })
 
     tsx_id = fields.KeywordField(normalizer=lowercase)
