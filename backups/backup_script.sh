@@ -12,7 +12,7 @@ REMOTE_BACKUP_DIR="/groups/irset/archives/web/TOXsIgNv2/archives/"
 DATE=`eval date +%Y%m%d`
 
 echo "Writing Postgres dump"
-docker-compose -f "$DIR""/../production.yml" exec postgres sh -c "pg_dump --clean -U $POSTGRES_USER $POSTGRES_DB > /backups/DB_backup"
+docker-compose -f "$DIR""/../production.yml" exec -T postgres sh -c "pg_dump --clean -U $POSTGRES_USER $POSTGRES_DB > /backups/DB_backup"
 mv "$DIR""/DB_backup" "$DIR""/../toxsign/media/"
 echo "Building archive"
 tar -pzcf  "$LOCAL_BACKUP_DIR""archive-$DATE"".tar.gz" "$DIR""/../toxsign/media/"
