@@ -20,8 +20,7 @@ from django.core.mail import mail_admins
 
 # TODO : clear 403 page redirect (page with an explanation?)
 def DetailView(request, prjid):
-    project_object = Project.objects.get(tsx_id=prjid)
-    project = get_object_or_404(Project, pk=project_object.id)
+    project = get_object_or_404(Project, tsx_id=prjid)
     if not check_view_permissions(request.user, project):
         return redirect('/unauthorized')
     assays = Assay.objects.filter(project=project)
