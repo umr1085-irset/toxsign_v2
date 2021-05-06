@@ -52,10 +52,6 @@ class SignatureCreateForm(forms.ModelForm):
         exclude = ("tsx_id", "created_at", "created_by", "updated_at", "expression_values", "expression_values_file", "up_gene_number", "down_gene_number", "interrogated_gene_number")
 
     def __init__(self, *args, **kwargs):
-        # Too many fields to copy....
-        # Add here the many to many foreign key autocomplete fields (ontologies)
-        # Simple foreign keys seems to be ok tough
-        pbl_fields = ['cell_line', 'cell', 'chemical', 'disease', 'technology', 'organism', 'tissue']
 
         self.factors = kwargs.pop('factor')
         self.sig = kwargs.pop('sig', None)
@@ -70,11 +66,7 @@ class SignatureCreateForm(forms.ModelForm):
         if self.sig:
             for key, value in self.fields.items():
                 if getattr(self.sig, key):
-                    if key not in pbl_fields:
-                        value.initial = getattr(self.sig, key)
-
-                    elif getattr(self.sig, key).exists():
-                        value.initial = getattr(self.sig, key).all()
+                    value.initial = getattr(self.sig, key)
 
         self.helper = FormHelper(self)
         self.helper.form_method = 'POST'
