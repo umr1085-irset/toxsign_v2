@@ -23,7 +23,8 @@ def get_model_data(ontology_model, related_field_name, entity_model=None, field_
     if field_name and entity_model and field_slug_name:
         entities = entity_model.objects.filter(**{field_name + "__isnull":True}).exclude(**{field_slug_name + "__exact":""})
         for entity in entities:
-            data[getattr(entity, field_slug_name)] = getattr(entity, field_slug_name)
+            if getattr(entity, field_slug_name):
+                data[getattr(entity, field_slug_name)] = getattr(entity, field_slug_name)
 
     res = []
 
