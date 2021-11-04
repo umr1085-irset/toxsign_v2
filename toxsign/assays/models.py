@@ -51,7 +51,7 @@ class Assay(models.Model):
         ("OTHER", "Other"),
     )
 
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=500)
     tsx_id = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_created_by')
@@ -133,7 +133,7 @@ class ChemicalsubFactor(models.Model):
     updated_at = models.DateTimeField(auto_now=True, null=True, verbose_name=("user"))
     factor = models.ForeignKey(Factor, on_delete=models.CASCADE, related_name='chemical_subfactor_of')
     chemical = models.ForeignKey(Chemical, blank=True, null=True, on_delete=models.CASCADE, related_name='chemical_subfactor_used_in')
-    chemical_slug = models.CharField(max_length=200, blank=True)
+    chemical_slug = models.CharField(max_length=500, blank=True)
     route = models.CharField(max_length=200, blank=True)
     vehicule = models.CharField(max_length=200, blank=True)
     dose_value = models.FloatField(null=True, blank=True, default=None)

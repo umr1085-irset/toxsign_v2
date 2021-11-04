@@ -1,27 +1,32 @@
 import json, os
-
+from django.conf import settings
 from django.db import migrations
 from django.apps import apps
 from django.core.management.base import BaseCommand, CommandError
+from django.core.files import File
+from django.contrib.auth import get_user_model
 
 from toxsign.superprojects.models import *
-from toxsign.projects.models import *
+from toxsign.projects.models import Project
 from toxsign.assays.models import *
 from toxsign.signatures.models import *
-from toxsign.users.models import *
+from toxsign.users.models import User
 from toxsign.ontologies.models import *
 
-def import_superproject(directory,dict,useremail):
-    super_projects = os.listdir(directory)
-    user = User.objects.get(email=useremail)
-    for super_project in super_projects :
-        dict_to_insert = {}
-        super_project_json = json.loads(os.path.join(directory,super_project))
+User = get_user_model()
 
+def import_superproject(dict_superproject,user,key):
+    """
+        Import surper project
+        dict_superproject : dictionnary
+        user : django user object
+    """
+    dict_to_insert = {}
+    if not Superproject.objects.filter(name = dict_superproject[key]['name']).exists() :
         # Manually mapping each keys thank you Indusha ^^
-        dict_to_insert['name'] = super_project_json['Name']
-        dict_to_insert['contact_mail'] = super_project_json['Contact mail']
-        dict_to_insert['description'] = super_project_json['Description']
+        dict_to_insert['name'] = dict_superproject[key]['name']
+        dict_to_insert['contact_mail'] = dict_superproject[key]['contact_mail']
+        dict_to_insert['description'] = dict_superproject[key]['description']
         dict_to_insert['created_by'] = user
 
         # Create SuperProject from dict_to_insert
@@ -29,164 +34,195 @@ def import_superproject(directory,dict,useremail):
         sp.save()
 
         # Get SuperProject ID and return data dict 
-        dict["super_project"] = sp.id
+    else :
+        print("SuperProject exists")
         
-    return dict
+def import_project(dict,user,key):
+    dict_to_insert =  {}
+    super_project = Superproject.objects.get(name=dict["superproject"]['name'])
+    if not Project.objects.filter(name = dict[key]['name']).exists() :
+        # Manually mapping each keys thank you Indusha ^^ (again)
+        dict_to_insert['name'] = dict[key]['name']
+        dict_to_insert['description'] = dict[key]['description']
+        dict_to_insert['created_by'] = user
 
-def import_project(directory,dict,useremail):
-    projects = os.listdir(directory)
-    user = User.objects.get(email=useremail)
-    super_project = Superproject.objects.get(id=dict["super_project"])
-    for project in projects :
-        project_json = json.loads(os.path.join(directory,project))
+        # Add genotox & carcinotox information in description
+        if dict[key]['carcinogenicity_liver'] != "NA" :
+            dict_to_insert['description'] = dict_to_insert['description'] + '\n Liver Carcinogenicity'+ dict[key]['carcinogenicity_liver']
+        if dict[key]['genotoxicity_liver'] != "NA" :
+            dict_to_insert['description'] = dict_to_insert['description'] + '\n Liver Genotoxicity'+ dict[key]['genotoxicity_liver']
+        if dict[key]['carcinogenicity_breast'] != "NA" :
+            dict_to_insert['description'] = dict_to_insert['description'] + '\n Breast Carcinogenicity'+ dict[key]['carcinogenicity_breast']
+        if dict[key]['genotoxicity_breast'] != "NA" :
+            dict_to_insert['description'] = dict_to_insert['description'] + '\n Breast Genotoxicity'+ dict[key]['genotoxicity_breast']
+        dict_to_insert['project_type'] = dict[key]['project_type']
+        dict_to_insert['status'] = "PUBLIC"
+        p=Project.objects.create(**dict_to_insert)
+        p.superproject = super_project
+        p.save()
+    else :
+        print("Project exists")
 
-        for key in project_json :
-            if key not in dict :
-                dict[key]=dict()
 
-            # Manually mapping each keys thank you Indusha ^^ (again)
-            dict_to_insert =  {}
-            dict_to_insert['name'] = project_json[key]['Name']
-            dict_to_insert['description'] = project_json[key]['Description']
-            dict_to_insert['created_by'] = user
+def import_assay(dict,user,key):
+    dict_to_insert =  {}
+    if not Assay.objects.filter(name = dict[key]['name']).exists() :
+        # Manually mapping each keys thank you Indusha ^^ (again)
+        print("insert assay " + dict[key]['name'])
+        dict_to_insert =  {}
+        dict_to_insert['name'] = dict[key]['name']
+        dict_to_insert['description'] = dict[key]['description']
+        dict_to_insert['created_by'] = user
+        dict_to_insert['experimental_design'] = dict[key]['experimental_design']
+        dict_to_insert['additional_info'] = dict[key]['additional_information']
+        dict_to_insert['dev_stage'] = dict[key]['dev_stage']
+        dict_to_insert['generation'] = dict[key]['generation']
+        dict_to_insert['sex_type'] = dict[key]['sex_type']
+        dict_to_insert['exp_type'] = dict[key]['exp_type']
 
-            # Add genotox & carcinotox information in description
-            if project_json['Carcinogenicity'] != "NA" :
-                dict_to_insert['description'] = dict_to_insert['description'] + '\n'+ project_json[key]['Carcinogenicity']
-            if project_json['Genotoxicity'] != "NA" :
-                dict_to_insert['description'] = dict_to_insert['description'] + '\n'+ project_json[key]['Genotoxicity']
-            dict_to_insert['project_type'] = project_json[key]['Project type']
+        if dict[key]['organism'] != '':
+            dict_to_insert['organism'] = Species.objects.get(name=dict[key]['organism'])
+        if dict[key]['tissue'] != '':
+            dict_to_insert['tissue'] = Tissue.objects.get(name=dict[key]['tissue'])
+        if dict[key]['cell'] != '':
+            if dict[key]['cell'] == "epithelial" :
+                dict[key]['cell'] = "epithelial cell"
+            dict_to_insert['cell'] = Cell.objects.get(name=dict[key]['cell'])
+        if dict[key]['cell_line'] != '':
+            if dict[key]['cell_line'] == "breast fybrocystic disease" :
+                dict[key]['cell_line'] = "breast fibrocystic disease"
+            dict_to_insert['cell_line'] = CellLine.objects.get(name=dict[key]['cell_line'])
 
-            p=Project.objects.create(**dict_to_insert)
-            p.superproject = super_project
-            p.save()
-            dict[key]["project"] = p.id
-    return dict
+        dict_to_insert['cell_line_slug'] = dict[key]['cell_line_slug']
+        dict_to_insert['results'] = dict[key]['results']
 
-def import_assay(directory,dict,useremail):
-    assays = os.listdir(directory)
-    user = User.objects.get(email=useremail)
-    for assay in assays :
-        assays_json = json.loads(os.path.join(directory,assay))
-        for key in assays_json :
-            if key not in dict :
-                dict[key]=dict()
+        project = Project.objects.get(name=dict["project"]["name"])
+        a=Assay.objects.create(**dict_to_insert)
+        a.project = project
+        a.save()
+    else :
+        print("Assay exists")    
 
-            # Manually mapping each keys thank you Indusha ^^ (again)
-            dict_to_insert =  {}
-            dict_to_insert['name'] = assays_json[key]['Name']
-            dict_to_insert['description'] = assays_json[key]['Description']
-            dict_to_insert['created_by'] = user
-            dict_to_insert['experimental_design'] = assays_json[key]['Experimental design']
-            dict_to_insert['additional_info'] = assays_json[key]['Additional information']
-            dict_to_insert['dev_stage'] = assays_json[key]['Dev stage']
-            dict_to_insert['generation'] = assays_json[key]['Generation']
-            dict_to_insert['sex_type'] = assays_json[key]['Sex type']
-            dict_to_insert['exp_type'] = assays_json[key]['Exp type']
+def import_factor(dict,user,key):
+    dict_to_insert =  {}
+    if not Factor.objects.filter(name = dict[key]['name']).exists() :
 
-            if assays_json[key]['Organism'] != '':
-                dict_to_insert['organism'] = Species.objects.get(name=assays_json[key]['Organism'])
-            if assays_json[key]['Tissue'] != '':
-                dict_to_insert['tissue'] = Tissue.objects.get(name=assays_json[key]['Tissue'])
-            if assays_json[key]['Cell'] != '':
-                dict_to_insert['cell'] = Cell.objects.get(name=assays_json[key]['Cell'])
-            if assays_json[key]['Cell line'] != '':
-                dict_to_insert['cell_line'] = CellLine.objects.get(name=assays_json[key]['Cell line'])
+        # Manually mapping each keys thank you Indusha ^^ (again)
+        dict_to_insert =  {}
+        dict_to_insert['name'] = dict[key]['name']
+        dict_to_insert['created_by'] = user
 
-            dict_to_insert['cell_line_slug'] = assays_json[key]['Cell line slug']
-            dict_to_insert['results'] = assays_json[key]['Results']
+        assay = Assay.objects.get(name=dict["assay"]["name"])
+        f=Factor.objects.create(**dict_to_insert)
+        f.assay = assay
+        f.save()
 
-            project = Project.objects.get(id=dict[key]["project"])
-            a=Assay.objects.create(**dict_to_insert)
-            a.project = project
-            a.save()
-            dict[key]["assay"] = a.id
-    return dict            
-
-def import_factor(directory,dict,useremail):
-    factors = os.listdir(directory)
-    user = User.objects.get(email=useremail)
-    for factor in factors :
-        factors_json = json.loads(os.path.join(directory,factor))
-        for key in factors_json :
-            if key not in dict :
-                dict[key]=dict()
-
-            # Manually mapping each keys thank you Indusha ^^ (again)
-            dict_to_insert =  {}
-            dict_to_insert['name'] = factors_json[key]['Name']
-            dict_to_insert['created_by'] = user
-
-            assay = Assay.objects.get(id=dict[key]["assay"])
-            f=Factor.objects.create(**dict_to_insert)
-            f.assay = assay
-            f.save()
-            dict[key]["factor"] = f.id
-    return dict            
-
-def import_subfactor(directory,dict,useremail):
-    sub_factors = os.listdir(directory)
-    user = User.objects.get(email=useremail)
-    for sub_factor in sub_factors :
-        sub_factors_json = json.loads(os.path.join(directory,sub_factor))
-        for key in sub_factors_json :
-            if key not in dict :
-                dict[key]=dict()
-            
-            # Manually mapping each keys thank you Indusha ^^ (again)
-            dict_to_insert =  {}
-            dict_to_insert['created_by'] = user
-            if sub_factors_json[key]['Chemical'] != '':
-                dict_to_insert['chemical'] = Chemical.objects.get(name=sub_factors_json[key]['Chemical'])
-            dict_to_insert['route'] = sub_factors_json[key]['Route']
-            dict_to_insert['vehicule'] = sub_factors_json[key]['Vehicule']
-            dict_to_insert['dose_value'] = sub_factors_json[key]['Dose value']
-            dict_to_insert['dose_unit'] = sub_factors_json[key]['Dose unit']
-            dict_to_insert['exposure_time'] = sub_factors_json[key]['Exposure time']
-            dict_to_insert['exposure_frequencie'] = sub_factors_json[key]['Exposure frequencie']
-            dict_to_insert['chemical_slug'] = sub_factors_json[key]['Chemical slug']
-
-            factor = Factor.objects.get(id=dict[key]["factor"])
-            sf=ChemicalsubFactor.objects.create(**dict_to_insert)
-            sf.factor = factor
-            sf.save()
-            dict[key]["subfactor"] = sf.id
-    return dict
-
-########################################
-# WIP
-#######################################
-def import_signature(directory,dict,useremail):
-    signatures = os.listdir(directory)
-    signatures_file_dir = os.path.join(directory,"sig_files")
-    user = User.objects.get(email=useremail)
-    for signature in signatures :
-        signatures_json = json.loads(os.path.join(directory,signature))
-        for key in signatures_json :
-            if key not in dict :
-                dict[key]=dict()
-            signatures_json['']
-            factor = Factor.objects.get(id=dict[key]["factor"])
-            s=Signature.objects.create(**signatures_json[key])
-            s.factor = factor
-            s.save()
-            dict[key]["signature"] = s.id
+        key = "subfactor"
+        dict_to_insert =  {}
+        dict_to_insert['created_by'] = user
+        if dict[key]['chebi_id'] != '':
+            dict_to_insert['chemical'] = Chemical.objects.get(onto_id=dict[key]['chebi_id'])
+        dict_to_insert['route'] = dict[key]['route']
+        dict_to_insert['vehicule'] = dict[key]['vehicule']
+        dict_to_insert['dose_value'] = float(dict[key]['dose_value'])
+        dict_to_insert['dose_unit'] = "µM"
+        dict_to_insert['exposure_time'] = float(dict[key]['exposure_time'])
+        dict_to_insert['exposure_frequencie'] = dict[key]['exposure_frequencie']
+        dict_to_insert['chemical_slug'] = dict[key]['chemical_slug']
+        dict_to_insert['factor'] = f
+        sf=ChemicalsubFactor.objects.create(**dict_to_insert)
+        sf.save()
+    else :
+        print("Factor exists")
     return dict            
 
 
+def import_signature(dict,user,key):
+    dict_to_insert =  {}
+    signatures_file_dir = "loading_data/carcinogenome/6_signature/sig_files"
+    if not Signature.objects.filter(name = dict[key]['name']).exists() :
+    # Manually mapping each keys thank you Indusha ^^ (again)
+        dict_to_insert['created_by'] = user
+        dict_to_insert['name'] = dict[key]['name']
+        dict_to_insert['signature_type'] = "GENOMICS"
+        dict_to_insert['phenotype_description'] = dict[key]['phenotype_description']
+        dict_to_insert['experimental_design'] = dict[key]['experimental_design']
+        dict_to_insert['dev_stage'] = dict[key]['dev_stage']
+        dict_to_insert['generation'] = dict[key]['generation']
+        dict_to_insert['sex_type'] = dict[key]['sex_type']
+        dict_to_insert['exp_type'] = dict[key]['exp_type']
 
-def launch_import(signature_data_folder,admin_mail,admin_password) :
-    print('Start import signatures')
-    dir_list = [
-        "1_superproject",
-        "2_project",
-        "3_assay",
-        "4_factor",
-        "5_subfactor",
-        "6_signature",
-        "7_sig_files"
-    ]
-    dict_data = dict()
+        if dict[key]['organism'] != '':
+            dict_to_insert['organism'] = Species.objects.get(name=dict[key]['organism'])
+        if dict[key]['tissue'] != '':
+            dict_to_insert['tissue'] = Tissue.objects.get(name=dict[key]['tissue'])
+        if dict[key]['cell'] != '':
+            dict_to_insert['cell'] = Cell.objects.get(name=dict[key]['cell'])
+        if dict[key]['cell_line'] != '':
+            dict_to_insert['cell_line'] = CellLine.objects.get(name=dict[key]['cell_line'])
+        if dict[key]['chebi_id'] != '':
+            dict_to_insert['chemical'] = Chemical.objects.get(onto_id=dict[key]['chebi_id'])
+        dict_to_insert['chemical_slug'] = dict[key]['chemical_slug']
+        dict_to_insert['technology_slug'] = dict[key]['technology_slug']
+        dict_to_insert['platform'] = dict[key]['plateform']
+        if dict[key]['control_sample_number'] == '' :
+            dict_to_insert['control_sample_number'] = None
+        else :
+            dict_to_insert['control_sample_number'] = dict[key]['control_sample_number']
+        
+        if dict[key]['treated_sample_number'] == '' :
+            dict_to_insert['treated_sample_number'] = None
+        else :
+            dict_to_insert['treated_sample_number'] = dict[key]['treated_sample_number']
+        dict_to_insert['pvalue'] = float(dict[key]['pvalue'])
+        dict_to_insert['cutoff'] = float(dict[key]['cutoff'])
+        dict_to_insert['statistical_processing'] = dict[key]['statistical_processing']
+        dict_to_insert['gene_id'] = "ENTREZ"
+        dict_to_insert['down_gene_file_path'] = File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"DOWN",dict[key]['down_gene_file_path'])))
+        dict_to_insert['up_gene_file_path']= File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"UP",dict[key]['up_gene_file_path'])))
+        dict_to_insert['interrogated_gene_file_path']= File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"ALL",dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_all.txt'))))
+        dict_to_insert['additional_file_path']= File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"ADDITIONAL",dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_all.txt'))))
+
+
+
+        factor = Factor.objects.get(name=dict[key]["factor"]['name'])
+        s=Signature.objects.create(**dict_to_insert)
+        s.factor = factor
+        s.save()
+    else :
+        print('Signature exists')
+
+def import_data_from_list(signaturefile):
+    f = open(signaturefile,)
+
+    # returns JSON object as
+    # a dictionary
+    json_file = json.load(f)
+
+    admin_user = User.objects.filter(is_superuser=True)
+    if not admin_user:
+        print("No superuser created, aborting")
+    else:
+        admin_user = admin_user[0]
+
+    for sign_obj in json_file :
+        print("Running import Superproject")
+        import_superproject(sign_obj,admin_user,'superproject')
+
+        print("Running import project")
+        import_project(sign_obj,admin_user,'project')
+
+        print("Running import assays")
+        import_assay(sign_obj,admin_user,'assay')
+
+        print("Running import factor")
+        import_factor(sign_obj,admin_user,'factor')
+
+        print("Running import signature")
+        import_signature(sign_obj,admin_user,'signatures')
+
+def launch_import(signature_data_folder) :
+    import_data_from_list(signature_data_folder)
 
 
 class Command(BaseCommand):
@@ -196,8 +232,6 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         # Positional arguments
         parser.add_argument('signature_data_folder', type=str, help='Folder containing the signature data (TSPX, etc...)')
-        parser.add_argument('admin_mail', type=str, help='Admin mail adress')
-        parser.add_argument('admin_password', type=str, help='Admin password')
 
     def handle(self, *args, **options):
-        launch_import(options['signature_data_folder'], options['admin_mail'], options['admin_password'])
+        launch_import(options['signature_data_folder'])

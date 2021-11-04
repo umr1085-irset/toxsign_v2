@@ -284,3 +284,5 @@ loading_data/ontologies/*
 
 .envs/.production/.django_prod
 .envs/.production/.postgres_prod
+
+backups/backup_2021_11_04T12_45_32.sql.gz
