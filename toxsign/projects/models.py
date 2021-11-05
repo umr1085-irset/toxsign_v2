@@ -29,7 +29,7 @@ class Project(models.Model):
         ('OBSERVATIONAL', 'Observational'),
     )
 
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=500)
     tsx_id = models.CharField(max_length=200)
     pubmed_id = models.CharField(max_length=200, blank=True, null=True)
     cross_link = models.TextField("cross_link", blank=True, null=True)
