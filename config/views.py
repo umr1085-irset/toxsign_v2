@@ -553,3 +553,7 @@ def paginate(values, query=None, count=5, is_ES=False):
         val = paginator.page(paginator.num_pages)
 
     return val
+
+def MaintenanceView(request):
+
+    return render(request, 'pages/maintenance.html')
