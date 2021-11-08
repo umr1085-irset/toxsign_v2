@@ -7,9 +7,9 @@ from django.views import defaults as default_views
 from . import views
 
 urlpatterns = [
-    #path("", views.HomeView, name="home"),
+    path("", views.HomeView, name="home"),
     # Uncomment for maintenance
-    path("", views.MaintenanceView, name="maintenance"),
+    #path("", views.MaintenanceView, name="maintenance"),
     path("search/", views.autocompleteModel, name="search"),
     path("advanced_search", views.advanced_search, name="advanced_search"),
     path("advanced_search_api", views.advanced_search_form, name="advanced_search_api"),
