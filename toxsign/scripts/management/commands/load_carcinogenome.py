@@ -178,17 +178,22 @@ def import_signature(dict,user,key):
         dict_to_insert['cutoff'] = float(dict[key]['cutoff'])
         dict_to_insert['statistical_processing'] = dict[key]['statistical_processing']
         dict_to_insert['gene_id'] = "ENTREZ"
-        dict_to_insert['down_gene_file_path'] = File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"DOWN",dict[key]['down_gene_file_path'])))
-        dict_to_insert['up_gene_file_path']= File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"UP",dict[key]['up_gene_file_path'])))
-        dict_to_insert['interrogated_gene_file_path']= File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"ALL",dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_all.txt'))))
-        dict_to_insert['additional_file_path']= File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"ADDITIONAL",dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_all.txt'))))
 
-
-
-        factor = Factor.objects.get(name=dict[key]["factor"]['name'])
+        factor = Factor.objects.get(name=dict["factor"]['name'])
         s=Signature.objects.create(**dict_to_insert)
         s.factor = factor
         s.save()
+
+        #dict_to_insert['down_gene_file_path'] = File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"DOWN",dict[key]['down_gene_file_path'])))
+        #dict_to_insert['up_gene_file_path']= File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"UP",dict[key]['up_gene_file_path'])))
+        #dict_to_insert['interrogated_gene_file_path']= File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"ALL",dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_all.txt'))))
+        #dict_to_insert['additional_file_path']= File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"ADDITIONAL",dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_all.txt'))))
+
+        s.up_gene_file_path.save(dict[key]['up_gene_file_path'], File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"UP",dict[key]['up_gene_file_path']))), save=False)
+        s.down_gene_file_path.save(dict[key]['down_gene_file_path'], File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"DOWN",dict[key]['down_gene_file_path']))), save=False)
+        s.interrogated_gene_file_path.save(dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_all.txt'), File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"ALL",dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_all.txt')))), save=False)
+        s.additional_file_path.save(dict[key]['interrogated_gene_file_path'], File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"ADDITIONAL",dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_zscore.txt')))), save=False)
+        s.save(force=True)
     else :
         print('Signature exists')
 
