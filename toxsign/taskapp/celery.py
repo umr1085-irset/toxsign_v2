@@ -54,7 +54,8 @@ def cleanup_jobs():
     # Clean anonymous jobs older than 7 days
     Job.objects.filter(updated_at__lte= now()-timedelta(days=7), created_by=None).delete()
     # Clean pending jobs?
-
+    # Clean non-anonymous older than 2 months
+    Job.objects.filter(updated_at__lte= now()-timedelta(months=2)).delete()
 
 @app.task
 def cleanup_failed_jobs():
