@@ -5,6 +5,7 @@ from django.apps import apps
 from django.core.management.base import BaseCommand, CommandError
 from django.core.files import File
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
 
 from toxsign.superprojects.models import *
 from toxsign.projects.models import Project
@@ -56,7 +57,7 @@ def import_project(dict,user,key):
         if dict[key]['genotoxicity_breast'] != "NA" :
             dict_to_insert['description'] = dict_to_insert['description'] + '\n Breast Genotoxicity'+ dict[key]['genotoxicity_breast']
         dict_to_insert['project_type'] = dict[key]['project_type']
-        dict_to_insert['status'] = "PUBLIC"
+        dict_to_insert['status'] = "PRIVATE"
         p=Project.objects.create(**dict_to_insert)
         p.superproject = super_project
         p.save()
@@ -120,15 +121,34 @@ def import_factor(dict,user,key):
         key = "subfactor"
         dict_to_insert =  {}
         dict_to_insert['created_by'] = user
+
+        chemical_slug = dict[key]['chemical_slug']
+
         if dict[key]['chebi_id'] != '':
-            dict_to_insert['chemical'] = Chemical.objects.get(onto_id=dict[key]['chebi_id'])
+            try:
+                chemical = Chemical.objects.get(onto_id="CHEBI:" + dict[key]['chebi_id'])
+                dict_to_insert['chemical'] = chemical
+
+            except ObjectDoesNotExist:
+                if not chemical_slug:
+                    chemical_slug = dict[key]['chemical']
+
         dict_to_insert['route'] = dict[key]['route']
         dict_to_insert['vehicule'] = dict[key]['vehicule']
-        dict_to_insert['dose_value'] = float(dict[key]['dose_value'])
-        dict_to_insert['dose_unit'] = "µM"
+        dict_to_insert['chemical_slug'] = chemical_slug
+
+        if " " in dict[key]['dose_value']:
+            dose_value = float(dict[key]['dose_value'].split(" ")[0])
+            dose_unit = "nM"
+        else:
+            dose_value = float(dict[key]['dose_value'])
+            dose_unit = "µM"
+
+        dict_to_insert['dose_value'] = dose_value
+        dict_to_insert['dose_unit'] = dose_unit
+
         dict_to_insert['exposure_time'] = float(dict[key]['exposure_time'])
         dict_to_insert['exposure_frequencie'] = dict[key]['exposure_frequencie']
-        dict_to_insert['chemical_slug'] = dict[key]['chemical_slug']
         dict_to_insert['factor'] = f
         sf=ChemicalsubFactor.objects.create(**dict_to_insert)
         sf.save()
@@ -161,7 +181,7 @@ def import_signature(dict,user,key):
         if dict[key]['cell_line'] != '':
             dict_to_insert['cell_line'] = CellLine.objects.get(name=dict[key]['cell_line'])
         if dict[key]['chebi_id'] != '':
-            dict_to_insert['chemical'] = Chemical.objects.get(onto_id=dict[key]['chebi_id'])
+            dict_to_insert['chemical'] = Chemical.objects.get(onto_id="CHEBI:" + dict[key]['chebi_id'])
         dict_to_insert['chemical_slug'] = dict[key]['chemical_slug']
         dict_to_insert['technology_slug'] = dict[key]['technology_slug']
         dict_to_insert['platform'] = dict[key]['plateform']
