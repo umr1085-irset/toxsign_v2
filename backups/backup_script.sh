@@ -19,6 +19,6 @@ tar -pzcf  "$LOCAL_BACKUP_DIR""archive-$DATE"".tar.gz" "$DIR""/../toxsign/media/
 rm "$DIR""/../toxsign/media/DB_backup"
 
 cd $LOCAL_BACKUP_DIR
-ls -1t  | tail -n +4 | xargs rm -f
+ls -1t  | tail -n +3 | xargs rm -f
 echo "Rsync.."
 rsync -av --delete --exclude=".*" $LOCAL_BACKUP_DIR $REMOTE_BACKUP_DIR
