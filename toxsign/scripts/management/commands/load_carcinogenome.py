@@ -14,6 +14,8 @@ from toxsign.signatures.models import *
 from toxsign.users.models import User
 from toxsign.ontologies.models import *
 
+from toxsign.scripts.data import change_status
+
 User = get_user_model()
 
 def import_superproject(dict_superproject,user,key):
@@ -180,9 +182,19 @@ def import_signature(dict,user,key):
             dict_to_insert['cell'] = Cell.objects.get(name=dict[key]['cell'])
         if dict[key]['cell_line'] != '':
             dict_to_insert['cell_line'] = CellLine.objects.get(name=dict[key]['cell_line'])
+
+        chemical_slug = dict[key]['chemical_slug']
+
         if dict[key]['chebi_id'] != '':
-            dict_to_insert['chemical'] = Chemical.objects.get(onto_id="CHEBI:" + dict[key]['chebi_id'])
-        dict_to_insert['chemical_slug'] = dict[key]['chemical_slug']
+            try:
+                chemical = Chemical.objects.get(onto_id="CHEBI:" + dict[key]['chebi_id'])
+                dict_to_insert['chemical'] = chemical
+
+            except ObjectDoesNotExist:
+                if not chemical_slug:
+                    chemical_slug = dict[key]['chemical']
+
+        dict_to_insert['chemical_slug'] = chemical_slug
         dict_to_insert['technology_slug'] = dict[key]['technology_slug']
         dict_to_insert['platform'] = dict[key]['plateform']
         if dict[key]['control_sample_number'] == '' :
@@ -212,10 +224,18 @@ def import_signature(dict,user,key):
         s.up_gene_file_path.save(dict[key]['up_gene_file_path'], File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"UP",dict[key]['up_gene_file_path']))), save=False)
         s.down_gene_file_path.save(dict[key]['down_gene_file_path'], File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"DOWN",dict[key]['down_gene_file_path']))), save=False)
         s.interrogated_gene_file_path.save(dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_all.txt'), File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"ALL",dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_all.txt')))), save=False)
-        s.additional_file_path.save(dict[key]['interrogated_gene_file_path'], File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"ADDITIONAL",dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_zscore.txt')))), save=False)
+
+        if os.path.exists(os.path.join(settings.ROOT_DIR,signatures_file_dir,"ADDITIONAL",dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_zscore.txt'))):
+            s.additional_file_path.save(dict[key]['interrogated_gene_file_path'], File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"ADDITIONAL",dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_zscore.txt')))), save=False)
+
         s.save(force=True)
     else :
         print('Signature exists')
+
+def publicize_project(project_dict):
+    project = Project.objects.get(name=project_dict['name'])
+    project.status = "PRIVATE"
+    project.save(force=True)
 
 def import_data_from_list(signaturefile):
     f = open(signaturefile,)
@@ -230,25 +250,33 @@ def import_data_from_list(signaturefile):
     else:
         admin_user = admin_user[0]
 
-    for sign_obj in json_file :
-        print("Running import Superproject")
-        import_superproject(sign_obj,admin_user,'superproject')
+    #for sign_obj in json_file :
+    #    print("Running import Superproject")
+    #    import_superproject(sign_obj,admin_user,'superproject')
 
-        print("Running import project")
-        import_project(sign_obj,admin_user,'project')
+    #    print("Running import project")
+    #    import_project(sign_obj,admin_user,'project')
 
-        print("Running import assays")
-        import_assay(sign_obj,admin_user,'assay')
+    #    print("Running import assays")
+    #    import_assay(sign_obj,admin_user,'assay')
 
-        print("Running import factor")
-        import_factor(sign_obj,admin_user,'factor')
+    #    print("Running import factor")
+    #    import_factor(sign_obj,admin_user,'factor')
 
-        print("Running import signature")
-        import_signature(sign_obj,admin_user,'signatures')
+    #    print("Running import signature")
+    #    import_signature(sign_obj,admin_user,'signatures')
+
+
+    # We should actually publicize projects (and run change_status) only once all signatures are integrated 
+
+    #for sign_obj in json_file :
+        #publicize_project(sign_obj['project'])
+
+    #change_status.delay()
+
 
 def launch_import(signature_data_folder) :
     import_data_from_list(signature_data_folder)
-
 
 class Command(BaseCommand):
 
