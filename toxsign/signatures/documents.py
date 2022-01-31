@@ -70,7 +70,9 @@ class SignatureDocument(Document):
         name = 'signatures'
         # See Elasticsearch Indices API reference for available settings
         settings = {'number_of_shards': 1,
-                    'number_of_replicas': 0}
+                    'number_of_replicas': 0,
+                    'max_result_window': 20000
+                    }
 
     class Django:
         model = Signature # The model associated with this Document
