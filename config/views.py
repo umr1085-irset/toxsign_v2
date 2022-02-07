@@ -263,7 +263,7 @@ def graph_data(request):
 
     data = {
         "data": response,
-        "max_parallel": max(assay_count, sign_count, 1),
+        "max_parallel": max(assay_count, sign_count, factor_count, 1),
         "max_depth": 4
     }
 
