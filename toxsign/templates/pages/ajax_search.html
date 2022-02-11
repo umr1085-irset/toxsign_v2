@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% load custom %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+        <div class="col-md-3 ">
+          <div class="list-group ">
+              <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action {{is_active.superproject}}">Superprojects ({{ superproject_list.paginator.count }})</a>
+              <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action {{is_active.project}}">Projects ({{ project_list.paginator.count}})</a>
+              <a href="#tab4" data-toggle="tab" class="list-group-item list-group-item-action {{is_active.signature}}">Signatures ({{ signature_list.paginator.count}})</a>
+          </div>
+        </div>
+        <div class="col-md-9">
+            <div class="tab-content card">
+              <div class="tab-pane text-style card-body {{is_active.superproject}}" id="tab1">
+                {% for superproject in superproject_list %}
+                <h5><a href="{% url 'superprojects:detail' superproject.tsx_id %}">{{ superproject.tsx_id }}</a> - {{superproject.name}}</h5>
+                    <table class="table">
+                      <tbody>
+                        <tr>
+                            <td>{% if superproject.created_by.is_superuser %}{{ superproject.description | safe | truncatewords:"50" }} {% else %} {{ superproject.description|truncatewords:"50"}} {% endif %}
+                             <a style="color:blue;" href="{% url 'superprojects:detail' superproject.tsx_id %}">[more]</a></td>
+                            <td>{% show_username superproject %}</td>
+                            <td>{{ superproject.created_at }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <hr>
+                {% endfor %}
+                {% if superproject_list %}
+                {% with table=superproject_list type="superprojects" %}
+                {% include "pages/paginate.html" %}
+                {% endwith %}
+                {% endif %}
+                {% if not superproject_list.paginator.count %}
+                    <p>No superproject matches the query.</p>
+                {% endif %}
+              </div>
+              <div class="tab-pane text-style card-body {{is_active.project}}" id="tab2">
+                {% for project in project_list %}
+                    <h5><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a> - {{project.name}}</h5>
+
+                    <table class="table">
+                      <tbody>
+                        <tr>
+                          <td>
+                            {% if project.status == "PUBLIC" %}<span class="badge badge-pill badge-success">Public</span>{% endif %}
+                            {% if project.status == "PENDING" %}<span class="badge badge-pill badge-secondary">Pending</span>{% endif %}
+                            {% if project.status == "PRIVATE" %}<span class="badge badge-pill badge-dark">Private</span>{% endif %}
+                            {% if project.project_type == "INTERVENTIONAL" %} <span class="badge badge-primary">Interventional</span>{% endif %}
+                            {% if project.project_type == "OBSERVATIONAL" %} <span class="badge badge-success">Observational</span>{% endif %}
+                          <td>
+                          <td>
+                            {% if project.description %}
+                              {{ project.description|safe|truncatewords:"30"|linebreaks }}
+                              <a href="{% url 'projects:detail' project.tsx_id %}">more</a>
+                            {% else %} 
+                              No description provided 
+                            {% endif %}
+                          </td>
+                          <td>
+                            {% show_username project %}
+                          </td>
+                          <td>
+                            {{ project.created_at }}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <hr>
+                {% endfor %}
+                {% if not project_list.paginator.count %}
+                    <p>No project matches the query.</p>
+                {% endif %}
+                {% if project_list %}
+                {% with table=project_list type="projects" %}
+                {% include "pages/paginate.html" %}
+                {% endwith %}
+                {% endif %}
+              </div>
+              <div class="tab-pane text-style card-body {{is_active.signature}}" id="tab4">
+                {% for signature in signature_list %}
+                      <h5><a href="{% url 'signatures:detail' signature.tsx_id %}">{{ signature.tsx_id }}</a> - {{signature.name}}
+                      
+                      {% onto_value signature.organism as organism %}
+                      {% onto_value signature.tissue as tissue %}
+                      {% onto_value signature.cell as cell%}
+                      {% onto_value signature.cell_line as cell_line%}
+                      </h5>
+                      <table class="table text-center">
+                        <thead>
+                          <tr>
+                            <th></th>
+                              <th scope="col">Organism</th>
+                              <th scope="col">Tissue</th>
+                              <th scope="col">Cell</th>
+                              <th scope="col">Cell line</th>
+                              <th scope="col">Chemical</th>
+                              <th scope="col">Sex</th>
+                              <th scope="col">Stage</th>
+                              <th scope="col">Up genes</th>
+                              <th scope="col">Down genes</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>
+                              {% if signature.factor.assay.project.status == "PUBLIC" %}<span class="badge badge-pill badge-success">Public</span>{% endif %}
+                              {% if signature.factor.assay.project.status == "PENDING" %}<span class="badge badge-pill badge-secondary">Pending</span>{% endif %}
+                              {% if signature.factor.assay.project.status == "PRIVATE" %}<span class="badge badge-pill badge-dark">Private</span>{% endif %}
+                              {% if signature.signature_type == "GENOMIC" %}<span class="badge badge-pill badge-danger">Genomics</span>{% endif %}
+                              {% if signature.signature_type == "METABOLOMIC" %}<span class="badge badge-pill badge-info">Metabolomics</span>{% endif %}
+                            </td>
+                            <td>
+                              {% if signature.organism.name == "Homo sapiens" %} <img src="{% static 'images/species/Homo_sapiens.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">
+                              {% elif signature.organism.name == "Canis familiaris" %} <img src="{% static 'images/species/Canis_familiaris.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">
+                              {% elif signature.organism.name == "Danio rerio" %} <img src="{% static 'images/species/Danio_rerio.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">
+                              {% elif signature.organism.name == "Drosophila melanogaster" %} <img src="{% static 'images/species/Drosophila_melanogaster.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">
+                              {% elif signature.organism.name == "Macaca mulatta" %} <img src="{% static 'images/species/Macaca_mulatta.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">
+                              {% elif signature.organism.name == "Mus musculus" %} <img src="{% static 'images/species/Mus_musculus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">
+                              {% elif signature.organism.name == "Rattus norvegicus" %} <img src="{% static 'images/species/Rattus_norvegicus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">
+                              {% elif signature.organism.name == "Sus scrofa" %} <img src="{% static 'images/species/Sus_scrofa.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">
+                              {% elif signature.organism.name %}{{ signature.organism.name }}
+                              {% else %}/
+                              {% endif %}
+                            </td>
+                            <td>
+                              {% if signature.tissue.name == "Liver" or signature.tissue.name == "liver" %} <img src="{% static 'images/organs/png/028-liver.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.tissue.name}}">
+                              {% elif signature.tissue.name == "Kidney" or signature.tissue.name == "kidney" %} <img src="{% static 'images/organs/png/008-kidneys-1.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.tissue.name}}">
+                              {% elif signature.tissue.name == "Brain" or signature.tissue.name == "brain" %} <img src="{% static 'images/organs/png/002-brain.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.tissue.name}}">
+                              {% elif signature.tissue.name == "Lungs" or signature.tissue.name == "lungs" %} <img src="{% static 'images/organs/png/003-lungs.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.tissue.name}}">
+                              {% elif signature.tissue.name == "Bladder" or signature.tissue.name == "bladder" %} <img src="{% static 'images/organs/png/006-bladder.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.tissue.name}}">
+                              {% elif signature.tissue.name == "Testis" or signature.tissue.name == "testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.tissue.name}}">
+                              {% elif signature.tissue.name == "Heart" or signature.tissue.name == "heart" %} <img src="{% static 'images/organs/png/023-heart.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.tissue.name}}">
+                              {% elif signature.tissue.name == "Ovary" or signature.tissue.name == "ovary" %} <img src="{% static 'images/organs/png/024-uterus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.tissue.name}}">
+                              {% elif signature.tissue.name == "Stomach" or signature.tissue.name == "stomach" %} <img src="{% static 'images/organs/png/029-stomach.png' %}" data-toggle="tooltip" data-placement="top" title="{{signature.tissue.name}}">
+                              {% elif signature.tissue.name == "Intestine" or signature.tissue.name == "intestine" %} <img src="{% static 'images/organs/png/027-intestine.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.tissue.name}}">
+                              {% elif signature.tissue %}{{ signature.tissue.name }}
+                              {% else %}/
+                              {% endif %}
+                            </td>
+                            <td>
+                              
+                              {% if signature.cell %}
+                                <img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.cell.name}}">
+                              {% else %}
+                                /
+                              {% endif %}
+                            </td>
+                            <td>
+                              {% if signature.cell_line %}
+                                <img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{signature.cell_line.name}}">
+                              {% else %}
+                                /
+                              {% endif %}
+                            </td>
+                            {% if type == "es" %}
+                                <td>{% get_chemicals_es signature %}</td>
+                            {% else %}
+                                <td>{% get_chemicals signature %}</td>
+                            {% endif %}
+                            <td>{% if signature.sex_type %}{%  get_dict_value  sex_type_dict signature.sex_type %} {% else %} / {% endif %}</td>
+                            <td>{% if signature.dev_stage %}{% get_dict_value dev_stage_dict signature.dev_stage %} {% else %} / {% endif %}</td>
+                            <td>{{ signature.up_gene_number }}</td>
+                            <td>{{ signature.down_gene_number }}</td>
+                          </tr>
+                        </tbody>
+                    </table>
+                      <hr>
+                  {% endfor %}
+                  {% if not signature_list.paginator.count %}
+                    <p>No signature matches the query.</p>
+                  {% endif %}
+                  {% if signature_list %}
+                {% with table=signature_list type="signatures" %}
+                {% include "pages/paginate.html" %}
+                {% endwith %}
+                  {% endif %}
+              </div>
+            </div>
+        </div>
+      </div>
+
+    </div>
+{% endblock %}
+{% block javascript %}
+  {{block.super}}
+  <script>
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+      })
+    </script>
+{% endblock %}

@@ -1,0 +1,27 @@
+#advanced_search_wrapper .select2-selection {
+    height: calc(2.25rem + 2px);
+}
+
+#advanced_search_wrapper .select2-selection__arrow {
+    height: calc(2.25rem + 2px);
+}
+
+
+#advanced_search_wrapper .select2-selection__rendered{
+    line-height: calc(2.25rem + 2px);
+    padding-left: 0.75rem;
+    color: #495057;
+}
+
+#advanced_search_wrapper .select2-container--default .select2-selection--single {
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+}
+
+.entity-wrapper {
+    display:none; 
+}
+
+.select2-container {
+    width: 100% !important;
+}

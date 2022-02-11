@@ -4,17 +4,49 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic import TemplateView
 from django.views import defaults as default_views
+from . import views
 
 urlpatterns = [
-    path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
+    path("", views.HomeView, name="home"),
+    # Uncomment for maintenance
+    #path("", views.MaintenanceView, name="maintenance"),
+    path("search/", views.autocompleteModel, name="search"),
+    path("advanced_search", views.advanced_search, name="advanced_search"),
+    path("advanced_search_api", views.advanced_search_form, name="advanced_search_api"),
+    path("index/", views.index, name="index"),
     path(
         "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
     ),
+    path(
+        "tutorial/", TemplateView.as_view(template_name="pages/tutorial.html"), name="tutorial"
+    ),
+    path(
+        "statistics/", TemplateView.as_view(template_name="pages/statistics.html"), name="statistics"
+    ),
+    path("download/signature/<str:sigid>", views.download_signature, name="download_sig"),
+    path("download/job/<int:jobid>", views.download_job_result, name="download_job"),
+    path(
+        "help/", TemplateView.as_view(template_name="pages/help.html"), name="help"
+    ),
+    path(
+        "graphs/", views.graph_data, name="graph"
+    ),
+    path("unauthorized", views.render_403, name="unauthorized"),
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
+    path("groups/", include("toxsign.groups.urls", namespace="groups")),
     path("users/", include("toxsign.users.urls", namespace="users")),
+    path("superprojects/", include("toxsign.superprojects.urls", namespace="superprojects")),
+    path("projects/", include("toxsign.projects.urls", namespace="projects")),
+    path("assays/", include("toxsign.assays.urls", namespace="assays")),
+    path("signatures/", include("toxsign.signatures.urls", namespace="signatures")),
+    path("tools/", include("toxsign.tools.urls", namespace="tools")),
+    path("jobs/", include("toxsign.jobs.urls", namespace="jobs")),
+    path("genes", include("toxsign.genes.urls", namespace="genes")),
+    path("clusters/", include("toxsign.clusters.urls", namespace="clusters")),
     path("accounts/", include("allauth.urls")),
+    path("ontologies/", include("toxsign.ontologies.urls", namespace="ontologies")),
     # Your stuff: custom urls includes go here
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

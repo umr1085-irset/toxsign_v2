@@ -1,0 +1,408 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% load custom %}
+
+{% block content %}
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.9.1/d3-tip.min.js"></script>
+<link href="{% static 'css/graph.css' %}" rel="stylesheet">
+<script src="{% static 'js/graph.js' %}"></script>
+<script src="{% static 'js/context-menu.js' %}"></script>
+<style>
+  .chart-container {
+  position: relative;
+  margin: auto;
+  height: 20vh;
+  width: 20vw;
+}
+</style>
+
+    <div class="container">
+      <div class="tab-content card" style="text-align:center;">
+        <div class="tab-pane active text-style card-body">
+          <div id='graph'></div>
+          <script>
+            d3.json("{% url 'graph' %}?q={{project.tsx_id}}").then( function(json){
+              drawGraph(json.data, json.max_parallel, json.max_depth, "{{signature.tsx_id}}");
+            });
+          </script>
+        </div>
+      </div>
+      <br>
+      <div class="row">
+          <div class="col-md-12">
+                <h2>
+                {{ signature.tsx_id }} - {{ signature.name }} <br>
+                {% if project.status == "PUBLIC" %}<span class="badge badge-pill badge-success">Public</span>{% endif %}
+                {% if project.status == "PENDING" %}<span class="badge badge-pill badge-secondary">Pending</span>{% endif %}
+                {% if project.status == "PRIVATE" %}<span class="badge badge-pill badge-dark">Private</span>{% endif %}
+                {% if project.project_type == "INTERVENTIONAL" %} <span class="badge badge-primary">Interventional</span>{% endif %}
+                {% if project.project_type == "OBSERVATIONAL" %} <span class="badge badge-success">Observational</span>{% endif %}
+                {% if factor.chemical_subfactor_of.count > 1 %} <span class="badge badge-warning">Mixture</span>{% endif %}
+                {% if signature.signature_type == "GENOMICS" %}<span class="badge badge-pill badge-danger">Genomics</span>{% endif %}
+                {% if signature.signature_type == "METABOLOMICS" %}<span class="badge badge-pill badge-info">Metabolomics</span>{% endif %}
+                </h2>
+                <hr>
+          </div>
+      </div>
+      <div class="row">
+        {% if signature.up_gene_file_path or signature.up_gene_file_path or signature.interrogated_gene_file_path  %}
+          <div class="col align-self-center">
+            <a href="{% url 'tools:index'  %}?selected={{signature.tsx_id}}" class="btn btn-outline-primary" role="button">Tools <i class="fas fa-external-link-alt"></i></a>
+            <a href="{% url 'download_sig' signature.tsx_id  %}" class="btn btn-outline-success" role="button">Download</a>
+          </div>
+        {% endif %}
+      </div>
+      <div class="row my-5">
+          <div class="col-md-6">
+            <h2>Summary</h2>
+            <table class="table">
+              <tbody>
+                <tr>
+                  <th scope="row">Organism</th>
+                  <td>
+                    {% if signature.organism.name == "Homo sapiens" %} <img src="{% static 'images/species/Homo_sapiens.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if signature.organism.name == "Canis familiaris" %} <img src="{% static 'images/species/Canis_familiaris.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if signature.organism.name == "Danio rerio" %} <img src="{% static 'images/species/Danio_rerio.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if signature.organism.name == "Drosophila melanogaster" %} <img src="{% static 'images/species/Drosophila_melanogaster.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if signature.organism.name == "Macaca mulatta" %} <img src="{% static 'images/species/Macaca_mulatta.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if signature.organism.name == "Mus musculus" %} <img src="{% static 'images/species/Mus_musculus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if signature.organism.name == "Rattus norvegicus" %} <img src="{% static 'images/species/Rattus_norvegicus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                    {% if signature.organism.name == "Sus scrofa" %} <img src="{% static 'images/species/Sus_scrofa.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{organism}}">{% endif %}
+                  </td>
+                  <td>{% onto_value signature.organism  %}</td>
+                </tr>
+                {% if signature.tissue %}
+                  <tr>
+                    <th scope="row">Tissue</th>
+                    <td>
+                      {% if signature.tissue.name == "Liver" or signature.tissue.name == "liver" %} <img src="{% static 'images/organs/png/028-liver.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if signature.tissue.name == "Kidney" or signature.tissue.name == "kidney" %} <img src="{% static 'images/organs/png/008-kidneys-1.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if signature.tissue.name == "Brain" or signature.tissue.name == "brain" %} <img src="{% static 'images/organs/png/002-brain.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if signature.tissue.name == "Lungs" or signature.tissue.name == "lungs" %} <img src="{% static 'images/organs/png/003-lungs.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if signature.tissue.name == "Bladder" or signature.tissue.name == "bladder" %} <img src="{% static 'images/organs/png/006-bladder.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if signature.tissue.name == "Heart" or signature.tissue.name == "heart" %} <img src="{% static 'images/organs/png/023-heart.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if signature.tissue.name == "Testis" or signature.tissue.name == "testis" %} <img src="{% static 'images/organs/png/022-testicle.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if signature.tissue.name == "Ovary" or signature.tissue.name == "ovary" %} <img src="{% static 'images/organs/png/024-uterus.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if signature.tissue.name == "Stomach" or signature.tissue.name == "stomach" %} <img src="{% static 'images/organs/png/029-stomach.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                      {% if signature.tissue.name == "Intestine" or signature.tissue.name == "intestine" %} <img src="{% static 'images/organs/png/027-intestine.png' %}" width="50px" height="50px" data-toggle="tooltip" data-placement="top" title="{{tissue}}">{% endif %}
+                    </td>
+                    <td>{% onto_value signature.tissue  %}</td>
+                  </tr>
+                {% endif %}
+                {% onto_value signature.cell  as cell%}
+                {% if cell != "None" %}
+                  <tr><th scope="row">Cell</th><td><img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px"></td><td>{% onto_value signature.cell  %}</td></tr>
+                {% endif %}
+                {% onto_value signature.cell_line signature.cell_line_slug as cell_line%}
+                {% if cell_line != "None" %}
+                  <tr><th scope="row">Cell line</th><td><img src="{% static 'images/organs/png/014-cells.png' %}" width="50px" height="50px"></td><td>{% onto_value signature.cell_line  %}</td></tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+          <div class="col-md-6">
+                <h2>Characteristics</h2>
+                <table class="table">
+                  <tbody>
+                    {% if signature.exp_type %}<tr><th scope="row">Experimental type</th><td>{{ signature.get_exp_type_display }}</td></tr>{% endif %}
+                    {% if signature.sex_type %}<tr><th scope="row">Sex</th><td>{{ signature.get_sex_type_display }}</td></tr>{% endif %}
+                    {% if signature.generation %}<tr><th scope="row">Generation</th><td>{{ signature.get_generation_display }}</td></tr>{% endif %}
+                    {% if signature.dev_stage %}<tr><th scope="row">Developmental stage</th><td>{{ signature.get_dev_stage_display }}</td></tr>{% endif %}
+                  </tbody>
+                </table>
+          </div>
+      </div>
+       <div class="row my-5">
+          <div class="col-md-6">
+            <h2>Overview</h2>
+            <hr>
+            {% if signature.up_gene_number > 0 or signature.down_gene_number > 0 %}
+              <div class="chart-container">
+                <canvas id="myChart"></canvas>
+              </div>
+            {% else %}
+              <p>No up/down regulated genes</p>
+            {% endif %}
+          </div>
+          <div class="col-md-6">
+            <h2>Genomic signature information</h2>
+            <table class="table">
+              <tbody>
+                <tr>
+                  <th scope="row">Technology used</th>
+                  <td>
+                    {% onto_value signature.technology  signature.technology_slug %}
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Platform</th>
+                  <td>
+                    {{signature.platform}}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+      </div>
+      </div>
+      <div class="row my-5">
+        <div class="col-md-8">
+              <h2>Statistical information</h2>
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <th scope="row">Control samples</th>
+                    <td>{{signature.control_sample_number}}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Treated samples</th>
+                    <td>{{signature.treated_sample_number}}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Pvalue Cutoff</th>
+                    <td>{{signature.pvalue}}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">FC Cutoff</th>
+                    <td>{{signature.cutoff}}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Statistical processing</th>
+                    <td>{{signature.statistical_processing}}</td>
+                  </tr>
+                </tbody>
+              </table>
+        </div>
+    </div>
+
+      <h2>Associated Factors</h2>
+      
+      <div class="row">
+          <ul class="nav nav-tabs">
+              <li class="nav-item">
+                  <a href="" data-target="#chemical" data-toggle="tab" class="nav-link active">Chemical ({{factor.chemical_subfactor_of.count}})</a>
+              </li>
+              <li class="nav-item">
+                  <a href="" data-target="#biological" data-toggle="tab" class="nav-link disabled">Biological (0)</a>
+              </li>
+              <li class="nav-item">
+                  <a href="" data-target="#physical" data-toggle="tab" class="nav-link disabled">Physical (0)</a>
+              </li>
+          </ul>
+          <div class="tab-content" style="margin-top:20px;">
+              <div class="tab-pane active p-b-3" id="chemical">
+                {% if not factor.chemical_subfactor_of.count %}
+                    <div class="row my-5">
+                      <div class="col-md-8 mb-5">
+                        <p>No chemical subfactors linked to this factor</p>
+                      </div>
+                    </div>
+                {% endif %}
+                {% for chemical in factor.chemical_subfactor_of.all %}
+                  <div class="row my-5">
+                    <div class="col-md-12">
+                      <h2><i class="fas fa-flask"></i> Chemical factor n° {{ forloop.counter }}</h2>
+                      <table class="table">
+                        <tbody>
+                          <tr>
+                            <th scope="row">Chemical</th> 
+                            <td>{% if chemical.chemical %}{{chemical.chemical.name}}{% else %}{{chemical.chemical_slug}}{% endif %}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row">Route</th> 
+                            <td>{% if chemical.route %}{{chemical.route}}{% else %} No route provided {% endif %}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row">Vehicule</th> 
+                            <td>{% if chemical.route %}{{chemical.vehicule}}{% else %} No vehicule provided {% endif %}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row">Dose</th> 
+                            <td>{% if chemical.dose_value %}{{chemical.dose_value}} {{chemical.dose_unit}}{% else %} No dose provided {% endif %}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row">Exposure time</th> 
+                            <td>{% if chemical.exposure_time %}{{chemical.exposure_time}} hours {% else %} No exposure time provided {% endif %}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row">Exposure frequencies</th> 
+                            <td>{% if chemical.exposure_frequencie %}{{chemical.exposure_frequencie}} {% else %} No exposure frequencies provided {% endif %}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+              <div class="tab-pane" id="biological">
+                  <div class="row my-5">
+                    <div class="col-md-12">
+                      <p>No biological subfactors linked to this factor</p>
+                    </div>
+                  </div>
+              </div>
+              <div class="tab-pane" id="physical">
+                  <div class="row my-5">
+                    <div class="col-md-12">
+                      <p>No physical subfactors linked to this factor</p>
+                    </div>
+                  </div>
+              </div>
+          </div>
+        </div>
+
+      
+      {% if project.created_by == request.user%}
+        <div class="row my-5">
+            <div class="col-md-8 mb-5">
+                  <h2>Authorization</h2>
+                  <table class="table">
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th scope="row">Read group</th>
+                        <td>
+                          {% for read in project.read_groups.all %}
+                            <span>{{ read }}</span>
+                          {% endfor %}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Edit group</th>
+                        <td>
+                          {% for edit in project.edit_groups.all %}
+                            <span>{{ edit }}</span>
+                          {% endfor %}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+            </div>
+            <div class="col-md-4 mb-5">
+                  <h2>Information</h2>
+                  <table class="table">
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th scope="row">Owner</th>
+                        <td>{% show_username signature %}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Creation date</th>
+                        <td>{{ signature.created_at }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Last update</th>
+                        <td>{{ signature.updated_at }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+            </div>
+        </div>
+      {% endif %}
+      <div class="modal fade" id="modal-group">
+          <div class="modal-dialog modal-lg">
+              <div class="modal-content"></div>
+          </div>
+      </div>
+
+{% endblock %}
+{% block javascript %}
+  {{ block.super }}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+  <script>
+     $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+      })
+    var labels = ["up-regulated","down-regulated"];
+    var values = [{{signature.up_gene_number}},{{signature.down_gene_number}}];
+
+    var barOptions_stacked = {
+        tooltips: {
+            enabled: true
+        },
+        hover :{
+            animationDuration:0
+        },
+        scales: {
+            xAxes: [{
+                ticks: {
+                    beginAtZero:true,
+                    fontFamily: "'Open Sans Bold', sans-serif",
+                    fontSize:15
+                },
+                scaleLabel:{
+                    display:false
+                },
+                gridLines: {
+                }, 
+                stacked: true
+            }],
+            yAxes: [{
+                gridLines: {
+                    display:false,
+                    color: "#fff",
+                    zeroLineColor: "#fff",
+                    zeroLineWidth: 0
+                },
+                ticks: {
+                    fontFamily: "'Open Sans Bold', sans-serif",
+                    fontSize:15
+                },
+                stacked: true
+            }]
+        },
+        legend:{
+            display:true
+        },
+        
+        animation: {
+            onComplete: function () {
+                var chartInstance = this.chart;
+                var ctx = chartInstance.ctx;
+                ctx.textAlign = "center";
+                ctx.font = "12px Open Sans";
+                ctx.fillStyle = "#202529";
+                ctx.textBaseline = "bottom";
+
+
+                Chart.helpers.each(this.data.datasets.forEach(function (dataset, i) {
+                    var meta = chartInstance.controller.getDatasetMeta(i);
+                    Chart.helpers.each(meta.data.forEach(function (bar, index) {
+                        data = dataset.data[index];
+                        if(i==0){
+                            ctx.fillText(data, 90, bar._model.y+10);
+                        } else {
+                            ctx.fillText(data, bar._model.x-20, bar._model.y+10);
+                        }
+                    }),this)
+                }),this);
+            }
+        },
+        pointLabelFontFamily : "Quadon Extra Bold",
+        scaleFontFamily : "Quadon Extra Bold",
+    };
+
+    //var ctx = document.getElementById("Chart1");
+    var myChart = new Chart("myChart", {
+        type: 'horizontalBar',
+        data: {
+            labels: ["Genes"],
+            
+            datasets: [{
+                data: [values[0]],
+                label : [labels[0]],
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)'
+            },{
+                data: [values[1]],
+                label : [labels[1]],
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)'
+            }]
+        },
+
+        options: barOptions_stacked,
+    });
+  </script>
+{% endblock%}

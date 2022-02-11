@@ -1,0 +1,73 @@
+version: '3'
+
+volumes:
+  production_postgres_data: {}
+  production_postgres_data_backups: {}
+
+services:
+  django: &django
+    build:
+      context: .
+      dockerfile: ./compose/production/django/Dockerfile
+    image: toxsign_production_django
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+       - .:/app
+       - /groups/irset/archives/web/TOXsIgN/tools/pred_tox/clustering_methods/ChemPSy:/chempsy:ro
+    env_file:
+      - ./.envs/.production/.django
+      - ./.envs/.production/.postgres
+    command: /start
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./compose/production/postgres/Dockerfile
+    image: toxsign_production_postgres
+    volumes:
+      - production_postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    env_file:
+      - ./.envs/.production/.postgres
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.0
+    environment:
+        - discovery.type=single-node
+
+  nginx:
+    build:
+      context: .
+      dockerfile: ./compose/production/nginx/Dockerfile
+    image: toxsign_production_nginx
+    volumes:
+      - ./staticfiles:/app/staticfiles
+      - ./toxsign/media:/app/toxsign/media
+    depends_on:
+      - django
+      - flower
+    ports:
+      - "6543:80"
+
+  redis:
+    image: redis:3.2
+
+  celeryworker:
+    <<: *django
+    image: toxsign_production_celeryworker
+    command: /start-celeryworker
+    ports: []
+
+  celerybeat:
+    <<: *django
+    image: toxsign_production_celerybeat
+    command: /start-celerybeat
+    ports: []
+
+  flower:
+    <<: *django
+    image: toxsign_production_flower
+    command: /start-flower
+    ports: []

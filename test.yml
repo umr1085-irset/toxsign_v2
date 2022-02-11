@@ -1,0 +1,67 @@
+version: '3'
+
+services:
+  django: &django
+    build:
+      context: .
+      dockerfile: ./compose/test/django/Dockerfile
+    image: toxsign_local_django
+    depends_on:
+      - postgres
+      - mailhog
+    volumes:
+      - .:/app
+    env_file:
+      - ./.envs/.test/.django
+      - ./.envs/.test/.postgres
+    ports:
+      - "8000:8000"
+    command: /start
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./compose/production/postgres/Dockerfile
+    image: toxsign_production_postgres
+    env_file:
+      - ./.envs/.test/.postgres
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.0
+    ports:
+      - "8025:8025"
+
+  redis:
+    image: redis:3.2
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.0
+    environment:
+        - discovery.type=single-node
+
+  celeryworker:
+    <<: *django
+    image: toxsign_local_celeryworker
+    depends_on:
+      - redis
+      - postgres
+      - mailhog
+    ports: []
+    command: /start-celeryworker
+
+  celerybeat:
+    <<: *django
+    image: toxsign_local_celerybeat
+    depends_on:
+      - redis
+      - postgres
+      - mailhog
+    ports: []
+    command: /start-celerybeat
+
+  flower:
+    <<: *django
+    image: toxsign_local_flower
+    ports:
+      - "5555:5555"
+    command: /start-flower

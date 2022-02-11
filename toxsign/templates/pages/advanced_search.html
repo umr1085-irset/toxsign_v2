@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% load account socialaccount %}
+{% load static i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <link href="{% static 'css/advanced_search.css' %}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+    <div class="container">
+        <div id="advanced_search_wrapper">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card" style="text-align:center;">
+                        <div class="card-header bg-info text-white"> Advanced signature search </div>
+                        <div class="card-body bg-light">
+                            <p>Using this tool, you will be able to search for a signature based on one or more ontological terms</p> 
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card-header bg-info text-white" style="text-align:center;"> Search history </div>
+                    <div class="card-body bg-light"><div id="history"></div></div>
+                </div>
+            </div>
+            <br>
+            <div class="card">
+                <div class="card-header bg-info text-white" style="text-align:center;"> Select search terms </div>
+                <div class="card-body bg-light">
+                    <div id="result">{% crispy form %}</div>
+                </div>
+            </div>
+            <br>
+            <div class="card" style="text-align:center;">
+                <div class="card-header bg-info text-white"> Selected search terms </div>
+                <div class="card-body bg-light">
+                    <div id="search_terms">Search terms you have selected will appear here for review</div>
+                </div>
+            </div>
+            <br>
+            <div style="text-align:center;">
+                <button class="btn btn-primary" id="load_results" data-url="{% url 'advanced_search_api' %}">Search</button>
+            </div>
+            <br>
+            <div class="card" id="search_results_wrapper" style="display:none">
+                <div class="card-header bg-info text-white" style="text-align:center;"> Results </div>
+                <div class="card-body bg-light">
+                    <div id="search_results"></div>
+                </div>
+            </div>
+            <br>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+    <script src="{% static 'js/advanced_search.js' %}"></script>
+{% endblock %}

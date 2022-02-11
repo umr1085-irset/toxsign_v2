@@ -268,12 +268,23 @@ tags
 
 ### Project template
 
-toxsign/media/
-
 .pytest_cache/
 
+toxsign/media/tools
+toxsign/media/files
+toxsign/media/clusters
 
 .ipython/
 .env
 .envs/*
 !.envs/.local/
+
+loading_data/ontologies/*
+!loading_data/ontologies/TOXsIgN_ontologies.csv.example
+
+.envs/.production/.django_prod
+.envs/.production/.postgres_prod
+
+backups/backup_2021_11_04T12_45_32.sql.gz
+
+.vscode/

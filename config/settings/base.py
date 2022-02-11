@@ -3,6 +3,15 @@ Base settings to build other settings files upon.
 """
 
 import environ
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
+
+# Sentry Issues streaming
+#sentry_sdk.init(
+#    dsn="https://598847464e3a4ba7b664f14ccf1eb060@sentry.io/1495971",
+#    integrations=[DjangoIntegration()]
+#)
 
 ROOT_DIR = (
     environ.Path(__file__) - 3
@@ -59,6 +68,8 @@ DJANGO_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # "django.contrib.humanize", # Handy template tags
+    "dal",
+    "dal_select2",
     "django.contrib.admin",
 ]
 THIRD_PARTY_APPS = [
@@ -66,10 +77,23 @@ THIRD_PARTY_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+    'guardian',
+    "django_elasticsearch_dsl",
     "rest_framework",
 ]
 LOCAL_APPS = [
     "toxsign.users.apps.UsersAppConfig",
+    "toxsign.superprojects.apps.SuperprojectsAppConfig",
+    "toxsign.projects.apps.ProjectsAppConfig",
+    "toxsign.assays.apps.AssaysAppConfig",
+    "toxsign.ontologies.apps.OntologiesAppConfig",
+    "toxsign.jobs.apps.JobsAppConfig",
+    "toxsign.tools.apps.ToolsAppConfig",
+    "toxsign.signatures.apps.SignaturesAppConfig",
+    "toxsign.genes.apps.GenesAppConfig",
+    "toxsign.groups.apps.GroupsAppConfig",
+    "toxsign.scripts.apps.ScriptsAppConfig",
+    "toxsign.clusters.apps.ClustersAppConfig",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -86,6 +110,7 @@ MIGRATION_MODULES = {"sites": "toxsign.contrib.sites.migrations"}
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
+    "guardian.backends.ObjectPermissionBackend"
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-user-model
 AUTH_USER_MODEL = "users.User"
@@ -178,6 +203,9 @@ TEMPLATES = [
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
             ],
+            'libraries': {
+                'custom': 'toxsign.templatetags.custom',
+            },
         },
     }
 ]
@@ -252,6 +280,14 @@ ACCOUNT_ADAPTER = "toxsign.users.adapters.AccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 SOCIALACCOUNT_ADAPTER = "toxsign.users.adapters.SocialAccountAdapter"
 
+ACCOUNT_FORMS = {'signup': 'toxsign.users.forms.UserCreationForm'}
+
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'elasticsearch:9200'
+    },
+}

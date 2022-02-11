@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% load custom %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 ">
+                <div class="list-group ">
+                    <a href="#superproject" data-toggle="tab" class="list-group-item list-group-item-action {{is_active.superprojects}}">Superproject</a>
+                    <a href="#projects" data-toggle="tab" class="list-group-item list-group-item-action {% if not projects %} disabled {% endif %}} {{is_active.projects}}">Related projects ({{ projects.paginator.count}})</a>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="tab-content card">
+                    <div class="tab-pane text-style card-body {{is_active.superprojects}}" id="superproject">
+                        <h2 style="text-align:center">{{ superproject.tsx_id }} - {{ superproject.name }}</h2>
+                        <p><b>Description : </b>{% if superproject.created_by.is_superuser %} {{ superproject.description | safe }} {% else %} {{ superproject.description}} {% endif %}</p>
+                        <p><b>Created : </b>{{ superproject.created_at }}</p>
+                        <p><b>Owner : </b>{% show_username superproject %}</p>
+                        {% if user.is_authenticated and superproject.contact_mail %}
+                        <p><b>Contact : </b><a href="mailto:{{superproject.contact_mail}}">{{superproject.contact_mail}}</a></p>
+                       {% endif %}
+                    </div>
+                    <div class="tab-pane text-style card-body {{is_active.projects}}" id="projects">
+                        {% for project in projects %}
+                            {% if project.visible %}
+                            <h5><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a> - {{project.name}}</h5>
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            {% if project.status == "PUBLIC" %}<span class="badge badge-pill badge-success">Public</span>{% endif %}
+                                            {% if project.status == "PENDING" %}<span class="badge badge-pill badge-secondary">Pending</span>{% endif %}
+                                            {% if project.status == "PRIVATE" %}<span class="badge badge-pill badge-dark">Private</span>{% endif %}
+                                            {% if project.project_type == "INTERVENTIONAL" %} <span class="badge badge-primary">Interventional</span>{% endif %}
+                                            {% if project.project_type == "OBSERVATIONAL" %} <span class="badge badge-success">Observational</span>{% endif %}
+                                        <td>
+                                        <td>
+                                        {% if project.description %}
+                                            {{ project.description|safe|truncatewords:"30"|linebreaks }}
+                                            <a style="color:blue;" href="{% url 'projects:detail' project.tsx_id %}">[more]</a>
+                                        {% else %}
+                                            No description provided
+                                        {% endif %}
+                                        </td>
+                                        <td>
+                                            {% show_username project %}
+                                        </td>
+                                        <td>
+                                            {{ project.created_at }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <hr>
+                            {% else %}
+                            <h5 style='text-align:center;' >{{ project.tsx_id }} - {{ project.name }}</h3>
+                            <p style='text-align:center;'> Access to this project is restricted </p>
+                            <hr>
+                            {% endif %}
+                            {% if superproject.created_by.username == user.username %}
+                                <div style="float:right">
+                                    <button data-url="{% url 'superprojects:superproject_unlink' superproject.tsx_id project.tsx_id %}" class="btn btn-danger js-remove">
+                                        <i class="fas fa-unlink"></i> Unlink 
+                                    </button>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        {% if projects %}
+                        {% with table=projects type="projects" %}
+                        {% include "pages/paginate.html" %}
+                        {% endwith %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+    </div>
+    <div class="modal fade" id="modal-group">
+        <div class="modal-dialog">
+            <div class="modal-content"></div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script>var token = '{{ csrf_token }}';</script>
+    <script src="{% static 'js/superproject.js' %}"></script>
+{% endblock %}
+

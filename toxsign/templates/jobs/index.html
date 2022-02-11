@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+    <div class="container">
+
+      <!-- Page Heading -->
+      <h1 class="my-4">Choose your type of analyse
+      </h1>
+      <div class="row">
+        {% if latest_analyse_list %}
+            {% for analyse in latest_analyse_list %}
+                <div class="col-lg-4 col-sm-6 mb-4">
+                    <div class="card h-100">
+                        <a href="#"><img class="card-img-top" src="{{ analyse.visuel.url }}" alt=""></a>
+                        <div class="card-body">
+                            <h4 class="card-title">
+                                <a href="{% url 'analyse:create_new' analyse.name %}">{{ analyse.name }}</a>
+                            </h4>
+                            <p class="card-text">{{ analyse.description }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No workflow are available.</p>
+        {% endif %}
+            
+        </div>
+        <!-- /.row -->
+    </div>
+
+{% endblock %}

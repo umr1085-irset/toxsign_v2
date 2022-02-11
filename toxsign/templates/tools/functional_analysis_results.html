@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% load crispy_forms_tags %}
+{% load custom %}
+
+{% block content %}
+<div class="container">
+
+<style>
+.btn {
+  text-transform: unset !important;
+}
+
+.btn-link {
+  text-transform: unset !important;
+  padding: 0;
+}
+</style>
+
+  <div class="tab-content card">
+     <div class="text-style card-header"> Job description </div>
+     <div class="text-style card-body">
+        <p>Functional enrichment analysis for signature {{sig.tsx_id}} - {{sig.name}}</p>
+     </div>
+  </div>
+  <br>
+  <div class="tab-content card">
+    <div class="text-style card-header"> Add filters (optional) </div>
+     <div class="text-style card-body">
+        <form id="filter_form" data-url="{% url 'tools:run_enrich_table_full' job.id %}">
+            {% csrf_token %}
+            <div class="form-row">
+            <div class="form-group col-md-4">
+            <label for="filter_type"> Filter on </label>
+            <select id="filter_type" name="type" class="form-control">
+                <option value="Pvalue">Pvalue</option>
+                <option value="AdjustedPValue">Adjusted Pvalue (Benjamini-Hochberg)</option>
+                <option value="n">n</option>
+                <option value="r">r</option>
+            </select>
+            </div>
+            <div class="form-group col-md-4">
+            <label for="filter_adjust"> Operator </label>
+            <select id="filter_adjust" name="adjust" class="form-control">
+                <option value="lt">Lesser than</option>
+                <option value="le">Lesser or equal</option>
+                <option value="ge">Greater or equal</option>
+                <option value="gt">Greater than</option>
+            </select>
+            </div>
+            <div class="form-group col-md-4">
+            <label for="filter_number"> Threshold </label>
+            <input id="filter_number" type="number" name="value" value="0.01" class="form-control" step="0.01">
+            </div>
+            </div>
+        </form>
+        <div style="text-align:center;">
+            <button id="filter_button" class="btn btn-primary"> Add filter</button>
+        </div>
+     </div>
+  </div>
+  <br>
+   <div id="id_filters" style="display:none;">
+   <div class="tab-content card">
+    <div class="text-style card-header"> Selected Filters </div>
+    <div class="text-style card-body" style="text-align:center;">
+        <div id="selected_filters"></div>
+    </div>
+    </div>
+    <br>
+   </div>
+   <div style="text-align:center;">
+     <button id="results_button"class="btn btn-primary">Show results</button>
+   </div>
+  <br>
+  <div class="tab-content card">
+    <div class="text-style card-header"> Results </div>
+    <div id="id_results" class="text-style card-body"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static 'js/enrich_results.js' %}"></script>
+{% endblock %}

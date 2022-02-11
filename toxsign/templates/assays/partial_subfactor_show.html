@@ -1,0 +1,70 @@
+{% load crispy_forms_tags %}
+{% load static i18n %}
+
+<div class="modal-header">
+    <h4 class="modal-title">Subfactors linked to this factor</h4>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a href="" data-target="#chemicalmodal" data-toggle="tab" class="nav-link active">Chemical ({{factor.chemical_subfactor_of.count}})</a>
+        </li>
+        <li class="nav-item">
+            <a href="" data-target="#biologicalmodal" data-toggle="tab" class="nav-link">Biological (soon)</a>
+        </li>
+        <li class="nav-item">
+            <a href="" data-target="#physicalmodal" data-toggle="tab" class="nav-link">Physical (soon)</a>
+        </li>
+    </ul>
+    <div class="tab-content p-b-3" style="margin-top:20px;">
+        <div class="tab-pane active" id="chemicalmodal">
+            {% if not factor.chemical_subfactor_of.count %}
+                <p>There are no chemical subfactors linked to this factor</p>
+            {% endif %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Chemical</th>
+                        <th scope="col">Dose</th>
+                        <th scope="col">Exposure</th>
+                        {% if can_edit %}
+                        <th scope="col">Action</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for chemical in factor.chemical_subfactor_of.all %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{% if chemical.chemical %}{{chemical.chemical.name}}{% else %}{{chemical.chemical_slug}}{% endif %}</td>
+                            <td>{% if chemical.dose_value %} {{chemical.dose_value}} {{chemical.dose_unit}}  {% else %} No dose provided {% endif %}</td>
+                            <td>{% if chemical.exposure_time %} {{chemical.exposure_time}} hours {% else %} No exposure time provided {% endif %}</td>
+                            {% if can_edit %}
+                            <td>
+                                 <a role="button" href="{% url 'assays:chemical_subfactor_edit' chemical.id %}" class="btn btn-info"><i class="fas fa-edit"></i></a>
+                                <a role="button" href="{% url 'assays:subfactor_delete' 'chemical' chemical.id %}" onclick="return confirm('Are you sure you want to delete this subfactor?');" class="btn btn-danger"><i class="fas fa-trash"></i></a>
+                            </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if can_edit %}
+            <a role="button" href="{% url 'assays:chemical_subfactor_create' factor.tsx_id %}"class="btn btn-info float-right"><i class="fas fa-external-link-alt"></i>New</a></p>
+            {% endif %}
+        </div>
+        <div class="tab-pane" id="biologicalmodal">
+            <p>No biological subfactors linked to this factor</p>
+        </div>
+        <div class="tab-pane" id="physicalmodal">
+            <p>No physical subfactors linked to this factor</p>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+</div>

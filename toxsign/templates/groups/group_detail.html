@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %}Group: {{ group.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-3 ">
+      <div class="list-group ">
+          <a href="#group_users" data-toggle="tab" class="list-group-item list-group-item-action active">Overview</a>
+          <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Sent invitation(s)  ({{ notifications.count }})</a>
+          <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Permissions</a>
+        </div>
+    </div>
+    <div class="col-md-9">
+      <div class="tab-content card" style="text-align:center;">
+        <div class="tab-pane active text-style card-body" id="group_users">
+          <h2>{{ group.name }}</h2>
+          <br>
+          <div class="table-responsive-xl">
+              <table class="table table-hover">
+                  <thead>
+                      <tr style="text-align:center;">
+                          <th scope="col">Username</th>
+                          <th scope="col">Email</th>
+                          <th scope="col">Group owner</th>
+                          {% if group.ownership.owner == request.user %}
+                          <th scope="col">Actions</th>
+                          {% endif %}
+                      </tr>
+                  </thead>
+                  <tbody>
+                    {% for user in users %}
+                    <tr style="text-align:center;">
+                      <td>{{user.username}}</td>
+                      <td>{{user.email}}</td>
+                      {% if group.ownership.owner == user %}
+                      <td><i class="fas fa-check"></i></td>
+                      {% else %}
+                      <td></td>
+                      {% endif %}
+                      {% if group.ownership.owner == request.user %}
+                      <td>
+                        <button type="button" class="btn btn-primary btn-sm js-change_owner" data-url="{% url 'groups:change_owner' group.id user.id %}"
+                         {% if group.ownership.owner == user %} disabled data-toggle="tooltip" data-placement="top" title="You are already the owner" {% endif %} >
+                           <i class="fas fa-crown"></i> Set owner
+                         </button>
+                        <button type="button" class="btn btn-danger btn-sm js-remove_user" data-url="{% url 'groups:remove_user' group.id user.id %}"
+                        {% if group.ownership.owner == user %} disabled data-toggle="tooltip" data-placement="top" title="Owner cannot be removed from group" {% endif %} >
+                           <i class="fas fa-trash"></i> Remove
+                        </button>
+                      </td>
+                      {% endif %}
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                  <tr>
+              </table>
+              <button type="button" class="btn btn-success btn-sm js-invite_user" data-url="{% url 'groups:invite_user' group.id %}">
+                 <i class="fas fa-user"></i> Invite user
+              </button>
+              <button type="button" class="btn btn-danger btn-sm js-remove_user" data-url="{% url 'groups:remove_user' group.id request.user.id %}"
+                {% if group.ownership.owner == request.user %} disabled data-toggle="tooltip" data-placement="top" title="The owner cannot leave the group" {% endif %} >
+                 <i class="fas fa-sign-out-alt"></i> Leave group
+              </button>
+            </div>
+        </div>
+        <div class="tab-pane text-style card-body" id="tab2">
+          <h3>Sent invitation(s)</h3>
+          {% if notifications %}
+          <div class="table-responsive-xl">
+              <table class="table table-hover">
+                  <thead>
+                      <tr style="text-align:center;">
+                          <th scope="col">User</th>
+                          <th scope="col">Sent by</th>
+                          <th scope="col">Date</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                  {% for notification in notifications %}
+                    <tr style="text-align:center;">
+                        <td>{{notification.user.username}}</td>
+                        <td>{{notification.created_by.username}}</td>
+                        <td>{{notification.created_at | date}}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                  <tr>
+            </table>
+          </div>
+          {% else %}
+          <br>
+          <p>No pending invitations</p>
+          {% endif %}
+        </div>
+        <div class="tab-pane text-style card-body" id="tab3">
+          <h3>Project permissions</h3>
+          {% if read_access %}
+          <div class="table-responsive-xl">
+              <table class="table table-hover">
+                  <thead>
+                      <tr style="text-align:center;">
+                          <th scope="col">Project</th>
+                          <th scope="col">Owner</th>
+                          <th scope="col">Read access</th>
+                          <th scope="col">Edit access</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                  {% for project in read_access %}
+                    <tr style="text-align:center;">
+                        <td><a href="{% url 'projects:detail' project.tsx_id %}">{{ project.tsx_id }}</a> - {{project.name}}</td>
+                        <td>{{project.created_by.username}}</td>
+                        <td><i class="fas fa-check"></i></td>
+                        {% if project in edit_access %}
+                        <td><i class="fas fa-check"></i></td>
+                        {% else %}
+                        <td></td>
+                        {% endif %}
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                  <tr>
+            </table>
+          </div>
+        {% else %}
+        <br>
+        <p>This group does not have any specific access.</p>
+        {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="modal-group">
+      <div class="modal-dialog"><div class="modal-content"></div></div>
+  </div>
+</div>
+<br>
+{% endblock content %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static 'js/groups.js' %}"></script>
+{% endblock %} 

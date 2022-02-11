@@ -1,0 +1,9 @@
+{% load static i18n %}
+{% load crispy_forms_tags %}
+{% load custom %}
+
+{% block content %}
+{% for column, param in columns.items %}
+    <th scope="col"><button type="button" class="btn btn-link order-action" data-type="{{type}}" action="order" target="{{column}}">{{column}} {% get_arrow param.filter %}</button></th>
+{% endfor %}
+{% endblock %}

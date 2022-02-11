@@ -1,0 +1,46 @@
+<table class="table">
+            <thead>
+                <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Created by</th>
+                <th scope="col">Updated at</th>
+                <th scope="col">Tool</th>
+                <th scope="col">Status</th>
+                <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs_list%}
+                    <tr class="{% if job.status == 'SUCCESS' %} table-success {% endif %} {% if job.status == 'STARTED' %} table-warning {% endif %} {% if job.status == 'FAILURE' %} table-danger {% endif %}">
+                        <th scope="row">{{ job.id }}</th>
+                        <td>{{ job.title }}</td>
+                        <td>{{ job.created_by }}</td>
+                        <td>{{ job.updated_at }}</td>
+                        <td>{{ job.running_tool }}</td>
+                        <td>{{ job.status }}</td>
+                        <td>  
+                            {% if job.status == "SUCCESS" %}
+                                {% if job.running_tool.custom_result_link %}
+                                    <a href="{% url job.running_tool.custom_result_link job.id %}" class="btn btn-success btn-sm">View results</a>
+                                {% endif %}
+                                {% if  "archive" in job.results %}
+                                    <a href="{% url 'download_job' job.id %}" class="btn btn-info btn-sm">Download</a>
+                                {% endif %}
+                            {% endif %}
+                            {% if "error" in job.results %}
+                                <a class="btn btn-danger">Traceback</a>
+                            {% endif %}
+                            {% if job.created_by %}
+                            <a href="{% url 'jobs:delete_job' job.id %}" class="btn btn-outline-danger btn-sm">Delete</a> 
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor%}
+            </tbody>
+</table>
+{% if jobs_list %}
+{% with table=jobs_list type="jobs" %}
+{% include "pages/paginate.html" %}
+{% endwith %}
+{% endif %}

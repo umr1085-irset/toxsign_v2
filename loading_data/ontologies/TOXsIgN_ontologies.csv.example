@@ -1,0 +1,2 @@
+Ontology,Url,Table,Format,Path,Source_type
+FMA,http://purl.obolibrary.org/obo/fma.owl,tissue,owl,/app/loading_data/ontologies/FMA,remote

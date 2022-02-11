@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+    <div class="container">
+        <h1>{{ dataanalyse.title }}</h1>
+        <hr>
+        <div id="accordion">
+            <div class="card">
+                <div class="card-header" id="headingOne">
+                <h5 class="mb-0">
+                    <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    Analyse info
+                    </button>
+                </h5>
+                </div>
+                <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                <div class="card-body">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th scope="row">Name</th>
+                                <td>{{ dataanalyse.title }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Type</th>
+                                <td>{{ dataanalyse.type }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Description</th>
+                                <td>{{ dataanalyse.description }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Owner</th>
+                                <td>{{ dataanalyse.created_by }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Project</th>
+                                <td>{{ dataanalyse.project }}</td>
+                            </tr>
+                        </tbody>
+                        </table>
+                </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        {% if dataanalyse.type == "RNA-seq" %}
+        <h2>What is the format of your RNA-seq data?</h2>
+        <div class="row justify-content-center">
+            <div class="col-lg-4 col-sm-6 mb-4">
+                <div class="card h-100">
+                    <a href="{% url 'analyse:upload' pk=dataanalyse.id data_type='table'  %}"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
+                    <div class="card-body">
+                        <h4 class="card-title">
+                            <a href="{% url 'analyse:upload' pk=dataanalyse.id data_type='table'  %}">Gene expression table</a>
+                        </h4>
+                        <p class="card-text">Table containing numeric gene counts, with samples on columns and gene symbols on rows</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-sm-6 mb-4">
+                <div class="card h-100" disabled>
+                    <a href="{% url 'analyse:upload' pk=dataanalyse.id data_type='raw data'  %}"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
+                    <div class="card-body">
+                        <h4 class="card-title">
+                            <a href="{% url 'analyse:upload' pk=dataanalyse.id data_type='raw data'  %}">Raw sequencing data</a>
+                        </h4>
+                        <p class="card-text">Raw FASTQ sample sequencing files generated from an RNA-seq profiling study</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <!-- /.row -->
+        {% if dataanalyse.type == "Microarray" %}
+        <h2>What is the format of your microarray data?</h2>
+        <div class="row justify-content-center">
+            <div class="col-lg-4 col-sm-6 mb-4">
+                <div class="card h-100">
+                    <a href="{% url 'analyse:upload' pk=dataanalyse.id data_type='table'  %}"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
+                    <div class="card-body">
+                        <h4 class="card-title">
+                            <a href="{% url 'analyse:upload' pk=dataanalyse.id data_type='table'  %}">Gene expression table</a>
+                        </h4>
+                        <p class="card-text">Table containing numeric gene counts, with samples on columns and gene symbols on rows</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-sm-6 mb-4">
+                <div class="card h-100">
+                    <a href="{% url 'analyse:upload' pk=dataanalyse.id data_type='raw data'  %}"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
+                    <div class="card-body">
+                        <h4 class="card-title">
+                            <a href="{% url 'analyse:upload' pk=dataanalyse.id data_type='raw data'  %}">Raw data</a>
+                        </h4>
+                        <p class="card-text">Raw Cell generated from an microarray profiling study</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <!-- /.row -->
+
+    </div>
+{% endblock %}

@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" xmlns:osb="http://www.openswatchbook.org/uri/2009/osb" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:svg="http://www.w3.org/2000/svg" id="svg2" viewBox="0 0 193.76 139.58" version="1.1">
+  <g id="layer1" stroke="#000" transform="translate(-261.97 -70.586)" fill="none">
+    <path id="path2985" d="m360 140.36c0 9.3888-7.6112 17-17 17s-17-7.6112-17-17 7.6112-17 17-17 17 7.6112 17 17z" stroke-width=".5" transform="translate(18.316 -52.526)"/>
+    <path id="path2985-3" d="m360 140.36c0 9.3888-7.6112 17-17 17s-17-7.6112-17-17 7.6112-17 17-17 17 7.6112 17 17z" stroke-width=".5" transform="translate(-31 5.3684)"/>
+    <path id="path2985-2" d="m360 140.36c0 9.3888-7.6112 17-17 17s-17-7.6112-17-17 7.6112-17 17-17 17 7.6112 17 17z" stroke-width=".5" transform="translate(68.053 5.3684)"/>
+    <path id="path2985-0" d="m360 140.36c0 9.3888-7.6112 17-17 17s-17-7.6112-17-17 7.6112-17 17-17 17 7.6112 17 17z" stroke-width=".5" transform="translate(-63.778 52.557)"/>
+    <path id="path2985-1" d="m360 140.36c0 9.3888-7.6112 17-17 17s-17-7.6112-17-17 7.6112-17 17-17 17 7.6112 17 17z" stroke-width=".5" transform="translate(-8.19 52.557)"/>
+    <path id="path2985-7" d="m360 140.36c0 9.3888-7.6112 17-17 17s-17-7.6112-17-17 7.6112-17 17-17 17 7.6112 17 17z" stroke-width=".5" transform="translate(41.606 52.557)"/>
+    <path id="path5337" stroke-width="1px" d="m319.4 161.04 8.0098 16.571"/>
+    <path id="path5339" stroke-width="1px" d="m288.92 178.96 13.38-19.262"/>
+    <path id="path5341" stroke-width="1px" d="m392.92 178.09 9.8214-17.524"/>
+    <path id="path5343" stroke-width="1px" d="m399.97 132.84-27.581-32.104"/>
+    <path id="path5345" stroke-width="1px" d="m323.02 132.79 27.27-32.01"/>
+    <path id="path2985-7-1" d="m360 140.36c0 9.3888-7.6112 17-17 17s-17-7.6112-17-17 7.6112-17 17-17 17 7.6112 17 17z" stroke-width=".5" transform="translate(95.478 51.86)"/>
+    <path id="path5367" stroke-width="1px" d="m429.84 177.58-10.15-17.2"/>
+  </g>
+  <metadata>
+    <rdf:RDF>
+      <cc:Work>
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+        <cc:license rdf:resource="http://creativecommons.org/licenses/publicdomain/"/>
+        <dc:publisher>
+          <cc:Agent rdf:about="http://openclipart.org/">
+            <dc:title>Openclipart</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <dc:title>Ontology</dc:title>
+        <dc:date>2011-04-20T22:55:29</dc:date>
+        <dc:description>For use in informatics and computer science documents</dc:description>
+        <dc:source>http://openclipart.org/detail/133363/ontology-by-imad</dc:source>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>imad</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>binary tree</rdf:li>
+            <rdf:li>clip art</rdf:li>
+            <rdf:li>clipart</rdf:li>
+            <rdf:li>data structure</rdf:li>
+            <rdf:li>digraph</rdf:li>
+            <rdf:li>ontology</rdf:li>
+            <rdf:li>tree</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+      </cc:Work>
+      <cc:License rdf:about="http://creativecommons.org/licenses/publicdomain/">
+        <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+        <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+        <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+</svg>

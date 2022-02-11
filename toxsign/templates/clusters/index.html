@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %}Group: {{ group.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-3 ">
+      <div class="list-group ">
+          <a href="#corr" data-toggle="tab" class="list-group-item list-group-item-action active"> Correlation clusters</a>
+          <a href="#eucl" data-toggle="tab" class="list-group-item list-group-item-action"> Euclidean clusters</a>
+        </div>
+    </div>
+    <div class="col-md-9">
+      <div class="tab-content card" style="text-align:center;">
+        <div class="tab-pane active text-style card-body" id="corr">
+          <h2>Correlation clusters</h2>
+          <br>
+          <div class="table-responsive-xl">
+              <table class="table table-hover">
+                  <thead>
+                      <tr style="text-align:center;">
+                          <th scope="col">Cluster id</th>
+                          <th scope="col">Conditions</th>
+                          <th scope="col">Unique chemicals</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                    {% for cluster in correlation_clusters %}
+                    <tr style="text-align:center;">
+                    <td>{{cluster.cluster_id}}</td>
+                    <td>{{cluster.conditions.unique_chemicals}}</td>
+                    <td>{{cluster.conditions.conditions | length}}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+              </table>
+            </div>
+        </div>
+        <div class="tab-pane active text-style card-body" id="eucl">
+          <h2>Euclidean clusters</h2>
+          <br>
+          <div class="table-responsive-xl">
+              <table class="table table-hover">
+                  <thead>
+                      <tr style="text-align:center;">
+                          <th scope="col">Cluster id</th>
+                          <th scope="col">Conditions</th>
+                          <th scope="col">Unique chemicals</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                    {% for cluster in euclidean_clusters %}
+                    <tr style="text-align:center;">
+                    <td>{{cluster.cluster_id}}</td>
+                    <td>{{cluster.conditions.unique_chemicals}}</td>
+                    <td>{{cluster.conditions.conditions | length}}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+              </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<br>
+{% endblock content %}
+

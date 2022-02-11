@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="container" style="margin-bottom:70px;">
+        <h2> Create a new assay </h2>
+        {% crispy form %}
+    </div>
+{% endblock %}

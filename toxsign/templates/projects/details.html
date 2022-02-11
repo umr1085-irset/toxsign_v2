@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% load custom %}
+
+{% block content %}
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.9.1/d3-tip.min.js"></script>
+    <link href="{% static 'css/graph.css' %}" rel="stylesheet">
+    <script src="{% static 'js/graph.js' %}"></script>
+    <script src="{% static 'js/context-menu.js' %}"></script>
+    <div class="container">
+      <div class="tab-content card" style="text-align:center;">
+        <div class="tab-pane active text-style card-body">
+          <div id='graph'></div>
+          <script>
+            d3.json("{% url 'graph' %}?q={{project.tsx_id}}").then( function(json){
+              drawGraph(json.data, json.max_parallel, json.max_depth, "{{project.tsx_id}}");
+            });
+          </script>
+        </div>
+      </div>
+      <br>
+      <div class="row">
+          <div class="col-md-12 mb-5">
+                <h2>{{ project.tsx_id }} - {{ project.name }} 
+                
+                {% if project.status == "PUBLIC" %}<span class="badge badge-pill badge-success">Public</span>{% endif %}
+                {% if project.status == "PENDING" %}<span class="badge badge-pill badge-secondary">Pending</span>{% endif %}
+                {% if project.status == "PRIVATE" %}<span class="badge badge-pill badge-dark">Private</span>{% endif %}
+                
+                </h2>
+                <hr>
+                <p>{% if project.description %} {{ project.description }} {% else %} No description provided {% endif %}</p>
+          </div>
+      </div>
+      
+     
+      <div class="row my-5">
+          <div class="col-md-6 mb-5">
+                <h2>
+                  {% if project.project_type == "INTERVENTIONAL" %} <span class="badge badge-primary">Interventional</span>{% endif %}
+                  {% if project.project_type == "OBSERVATIONAL" %} <span class="badge badge-success">Observational</span>{% endif %}
+                  Experimental design
+                </h2>
+                <hr>
+                <p>{% if project.experimental_design %} {{ project.experimental_design }} {% else %} No experimental design provided {% endif %}</p>
+          </div>
+          <div class="col-md-6 mb-5">
+                <h2>Results</h2>
+                <hr>
+                <p>{% if project.results %} {{ project.results }} {% else %} No results provided {% endif %}</p>
+          </div>
+      </div>
+
+      {% if project.created_by == request.user%}
+        <div class="row my-5">
+            <div class="col-md-8 mb-5">
+                  <h2>Authorization</h2>
+                  <table class="table">
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th scope="row">Read group</th>
+                        <td>
+                          {% for read in project.read_groups.all %}
+                            <span>{{ read }}</span>
+                          {% endfor %}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Edit group</th>
+                        <td>
+                          {% for edit in project.edit_groups.all %}
+                            <span>{{ edit }}</span>
+                          {% endfor %}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+            </div>
+            <div class="col-md-4 mb-5">
+                  <h2>Information</h2>
+                  <table class="table">
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th scope="row">Owner</th>
+                        <td>{% show_username project %}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Creation date</th>
+                        <td>{{ project.created_at }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Last update</th>
+                        <td>{{ project.updated_at }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+            </div>
+        </div>
+        {% if project.status == "PRIVATE" %}
+            <div style="text-align:center;" id="button-div">
+                <button type="button" data-url="{% url 'projects:project_publicize' project.tsx_id %}" class="btn btn-primary js-make-public">Public</button>            
+            </div>
+        {% endif %}
+      {% endif %}
+  </div>
+  <div class="modal fade" id="modal-group">
+      <div class="modal-dialog modal-lg">
+          <div class="modal-content"></div>
+      </div>
+  </div>
+
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static 'js/project.js' %}"></script>
+{% endblock %}
