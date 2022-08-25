@@ -37,6 +37,8 @@ def zip_results(path_to_folder, archive_name="archive"):
 @app.task(bind=True)
 def run_distance(self, signature_id, user_id=None):
     from toxsign.users.models import User
+    # Wait a bit in case the tasks begin just before it is recorded in the db
+    time.sleep(5)
     dt = datetime.datetime.utcnow()
     ztime = time.mktime(dt.timetuple())
     task_id = self.request.id + "_" + str(ztime)
@@ -106,6 +108,8 @@ def run_distance(self, signature_id, user_id=None):
 
 @app.task(bind=True)
 def run_enrich(self, signature_id):
+    # Wait a bit in case the tasks begin just before it is recorded in the db
+    time.sleep(5)
     dt = datetime.datetime.utcnow()
     ztime = time.mktime(dt.timetuple())
     task_id = self.request.id + "_" + str(ztime)
@@ -169,6 +173,8 @@ def run_enrich(self, signature_id):
 
 @app.task(bind=True)
 def run_cluster_dist(self, signature_id, clustering_type):
+    # Wait a bit in case the tasks begin just before it is recorded in the db
+    time.sleep(5)
     dt = datetime.datetime.utcnow()
     ztime = time.mktime(dt.timetuple())
     task_id = self.request.id + "_" + str(ztime)
@@ -231,6 +237,8 @@ def run_cluster_dist(self, signature_id, clustering_type):
 
 @app.task(bind=True)
 def run_predict(self, signature_id, model_id):
+    # Wait a bit in case the tasks begin just before it is recorded in the db
+    time.sleep(5)
     dt = datetime.datetime.utcnow()
     ztime = time.mktime(dt.timetuple())
     task_id = self.request.id + "_" + str(ztime)
