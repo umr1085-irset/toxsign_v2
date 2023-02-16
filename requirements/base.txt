@@ -27,3 +27,5 @@ elasticsearch-dsl>=7.0.0,<8.0.0
 django-elasticsearch-dsl==7.0.0
 pronto==0.12.2
 pymongo
+
+importlib-metadata==4.13.0
