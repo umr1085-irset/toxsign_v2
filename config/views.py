@@ -92,29 +92,23 @@ def autocompleteModel(request):
 
     try:
         # Wildcard for search (not optimal)
-        if query:
-            query = "*" + query + "*"
-        else:
-            query = "*"
+        #if query:
+        #    query = "*" + query + "*"
+        #else:
+        #    query = "*"
 
-        if request.user.is_authenticated:
-            if request.user.is_superuser:
-                q = Q_es()
-            else:
-                groups = [group.id for group in request.user.groups.all()]
-                q = Q_es("match", created_by__username=request.user.username)  | Q_es("match", status="PUBLIC") | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
-        else:
-            q = Q_es("match", status="PUBLIC")
+        query = query.replace("-", " ")
+        q = Q_es("match", status="PUBLIC")
 
-        allowed_projects =  ProjectDocument.search().sort('id').query(q).scan()
+        excluded_projects =  ProjectDocument.search().sort('id').query(Q_es(Q_es("match", status="PRIVATE") | Q_es("match", status="PENDING"))).scan()
         # Limit all query to theses projects
-        allowed_projects_id_list = [project.id for project in allowed_projects]
+        excluded_projects_id_list = [project.id for project in excluded_projects]
 
         # Now do the queries
         results_superprojects = SuperprojectDocument.search().sort('id')
-        results_signatures = SignatureDocument.search().sort('id').filter("terms", factor__assay__project__id=allowed_projects_id_list)
+        results_signatures = SignatureDocument.search().sort('id').exclude("terms", factor__assay__project__id=excluded_projects_id_list)
         # This search in all fields.. might be too much. Might need to restrict to fields we actually show on the search page..
-        q1 = Q_es("query_string", query=query)
+        q1 = Q_es('bool', must=[Q_es("query_string", query=quer) for quer in query.split(" ")])
 
         results_superprojects = paginate(results_superprojects.filter(q1), request.GET.get('superprojects'), 5, True)
         results_projects = paginate(ProjectDocument.search().query(q & q1), request.GET.get('projects'), 5, True)
@@ -125,6 +119,7 @@ def autocompleteModel(request):
     # Need to select the correct error I guess
     except Exception as e:
 
+        raise(e)
         results_superprojects = paginate(Superproject.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query)), request.GET.get('superprojects'), 5)
         results_projects = Project.objects.filter(Q(name__icontains=query) | Q(description__icontains=query) | Q(tsx_id__icontains=query))
         results_signatures = Signature.objects.filter(Q(name__icontains=query) | Q(tsx_id__icontains=query))
@@ -271,71 +266,26 @@ def graph_data(request):
 
 def index(request):
 
-    try:
-        if request.user.is_authenticated:
-            if request.user.is_superuser:
-                q = Q_es()
-            else:
-                groups = [group.id for group in request.user.groups.all()]
-                q = Q_es("match", created_by__username=request.user.username)  | Q_es("match", status="PUBLIC") | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
-        else:
-            q = Q_es("match", status="PUBLIC")
+    superprojects = Superproject.objects.all()
+    projects = Project.objects.filter(status="PUBLIC").order_by('id')
 
-        allowed_projects =  ProjectDocument.search().sort('id').query(q).scan()
-        allowed_projects_id_list = [project.id for project in allowed_projects]
-
-        superprojects = SuperprojectDocument.search()
-        assays = AssayDocument.search().sort('id').filter("terms", project__id=allowed_projects_id_list)
-        signatures = SignatureDocument.search().sort('id').filter("terms", factor__assay__project__id=allowed_projects_id_list)
-
-        # Since ES search objects are generators, we need to re-query them
-        projects = paginate(ProjectDocument.search().sort('id').query(q), request.GET.get('projects'), 5, True)
-        superprojects = paginate(superprojects, request.GET.get('superprojects'), 5, True)
-        assays = paginate(assays, request.GET.get('assays'), 5, True)
-        signatures = paginate(signatures, request.GET.get('signatures'), 5, True)
-        type="es"
-
-    except Exception as e:
-        superprojects = Superproject.objects.all()
-        all_projects = Project.objects.all().order_by('id')
-        projects = []
-        assays = []
-        signatures = []
-        for project in all_projects:
-            if check_view_permissions(request.user, project):
-                # Might be better to loop around than to request.
-                projects.append(project)
-            assays = assays + [ assay for assay in Assay.objects.filter(project=project)]
-            signatures = signatures + [ signature for signature in Signature.objects.filter(factor__assay__project=project)]
-
-        superprojects = paginate(superprojects, request.GET.get('superprojects'), 5)
-        projects = paginate(projects, request.GET.get('projects'), 5)
-        assays = paginate(assays, request.GET.get('assays'), 5)
-        signatures = paginate(signatures, request.GET.get('signatures'), 5)
-        type="db"
+    superprojects = paginate(superprojects, request.GET.get('superprojects'), 5)
+    projects = paginate(projects, request.GET.get('projects'), 5)
+    type="db"
 
     is_active = {'superproject': "", 'project': "", 'assay': "", 'signature': ""}
     # If a specific page was requested,  set the related tab to active
-    if request.GET.get('projects') or request.GET.get('assays') or request.GET.get('signatures'):
-
+    if request.GET.get('projects'):
         if request.GET.get('projects'):
             is_active['project'] = "active"
-        elif request.GET.get('assays'):
-            is_active['assay'] = "active"
         elif request.GET.get('superprojects'):
             is_active['superproject'] = "active"
-        elif request.GET.get('signatures'):
-            is_active['signature'] = "active"
     else:
     # Set the first non empty tab to active (Else, superproject)
         if superprojects.paginator.count:
             is_active['superproject'] = "active"
         elif projects.paginator.count:
             is_active['project'] = "active"
-        elif assays.paginator.count:
-            is_active['project'] = "active"
-        elif signatures.paginator.count:
-            is_active['signature'] = "active"
         else:
             is_active['superproject'] = "active"
 
@@ -359,12 +309,9 @@ def index(request):
         "OTHER": "Other",
     }
 
-
     context = {
         'superproject_list': superprojects,
         'project_list': projects,
-        'assay_list': assays,
-        'signature_list': signatures,
         "is_active": is_active,
         "dev_stage_dict": dev_stage_dict,
         "sex_type_dict": sex_type_dict,
