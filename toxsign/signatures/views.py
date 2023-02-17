@@ -27,24 +27,22 @@ class SignatureToolAutocomplete(autocomplete.Select2QuerySetView):
 
     def get_queryset(self):
         try:
-            if self.request.user.is_authenticated:
-                groups = [group.id for group in self.request.user.groups.all()]
-                q = Q_es("match", created_by__username=self.request.user.username)  | Q_es("match", status="PUBLIC") | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
-            else:
-                q = Q_es("match", status="PUBLIC")
-            allowed_projects =  ProjectDocument.search().sort('id').query(q).scan()
+            excluded_projects =  ProjectDocument.search().sort('id').query(Q_es(Q_es("match", status="PRIVATE") | Q_es("match", status="PENDING"))).scan()
             # Limit all query to theses projects
-            allowed_projects_id_list = [project.id for project in allowed_projects]
+            excluded_projects_id_list = [project.id for project in excluded_projects if not check_view_permissions(self.request.user, project)]
+
             docs = Q_es("match", down_gene_number=0) & Q_es("match", up_gene_number=0)
-            qs = SignatureDocument.search().sort('id').filter("terms", factor__assay__project__id=allowed_projects_id_list).exclude(docs)
+            qs = SignatureDocument.search().sort('id').exclude("terms", factor__assay__project__id=excluded_projects_id_list).exclude(docs)
             query = self.q
             if query:
                 query = "*" + query + "*"
-                qs = qs.query(Q_es("query_string", query=query))
-            return qs
+                query = query.replace("-", " ")
+                q1 = Q_es('bool', must=[Q_es("query_string", query=quer) for quer in query.split(" ")])
+                res = qs.filter(q1)
+
+            return res
         # Fall back to DB search if failure for any reason
         except Exception as e:
-            raise e
             qs = Signature.objects.all()
             if query:
                 qs = qs.filter(Q(tsx_id__istartswith=query))

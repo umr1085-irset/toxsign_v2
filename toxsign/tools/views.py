@@ -61,8 +61,9 @@ class IndexView(generic.ListView):
 
 def distance_analysis_tool(request):
 
-    accessible_projects = [project for project in Project.objects.all() if check_view_permissions(request.user, project)]
-    signatures = Signature.objects.filter(factor__assay__project__in=accessible_projects).exclude(up_gene_number=0, down_gene_number=0)
+    excluded_projects = Project.objects.exclude(status="PUBLIC")
+    excluded_projects_id_list = [project.id for project in excluded_projects if not check_view_permissions(request.user, project)]
+    signatures = Signature.objects.exclude(up_gene_number=0, down_gene_number=0).exclude(factor__assay__project__id__in=excluded_projects_id_list)
 
     selected_signature = None
     if request.GET.get('selected'):
@@ -197,8 +198,9 @@ def distance_analysis_table(request, job_id):
 
 def functional_analysis_tool(request):
 
-    accessible_projects = [project for project in Project.objects.all() if check_view_permissions(request.user, project)]
-    signatures = Signature.objects.filter(factor__assay__project__in=accessible_projects).exclude(up_gene_number=0, down_gene_number=0)
+    excluded_projects = Project.objects.exclude(status="PUBLIC")
+    excluded_projects_id_list = [project.id for project in excluded_projects if not check_view_permissions(request.user, project)]
+    signatures = Signature.objects.exclude(up_gene_number=0, down_gene_number=0).exclude(factor__assay__project__id__in=excluded_projects_id_list)
 
     selected_signature = None
     if request.GET.get('selected'):
@@ -412,8 +414,9 @@ def functional_analysis_partial_table(request, job_id, type):
 
 def prediction_tool(request):
 
-    accessible_projects = [project for project in Project.objects.all() if check_view_permissions(request.user, project)]
-    signatures = Signature.objects.filter(factor__assay__project__in=accessible_projects).exclude(up_gene_number=0, down_gene_number=0)
+    excluded_projects = Project.objects.exclude(status="PUBLIC")
+    excluded_projects_id_list = [project.id for project in excluded_projects if not check_view_permissions(request.user, project)]
+    signatures = Signature.objects.exclude(up_gene_number=0, down_gene_number=0).exclude(factor__assay__project__id__in=excluded_projects_id_list)
 
     selected_signature = None
     if request.GET.get('selected'):
@@ -450,8 +453,9 @@ def prediction_tool(request):
 
 def cluster_dist_tool(request):
 
-    accessible_projects = [project for project in Project.objects.all() if check_view_permissions(request.user, project)]
-    signatures = Signature.objects.filter(factor__assay__project__in=accessible_projects).exclude(up_gene_number=0, down_gene_number=0)
+    excluded_projects = Project.objects.exclude(status="PUBLIC")
+    excluded_projects_id_list = [project.id for project in excluded_projects if not check_view_permissions(request.user, project)]
+    signatures = Signature.objects.exclude(up_gene_number=0, down_gene_number=0).exclude(factor__assay__project__id__in=excluded_projects_id_list)
     selected_signature = None
     if request.GET.get('selected'):
         selected_signature = signatures.filter(tsx_id=request.GET.get('selected'))

@@ -71,7 +71,7 @@ class SignatureDocument(Document):
         # See Elasticsearch Indices API reference for available settings
         settings = {'number_of_shards': 1,
                     'number_of_replicas': 0,
-                    'max_result_window': 20000
+                    'max_result_window': 700000
                     }
 
     class Django:
