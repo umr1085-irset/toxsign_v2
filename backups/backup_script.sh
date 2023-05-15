@@ -21,4 +21,8 @@ rm "$DIR""/../toxsign/media/DB_backup"
 cd $LOCAL_BACKUP_DIR
 ls -1t  | tail -n +3 | xargs rm -f
 echo "Rsync.."
-rsync -av --delete --exclude=".*" $LOCAL_BACKUP_DIR $REMOTE_BACKUP_DIR
+#rsync -av --delete --exclude=".*" $LOCAL_BACKUP_DIR $REMOTE_BACKUP_DIR
+
+# mboudet 16/12/22 stop keeping a copy on the local machine (space issue)
+mv "$LOCAL_BACKUP_DIR""archive-$DATE"".tar.gz" $REMOTE_BACKUP_DIR
+ls -1t $REMOTE_BACKUP_DIR/*  | tail -n +3 | xargs rm -f
