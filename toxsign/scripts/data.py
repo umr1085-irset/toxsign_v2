@@ -133,6 +133,9 @@ def change_status(self, project_id=None):
     # Import here to avoid cyclical import
     from toxsign.projects.models import Project
     from toxsign.signatures.models import Signature
+    # M.B 15/02/23: Disable matrix computation
+    return
+
     temp_dir_path = "/app/toxsign/media/jobs/temp/" + self.request.id + "/"
 
     if os.path.exists(temp_dir_path):

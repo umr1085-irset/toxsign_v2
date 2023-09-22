@@ -9,13 +9,14 @@ services:
     build:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
-    image: toxsign_production_django
+    image: test_toxsign:latest
     depends_on:
       - postgres
       - redis
     volumes:
        - .:/app
        - /groups/irset/archives/web/TOXsIgN/tools/pred_tox/clustering_methods/ChemPSy:/chempsy:ro
+       - /groups/irset/archives/web/:/data:ro
     env_file:
       - ./.envs/.production/.django_prod
       - ./.envs/.production/.postgres_prod

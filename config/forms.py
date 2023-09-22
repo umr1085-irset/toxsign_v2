@@ -78,13 +78,13 @@ class SignatureSearchForm(forms.Form):
         choices = (('', 'Select a field'),)
 
         data = {
-            'disease': get_model_data(Disease, "signature_used_in"),
-            'organism': get_model_data(Species, "signature_used_in"),
-            'technology': get_model_data(Experiment, "signature_used_in", Signature, "technology", "technology_slug"),
-            'chemical': get_model_data(Chemical, "chemical_subfactor_used_in", ChemicalsubFactor, "chemical", "chemical_slug"),
-            'cell': get_model_data(Cell, "signature_used_in"),
-            'cell_line': get_model_data(CellLine, "signature_used_in", Signature, "cell_line", "cell_line_slug"),
-            'tissue': get_model_data(Tissue, "signature_used_in")
+        #    'disease': get_model_data(Disease, "signature_used_in"),
+        #    'organism': get_model_data(Species, "signature_used_in"),
+        #    'technology': get_model_data(Experiment, "signature_used_in", Signature, "technology", "technology_slug"),
+        #    'chemical': get_model_data(Chemical, "chemical_subfactor_used_in", ChemicalsubFactor, "chemical", "chemical_slug"),
+        #    'cell': get_model_data(Cell, "signature_used_in"),
+        #    'cell_line': get_model_data(CellLine, "signature_used_in", Signature, "cell_line", "cell_line_slug"),
+        #    'tissue': get_model_data(Tissue, "signature_used_in")
         }
 
         for field in self.entity_fields:

@@ -120,40 +120,46 @@ def import_factor(dict,user,key):
         f.assay = assay
         f.save()
 
-        key = "subfactor"
-        dict_to_insert =  {}
-        dict_to_insert['created_by'] = user
+        try:
 
-        chemical_slug = dict[key]['chemical_slug']
+            key = "subfactor"
+            dict_to_insert =  {}
+            dict_to_insert['created_by'] = user
 
-        if dict[key]['chebi_id'] != '':
-            try:
-                chemical = Chemical.objects.get(onto_id="CHEBI:" + dict[key]['chebi_id'])
-                dict_to_insert['chemical'] = chemical
+            chemical_slug = dict[key]['chemical_slug']
 
-            except ObjectDoesNotExist:
-                if not chemical_slug:
-                    chemical_slug = dict[key]['chemical']
+            if dict[key]['chebi_id'] != '':
+                try:
+                    chemical = Chemical.objects.get(onto_id="CHEBI:" + dict[key]['chebi_id'])
+                    dict_to_insert['chemical'] = chemical
 
-        dict_to_insert['route'] = dict[key]['route']
-        dict_to_insert['vehicule'] = dict[key]['vehicule']
-        dict_to_insert['chemical_slug'] = chemical_slug
+                except ObjectDoesNotExist:
+                    if not chemical_slug:
+                        chemical_slug = dict[key]['chemical']
 
-        if " " in dict[key]['dose_value']:
-            dose_value = float(dict[key]['dose_value'].split(" ")[0])
-            dose_unit = "nM"
-        else:
-            dose_value = float(dict[key]['dose_value'])
-            dose_unit = "µM"
+            dict_to_insert['route'] = dict[key]['route']
+            dict_to_insert['vehicule'] = dict[key]['vehicule']
+            dict_to_insert['chemical_slug'] = chemical_slug
 
-        dict_to_insert['dose_value'] = dose_value
-        dict_to_insert['dose_unit'] = dose_unit
+            if " " in dict[key]['dose_value']:
+                dose_value = float(dict[key]['dose_value'].split(" ")[0])
+                dose_unit = "nM"
+            else:
+                dose_value = float(dict[key]['dose_value'])
+                dose_unit = "µM"
 
-        dict_to_insert['exposure_time'] = float(dict[key]['exposure_time'])
-        dict_to_insert['exposure_frequencie'] = dict[key]['exposure_frequencie']
-        dict_to_insert['factor'] = f
-        sf=ChemicalsubFactor.objects.create(**dict_to_insert)
-        sf.save()
+            dict_to_insert['dose_value'] = dose_value
+            dict_to_insert['dose_unit'] = dose_unit
+
+            dict_to_insert['exposure_time'] = float(dict[key]['exposure_time'])
+            dict_to_insert['exposure_frequencie'] = dict[key]['exposure_frequencie']
+            dict_to_insert['factor'] = f
+            sf=ChemicalsubFactor.objects.create(**dict_to_insert)
+            sf.save()
+        except Exception as e:
+            f.delete()
+            print("Factor deleted")
+            raise e
     else :
         print("Factor exists")
     return dict            
@@ -221,12 +227,18 @@ def import_signature(dict,user,key):
         #dict_to_insert['interrogated_gene_file_path']= File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"ALL",dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_all.txt'))))
         #dict_to_insert['additional_file_path']= File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"ADDITIONAL",dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_all.txt'))))
 
-        s.up_gene_file_path.save(dict[key]['up_gene_file_path'], File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"UP",dict[key]['up_gene_file_path']))), save=False)
-        s.down_gene_file_path.save(dict[key]['down_gene_file_path'], File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"DOWN",dict[key]['down_gene_file_path']))), save=False)
-        s.interrogated_gene_file_path.save(dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_all.txt'), File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"ALL",dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_all.txt')))), save=False)
+        try:
+            s.up_gene_file_path.save(dict[key]['up_gene_file_path'], File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"UP",dict[key]['up_gene_file_path']))), save=False)
+            s.down_gene_file_path.save(dict[key]['down_gene_file_path'], File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"DOWN",dict[key]['down_gene_file_path']))), save=False)
+            s.interrogated_gene_file_path.save(dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_all.txt'), File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"ALL",dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_all.txt')))), save=False)
 
-        if os.path.exists(os.path.join(settings.ROOT_DIR,signatures_file_dir,"ADDITIONAL",dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_zscore.txt'))):
-            s.additional_file_path.save(dict[key]['interrogated_gene_file_path'], File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"ADDITIONAL",dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_zscore.txt')))), save=False)
+            if os.path.exists(os.path.join(settings.ROOT_DIR,signatures_file_dir,"ADDITIONAL",dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_zscore.txt'))):
+                s.additional_file_path.save(dict[key]['interrogated_gene_file_path'], File(open(os.path.join(settings.ROOT_DIR,signatures_file_dir,"ADDITIONAL",dict[key]['interrogated_gene_file_path'].replace('_signature.txt','_zscore.txt')))), save=False)
+
+        except Exception as e:
+            s.delete()
+            print("Signature deleted")
+            raise e
 
         s.save(force=True)
     else :
@@ -234,7 +246,7 @@ def import_signature(dict,user,key):
 
 def publicize_project(project_dict):
     project = Project.objects.get(name=project_dict['name'])
-    project.status = "PRIVATE"
+    project.status = "PUBLIC"
     project.save(force=True)
 
 def import_data_from_list(signaturefile):
@@ -270,9 +282,9 @@ def import_data_from_list(signaturefile):
     # We should actually publicize projects (and run change_status) only once all signatures are integrated 
 
     #for sign_obj in json_file :
-        #publicize_project(sign_obj['project'])
+    #    publicize_project(sign_obj['project'])
 
-    #change_status.delay()
+    change_status.delay()
 
 
 def launch_import(signature_data_folder) :

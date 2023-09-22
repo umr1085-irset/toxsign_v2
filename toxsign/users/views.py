@@ -13,7 +13,8 @@ from toxsign.projects.models import Project
 from toxsign.projects.views import get_access_type, check_view_permissions
 from toxsign.users.models import Notification
 from config.views import paginate
-
+from elasticsearch_dsl import Q as Q_es
+from toxsign.projects.documents import ProjectDocument
 
 User = get_user_model()
 
@@ -30,16 +31,16 @@ class UserDetailView(LoginRequiredMixin, DetailView):
         superprojects = Superproject.objects.filter(created_by=self.request.user)
 
         try:
-
-            if request.user.is_superuser:
+            if self.request.user.is_superuser:
                 q = Q_es()
             else:
-                groups = [group.id for group in request.user.groups.all()]
-                q = Q_es("match", created_by__username=request.user.username)  | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
+                groups = [group.id for group in self.request.user.groups.all()]
+                q = Q_es("match", created_by__username=self.request.user.username)  | Q_es('nested', path="read_groups", query=Q_es("terms", read_groups__id=groups))
 
-            projects =  paginate(ProjectDocument.search().query(q), self.request.GET.get('projects'), 5, True)
+            projects =  paginate(ProjectDocument.search().sort('id').query(q), self.request.GET.get('projects'), 5, True)
 
-        except:
+        except Exception as e:
+            raise e
             projects = paginate([project for project in Project.objects.all() if check_view_permissions(self.request.user, project, True)], self.request.GET.get('projects'), 5)
 
         context['groups'] = paginate(groups, self.request.GET.get('groups'), 5)
@@ -50,7 +51,7 @@ class UserDetailView(LoginRequiredMixin, DetailView):
         for group in context['groups']:
             group.members_number = group.user_set.count()
         for project in context['projects']:
-            project.permissions = get_access_type(self.request.user, project)
+            project.permissions = get_access_type(self.request.user, Project.objects.get(tsx_id=project.tsx_id))
 
         context['in_use'] = {
             'user': "",

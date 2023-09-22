@@ -81,7 +81,7 @@ class signature_compute_form(forms.Form):
         self.fields["signature"] = SignatureChoiceField(
             queryset=self.signatures,
             label="Signature",
-            widget=autocomplete.ModelSelect2(url='/signatures/signature-autocomplete', attrs={'data-minimum-input-length': 3})
+            widget=autocomplete.ModelSelect2(url='/signatures/signature-autocomplete', attrs={'data-minimum-input-length': 3, 'data-ajax--delay': 500})
         )
 
         if self.selected_signature:
@@ -110,7 +110,7 @@ class signature_cluster_compute_form(forms.Form):
         self.fields["signature"] = SignatureChoiceField(
             queryset=self.signatures,
             label="Signature",
-            widget=autocomplete.ModelSelect2(url='/signatures/signature-autocomplete', attrs={'data-minimum-input-length': 3})
+            widget=autocomplete.ModelSelect2(url='/signatures/signature-autocomplete', attrs={'data-minimum-input-length': 3, 'data-ajax--delay': 500})
         )
 
         if self.selected_signature:
@@ -141,7 +141,7 @@ class prediction_compute_form(forms.Form):
         self.fields["signature"] = SignatureChoiceField(
             queryset=self.signatures,
             label="Signature",
-            widget=autocomplete.ModelSelect2(url='/signatures/signature-autocomplete', attrs={'data-minimum-input-length': 3})
+            widget=autocomplete.ModelSelect2(url='/signatures/signature-autocomplete', attrs={'data-minimum-input-length': 3, 'data-ajax--delay': 500})
         )
 
         if self.selected_signature:
