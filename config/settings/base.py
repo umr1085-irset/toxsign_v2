@@ -3,8 +3,8 @@ Base settings to build other settings files upon.
 """
 
 import environ
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
+#import sentry_sdk
+#from sentry_sdk.integrations.django import DjangoIntegration
 
 
 # Sentry Issues streaming

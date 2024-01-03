@@ -29,3 +29,4 @@ pronto==0.12.2
 pymongo
 
 importlib-metadata==4.13.0
+tzdata

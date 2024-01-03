@@ -1,4 +1,4 @@
-FROM python:3.7.4-stretch
+FROM python:3.9.16-bullseye
 
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.7.10-Linux-x86_64.sh -O ~/miniconda.sh && \
     /bin/bash ~/miniconda.sh -b -p /opt/conda && \

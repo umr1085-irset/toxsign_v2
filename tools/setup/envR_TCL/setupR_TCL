@@ -5,7 +5,7 @@
 conda info --envs | grep 'condaR_TCL' &> /dev/null
 
 if [[ $? -eq 1 ]]; then
-    conda create -y -n condaR_TCL R=4.2 tk pip
+    conda create -c conda-forge -y -n condaR_TCL R=4.2 tk pip cmake
     conda activate condaR_TCL
     pip install h5py
     pip install tensorflow

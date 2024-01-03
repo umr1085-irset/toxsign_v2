@@ -9,18 +9,20 @@ services:
     build:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
-    image: test_toxsign:latest
+    image: toxsign:latest
     depends_on:
       - postgres
       - redis
     volumes:
-       - .:/app
-       - /groups/irset/archives/web/TOXsIgN/tools/pred_tox/clustering_methods/ChemPSy:/chempsy:ro
-       - /groups/irset/archives/web/:/data:ro
+       - /data/toxsign/conda_envs/condaR_TCL:/app/tools/conda_envs/condaR_TCL
+       - /data/toxsign/media:/app/toxsign/media
+       - /data/toxsign/ChemPSy:/chempsy:ro
     env_file:
       - ./.envs/.production/.django_prod
       - ./.envs/.production/.postgres_prod
     command: /start
+    networks:
+      - toxsign
 
   postgres:
     build:
@@ -32,11 +34,15 @@ services:
       - ./backups:/backups
     env_file:
       - ./.envs/.production/.postgres_prod
+    networks:
+      - toxsign
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.3.0
     environment:
         - discovery.type=single-node
+    networks:
+      - toxsign
 
   nginx:
     build:
@@ -45,15 +51,24 @@ services:
     image: toxsign_production_nginx
     volumes:
       - ./staticfiles:/app/staticfiles
-      - ./toxsign/media:/app/toxsign/media
+      - /data/toxsign/media:/app/toxsign/media
     depends_on:
       - django
       - flower
-    ports:
-      - "6543:80"
+    networks:
+      - toxsign
+      - web
+    deploy:
+      labels:
+        - "traefik.http.routers.toxsign-nginx.rule=(Host(`toxsign.scilicium.com`)"
+        - "traefik.http.routers.toxsign-nginx.tls=true"
+        - "traefik.http.routers.toxsign-nginx.entryPoints=websecure"
+        - "traefik.http.services.toxsign-nginx.loadbalancer.server.port=80"
 
   redis:
     image: redis:3.2
+    networks:
+      - toxsign
 
   celeryworker:
     <<: *django
@@ -72,3 +87,9 @@ services:
     image: toxsign_production_flower
     command: /start-flower
     ports: []
+
+networks:
+  web:
+    external: true
+  toxsign:
+    internal: true

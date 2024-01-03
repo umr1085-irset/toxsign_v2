@@ -125,22 +125,6 @@ ITER_            <- commandArgs(TRUE)[9]
 #------------------------------------------#
 
 #------------------------------------------#
-#Test
-#------------------------------------------#
-Input.File       <- "C:/Users/ikugathas/Documents/PROJECTS/TOXsIgN/mat_chempsy_final_10793.tsv"
-Output.Dir       <- "C:/Users/ikugathas/Documents/PROJECTS/TOXsIgN/"
-#Input.File       <- "/home/genouest/irset/ikugathas/Projects/TOXsIgN/mat_chempsy_final.tsv"
-#Output.Dir       <- "/home/genouest/irset/ikugathas/Projects/TOXsIgN/"
-Target           <- "tissue"
-Normalize        <- "no"
-Modelize         <- "no"
-EPOCH_           <- 100
-BATCH_           <- 50
-OPTIMIZER_       <- "adam"
-ITER_            <- 1
-#------------------------------------------#
-
-#------------------------------------------#
 # Map to predict to the rigth column
 #------------------------------------------#
 if(Target == "tissue")              {col_value = 2}

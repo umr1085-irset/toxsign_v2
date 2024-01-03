@@ -104,7 +104,7 @@ test <- D2[3023, 16:max_dim]
 data <- as.matrix(test)
 
 prob <- model %>%
-  predict_proba(data)
+  predict(data)
 
 
 Group.Matrix           <- as.matrix(read.table(Association.File,sep="\t",header=F,quote="\"",check.names=FALSE))
