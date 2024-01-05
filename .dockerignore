@@ -4,4 +4,3 @@
 !.pylintrc
 ./toxsign/media/*
 ./loading_data/*
-./tools/*

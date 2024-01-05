@@ -3,6 +3,7 @@ version: '3'
 volumes:
   production_postgres_data: {}
   production_postgres_data_backups: {}
+  production_es_data: {}
 
 services:
   django: &django
@@ -17,6 +18,7 @@ services:
        - /data/toxsign/conda_envs/condaR_TCL:/app/tools/conda_envs/condaR_TCL
        - /data/toxsign/media:/app/toxsign/media
        - /data/toxsign/ChemPSy:/chempsy:ro
+       - ./staticfiles:/app/staticfiles
     env_file:
       - ./.envs/.production/.django_prod
       - ./.envs/.production/.postgres_prod
@@ -43,6 +45,8 @@ services:
         - discovery.type=single-node
     networks:
       - toxsign
+    volumes:
+      - production_es_data:/usr/share/elasticsearch/data
 
   nginx:
     build:
@@ -58,12 +62,11 @@ services:
     networks:
       - toxsign
       - web
-    deploy:
-      labels:
-        - "traefik.http.routers.toxsign-nginx.rule=(Host(`toxsign.scilicium.com`)"
-        - "traefik.http.routers.toxsign-nginx.tls=true"
-        - "traefik.http.routers.toxsign-nginx.entryPoints=websecure"
-        - "traefik.http.services.toxsign-nginx.loadbalancer.server.port=80"
+    labels:
+      - "traefik.http.routers.nginx.rule=(Host(`toxsign.com`))"
+      - "traefik.http.routers.nginx.tls=true"
+      - "traefik.http.routers.nginx.tls.certresolver=default"
+      - "traefik.enable=true"
 
   redis:
     image: redis:3.2
